@@ -1,0 +1,9 @@
+.env
+.env.*
+!.env.example
+.codex/
+.aws/
+node_modules/
+test-results/
+*.log
+.data/

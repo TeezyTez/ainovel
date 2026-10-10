@@ -1,0 +1,2 @@
+export function parseRoute(hash){const parts=hash.replace(/^#\/?/,'').split('/');const [path='',id='']=parts;try{return parts.length>2?{path:'invalid',id:''}:{path,id:decodeURIComponent(id)};}catch{return {path:'invalid',id:''};}}
+export function shouldSend(event,sendEnter){return !event.isComposing&&event.keyCode!==229&&event.key==='Enter'&&!!(event.ctrlKey||event.metaKey||(sendEnter&&!event.shiftKey));}
