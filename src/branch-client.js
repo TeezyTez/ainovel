@@ -14,7 +14,7 @@ export function mergeConfirmedBranch(local,confirmed){
  if(local.id!==confirmed.id||local.worldKey!==confirmed.worldKey)throw new Error('恢复结果不属于当前分支。');
  const before=local.turns.at(-1)?.state.version??local.initialState.version,after=confirmed.turns.at(-1)?.state.version??confirmed.initialState.version;
  if(after<before)throw new Error('服务端记录较旧，已保留当前存档。');
- const personal={draft:local.draft,readingPosition:local.readingPosition,...(local.personal?{personal:structuredClone(local.personal)}:{}),name:local.name,...(local.archived!==undefined?{archived:local.archived}:{})};
+ const personal={...(local.dynamicDraftHistory?{dynamicDraftHistory:structuredClone(local.dynamicDraftHistory)}:{}),...(local.dynamicDraft?{dynamicDraft:structuredClone(local.dynamicDraft)}:{}),draft:local.draft,readingPosition:local.readingPosition,...(local.personal?{personal:structuredClone(local.personal)}:{}),name:local.name,...(local.archived!==undefined?{archived:local.archived}:{})};
  return {...structuredClone(confirmed),...personal};
 }
 export function mergeConfirmedBranches(local,confirmed){

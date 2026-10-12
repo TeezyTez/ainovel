@@ -10,6 +10,11 @@ const action={id:'walk',label:'穿过门廊',mode:'attempt',effects:[{entityId:'
 const surfaces=[{id:'s',kind:'status',title:'此刻状态',entityIds:['energy']},{id:'m',kind:'map',title:'可见路线',entityIds:['gate','hall'],links:[{from:'gate',to:'hall',label:'木门后'}],actions:[action]},{id:'i',kind:'inventory',entityIds:['coins']},{id:'c',kind:'clues',entityIds:['note']},{id:'o',kind:'objectives',entityIds:['goal']},{id:'x',kind:'interaction',entityIds:['host'],actions:[{...action,id:'talk',label:'问店主',effects:[],destination:null}]}].map(s=>({...s,version:2}));
 const turn={id:'turn2',prose:'店主收好了纸条。',state:{version:2,game:{schemaVersion:1,entities,surfaces}}};
 
+test('an interrupted journey displays its committed stop and actual payment, never the intended destination as completed',()=>{
+ const interrupted={...turn,gameAction:{mode:'journey',journey:{id:'r'},input:'前往大厅',effects:[]},state:{version:2,game:{entities,surfaces:[],journeys:{transit:{routeId:'r',locationId:'gate',completed:false,elapsedMinutes:8,paidCosts:[{entityId:'coins',amount:1}],sourceVersion:2}}}}};
+ const html=gameTurnView(interrupted,{currentVersion:2});assert.match(html,/途中停下/);assert.match(html,/门廊/);assert.match(html,/8 分钟/);assert.match(html,/已付 1 枚/);assert.doesNotMatch(html,/已完成|已抵达.*大厅/);
+});
+
 test('scene cards expose six semantic layouts and concrete attempt previews',()=>{
   const html=gameTurnView(turn,{currentVersion:2,branchId:'branch-a'});
   for(const kind of ['status','map','inventory','clues','objectives','interaction'])assert.match(html,new RegExp(`game-surface game-surface-${kind}`));
@@ -26,7 +31,7 @@ test('historical, busy, ended and independently stale surfaces cannot execute ac
     const html=gameTurnView(turn,context),buttons=html.match(/<button[^>]*data-action="game-act"[^>]*>/g);
     assert.ok(buttons.length);for(const button of buttons)assert.match(button,/ disabled /);
   }
-  assert.match(gameTurnView(turn,{currentVersion:3}),/<details class="game-history"><summary>/);
+  assert.match(gameTurnView(turn,{currentVersion:3}),/<details class="game-history"><summary[^>]*aria-label="当时资料，只读"/);
   const stale={...turn,state:{...turn.state,game:{...turn.state.game,surfaces:[{...surfaces[1],version:1}]}}};
   assert.match(gameTurnView(stale,{currentVersion:2}),/data-action="game-act"[^>]+disabled/);
 });
@@ -43,20 +48,20 @@ test('null and absent statistics never become fabricated zero or progress bars',
 test('map diagrams and accessible routes show only actual known edges',()=>{
   const map={...surfaces[1],entityIds:['gate','hall','note'],links:[...surfaces[1].links,{from:'hall',to:'secret',label:'invisible'}]};
   const html=gameTurnView({id:'map',state:{version:2,game:{entities,surfaces:[map]}}},{currentVersion:2});
-  assert.equal((html.match(/<line /g)||[]).length,1);
+  assert.equal((html.match(/class="atlas-road-line"/g)||[]).length,0);assert.match(html,/木门后/);
   assert.match(html,/aria-label="正文已知的连接"/);assert.match(html,/木门后/);
   assert.doesNotMatch(html,/secret|invisible/);
-  assert.match(html,/不表示距离或实际方位/);
+  assert.match(html,/不代表距离、方位或通行许可/);
 });
 
 test('requested maps expose named interactive nodes and remain open in reading density',()=>{
   const t=structuredClone(turn);t.input='地图';t.state.location='大厅';t.state.game.surfaces=[{...surfaces[1],actions:[]}];
   const html=gameTurnView(t,{currentVersion:2,density:'reading'});
   assert.doesNotMatch(html,/<details class="game-history"/);
-  assert.match(html,/class="game-map-node[^>]*data-entity="hall"/);
+  assert.match(html,/class="atlas-place[^>]*data-entity="hall"/);
   assert.match(html,/aria-current="location"/);
   assert.match(html,/data-action="game-map-expand"/);
-  assert.match(html,/game-map-route-label/);
+  assert.match(html,/地理信息待补充/);
 });
 
 test('proactive read-only components open inline and timeline distinguishes planned from actual time',()=>{
@@ -76,10 +81,10 @@ test('model can request comparison or people layouts while historic cards stay c
 test('map recall unifies known maps and extra locations without fabricating their connections',()=>{
  const state=structuredClone(turn.state);state.game.entities.push(entity('town','place','城镇'));
  const html=gameRecallView(state,{kind:'map'});
- assert.equal((html.match(/class="game-map-viewport"/g)||[]).length,1);
- assert.equal((html.match(/<line /g)||[]).length,1);
+ assert.equal((html.match(/class="game-map-viewport atlas-viewport"/g)||[]).length,1);
+ assert.equal((html.match(/class="atlas-road-line"/g)||[]).length,0);assert.match(html,/木门后/);
  assert.match(html,/城镇/);
- assert.doesNotMatch(html,/class="game-map-node[^>]*data-entity="town"/);
+ assert.doesNotMatch(html,/class="atlas-place[^>]*data-entity="town"/);
 });
 
 test('long recorded location uses only a fresh explicit current-place marker',()=>{
@@ -104,7 +109,7 @@ test('recall stays inline and read-only, includes uncategorized retained entitie
   const before=JSON.stringify(game),html=gameRecallView({version:2,game},{node:'turn2'});
   assert.match(html,/<aside class="game-recall"/);assert.match(html,/银币/);assert.match(html,/折起的纸条/);
   assert.doesNotMatch(html,/data-action="game-act"|dialog/);
-  assert.equal((html.match(/<line /g)||[]).length,1);assert.equal(JSON.stringify(game),before);
+  assert.equal((html.match(/class="atlas-road-line"/g)||[]).length,0);assert.match(html,/木门后/);assert.equal(JSON.stringify(game),before);
   const filtered=gameRecallView(turn.state,{kind:'inventory'});assert.match(filtered,/银币/);assert.doesNotMatch(filtered,/精力|木门后/);
   assert.match(gameRecallView({}),/还没有明确记录可用玩法/);
 });
@@ -130,8 +135,8 @@ test('action availability uses the engine resource, capacity and directed route 
 
 test('map cost entities remain resource context and never become location nodes',()=>{
   const html=gameTurnView(executableTurn(),{currentVersion:2,branchId:'b1'});
-  const diagram=html.match(/<svg[\s\S]*?<\/svg>/)[0],places=html.match(/<ol class="game-map-places">[\s\S]*?<\/ol>/)[0];
-  assert.equal((diagram.match(/<circle /g)||[]).length,2);
+  const diagram=html.match(/<svg[\s\S]*?<\/svg>/)[0],places=html.match(/<details class="atlas-records">[\s\S]*?<\/details>/)[0];
+  assert.doesNotMatch(diagram,/精力|银币/);
   assert.match(places,/门廊/);assert.match(places,/大厅/);assert.doesNotMatch(places,/精力|银币/);
   const resources=html.slice(html.indexOf('class="game-map-resources"'),html.indexOf('class="game-actions"'));
   assert.match(resources,/精力/);assert.match(resources,/银币/);assert.match(resources,/4 \/ 8 点/);
@@ -142,10 +147,10 @@ test('map and recall derive current location from the selected state without mut
   const blocked=entity('stairs','place','楼梯',{status:'暂时封闭'});t.state.game.entities.push(blocked);t.state.game.surfaces[0].entityIds.push(blocked.id);
   const before=JSON.stringify(t);
   for(const html of [gameTurnView(t,{currentVersion:2,branchId:'b1'}),gameRecallView(t.state)]){
-    const places=html.match(/<ol class="game-map-places">[\s\S]*?<\/ol>/)[0];
+    const places=html.match(/<details class="atlas-records">[\s\S]*?<\/details>/)[0];
     assert.match(places,/data-entity="gate"[\s\S]*?已知地点/);assert.doesNotMatch(places,/当前位置/);
     assert.match(places,/data-entity="hall"[\s\S]*?当前所在/);assert.match(places,/暂时封闭/);
-    assert.equal((html.match(/class="game-map-current"/g)||[]).length,1);
+    assert.equal((html.match(/aria-current="location"/g)||[]).length,1);
   }
   assert.equal(JSON.stringify(t),before);
   const past=structuredClone(t);past.state.location='门廊';

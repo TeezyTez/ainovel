@@ -14,6 +14,11 @@ test('quoted dialogue and story actions are never hijacked by interface queries'
   for(const input of ['“查看地图”','他说：打开地图','我说「看看背包」','去地图上的房间','查看地图后去庭院','我打开地图寻找逃生路线','打开地图上的箱子','不查看地图','查看\n地图','地图在哪里？','看看背包里有没有钥匙',null,{},42,''])assert.equal(gameQuery(input),null,String(input));
 });
 
+test('conversational whereabouts and carried-item queries remain read-only and match the entire request',()=>{
+  for(const [input,kind] of [['我在哪？','around'],['我现在在哪里','around'],['看看周围','around'],['身上有什么？','inventory'],['我身上有什么','inventory'],['现在几点了？','time'],['查看手记','journal'],['查看人物','interaction']])assert.equal(gameQuery(input),kind,input);
+  for(const input of ['我问他：我在哪？','我看看周围，然后出门','我身上有什么就给他什么','现在几点了，我要去车站','“身上有什么？”'])assert.equal(gameQuery(input),null,input);
+});
+
 test('legacy recall only projects known public objects and never infers quantities',()=>{
   const kinds={person:'actor',item:'item',location:'place',resource:'meter',clue:'clue',agreement:'objective',fact:'clue',event:'objective'};
   const situation={objects:Object.entries(kinds).map(([kind],index)=>({id:`known:${index}`,kind,name:'同名',summary:'现有3件',status:'已知',fields:[{key:'amount',value:'3'},{key:'unit',value:'枚'}],quote:'公开原句',sourceVersion:2,secret:'HIDDEN'}))};

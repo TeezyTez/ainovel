@@ -57,7 +57,7 @@ focus 最多500字，线程 question/stakes/evidence 和 beat.summary 最多2000
 function invalidPlan(diagnostic={stage:'plan',rule:'unknown'}){const error=new ApiError(502,'INVALID_NARRATIVE_PLAN','模型构思缺少有效依据或结构，原输入和故事已保留，可以重试。');error.diagnostic=diagnostic;throw error;}
 function invalidResult(diagnostic={stage:'write',rule:'unknown'}){const error=new ApiError(502,'INVALID_MODEL_RESULT','模型未返回可提交的完整结果，原输入和故事已保留，可以重试。');error.diagnostic=diagnostic;throw error;}
 // Only static schema paths/rules and local validator messages; no input/prose/value.
-function schemaFailure(value,schema,path='$'){
+export function schemaFailure(value,schema,path='$'){
   if(conforms(value,schema))return null;
   if(schema.anyOf)return {path,rule:'anyOf',alternatives:schema.anyOf.map(s=>schemaFailure(value,s,path)).filter(Boolean)};
   if(Array.isArray(schema.type))return {path,rule:'type'};
@@ -83,6 +83,8 @@ function gameWitnessDiagnostic(proposal){
 }
 function frozenGameMatches(before,after,state){
   if(!after||before.entities.length!==after.entities.length||before.surfaces.length!==after.surfaces.length)return false;
+  if(canonical(before.spatial??null)!==canonical(after.spatial??null))return false;
+  if(canonical(before.journeys??null)!==canonical(after.journeys??null))return false;
   const stripEntity=({name,quote,...rest})=>rest,stripSurface=({quote,...rest})=>rest;
   return before.entities.every((e,i)=>{const known=state.game?.entities.find(old=>old.id===e.id)??state.experience?.objects.find(old=>old.id===e.id);return canonical(stripEntity(e))===canonical(stripEntity(after.entities[i]))&&(known?known.name===after.entities[i].name:e.name.includes(after.entities[i].name)||after.entities[i].name.includes(e.name));})
     &&before.surfaces.every((s,i)=>canonical(stripSurface(s))===canonical(stripSurface(after.surfaces[i])));
@@ -99,11 +101,11 @@ function synchronizeNewDisplayNames(proposal,game,state){
 function presentationFallback(proposal){
   if(!proposal?.game||!Array.isArray(proposal.game.surfaces))return proposal;
   const supported=new Set(GAME_SURFACE_KINDS);
-  return {...proposal,game:{...proposal.game,surfaces:proposal.game.surfaces.map(surface=>surface&&typeof surface.kind==='string'&&!supported.has(surface.kind)?{...surface,kind:'interaction',description:'以文字展示：'+String(surface.description||surface.title||'已知资料'),actions:[],links:[]}:surface)}};
+  return {...proposal,game:{...proposal.game,spatial:proposal.game.spatial??null,journeys:proposal.game.journeys??null,surfaces:proposal.game.surfaces.map(surface=>surface&&typeof surface.kind==='string'&&!supported.has(surface.kind)?{...surface,kind:'interaction',description:'以文字展示：'+String(surface.description||surface.title||'已知资料'),actions:[],links:[]}:surface)}};
 }
 
 // Local validation also protects the API path, which only requests JSON mode.
-function conforms(value,schema) {
+export function conforms(value,schema) {
   if(Array.isArray(schema.type))return schema.type.some(type=>conforms(value,{...schema,type}));
   if(schema.anyOf)return schema.anyOf.some(part=>conforms(value,part));
   if(schema.enum&&!schema.enum.includes(value))return false;
@@ -133,11 +135,19 @@ function sourcesFor(body) {
   return sources;
 }
 
+// Provider schemas specify shape; the full local schema still enforces every
+// text bound and identifier pattern. Avoid repeating these strings dozens of
+// times in the model context, especially now that geography has stable IDs.
+export function wireSchema(schema){
+ if(Array.isArray(schema))return schema.map(wireSchema);
+ if(!schema||typeof schema!=='object')return schema;
+ return Object.fromEntries(Object.entries(schema).filter(([key])=>!['pattern','minLength','maxLength'].includes(key)).map(([key,value])=>[key,wireSchema(value)]));
+}
 function pack(body,extra,system,schema,config) {
   // Character estimate, deliberately including schemas and all stage-specific overhead.
   // World/state/player/input and the committed narrative are never truncated.
   const packed={...body,memory:[...body.memory],recent:[...body.recent],...extra};
-  const fixed=system.length+JSON.stringify(schema).length+config.outputBudget+256;
+  const fixed=system.length+JSON.stringify(wireSchema(schema)).length+config.outputBudget+256;
   while(true) {
     if(extra.stage==='plan')packed.sourceIds=[...sourcesFor(packed).keys()];
     const json=JSON.stringify(packed);
@@ -169,6 +179,7 @@ function selectScene(plan,body,methods,needs) {
 }
 
 export async function generateNarrative(body,config,signal,{requestJSON=requestModelJSON}={}) {
+  if(config.narrativeEngine==='story')return (await import('./server-story.mjs')).generateStory(body,config,signal,{requestJSON});
   if(!config.available)throw new ApiError(503,'MODEL_UNAVAILABLE','尚未配置真实模型。请配置服务端 .env；本次没有切换到演示或修改故事。');
   const controller=new AbortController(),deadline=Date.now()+config.timeoutMs;
   const cancelled=()=>new ApiError(499,'CANCELLED','已取消生成，故事没有改变。');
@@ -182,7 +193,7 @@ export async function generateNarrative(body,config,signal,{requestJSON=requestM
     let onAbort;
     const aborted=new Promise((_,reject)=>{onAbort=()=>reject(controller.signal.reason);controller.signal.addEventListener('abort',onAbort,{once:true});});
     try {
-      const response=await Promise.race([requestJSON({...config,timeoutMs:Math.max(1,deadline-Date.now())},system,content,controller.signal,{schema}),aborted]);
+      const response=await Promise.race([requestJSON({...config,timeoutMs:Math.max(1,deadline-Date.now())},system,content,controller.signal,{schema:wireSchema(schema)}),aborted]);
       check();return response;
     } catch(error){
       if(error instanceof ApiError&&!error.diagnostic)error.diagnostic={stage:stage+'-transport',rule:error.code};
@@ -206,7 +217,9 @@ export async function generateNarrative(body,config,signal,{requestJSON=requestM
     const {sources,...scene}=selectScene(plan,planned.packed,methods,needs);
     // Carry verified quotes, not positional source IDs that trimming might reassign.
     const selectedScene={...scene,evidence:sources.map(source=>source.quote)};
-    const writing=pack(input,{stage:'write',methods,needs,direction,selectedScene},WRITER_SYSTEM,narrativeProposalSchema,config);
+    // Selection is finished: unrelated method cards are no longer writing context.
+    const selectedMethods=methods.filter(method=>method.id===selectedScene.methodId);
+    const writing=pack(input,{stage:'write',methods:selectedMethods,needs,direction,selectedScene},WRITER_SYSTEM,narrativeProposalSchema,config);
     let proposal=presentationFallback(await request(WRITER_SYSTEM,writing.json,narrativeProposalSchema,'write'));
     const anchors=missingGameNameAnchors(proposal,input.state);
     const defects=[...draftDefects(proposal?.prose),...(anchors.length?['game-name-anchor']:[])];
@@ -214,7 +227,7 @@ export async function generateNarrative(body,config,signal,{requestJSON=requestM
       // At most one full-draft revision, inside the same cancellation/deadline.
       // No prose is spliced or published before the fresh proposal is validated.
       const system=WRITER_SYSTEM+'\n'+CRAFT_REVISION_RULES;
-      const revision=pack(input,{stage:'write-revision',methods,needs,direction,selectedScene,revision:{reasons:defects,anchors,draft:proposal}},system,narrativeProposalSchema,config);
+      const revision=pack(input,{stage:'write-revision',methods:selectedMethods,needs,direction,selectedScene,revision:{reasons:defects,anchors,draft:proposal}},system,narrativeProposalSchema,config);
       proposal=presentationFallback(await request(system,revision.json,narrativeProposalSchema,'write-revision'));
       if(draftDefects(proposal?.prose).length)invalidResult({stage:'write-craft',rule:'agencyBoilerplateAfterRevision'});
     }
@@ -238,8 +251,8 @@ export async function generateNarrative(body,config,signal,{requestJSON=requestM
       if(!cleaned.game||!gameRepairReasons.has(error.message))invalidResult(originalDiagnostic);
       // One bounded repair inside the original deadline. All world changes stay frozen.
       const repairContent=JSON.stringify({fixedProse:cleaned.prose,stateGame:input.state.game??null,knownExperience:input.state.experience?.objects.map(o=>({id:o.id,name:o.name}))??[],proposedGame:cleaned.game});
-      if(GAME_REPAIR_SYSTEM.length+repairContent.length+JSON.stringify(gameRepairSchema).length+config.outputBudget>config.contextBudget)invalidResult({...originalDiagnostic,repair:'contextTooLarge'});
-      const repaired=await request(GAME_REPAIR_SYSTEM,repairContent,gameRepairSchema,'game-repair');
+      if(GAME_REPAIR_SYSTEM.length+repairContent.length+JSON.stringify(wireSchema(gameRepairSchema)).length+config.outputBudget>config.contextBudget)invalidResult({...originalDiagnostic,repair:'contextTooLarge'});
+      const repaired=presentationFallback(await request(GAME_REPAIR_SYSTEM,repairContent,gameRepairSchema,'game-repair'));
       if(!conforms(repaired,gameRepairSchema))invalidResult({stage:'game-repair-schema',...schemaFailure(repaired,gameRepairSchema),original:originalDiagnostic});
       if(!frozenGameMatches(cleaned.game,repaired.game,input.state))invalidResult({stage:'game-repair-frozen',rule:'changedFrozenGameFields',original:originalDiagnostic});
       cleaned={...cleaned,experience:synchronizeNewDisplayNames(cleaned,repaired.game,input.state),game:repaired.game};

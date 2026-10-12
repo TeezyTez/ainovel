@@ -13,7 +13,15 @@ test('reader shows a single readable story with honest clock and save status',()
   assert.match(html,/回合 1/);
   assert.match(html,/保存状态待确认/);
   assert.doesNotMatch(html,/幕后秘密|远处隐藏|createdAt|进度.*%/);
-  for(const action of ['continue','take-control','context-open','time-control','history','reader-settings','story-tools','expand-input'])assert.ok(!html.includes(`data-action="${action}"`));
+  for(const action of ['take-control','context-open','expand-input'])assert.ok(!html.includes(`data-action="${action}"`));
+  // Auxiliary actions remain reachable from the single composer menu.
+  const menu=html.match(/<div id="reader-quick-tools"[\s\S]*?<\/nav><\/div>/)?.[0];
+  assert.ok(menu);
+  for(const action of ['play-time','play-journal','play-around','continue','reader-settings','branches','export-story'])assert.ok(menu.includes(`data-action="${action}"`),action);
+  const outside=html.replace(menu,'');
+  assert.doesNotMatch(outside,/data-action="(?:play-time|play-map|play-inventory|play-journal|play-around|continue|story-tools)"/);
+  assert.match(html,/popovertarget="reader-quick-tools"/);
+  assert.doesNotMatch(html,/class="play-panel"|<aside/);
   assert.equal((html.match(/<textarea/g)||[]).length,1);
   assert.doesNotMatch(html,/<select|行动建议|输入选项/);
   assert.match(html,/aria-label="发送"/);
@@ -62,7 +70,7 @@ test('ending keeps all original prose readable and offers voluntary epilogue',()
 test('folded sections are saved quotes expanded by native details, not generation actions',()=>{
   const html=readerView(args),fold=html.match(/<details class="time-fold">[\s\S]*?<\/details>/)?.[0];
   assert.match(fold,/雨落在窗外/);
-  assert.match(fold,/展开不会生成新内容/);
+  assert.match(fold,/<blockquote>雨落在窗外。<\/blockquote>/);
   assert.doesNotMatch(fold,/data-action/);
 });
 
@@ -104,12 +112,12 @@ test('history searches full saved prose and uses navigation separate from branch
   assert.equal(JSON.stringify(b),before);
 });
 
-test('time delegation requires goal and finite limit and states retained decisions explicitly',()=>{
-  const html=timeView();
-  for(const name of ['kind','goal','until','limit','forbidden','reserved'])assert.match(html,new RegExp(`name="${name}"`));
-  assert.match(html,/name="limit"[^>]*required/);
-  assert.match(html,/重大承诺、借贷、关系表态或不可逆决定/);
-  assert.match(html,/只生成一段有限结果/);
+test('time form accepts one bounded natural instruction with optional explicit boundaries',()=>{
+  const html=timeView({mode:'skip'});
+  for(const name of ['mode','goal','limit','forbidden','reserved'])assert.match(html,new RegExp(`name="${name}"`));
+  assert.match(html,/name="goal"[^>]*required/);
+  assert.match(html,/name="limit" value=""/);
+  assert.match(html,/未明确授权的重要决定/);
   assert.equal((html.match(/type="submit"/g)||[]).length,1);
 });
 
@@ -188,10 +196,10 @@ test('history ranges filter recorded rounds while preserving uncertain time labe
   assert.equal((historyView({branch:b,fromIndex:'',toIndex:''}).match(/data-action="history-jump"/g)||[]).length,4);
 });
 
-test('time presets are explicit draft-only controls and leave a single submit',()=>{
-  const html=timeView({control:{goal:'等雨停',forbidden:'不花钱'}});
-  for(const limit of ['半小时','到今天傍晚','当前场景结束'])assert.match(html,new RegExp(`type="button"[^>]*data-action="time-preset"[^>]*data-limit="${limit}"`));
-  assert.match(html,/只填入表单，不会发送或推进时间/);
+test('time presets only fill a duration; approximate worlds never invent minute precision',()=>{
+  const html=timeView({mode:'short',situation:{clock:{precision:'exact'}},control:{forbidden:'不花钱'}});
+  for(const duration of ['5分钟','15分钟','30分钟'])assert.match(html,new RegExp(`type="button"[^>]*data-action="time-preset"[^>]*data-duration="${duration}"`));
+  assert.doesNotMatch(timeView({mode:'short',situation:{clock:{precision:'approximate'}}}),/data-duration="\d+分钟"/);
   assert.equal((html.match(/type="submit"/g)||[]).length,1);
   assert.match(html,/name="forbidden" value="不花钱"/);
 });

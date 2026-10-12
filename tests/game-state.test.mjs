@@ -11,6 +11,12 @@ const commit=(s,extras={})=>core.commitTurn(s,world,'行动',{requestId:crypto.r
 const ref=s=>({branchId:s.activeBranch,version:core.currentState(s).version,surfaceId:'door',actionId:'enter'});
 const archive=s=>({schemaVersion:1,worlds:[world],sessions:[s]});
 
+test('legacy surfaces named journeys still execute and replay without being mistaken for travel quotes',async()=>{
+ const {resolveGameAction}=await import('../src/game-state.js'),s=make(),game=update();game.surfaces[0].id='journeys';
+ commit(s,{game});const receipt=resolveGameAction(core.currentState(s),{...ref(s),surfaceId:'journeys'},{branchId:s.activeBranch});
+ assert.equal(receipt.mode,'apply');commit(s,{gameAction:receipt});assert.doesNotThrow(()=>core.validateArchive(archive(s)));
+});
+
 test('contextual timeline, people and comparison surfaces survive commit and archive replay',()=>{
  for(const kind of ['timeline','people','comparison']){
   const s=make(),game=update();game.surfaces=[{...game.surfaces[0],kind,links:[],actions:[]}];

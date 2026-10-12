@@ -1,0 +1,8 @@
+.dynamic-interaction,.dynamic-pending{margin:1.5rem 0;padding:1rem 0;border-top:1px solid var(--border,#ddd);font:1rem/1.7 var(--sans);overflow-wrap:anywhere}
+.dynamic-interaction summary{cursor:pointer;font-weight:600;padding:.5rem 0;min-height:44px}
+.dynamic-row{display:flex;flex-wrap:wrap;align-items:center;gap:.7rem;margin:.6rem 0}
+.dynamic-group{display:grid;gap:.5rem}.dynamic-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:1rem;margin:1rem 0}
+.dynamic-value{min-width:0;flex:1}.dynamic-fields input,.dynamic-fields select{width:100%;min-height:44px;max-width:100%}.dynamic-fields input[type=checkbox]{width:44px}
+[data-dynamic-preview]{white-space:pre-line;font-size:.9rem;color:var(--muted);margin:.8rem 0}.dynamic-interaction button{min-height:44px}
+.dynamic-operation-record{font: .85rem/1.7 var(--sans);margin:1rem 0}.dynamic-operation-record pre{white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:480px){.dynamic-row{align-items:stretch}.dynamic-row>.btn{flex:1}.dynamic-fields{grid-template-columns:1fr}}

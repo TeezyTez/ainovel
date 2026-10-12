@@ -1,8 +1,9 @@
 // Public, declarative scene components. Never infer rules, links or missing numbers.
 import {resolveGameAction} from './game-state.js';
 import {gameQuery} from './game-query.js';
-import {mapLayout,currentMapPlace} from './map-layout.js';
+import {spatialMapView} from './spatial-map-view.js';
 import {adaptiveSurfaces} from './adaptive-surfaces.js';
+import {icon} from './ui-controls.js';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const list=value=>Array.isArray(value)?value:[];
 const numeric=value=>typeof value==='number'&&Number.isFinite(value);
@@ -14,19 +15,6 @@ const detail=e=>`${e.detail?`<p class="game-detail">${esc(e.detail)}</p>`:''}${e
 function progress(e){
   if(!numeric(e.value)||!numeric(e.max)||e.max<=0)return '';
   return `<progress class="game-progress" value="${Math.max(0,Math.min(e.max,e.value))}" max="${e.max}" aria-label="${esc(e.name)}：${esc(quantity(e))}">${esc(quantity(e))}</progress>`;
-}
-
-function mapView(surface,entities,node,location,version){
-  const resources=entities.filter(e=>e.kind!=='place');
-  const places=entities.filter(e=>e.kind==='place'),current=currentMapPlace(places,location,version);
-  entities=places.map(e=>({...e,status:e.id===current?'当前所在':['当前位置','当前所在'].includes(e.status)?'已知地点':e.status}));
-  const connected=new Set(list(surface.links).flatMap(l=>[l.from,l.to]));
-  const diagramEntities=connected.size?entities.filter(e=>connected.has(e.id)||e.id===current):entities;
-  const unplaced=entities.length-diagramEntities.length;
-  const {width,height,positions,edges:links}=mapLayout(diagramEntities,list(surface.links),current);
-  const byId=new Map(entities.map(e=>[e.id,e]));
-  const diagram=diagramEntities.length?`<div class="game-map-viewport" tabindex="0" role="region" aria-label="可滚动的地点路线图"><div class="game-map-canvas" style="width:${width}px;height:${height}px"><svg class="game-map-diagram" viewBox="0 0 ${width} ${height}" aria-hidden="true" focusable="false">${links.map(link=>{const a=positions.get(link.from),b=positions.get(link.to),dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||1,x=b.x-dx/d*59,y=b.y-dy/d*59,angle=Math.atan2(dy,dx)*180/Math.PI;return `<g><title>${esc(link.label)}</title><line x1="${a.x}" y1="${a.y}" x2="${x}" y2="${y}"/><path class="game-map-arrow" d="M -7 -4 L 0 0 L -7 4" transform="translate(${x} ${y}) rotate(${angle})"/><text class="game-map-route-label" x="${(a.x+b.x)/2}" y="${(a.y+b.y)/2-5}"><tspan x="${(a.x+b.x)/2}">${esc((link.label||'已知连接').slice(0,6))}</tspan><tspan x="${(a.x+b.x)/2}" dy="15">${esc((link.label||'').slice(6,12))}${(link.label||'').length>12?'…':''}</tspan></text></g>`;}).join('')}${diagramEntities.map(e=>{const p=positions.get(e.id);return `<g${e.id===current?' class="game-map-current"':''}><circle cx="${p.x}" cy="${p.y-58}" r="5"/></g>`;}).join('')}</svg>${diagramEntities.map(e=>{const p=positions.get(e.id);return `<button type="button" class="game-map-node${e.id===current?' is-current':''}" data-action="game-inspect" data-entity="${esc(e.id)}" data-node="${esc(node)}" ${e.id===current?'aria-current="location"':''} style="left:${p.x}px;top:${p.y}px" title="${esc(e.name+' · '+(e.detail||e.status))}"><span class="game-map-node-label">${esc(e.name)}</span><span class="game-map-node-status">${esc(e.id===current?'你在这里':e.status||'已知地点')}</span></button>`;}).join('')}</div></div>`:'';
-  return `<div class="game-map-toolbar"><span>${entities.length} 个已知地点 · ${links.length} 条连接</span><button type="button" class="btn compact" data-action="game-map-expand" data-node="${esc(node)}">展开地图 ↗</button></div><div class="game-map">${diagram}<details class="game-map-records"><summary>地点详情与完整路线${unplaced?` · ${unplaced} 个地点的连接未记录`:''}</summary><ol class="game-map-places">${entities.map(e=>`<li>${inspect(e,node)}${detail(e)}</li>`).join('')}</ol>${links.length?`<ul class="game-map-links" aria-label="正文已知的连接">${links.map(link=>`<li>${inspect(byId.get(link.from),node)}<span aria-hidden="true"> → </span><span class="game-sr-only">通向</span>${inspect(byId.get(link.to),node)}${link.label?`<span class="game-route-label">${esc(link.label)}</span>`:''}</li>`).join('')}</ul>`:''}</details></div>${!links.length?'<p class="game-empty-note">地点间的路线尚未明确，暂不连线。</p>':''}<p class="game-footnote">示意连接，不表示距离或实际方位。箭头沿用记录方向，不代表安全可达。点地点查看资料；窄屏可横向滑动。</p>${resources.length?`<div class="game-map-resources" aria-label="路线相关的已知资料">${resources.map(e=>`<div>${inspect(e,node)}${quantity(e)?`<span class="game-quantity">${esc(quantity(e))}</span>`:''}${detail(e)}</div>`).join('')}</div>`:''}`;
 }
 
 const certaintyLabels={confirmed:'已确认',reported:'他人说法',inferred:'推测',unknown:'尚不清楚'};
@@ -44,9 +32,9 @@ function recordsView(kind,entities,node){
  }
  return `<div class="game-people">${entities.map(e=>`<article><header><span class="game-person-mark" aria-hidden="true">${esc(e.name?.slice(0,1))}</span><div>${inspect(e,node)}${known(e)}</div></header>${detail({...e,detail:e.summary||e.detail})}${recordAttributes(e)}${source(e)}</article>`).join('')}</div>`;
 }
-function entitiesView(surface,entities,node,location,version){
+function entitiesView(surface,entities,node,location,version,game,context){
   if(['timeline','people','comparison'].includes(surface.kind))return recordsView(surface.kind,entities,node);
-  if(surface.kind==='map')return mapView(surface,entities,node,location,version);
+  if(surface.kind==='map')return spatialMapView(game,{location,version,node,scope:context.scope,anchorId:context.anchorId,links:surface.links})+entities.filter(e=>e.kind!=='place').map(e=>`<div class="game-map-resources"><div>${inspect(e,node)}${quantity(e)?`<span class="game-quantity">${esc(quantity(e))}</span>`:''}${detail(e)}</div></div>`).join('');
   if(surface.kind==='status')return `<div class="game-meters">${entities.map(e=>`<div class="game-meter"><div class="game-meter-heading">${inspect(e,node)}${quantity(e)?`<strong>${esc(quantity(e))}</strong>`:''}</div>${progress(e)}${detail(e)}${recordAttributes(e)}</div>`).join('')}</div>`;
   if(surface.kind==='inventory')return `<ul class="game-inventory">${entities.map(e=>`<li><div class="game-item-mark" aria-hidden="true">${esc(e.name?.slice(0,1)||'物')}</div><div class="game-item-body">${inspect(e,node)}${detail(e)}</div>${quantity(e)?`<span class="game-quantity" aria-label="已知数量">${esc(quantity(e))}</span>`:''}</li>`).join('')}</ul>`;
   if(surface.kind==='clues')return `<div class="game-clues">${entities.map((e,i)=>`<article class="game-clue"><span class="game-clue-number">线索 ${String(i+1).padStart(2,'0')}</span>${inspect(e,node)}${detail(e)}${e.quote?`<blockquote>${esc(e.quote)}</blockquote>`:''}</article>`).join('')}</div>`;
@@ -77,12 +65,19 @@ function surfaceView(surface,game,context){
   const ids=new Set(list(surface.entityIds));
   const entities=(context.objects||list(game.entities).filter(e=>ids.has(e.id)).map(e=>({...context.state?.experience?.objects?.find(o=>o.id===e.id),...e}))).map(e=>({...e,detail:e.detail||e.summary||''}));
   const ctx={...context,readonlyReason:context.readonlyReason||(numeric(surface.version)&&surface.version!==context.version?'这个界面已过期，请查看最新回合。':'')};
-  return `<section class="game-surface game-surface-${surface.kind}" aria-label="${esc(surface.title||labels[surface.kind])}"><header class="game-surface-header"><span class="game-surface-kind">${esc(labels[surface.kind])}</span><h3>${esc(surface.title||labels[surface.kind])}</h3>${surface.description?`<p>${esc(surface.description)}</p>`:''}</header>${entitiesView(surface,entities,context.node,context.state?.location,context.version)}${actionsView(surface,game,ctx)}${surface.quote?`<details class="game-evidence"><summary>原文依据</summary><blockquote>${esc(surface.quote)}</blockquote></details>`:''}</section>`;
+  return `<section class="game-surface game-surface-${surface.kind}" aria-label="${esc(surface.title||labels[surface.kind])}"><header class="game-surface-header"><span class="game-surface-kind">${esc(labels[surface.kind])}</span><h3>${esc(surface.title||labels[surface.kind])}</h3>${surface.description?`<p>${esc(surface.description)}</p>`:''}</header>${entitiesView(surface,entities,context.node,context.state?.location,context.version,game,context)}${actionsView(surface,game,ctx)}${surface.quote?`<details class="game-evidence"><summary>原文依据</summary><blockquote>${esc(surface.quote)}</blockquote></details>`:''}</section>`;
 }
 
-function receiptView(receipt,game){
+function receiptView(receipt,game,version){
   if(!receipt)return '';
   const attempted=receipt.mode==='attempt',byId=new Map(list(game.entities).map(e=>[e.id,e]));
+  if(receipt.mode==='journey'){
+    const t=game.journeys?.transit;
+    if(!t||t.sourceVersion!==version||t.routeId!==receipt.journey?.id)return '';
+    const place=byId.get(t.locationId)?.name||'已记录的停点';
+    const costs=t.paidCosts.map(c=>`${c.amount} ${byId.get(c.entityId)?.unit||byId.get(c.entityId)?.name||'资源'}`).join('、');
+    return `<section class="game-receipt" aria-label="已保存的行程结果"><p><span>${t.completed?'已抵达':'途中停下'}</span> ${esc(place)}</p><p>${t.elapsedMinutes===null?'耗时未明确':`经过 ${t.elapsedMinutes} 分钟`}${costs?' · 已付 '+esc(costs):''}</p></section>`;
+  }
   const effects=attempted?'':list(receipt.effects).map(effect=>{
     const entity=byId.get(effect.entityId);if(!entity)return '';
     const value=numeric(effect.beforeValue)&&numeric(effect.value)&&effect.beforeValue!==effect.value?`<span>${effect.beforeValue} → ${effect.value}${entity.unit?' '+esc(entity.unit):''}</span>`:'';
@@ -99,8 +94,8 @@ export function gameTurnView(turn={}, {currentVersion,branchId='',busy=false,end
   const readonlyReason=historical?'历史记录，仅可查看。':ended?'这一段已经结束。':busy?'故事正在继续，请稍候。':'';
   const requested=gameQuery(turn.input),cards=adaptiveSurfaces(turn,{previousState,previousTurn,historical,density,requested}),explicit=requested&&(requested==='all'||cards.some(c=>c.surface.kind===requested));
   const folded=historical||(!explicit&&density==='reading');
-  const content=receiptView(turn.gameAction,game)+cards.map(card=>`<details class="game-context-card" data-context-card="${esc(branchId+':'+turn.id+':'+card.surface.id+':'+(historical?'history':'current'))}"${card.open?' open':''}><summary><span class="game-context-label">${esc(labels[card.surface.kind]||'相关资料')}</span><span>${esc(card.surface.title||card.reason)}</span><span class="game-context-toggle">展开 / 收起</span></summary><p class="game-context-reason">${esc(card.reason)}</p>${surfaceView(card.surface,game,{state:turn.state,node:turn.id,version,branchId,readonlyReason,objects:card.objects})}</details>`).join('');
-  return `<div data-reader-live="game-${esc(turn.id)}" class="game-turn">${content?folded?`<details class="game-history"><summary>${historical?'当时的玩法':'相关资料与操作'} · ${cards.length?cards.length+' 项记录':'行动结算'} <span>${historical?'只读':'按需展开'}</span></summary><div class="game-surfaces">${content}</div></details>`:`<div class="game-surfaces">${content}</div>`:''}</div>`;
+  const content=receiptView(turn.gameAction,game,version)+cards.map(card=>`<details class="game-context-card" data-context-card="${esc(branchId+':'+turn.id+':'+card.surface.id+':'+(historical?'history':'current'))}"${card.open?' open':''}><summary><span class="game-context-label">${esc(labels[card.surface.kind]||'相关资料')}</span><span>${esc(card.surface.title||card.reason)}</span><span class="game-context-toggle">展开 / 收起</span></summary><p class="game-context-reason">${esc(card.reason)}</p>${surfaceView(card.surface,game,{state:turn.state,node:turn.id,version,branchId,readonlyReason,objects:card.objects})}</details>`).join('');
+  return `<div data-reader-live="game-${esc(turn.id)}" class="game-turn">${content?folded?`<details class="game-history"><summary aria-label="${historical?'当时资料，只读':'相关资料与操作'}" title="${historical?'当时资料，只读':'相关资料与操作'}">${icon('layers')}${historical?'<span>当时 · 只读</span>':''}${cards.length?`<span>${cards.length}</span>`:''}</summary><div class="game-surfaces">${content}</div></details>`:`<div class="game-surfaces">${content}</div>`:''}</div>`;
 }
 
 export function gameInspectView(entity,game={}, {node=''}={}){
@@ -110,7 +105,8 @@ export function gameInspectView(entity,game={}, {node=''}={}){
   return `<section class="reading-panel game-inspect-panel"><p class="panel-context-label">${esc(kinds[entity.kind]||'已知记录')} · 查看不会推进时间</p><h3>${esc(entity.name)}</h3>${detail(entity)}${quantity(entity)?`<p class="game-inspect-value">${esc(quantity(entity))}</p>`:''}${progress(entity)}${related.length?`<h4>已知连接</h4><div class="game-related">${related.map(e=>inspect(e,node)).join('')}</div>`:''}${entity.quote?`<blockquote>${esc(entity.quote)}</blockquote>`:''}</section>`;
 }
 
-export function gameRecallView(state={}, {kind='all',node=''}={}){
+export function gameRecallView(state={}, {kind='all',node='',scope,anchorId}={}){
+  const empty={map:'还没有记录可查看的地点。',status:'还没有可查看的状态记录。',inventory:'还没有记录随身物品。',interaction:'还没有可查看的人物资料。',timeline:'还没有记录时间线。',clues:'还没有记录已知线索。',objectives:'还没有记录当前目标。'}[kind]||'这段故事还没有明确记录可用玩法。';
   const game=state.game||{},mapping={meter:'status',item:'inventory',place:'map',clue:'clues',objective:'objectives',actor:'interaction'};
   const surfaces=list(game.surfaces).filter(s=>labels[s.kind]&&(kind==='all'||s.kind===kind));
   if(kind==='all'||kind==='map'){
@@ -127,5 +123,5 @@ export function gameRecallView(state={}, {kind='all',node=''}={}){
     const entities=list(game.entities).filter(e=>e.kind===entityKind&&!covered.has(e.id));
     if(entities.length)surfaces.push({id:`recall-${surfaceKind}`,kind:surfaceKind,title:`已知${labels[surfaceKind]}`,entityIds:entities.map(e=>e.id),links:[],actions:[]});
   }
-  return `<aside class="game-recall" aria-label="唤出的已知玩法"><div class="game-recall-heading"><span>随时翻看</span><button type="button" class="btn game-dismiss-recall" data-action="game-dismiss-recall">收起</button><p>当前分支的已知资料 · 查看不推进时间</p></div>${surfaces.length?`<div class="game-surfaces">${surfaces.map(surface=>surfaceView({...surface,actions:[]},game,{state,node,version:state.version,readonlyReason:'查看模式'})).join('')}</div>`:'<p class="game-empty-note">这段故事还没有明确记录可用玩法。可以继续阅读，或在正文中表达你的行动。</p>'}</aside>`;
+  return `<aside class="game-recall" aria-label="唤出的已知玩法"><div class="game-recall-heading"><span>随时翻看</span><button type="button" class="btn game-dismiss-recall" data-action="game-dismiss-recall">收起</button><p>当前分支的已知资料 · 查看不推进时间</p></div>${surfaces.length?`<div class="game-surfaces">${surfaces.map(surface=>surfaceView({...surface,actions:[]},game,{state,node,scope,anchorId,version:state.version,readonlyReason:'查看模式'})).join('')}</div>`:`<div class="game-empty-state"><p>${empty}</p><p class="game-empty-note">可以在已发生的经历中查找，也可以继续阅读。</p><button type="button" class="btn" data-action="history">搜索与回顾</button></div>`}</aside>`;
 }

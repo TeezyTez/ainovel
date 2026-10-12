@@ -11,7 +11,7 @@ export const EXPERIENCE_FIELDS=['owner','custodian','location','occurredAt','lea
 const exactKeys=(v,keys)=>object(v)&&Object.keys(v).every(k=>keys.includes(k));
 const normalized=v=>String(v).normalize('NFKC').trim().replace(/\s+/g,' ').toLocaleLowerCase();
 export function knownObjectId(kind,name){let hash=2166136261;for(const char of normalized(name)){hash^=char.codePointAt(0);hash=Math.imul(hash,16777619);}return `${kind}:${(hash>>>0).toString(36)}`;}
-const publicObject=o=>({id:o.id,kind:o.kind,name:o.name,summary:o.summary,status:o.status,certainty:o.certainty,fields:o.fields.map(f=>({key:f.key,label:f.label,value:f.value})),relatedIds:[...o.relatedIds],sourceVersion:o.sourceVersion});
+const publicObject=o=>({id:o.id,kind:o.kind,name:o.name,...(o.nameKnown===undefined?{}:{nameKnown:o.nameKnown}),summary:o.summary,status:o.status,certainty:o.certainty,fields:o.fields.map(f=>({key:f.key,label:f.label,value:f.value})),relatedIds:[...o.relatedIds],sourceVersion:o.sourceVersion});
 
 export function validateExperience(receipt,prose,{snapshot=false,version=0,world}={}){
   if(receipt==null)return receipt;
@@ -20,10 +20,11 @@ export function validateExperience(receipt,prose,{snapshot=false,version=0,world
   const witness=(v,keys)=>{assert(exactKeys(v,[...keys,...(snapshot?['sourceVersion']:[])])&&nonempty(v.quote)&&(!prose||prose.includes(v.quote)),'时间或情况变化缺少正文原句依据。');if(snapshot)assert(Number.isSafeInteger(v.sourceVersion)&&v.sourceVersion>=0&&v.sourceVersion<=version,'情况来源版本无效。');};
   if(receipt.clock!=null){const c=receipt.clock;witness(c,['label','elapsed','precision','quote']);assert(nonempty(c.label,200)&&text(c.elapsed,200)&&['unknown','approximate','exact'].includes(c.precision),'故事时间格式无效。');}
   assert(Array.isArray(receipt.objects)&&receipt.objects.length<=(snapshot?2000:40),'已知对象列表无效。');
-  const seen=new Set();for(const o of receipt.objects){witness(o,['id','kind','name','summary','status','certainty','fields','relatedIds','quote']);assert(id(o.id)&&!seen.has(o.id)&&EXPERIENCE_KINDS.includes(o.kind)&&nonempty(o.name,200)&&text(o.summary)&&nonempty(o.status,200)&&['confirmed','reported','inferred','unknown'].includes(o.certainty),'已知对象记录无效或重复。');seen.add(o.id);
+  const seen=new Set();for(const o of receipt.objects){witness(o,['id','kind','name','nameKnown','summary','status','certainty','fields','relatedIds','quote']);assert(id(o.id)&&!seen.has(o.id)&&EXPERIENCE_KINDS.includes(o.kind)&&nonempty(o.name,200)&&text(o.summary)&&nonempty(o.status,200)&&['confirmed','reported','inferred','unknown'].includes(o.certainty),'已知对象记录无效或重复。');seen.add(o.id);
+    assert(o.nameKnown===undefined||typeof o.nameKnown==='boolean','姓名认知标记无效。');
     assert(Array.isArray(o.fields)&&o.fields.length<=24&&o.fields.every(f=>exactKeys(f,['key','label','value'])&&EXPERIENCE_FIELDS.includes(f.key)&&nonempty(f.label,100)&&text(f.value))&&new Set(o.fields.map(f=>f.key)).size===o.fields.length,'对象字段须为白名单文字记录。');
     assert(Array.isArray(o.relatedIds)&&o.relatedIds.length<=20&&o.relatedIds.every(id),'对象关联格式无效。');
-    if(o.kind==='person'){assert(o.id.startsWith('person:'),'人物对象需要独立的稳定标识。');const known=world?.characters.find(c=>o.id===`person:${c.id}`);if(known)assert(o.name===known.name,'已有的人物标识不能冒充其他人物。');}
+    if(o.kind==='person'){assert(o.id.startsWith('person:'),'人物对象需要独立的稳定标识。');const known=world?.characters.find(c=>o.id===`person:${c.id}`);if(o.nameKnown===false)assert(o.quote.includes(o.name)&&!world?.characters.some(c=>c.id!==known?.id&&c.name===o.name),'未知姓名的称呼需要原文依据，不能冒充另一人物。');else if(known)assert(o.name===known.name,'已有的人物标识不能冒充其他人物。');}
   }
   if(receipt.stop!=null){witness(receipt.stop,['reason','quote']);assert(nonempty(receipt.stop.reason,1000),'停点说明无效。');}
   assert(Array.isArray(receipt.folded)&&receipt.folded.length<=12,'折叠记录无效。');for(const f of receipt.folded){witness(f,['id','title','summary','quote']);assert(id(f.id)&&nonempty(f.title,200)&&nonempty(f.summary),'折叠记录缺少已保存内容。');}
@@ -57,19 +58,21 @@ export function validateControl(control,{worldKey,version,branchId}={}){
 function selectedTurns(branch,turnId){if(turnId===undefined)return branch.turns;if(turnId===null)return [];const at=branch.turns.findIndex(t=>t.id===turnId);assert(at>=0,'回顾位置已不存在。');return branch.turns.slice(0,at+1);}
 function knownSentence(prose,name){return prose.split(/(?<=[。！？\n])/).find(line=>line.includes(name))?.trim().slice(0,2000)||'';}
 export function publicSituation(branch,world,turnId){
-  const turns=selectedTurns(branch,turnId),state=turns.at(-1)?.state||branch.initialState,records=new Map();
+  const turns=selectedTurns(branch,turnId),state=turns.at(-1)?.state||branch.initialState,records=new Map(),locationVersions=new Map();
+  for(const o of branch.initialState.experience?.objects||[])if(o.fields.some(f=>f.key==='location'))locationVersions.set(o.id,o.sourceVersion);
+  for(const t of turns)for(const o of t.experience?.objects??(t.experience===undefined?t.state.experience?.objects?.filter(o=>o.sourceVersion===t.state.version)??[]:[]))if(o.fields.some(f=>f.key==='location'))locationVersions.set(o.id,t.state.version);
   const put=(kind,name,summary,version,extra={})=>{const key=extra.id||knownObjectId(kind,name);records.set(key,{id:key,kind,name,summary,status:'已知',certainty:'confirmed',fields:[],relatedIds:[],sourceVersion:version,...extra});};
   const observe=(prose,version)=>{for(const person of world.characters){const sentence=knownSentence(prose,person.name);if(sentence&&!records.has(`person:${person.id}`))put('person',person.name,sentence,version,{id:`person:${person.id}`});}};
   observe(branch.opening??world.opening,0);
   if(branch.initialState.location)put('location',branch.initialState.location,'故事开始时所在地点',0);
   for(const fact of branch.initialState.facts||[])put('fact',fact,fact,0);
   for(const item of branch.initialState.inventory||[])put('item',item,'开篇记录的随身物品',0,{fields:[{key:'custodian',label:'保管者',value:'你'}]});
+  for(const o of branch.initialState.experience?.objects||[])records.set(o.id,publicObject(o));
   for(const t of turns){observe(t.prose,t.state.version);for(const e of t.events||[]){if(e.visibility!=='player'||e.type==='flag')continue;if(e.type==='fact')put('fact',e.value,e.value,t.state.version);if(e.type==='item-add')put('item',e.value,'已得到或由你保管',t.state.version,{fields:[{key:'custodian',label:'保管者',value:'你'}]});if(e.type==='item-remove'){const old=records.get(knownObjectId('item',e.value));put('item',e.value,'已离开随身物品',t.state.version,{...old,status:'不再持有',sourceVersion:t.state.version,fields:[]});}if(e.type==='location')put('location',e.value,'曾到达的地点',t.state.version);if(e.type==='relation'){const p=world.characters.find(c=>c.id===e.entity);if(p)put('person',p.name,e.value,t.state.version,{id:`person:${p.id}`,fields:[{key:'relationship',label:'关系',value:e.value}]});}}
     // Apply each snapshot at its historical position so later legacy events can
     // supersede it; never merge a future branch or private narrative record.
     for(const o of t.state.experience?.objects||[])if(o.sourceVersion===t.state.version){const fallback=knownObjectId(o.kind,o.name);if(fallback!==o.id&&!t.state.experience.objects.some(other=>other.id===fallback))records.delete(fallback);records.set(o.id,publicObject(o));}
   }
-  for(const o of branch.initialState.experience?.objects||[])if(!records.has(o.id))records.set(o.id,publicObject(o));
   // Generic gameplay is the canonical numeric ledger. Older descriptive records
   // remain provenance, but their old amounts/statuses must not become current UI.
   const gameKinds={meter:'resource',item:'item',place:'location',clue:'clue',objective:'event',actor:'person'};
@@ -85,13 +88,14 @@ export function publicSituation(branch,world,turnId){
     for(const [id,o] of records)if(id!==entity.id&&sameName&&compatibleKinds.includes(o.kind)&&(o.name===entity.name||(kind==='item'&&aliases.has(o.name)))&&!state.game.entities.some(e=>e.id===id)&&(id===knownObjectId(o.kind,o.name)||(!exact&&id===existing?.id)))records.delete(id);
     const currentPlace=entity.kind==='place'&&entity.name===state.location;
     const outdatedPlace=entity.kind==='place'&&!currentPlace&&['当前位置','当前所在'].includes(entity.status);
-    put(kind,entity.name,outdatedPlace?'已知地点；当前位于'+state.location:entity.detail,entity.sourceVersion,{id:entity.id,status:currentPlace?'当前所在':outdatedPlace?'已知地点':entity.status||(entity.kind==='item'&&entity.value===0?'已耗尽':'已知'),fields,relatedIds:existing?.relatedIds??[]});
+    if(existing&&locationVersions.has(existing.id))locationVersions.set(entity.id,locationVersions.get(existing.id));
+    put(kind,entity.name,outdatedPlace?'已知地点；当前位于'+state.location:entity.detail,entity.sourceVersion,{id:entity.id,certainty:existing?.certainty??'confirmed',status:currentPlace?'当前所在':outdatedPlace?'已知地点':entity.status||(entity.kind==='item'&&entity.value===0?'已耗尽':'已知'),fields,relatedIds:existing?.relatedIds??[]});
   }
   const c=state.experience?.clock;
   const legacyLabel=/^第\s*\d+\s*个片刻$/.test(state.time)||state.time==='开篇'?'故事时间未说明':state.time;
   const currentClock=c?.sourceVersion===state.version;
   const clock=c?{label:currentClock?c.label:`最后确认：${c.label}`,elapsed:currentClock?c.elapsed:'',precision:currentClock?c.precision:'unknown'}:{label:legacyLabel||'故事时间未说明',elapsed:'',precision:'unknown'};
-  const objects=[...records.values()].map(o=>({...o,...(o.kind==='fact'&&o.sourceVersion<state.version?{status:'历史记录'}:{}),relatedIds:o.relatedIds.filter(id=>records.has(id))}));
+  const objects=[...records.values()].map(o=>({...o,...(o.fields.some(f=>f.key==='location')?{locationVersion:locationVersions.get(o.id)??-1}:{}),...(o.kind==='fact'&&o.sourceVersion<state.version?{status:'历史记录'}:{}),relatedIds:o.relatedIds.filter(id=>records.has(id))}));
   return {clock,objects,summary:`${state.location||'地点未说明'} · ${clock.label}${state.experience?.stop?` · ${state.experience.stop.reason}`:''}`};
 }
 

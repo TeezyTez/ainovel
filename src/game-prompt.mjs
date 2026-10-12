@@ -1,21 +1,16 @@
-// Content is generated; only the component vocabulary and transaction rules are fixed.
-export const GAME_WRITING_RULES = `
-你也负责当下的信息呈现，不等玩家说出‘地图/状态/时间线’。先判断读者此刻的理解或决策负担：空间关系难以记住、某种状态影响行动、时间和约定交错、多人立场难辨、对象需要比较、物品有可用机会、推理需核对证据、交易需看代价。这些是信息组织方式而非限定剧情类型，按具体世界灵活组合；不因出现某个关键词就机械弹卡。
-game.surfaces按当下帮助程度从高到低排列，优先1至2张，允许没有。description自然说明这组信息此刻的用途；title使用场景里的具体说法。只为解决理解或行动问题提供界面，不把正文换皮抄进表格，不为展示UI创造伤势、倒计时、任务、关系或数值。已有状态足以支持组件时可只引用已有entityIds，不必为了重新展示而重写实体；surface.quote仍取本轮体现相关性的原句。
-除既有组件，还可选timeline（阶段、约定、截止条件与经历顺序）、people（人物身份、已知立场与关系）、comparison（2至4个对象的证据、用途、条件或代价对照）。所有引用对象仍须是game已登记实体：人物用actor，事件/约定用objective，事实/线索用clue，与experience同一对象复用id和name；新增记录从正文建立，既有kind不能改。丰富的时间/关系/用途字段写进同id的experience.fields，界面读取这些已知字段；不得编造字段补齐表格。timeline优先显示scheduledAt/deadline与actualAt/occurredAt的区别，不把约定画成已发生；people不因同场出现推断私交或隐藏动机；comparison保持未知，不生成假成功率。新组件的links=[]；不可确定的行动仍用attempt，不让查看触发时间推进。
-地图的行动尺度是有独立人物、目标或冲突的场景地点，不把路口内侧、门口一步、柜台旁等无独立抉择的过渡拆成连续必点关卡；已有地点事实仍保留，不改名合并历史。新地图只突出本次相关目的地，其余已知地点可留待查询。只有朝向不同、内容相同的分岔不值得做成选择。
-每条主动推荐的路径须有玩家此刻看得见的吸引点、不同的预期收获或取舍：谁正在做什么、能验证哪个问题、为何现在值得去。把这些写进正文以及place.detail/动作label或input，不只写‘往左走/进入/看看’。已知事实与推测分开，不预告未见的隐藏事件或保证随机奖励。地图可以显示普通通路，但不要把每条通路都包装成任务。行动input只含所选目标，不捆绑接任务、花钱、战斗或站队。
-选择路径后，本轮呈现该处真正发生的事件和第一份有意义的回应；再次返回同处应承接时间和上次结果，不重播初见。未选择的路线不是已发生剧情，不写入历史，也不为制造紧迫感自动惩罚未探索。suggestions最多列出2至3个后果不同的真实选项，也允许为空；不用微动作填满。
-场景按钮只完成本次局部操作。存在gameActionReceipt时必须ended=false，不因制作、移动、一次交易完成就结束整段故事；玩家仍可主动选择后续行动或通过明确的收束请求结束旅程。
-你同时负责在聊天消息里按需呈现可玩的场景。输出 game（无相关互动时 null），结构遵循 schema。不是每轮填满面板，不给所有世界套血量/等级/背包；从本轮具体处境选1至2个最有用的组件，最多3个。地图用于可见路线的抉择，物品用于当下获得/消耗/交付，线索用于可检验的差异，目标用于实际阶段，交互用于交易、制作、协作、规则冲突或谈判。状态条只有真实可量化的资源才出现，人物关系通常定性。让局面提供可操作的办法和不同代价，而不是另一串无关名词。
-game.entities 是公开游戏对象的增量，沿用 state.game.entities 中的稳定 id；同一物件若在 state.experience 中有 id 应复用它。kind=meter/item/place/clue/objective/actor；name、detail、status、unit按世界需要命名；value/max未知用null，不凭空设成100或0。确切数量必须在本轮正文可见，有明确上限才写max。quote为本轮prose连续原文并支持对象状态。新内容可以随叙事自然揭示，但不能把计划结果、暗藏秘密或未获得物品记成已获得。旧存档没有game时从本轮实际可见内容自然建立，不重置旧物品/地点或虚构初始属性。实体最多12条，尽量少而完整。
-名称与文笔一起处理：新增实体name选正文中确实出现的简短称呼，不另造“某某的路况”等摘要标题当实体名；更新旧实体时保留其完整name，并在叙事自然提到该对象处使用一次这个原称呼。entity.quote须逐字包含完整name。若本轮没有自然提及旧对象且状态没变，只引用已有id，不重复更新；不要写一段小说后再附一段专供校验的记账文字。
-game.surfaces 是这一轮相关的当前组件（整组替换，不自动沿用上一轮动作）。各有稳定id、kind、title、description、entityIds、links、actions、quote。kind仅status/map/inventory/clues/objectives/interaction/timeline/people/comparison，主题与所有文案由世界决定。entityIds只引用已公开且已登记的对象。links仅map的已知地点连线，from/to必须是该组件中的place对象id；未知区域只写未知边界，不揭示完整地图。地图可以只帮助理解，无需为展示地图硬造动作；确有可选路线时才给行动。每卡最多4个动作，面板和正文不要重复整段内容。组件quote必须来自本轮prose支持这个局面的原句；无新卡可输出空surfaces。已结束场景不留下可执行按钮。
-动作{id,label,input,mode,effects,destination,disabledReason}：label短而具体；input为玩家执行的行动/对白，不是系统命令。mode=attempt表示尝试未知结果，effects=[]、destination=null，由随后剧情依据世界裁定；显示可能的风险，不能写虚构成功率。mode=apply只用于正文已明确且当前可兑现的确定规则：每个effect为{entityId,delta,status}，delta是数量增减，status不变用null。消耗与所得必须成对完整，比如材料-2、成品+1，不能漏付款、凭空得奖励。目标实体必须已存在；数量未知时不能算术。移动destination为已知place的id，且同一map组件中有连接当前位置的路线；物品使用只作用于自己确有的资源。disabledReason为空表示可执行，否则用实际阻碍简述，不能把封锁路线默认为可行。先在正文明确规则/报价/配方再赋予apply按钮；不可确定的交易、战斗、说服用attempt，不能预先强迫NPC同意。
-如果输入包含gameActionReceipt，它是运行时校验后预结算的玩家已选择动作，不是可改写的建议。先按它的input/effects/结果承接并在正文给出具体反馈；成本与所得已经算好，不再重复扣除，不额外改写这次结算影响的对象数量/状态或目的地。game只补充后续公开发现、仍可行动的场景；若重述受影响实体必须与预结算后的值完全一致。events/experience中同一物品数量、地点与game必须一致；不要再用item-add/remove表达已由game结算的同一笔交易。生成失败时整个动作不会提交，所以不要声称异步后台仍在执行。
-已有game实体的数量、单位、状态是相关界面的权威记录。普通自然语言行动改变这些值时也必须同步更新game，不能只在experience写另一个数量；两处同时记录同一对象时复用id、数值与单位。正文里的确定数量、上限及配方用量都用清楚的阿拉伯数字，entity.quote必须含实体name及其value/max，surface.quote覆盖各项非零消耗或所得用量。apply移动只放在map卡，entityIds包含当前位置与目的地，links有从当前位置指向目的地的已知可达连接；无路线或受阻时用disabledReason或attempt。
-内容优先：先写可信的因果、人物主动变化和本轮回报，再挑出对当下有价值的操作。玩家不用每次提醒才有玩法；若当下存在探索分岔、可用物件、制作机会或可比较线索，请主动给相应组件。没有有意义的玩法时允许单纯叙事。正文、卡片描述、对象detail均精炼，避免把同一事实重复登记到多个列表；game主要承载可操作状态，experience主要承载经历与已知资料。`;
+// The schema carries field shapes; these rules carry their narrative semantics.
+export const GAME_WRITING_RULES = `世界连续存在：先读state.game与地点事实，保持区域/建筑/楼层、当前位置、方位、道路和障碍一致。新空间事实自然融入行动；不瞬移、不泄露未探索地理、不附测绘清单。
+game.spatial为持久地理增量，无新资料用null。sites的id复用place，parentId引用其所属区域/建筑；城市、建筑、房间分层。地物符号不是精确边界。relations中relative表示to相对from的方位（北向上），只能同层；distanceMeters只记正文阿拉伯数字明确的直线米数，未知null，不把路程或时间当测距；relative的passage=unknown、bidirectional=false。route表示真实道路/门/桥，bearing通常null，distanceMeters可为明确路长；passage记实际通行状态，bidirectional仅明确可双向时true。相邻、隔河对望不自动连路。每条quote取本轮连续原句，包含完整地点名，支持归属/方向/测距/通行变化；只有名字不支持方向。稳定id；旧方位、测距、归属不得改写，封锁/开放可有据更新。不凭空造数字，也不重复登记未变地理。
+
+game.journeys无新行程资料用null。routes是有据的路线报价增量：from/to/via引用place，费用引用已知meter/item。quote含起终点全名、label及阿拉伯数字分钟/费用；未知分钟两项null。includesWaiting指总耗时已含等候。状态或时刻变化后按原id重新核对，不改其起终点；未知班次不保证抵达时间。路线应有实质不同的地点、人物、耗时或费用，勿拆微动作。地图查看不接约、不交物。
+gameActionReceipt.mode=journey是所选路线和费用上限，尚未结算。正常路途一段抵达，真有中断则停在实际位置；提交journeys.transit记录实际停点、完成与否、分钟、已付费用，quote逐字支持地点、数字分钟及付款。完成时分钟在报价范围、费用等于报价；中途不得超预算。experience.clock写实际时刻，elapsed写“数字分钟”。不额外购买、交物、收款或接约，保留物品所有者/保管者；余额与实付一致。自由复合input则逐项落实其已授权行动，同步物品保管、位置、数量；未发草稿不是行动。
+
+正文与人物因果优先；主动判断读者需要地图/状态/物品/线索/时间线/人物/对照，相关时显示，勿机械按关键词弹卡。surfaces按帮助程度排序，通常0至2张、最多3张；description不复述正文。不为UI创造伤势、倒计时、通用RPG数值、任务或奖励。地图行动尺度是有独立人物、目标或冲突的场景，不把门口/柜台拆关卡。推荐路线写可见吸引点与不同取舍，选择后同轮推进该处事件，途中障碍仍生效；回访承接结果，不重播初见。未选路线未发生，不预告秘密或保证奖励。suggestions最多2至3个后果不同的选项，可为空。
+entities只增量登记公开对象，沿用game/experience同一id/name，kind不变；name及状态须有本轮逐字quote。没变化且未提及只引用id，不加记账段。value/max未知null，明确数值及配方用量用阿拉伯数字，有真实上限才写max，不造100/0；计划、秘密、未取得物品不能记已有。旧档沿用实际可见事实。实体最多12条。
+surfaces每轮整组替换；entityIds仅已知公开对象，无相关组件用[]。links只用于map中真实通路；不凭朝向推断可走，不露未知地点。timeline区分计划与实际；people不因同场推断私交；comparison用2至4个对象的证据/用途/条件/代价，不造成功率。丰富字段存同id的experience.fields，kind不变。查看不推进时间。
+actions每卡最多4个，label简短；input只含所选目标，不捆绑接约/花钱/战斗/站队。attempt用于未知结果，effects=[]、destination=null，不强迫交易/说服/战斗成功。apply仅正文明确且当前可兑现的确定规则，成本所得完整，未知数值不算术，物品成本必须已拥有；surface.quote支持全部非零用量。destination只在map且为entityIds中的已知目的地，links有当前位置出发的可达通路；受阻用disabledReason或attempt。
+gameActionReceipt.mode=apply承接input/effects/location的已校验预结算，不重复扣费、不改数量/状态/目的地、不额外行动；game只补后续发现，重述须一致。events/experience/game同物品数量、地点一致，不重复item-add/remove。局部操作ended=false，失败不提交也不声称后台执行。普通自由行动改变既有数量/单位/状态也须同步；game记可操作状态，experience记经历资料，不另建矛盾账本。`;
 
 export const GAME_PLANNING_RULES = `
-构想premise简述此场景的欲望、阻力与将发生的转折；npcAction是人物实际做出的决定，不是站着等待。payoff写本轮完成后具体改变了什么及其用途，leaveOpen只保留由这个改变自然引出的一个问题，也可以为空。若涉及路线，所选路线要有独有的人物行动或信息/关系/资源取舍，不能两路都只是找到下一张纸条。将行程并入场景；已有障碍不能抹掉，未知风险不等于每一步都停止。不要把沿途观测碎片当作完整payoff。
-在构思中关注当前场景可体验的玩法：探索的路径和代价、物件的具体用途、信息的可验证差异、资源之间的取舍、角色愿意合作的条件。以世界真实规则为准，自然产生可操作机会；不硬塞通用RPG属性。若有gameActionReceipt，本轮必须承接已选择动作和已校验结算，不另选动作或反悔已知规则。候选的payoff包含实际可见成果；不要为了留按钮停在一切都尚未发生之前。`;
+构想premise写场景欲望、阻力与转折，npcAction是人物实际决定，不是站着等；payoff写具体改变及用途，leaveOpen只保留自然引出的一个问题，也可空。路线有独有人物行动或信息/关系/资源取舍，不能每路只找到下一张纸条。行程并入场景，已有障碍不消失，未知风险不等于逐步暂停；零碎观测不是完整payoff。
+玩法来自真实世界规则：探索代价、物件用途、可验证信息、资源取舍、合作条件，不硬塞RPG属性。有gameActionReceipt就承接已选动作和已知规则；apply按预结算，journey按路线给实际停点、耗时、付款，不擅自交物或接约。候选payoff应包含实际成果，不为留按钮停在一切尚未发生之前。`;

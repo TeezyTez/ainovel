@@ -1,3 +1,4 @@
+import {DynamicInteractions} from './src/server-dynamic.mjs';
 import http from 'node:http';
 import { readFile, realpath, stat } from 'node:fs/promises';
 import { dirname, resolve, relative, isAbsolute, extname } from 'node:path';
@@ -30,8 +31,8 @@ function canonical(value) {
   return value;
 }
 
-export function createServer({env=process.env,root=ROOT,cacheLimit=100,cacheTtlMs=300000,narrate=generateNarrative,worldAssist=assist,ledgerDirectory=resolve(root,'.data','branches')}={}) {
-  const config=modelConfig(env),cache=new Map(),ledger=new BranchLedger(ledgerDirectory);
+export function createServer({env=process.env,root=ROOT,cacheLimit=100,cacheTtlMs=300000,narrate=generateNarrative,worldAssist=assist,dynamicModel,ledgerDirectory=resolve(root,'.data','branches')}={}) {
+  const config=modelConfig(env),cache=new Map(),ledger=new BranchLedger(ledgerDirectory),dynamic=new DynamicInteractions(ledger,config,dynamicModel?{model:dynamicModel}:{});
   const server=http.createServer(async(req,res)=>{
     res.setHeader('x-content-type-options','nosniff');res.setHeader('referrer-policy','no-referrer');
     res.setHeader('content-security-policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
@@ -44,6 +45,10 @@ export function createServer({env=process.env,root=ROOT,cacheLimit=100,cacheTtlM
         if(!config.available)throw new ApiError(503,'MODEL_UNAVAILABLE','尚未配置真实模型，开局未改变。');
         return json(res,200,await ledger.start(owner,{...body,...(raw.preferences?{preferences:raw.preferences}:{})},(value,signal)=>worldAssist(value,config,signal),controller.signal));
       }
+      if(['/api/interaction/prepare','/api/interaction/execute','/api/interaction/narrate'].includes(url.pathname)&&req.method==='POST'){
+        const owner=ledger.owner(req),body=await readBody(req),controller=new AbortController();res.once('close',()=>controller.abort());
+        return json(res,200,await dynamic[url.pathname.split('/').at(-1)](owner,body,controller.signal));
+      }
       if(['/api/branch/register','/api/branch/read','/api/branch/edit'].includes(url.pathname)&&req.method==='POST'){
         const owner=ledger.owner(req),body=await readBody(req,url.pathname.endsWith('/register')?10*1024*1024:262144);
         if(!body||typeof body!=='object'||Array.isArray(body))throw new ApiError(400,'INVALID_REQUEST','请求格式无效。');
@@ -55,7 +60,9 @@ export function createServer({env=process.env,root=ROOT,cacheLimit=100,cacheTtlM
         if(!assisting&&raw.sessionId!==undefined){
           const owner=ledger.owner(req),controller=new AbortController();res.once('close',()=>controller.abort());
           if(!config.available)throw new ApiError(503,'MODEL_UNAVAILABLE','尚未配置真实模型，故事未改变。');
-          const result=await ledger.generate(owner,raw,(body,signal)=>(config.narrativeEngine==='direct'&&!body.gameAction?generate:narrate)(body,config,signal),controller.signal);
+          delete raw.interpreted;
+          if(!raw.control&&!raw.gameAction){let result=await dynamic.input(owner,raw,controller.signal);if(result.compose){await dynamic.prepare(owner,{...raw,intent:raw.input,retry:true},controller.signal);result=await dynamic.input(owner,{...raw,compositionAttempted:true},controller.signal);}if(result.handled){if(result.clarify)throw new ApiError(409,'CLARIFY_ACTION',result.clarify);return json(res,200,result);}if(result.interpreted)raw.interpreted=result.interpreted;}
+          const result=await ledger.generate(owner,raw,(body,signal)=>(config.narrativeEngine==='direct'&&!body.gameAction?generate:narrate)(raw.interpreted?{...body,input:body.input+'\n[行动解释，仅为申请，不能据此宣布成功] '+JSON.stringify(raw.interpreted)}:body,config,signal),controller.signal);
           return json(res,200,result);
         }
         const body=(assisting?validateAssistRequest:validateRequest)(raw);
@@ -104,5 +111,5 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).hr
   const port=Number(process.env.PORT)||4173;
   const server=createServer();
   server.on('error',()=>{console.error('服务启动失败，请检查端口是否被占用。');process.exitCode=1;});
-  server.listen(port,'127.0.0.1',()=>console.log(`此间已启动：http://127.0.0.1:${port}（故事保存在此设备浏览器）`));
+  server.listen(port,'127.0.0.1',()=>console.log(`人生复本已启动：http://127.0.0.1:${port}（故事保存在此设备浏览器）`));
 }

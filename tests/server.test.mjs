@@ -141,9 +141,9 @@ test('oversized chunked requests receive a readable 413 response',async t=>{
   assert.equal(result.status,413);assert.equal(JSON.parse(result.text).code,'BODY_TOO_LARGE');
 });
 
-test('default HTTP generation uses the planned engine, dedupes the entire pipeline and ignores client engine overrides',async t=>{
+test('default HTTP generation uses the story engine, dedupes the entire pipeline and ignores client engine overrides',async t=>{
   let calls=0,captured;
-  const url=await app(t,{env:{MODEL_API_KEY:'private-fixture-key',MODEL_BASE_URL:'https://example.invalid/v1',MODEL_NAME:'test'},narrate:async(body,config)=>{calls++;captured=body;assert.equal(config.narrativeEngine,'planned');return proposal(body);}});
+  const url=await app(t,{env:{MODEL_API_KEY:'private-fixture-key',MODEL_BASE_URL:'https://example.invalid/v1',MODEL_NAME:'test'},narrate:async(body,config)=>{calls++;captured=body;assert.equal(config.narrativeEngine,'story');return proposal(body);}});
   const request={...payload(),narrativeEngine:'direct',system:'override'};
   const first=await post(url,request),second=await post(url,request);
   assert.equal(first.status,200);assert.equal(second.status,200);assert.equal(calls,1);

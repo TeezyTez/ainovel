@@ -33,7 +33,7 @@ export async function runCodex(config,system,content,signal,{schema=proposalSche
   const schemaFile=join(dir,'response.json'),instructionsFile=join(dir,'instructions.txt');
   try {
     await writeFile(schemaFile,JSON.stringify(schema));
-    await writeFile(instructionsFile,system+'\n你只负责生成符合给定 schema 的 JSON。不得调用任何工具。事件 entity 无需指定时输出 null。');
+    await writeFile(instructionsFile,system+'\n仅生成符合给定 schema 的 JSON，不调用工具。');
     const args=['exec','--ignore-user-config','--ephemeral','--skip-git-repo-check','--sandbox','read-only','--json','--color','never','--cd',dir,'--output-schema',schemaFile,'--enable','skip_host_skill_discovery','-c',`model_instructions_file=${JSON.stringify(instructionsFile)}`,'-c','web_search="disabled"','-c','project_doc_max_bytes=0','-c','model_reasoning_effort="low"'];
     for(const feature of disabled)args.push('--disable',feature);
     if(config.model)args.push('--model',config.model);

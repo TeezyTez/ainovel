@@ -1,9 +1,14 @@
 import {currentMapPlace} from './map-layout.js';
+import {publicSpatial} from './spatial-state.js';
 const queryNames={
   all:['玩法','游戏界面','游戏面板'],
   status:['状态','我的状态','角色状态','状态栏'],
   map:['地图','当前地图','附近地图','周边地图','路线图'],
   inventory:['背包','我的背包','物品','我的物品'],
+  around:['周围'],
+  time:['时间','日程'],
+  journal:['手记'],
+  interaction:['人物','已知人物'],
   clues:['线索','已知线索'],
   objectives:['目标','任务','当前目标','当前任务']
 };
@@ -22,6 +27,9 @@ export function gameQuery(input){
   request=request.replace(/^(?:给我|帮我|我想|我要)(?:看一下|看看|看|显示一下|显示|展示一下|展示)/,'查看');
   request=request.replace(/^把(.+?)(?:显示|展示)(?:出来)?$/,'查看$1').replace(/^(?:能|可以)(?:给我)?(?:显示|展示|看看)(.+?)吗$/,'查看$1');
   if(/^(?:我|我现在|我目前)(?:有|持有|带着)(?:哪些|什么)物品$/.test(request))return 'inventory';
+  if(/^(?:我|我现在|我目前)(?:在哪|在哪里)$/.test(request))return 'around';
+  if(/^(?:我)?身上有什么$/.test(request))return 'inventory';
+  if(/^(?:现在)?几点(?:了)?$/.test(request))return 'time';
   return queries.get(request)??null;
 }
 
@@ -67,8 +75,10 @@ export function gameRecallState(state,situation){
       sourceVersion:version(object.sourceVersion,currentVersion)
     });
   }
+  const spatial=publicSpatial({entities:[...entities.values()],spatial:state?.game?.spatial},[...entities.values()].map(e=>e.quote));
   return {version:currentVersion,location:text(state?.location),game:{
     schemaVersion:1,entities:[...entities.values()],
+    ...(spatial?{spatial:structuredClone(spatial)}:{}),
     surfaces:structuredClone(list(state?.game?.surfaces).filter(record).map(publicSurface))
   }};
 }

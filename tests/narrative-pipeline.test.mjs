@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { setTimeout as delay } from 'node:timers/promises';
 
 import * as pipeline from '../src/server-narrative.mjs';
 const config = {available:true, contextBudget:24000, outputBudget:2400, timeoutMs:1000};
@@ -31,10 +30,22 @@ test('bounded game quote repair keeps prose and business fields frozen and still
  const known=body();known.state.experience={schemaVersion:1,clock:null,objects:[{id:'lamp',kind:'item',name:p.game.entities[0].name,summary:'一盏灯',status:'修好了',certainty:'confirmed',fields:[],relatedIds:[],quote:p.prose,sourceVersion:0}],stop:null,folded:[]};await assert.rejects(run(known,[plan(),p,{game:repaired}]),error=>error.diagnostic.stage==='game-repair-frozen');
  p.experience={clock:null,objects:[{id:'lamp',kind:'item',name:p.game.entities[0].name,summary:'一盏灯',status:'修好了',certainty:'confirmed',fields:[],relatedIds:[],quote:p.prose}],stop:null,folded:[]};const synced=await run(body(),[plan(),p,{game:repaired}]);assert.equal(synced.result.experience.objects[0].name,'灯');assert.equal(synced.result.experience.objects[0].id,'lamp');assert.equal(synced.result.experience.objects[0].quote,p.prose);assert.equal(synced.result.experience.objects[0].status,'修好了');
 });
-test('game repair shares the original deadline and makes at most one repair call',async()=>{
- const p=proposal();p.game={entities:[{id:'lamp',kind:'item',name:'修好的灯',detail:'灯',status:'修好了',value:null,max:null,unit:'',quote:p.prose}],surfaces:[]};let calls=0;const budgets=[],started=Date.now();
- await assert.rejects(pipeline.generateNarrative(body(),{...config,timeoutMs:50},new AbortController().signal,{requestJSON:async(c)=>{budgets.push(c.timeoutMs);calls++;if(calls<3){await delay(8);return calls===1?plan():p;}await delay(100);return {game:p.game};}}),error=>error.code==='TIMEOUT');
- assert.equal(calls,3);assert.ok(budgets[2]<budgets[0]);assert.ok(Date.now()-started<200);
+test('game repair shares the original deadline and makes at most one repair call',async(t)=>{
+ t.mock.timers.enable({apis:['Date','setTimeout'],now:1000});
+ const p=proposal();p.game={entities:[{id:'lamp',kind:'item',name:'修好的灯',detail:'灯',status:'修好了',value:null,max:null,unit:'',quote:p.prose}],surfaces:[]};
+ let calls=0,repairSignal,settled=false;const budgets=[],repairStarted=Promise.withResolvers();
+ const generation=pipeline.generateNarrative(body(),{...config,timeoutMs:50},new AbortController().signal,{requestJSON:async(c,_system,_content,signal)=>{
+   budgets.push(c.timeoutMs);calls++;
+   if(calls<3){t.mock.timers.tick(8);return calls===1?plan():p;}
+   repairSignal=signal;repairStarted.resolve();return new Promise(()=>{});
+ }});
+ const rejected=assert.rejects(generation,error=>{settled=true;return error.code==='TIMEOUT';});
+ await repairStarted.promise;
+ assert.deepEqual(budgets,[50,42,34]);
+ t.mock.timers.tick(33);await Promise.resolve();
+ assert.equal(settled,false);assert.equal(repairSignal.aborted,false);
+ t.mock.timers.tick(1);await rejected;
+ assert.equal(repairSignal.aborted,true);assert.equal(calls,3);
 });
 async function run(input=body(), responses=[plan(),proposal()], overrides={}) {
   assert.equal(typeof pipeline.generateNarrative,'function','narrative pipeline must exist');
@@ -185,10 +196,18 @@ test('cancel during planner prevents writer and cancellation is not silently dow
   assert.equal(typeof pipeline.generateNarrative,'function');let calls=0;const controller=new AbortController();
   await assert.rejects(pipeline.generateNarrative(body(),config,controller.signal,{requestJSON:async()=>{calls++;controller.abort();return plan();}}),e=>e.code==='CANCELLED');assert.equal(calls,1);
 });
-test('planner and writer share one timeout even if a transport ignores the abort signal',async()=>{
-  assert.equal(typeof pipeline.generateNarrative,'function');let calls=0;let secondBudget;
-  await assert.rejects(pipeline.generateNarrative(body(),{...config,timeoutMs:80},new AbortController().signal,{requestJSON:async c=>{calls++;if(calls===1){await delay(45);return plan();}secondBudget=c.timeoutMs;await delay(60);return proposal();}}),e=>e.code==='TIMEOUT');
-  assert.equal(calls,2);assert.ok(secondBudget<60);
+test('planner and writer share one timeout even if a transport ignores the abort signal',async(t)=>{
+  t.mock.timers.enable({apis:['Date','setTimeout'],now:1000});
+  let calls=0,secondBudget,writerSignal;const writerStarted=Promise.withResolvers();
+  const generation=pipeline.generateNarrative(body(),{...config,timeoutMs:80},new AbortController().signal,{requestJSON:async(c,_system,_content,signal)=>{
+    calls++;if(calls===1){t.mock.timers.tick(45);return plan();}
+    secondBudget=c.timeoutMs;writerSignal=signal;writerStarted.resolve();return new Promise(()=>{});
+  }});
+  const rejected=assert.rejects(generation,e=>e.code==='TIMEOUT');
+  await writerStarted.promise;assert.equal(secondBudget,35);
+  t.mock.timers.tick(34);assert.equal(writerSignal.aborted,false);
+  t.mock.timers.tick(1);await rejected;
+  assert.equal(writerSignal.aborted,true);assert.equal(calls,2);
 });
 test('retrieval prioritizes overdue threads, avoids recent methods, and remains bounded',async()=>{
   const module=await import('../src/story-methods.mjs').catch(()=>({}));assert.equal(typeof module.selectStoryMethods,'function');

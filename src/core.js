@@ -1,3 +1,4 @@
+import {resolveDynamic,applyDynamic,validateDefinition} from './dynamic-rules.js';
 import {advanceNarrative, narrativeForBranch, validateNarrative} from './narrative-state.js';
 import {advanceExperience, validateExperience} from './experience-state.js';
 import {validatePersonalMetadata} from './personal-library.js';
@@ -40,6 +41,7 @@ export function validateProposal(p,world,state) {
   if(p.narrative!==undefined)validateNarrative(p.narrative,state.version+1,worldKey(world));
   if(p.experience!=null){validateExperience(p.experience,p.prose,{world});advanceExperience(state.experience,p.experience,state.version+1);}
   if(p.game!==undefined)validateGameUpdate(p.game,p.prose);
+  if(p.operation!==undefined){const receipt=resolveDynamic(state,p.operation.definition,p.operation.request);assert(receipt.requestId===p.requestId&&p.events.length===1&&p.events[0].type==='fact'&&p.events[0].visibility==='player'&&p.events[0].value===receipt.result&&p.game===undefined&&p.gameAction===undefined&&p.experience===undefined,'行动记录不能夹带未结算的后果。');}
   return p;
 }
 function validateNarrativeUpdate(previous,next,prose) {
@@ -48,8 +50,9 @@ function validateNarrativeUpdate(previous,next,prose) {
   const rebuilt=advanceNarrative(previous,{focus:next.focus,beat,threads:updates,opportunities:next.opportunities},prose,next.turn,next.worldKey);
   assert(canonical(rebuilt)===canonical(next),'叙事记录与已提交期待不一致，旧故事已保留。');
 }
-export function applyEvents(before,events,experience,{legacyExperience=false,game,gameAction,branchId}={}) {
+export function applyEvents(before,events,experience,{legacyExperience=false,game,gameAction,branchId,operation}={}) {
   const state=clone(before); state.version++; state.step++;
+  const next=advanceExperience(before.experience,experience,state.version,{legacyFields:legacyExperience});
   const gameplay=applyGameTransaction(before,game,gameAction,{branchId,events,experience});
   if(gameplay.game!==undefined)state.game=gameplay.game;
   state.location=gameplay.location;
@@ -65,9 +68,9 @@ export function applyEvents(before,events,experience,{legacyExperience=false,gam
       if(e.type==='location')state.location=e.value;
     }
   }
-  for(const effect of gameAction?.effects??[]){const e=state.game.entities.find(e=>e.id===effect.entityId);if(e.kind==='item'&&e.value!==null&&state.game.entities.filter(other=>other.kind==='item'&&other.name===e.name).length===1){const aliases=gameItemAliases(before.game.entities.find(old=>old.id===e.id),before.experience);state.inventory=[...new Set(state.inventory.flatMap(name=>aliases.has(name)?e.value===0?[]:[e.name]:[name]))];}}
-  const next=advanceExperience(before.experience,experience,state.version,{legacyFields:legacyExperience});
+  for(const effect of gameplay.effects){const e=state.game.entities.find(e=>e.id===effect.entityId);if(e.kind==='item'&&e.value!==null&&state.game.entities.filter(other=>other.kind==='item'&&other.name===e.name).length===1){const aliases=gameItemAliases(before.game.entities.find(old=>old.id===e.id),before.experience);state.inventory=[...new Set(state.inventory.flatMap(name=>aliases.has(name)?e.value===0?[]:[e.name]:[name]))];}}
   if(next!==undefined){state.experience=next;if(next.clock)state.time=next.clock.label;}
+  if(operation)applyDynamic(state,before,operation);
   return state;
 }
 export function commitTurn(session,world,input,proposal,expectedBranch=session.activeBranch) {
@@ -76,7 +79,7 @@ export function commitTurn(session,world,input,proposal,expectedBranch=session.a
   assert(!b.turns.some(t=>t.requestId===proposal.requestId),'这个回合已经提交，不会重复写入。');
   validateProposal(proposal,world,currentState(session));
   if(proposal.narrative!==undefined)validateNarrativeUpdate(narrativeForBranch(b),proposal.narrative,proposal.prose);
-  const state=applyEvents(currentState(session),proposal.events,proposal.experience,{game:proposal.game,gameAction:proposal.gameAction,branchId:b.id});
+  const state=applyEvents(currentState(session),proposal.events,proposal.experience,{game:proposal.game,gameAction:proposal.gameAction,branchId:b.id,operation:proposal.operation});
   const id=uid();
   const events=proposal.events.map(e=>({...clone(e),sourceTurn:id,branchId:b.id}));
   const memory={sourceTurn:id,branchId:b.id,summary:proposal.prose.slice(0,240),facts:events.filter(e=>e.type==='fact'&&e.visibility==='player').map(e=>e.value)};
@@ -84,6 +87,7 @@ export function commitTurn(session,world,input,proposal,expectedBranch=session.a
   if(proposal.experience!==undefined)turn.experience=clone(proposal.experience);
   if(proposal.game!==undefined)turn.game=clone(proposal.game);
   if(proposal.gameAction!==undefined)turn.gameAction=clone(proposal.gameAction);
+  if(proposal.operation!==undefined){turn.operation=clone(proposal.operation);turn.narration={status:"pending",revision:0};}
   b.turns.push(turn); if((b.draft||'').trim()===input.trim())b.draft=''; session.updatedAt=Date.now(); return turn;
 }
 export function forkBranch(session,nodeId,name,newWorld) {
@@ -115,7 +119,7 @@ export function validateWorld(w) {
   return w;
 }
 export function validateArchive(data) {
-  assert(data&&data.schemaVersion===1,'不支持这个存档版本。需要 schemaVersion 为 1 的此间存档。');
+  assert(data&&data.schemaVersion===1,'不支持这个存档版本。需要 schemaVersion 为 1 的人生复本存档。');
   function inspect(value,depth=0){assert(depth<32,'存档嵌套层级过深。');if(Array.isArray(value)){assert(value.length<=10000,'存档列表过大。');for(const v of value)inspect(v,depth+1);}else if(object(value))for(const [key,v]of Object.entries(value)){assert(!['__proto__','prototype','constructor'].includes(key),'存档含有不安全的属性名。');inspect(v,depth+1);}}
   inspect(data);
   if(data.settings!==undefined){assert(object(data.settings),'阅读设置格式无效。');for(const key of ['fontSize','lineHeight','width'])if(data.settings[key]!==undefined)assert(Number.isFinite(data.settings[key]),'阅读数值设置无效。');for(const key of ['theme','perspective','length','pace','style'])if(data.settings[key]!==undefined)assert(text(data.settings[key],200),'阅读文字设置无效。');}
@@ -140,10 +144,11 @@ export function validateArchive(data) {
     const bid=new Set(s.branches.map(b=>b.id));assert(bid.size===s.branches.length&&bid.has(s.activeBranch),'当前分支不存在或重复。');
     for(const b of s.branches){const w=worldMap.get(b.worldKey);assert(w&&w.id===s.worldId&&safeKey(b.id)&&text(b.name,200)&&Array.isArray(b.turns)&&text(b.draft||'')&&b.turns.length<=2000,'分支引用或内容无效。');assert(b.opening===undefined||text(b.opening),'分支开场格式无效。');assert(!b.parentBranch||bid.has(b.parentBranch),'分支父引用不存在。');validateState(b.initialState,w);if(b.initialState.experience!==undefined)validateExperience(b.initialState.experience,b.opening??w.opening,{snapshot:true,version:b.initialState.version,world:w});let before=b.initialState;let parent=null;const requests=new Set(),turnIds=new Set();
       let previousNarrative=null;
+      if(b.dynamic?.definition)validateDefinition(b.dynamic.definition,b.turns.at(-1)?.state??b.initialState);
       if(b.archived!==undefined)assert(typeof b.archived==='boolean','分支封存状态无效。');
       for(const t of b.turns){
         assert(safeKey(t.id)&&!turnIds.has(t.id)&&t.parentId===parent&&t.status==='completed'&&text(t.input)&&!requests.has(t.requestId)&&timestamp(t.createdAt),'回合链断裂或存在重复请求。');
-        turnIds.add(t.id);
+        turnIds.add(t.id);if(t.operation)assert(t.narration&&['pending','failed','complete'].includes(t.narration.status)&&Number.isSafeInteger(t.narration.revision)&&t.narration.revision>=0,'行动叙事状态无效。');
         // Copied history can retain its original world's snapshot after a rewrite.
         const {narrative,experience,game,...proposal}=t;
         validateProposal({...proposal,baseVersion:before.version},w,before);validateState(t.state,w);
@@ -151,7 +156,7 @@ export function validateArchive(data) {
         if(game!=null){let witnessed=false;for(const prose of [t.prose,...(t.revisions??[]).map(r=>r.prose)]){try{validateGameUpdate(game,prose);witnessed=true;break;}catch{}}assert(witnessed,'游戏记录缺少同一版本的已保存正文依据。');}
         assert(t.state.version===before.version+1&&t.state.step===before.step+1,'状态版本与回合不一致。');
         const legacyExperience=t.state.experience?.schemaVersion===undefined&&before.experience?.schemaVersion===undefined;
-        const replay=applyEvents(before,t.events,experience,{legacyExperience,game,gameAction:t.gameAction,branchId:b.id});
+        const replay=applyEvents(before,t.events,experience,{legacyExperience,game,gameAction:t.gameAction,branchId:b.id,operation:t.operation});
         // schemaVersion=1 archives historically stored message ordinals as time.
         // Accept that precise old representation only while replaying legacy data.
         if(experience===undefined&&t.state.experience===undefined&&t.state.time===`第 ${t.state.step} 个片刻`)replay.time=t.state.time;
