@@ -23,3 +23,18 @@ test('owner token and pending operation survive client recreation; server errors
  const c=new BranchClient(storage,async()=>({ok:false,json:async()=>({code:'VERSION_CONFLICT',error:'过期'})}));const token=c.owner();c.journal({sessionId:'s',requestId:'r'});const next=new BranchClient(storage);
  assert.equal(next.owner(),token);assert.equal(next.journal().requestId,'r');await assert.rejects(c.read({id:'s',activeBranch:'b'}),e=>e.code==='VERSION_CONFLICT');c.journal(null);assert.equal(next.journal(),null);
 });
+test('unfinished submissions survive switching stories and clearing another branch receipt',()=>{
+ const map=new Map(),storage={getItem:k=>map.get(k)||null,setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k)};
+ const a={sessionId:'a',branchId:'main',requestId:'ra',body:{input:'A 的完整长输入'}},b={sessionId:'b',branchId:'main',requestId:'rb',body:{input:'B 的输入'}};
+ const first=new BranchClient(storage);first.journal(a);first.journal(b);
+ const next=new BranchClient(storage);assert.deepEqual(next.journal(undefined,a),a);assert.deepEqual(next.journal(undefined,b),b);
+ next.journal(null,b);assert.equal(next.journal(undefined,b),null);assert.deepEqual(next.journal(undefined,a),a);
+ next.journal({...a,branchId:'fork',requestId:'rf'});assert.deepEqual(next.journal(undefined,a),a);
+});
+test('legacy pending input remains readable only in its own branch and is removed after its receipt',()=>{
+ const pending={sessionId:'old',branchId:'main',requestId:'once',body:{input:'升级前的输入'}};
+ const map=new Map([['fangtang:pending:v1',JSON.stringify(pending)]]),storage={getItem:k=>map.get(k)||null,setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k)};
+ const client=new BranchClient(storage);assert.equal(client.journal(undefined,{sessionId:'other',branchId:'main'}),null);assert.deepEqual(client.journal(undefined,pending),pending);
+ client.journal({sessionId:'other',branchId:'main',requestId:'new'});assert.deepEqual(client.journal(undefined,pending),pending);
+ client.journal(null,pending);assert.equal(client.journal(undefined,pending),null);assert.equal(client.journal(undefined,{sessionId:'other',branchId:'main'}).requestId,'new');
+});

@@ -8,6 +8,15 @@ import {gameRecallState} from '../src/game-query.js';
 
 import {names,prose,entity,site,relation,atlas} from './fixtures/spatial-world.mjs';
 const update=()=>({entities:Object.keys(names).slice(0,4).map(entity),surfaces:[],spatial:atlas()});
+test('map overlays shorten sentence labels but retain original names and facts for inspection',()=>{
+ const game=advanceGame(undefined,update(),1),before=structuredClone(game);
+ game.entities[0].name='港口的另一端，夜色中还有一座等待船只驶入的码头';game.entities[1].name='村';
+ const original=game.entities[0].name,html=spatialMapView(game,{location:original,version:1});
+ assert.match(html,/class="atlas-place-name">港口的另一端…<\/span>/);
+ assert.ok(html.includes('aria-label="查看地点：'+original+'"'));
+ assert.match(html,/class="atlas-place-name">村<\/span><small>地点<\/small>/);
+ assert.equal(game.entities[0].name,original);assert.deepEqual(game.spatial,before.spatial);
+});
 
 test('spatial facts survive a turn without cards and round-trip on separate branches',()=>{
  const world={id:'map-world',version:1,title:'港湾',location:'港口',opening:prose,identity:'旅人',rules:[],characters:[]};
@@ -59,6 +68,25 @@ test('a measured map renders terrain, scale, blocked routes and no movement cont
  assert.doesNotMatch(html,/data-action="game-act"|game-map-node/);assert.equal(JSON.stringify(game),before);
  const attack=structuredClone(game);attack.entities[0].detail='<img src=x onerror=alert(1)>';attack.spatial.relations[4].label='<script>bad()</script>';
  assert.doesNotMatch(spatialMapView(attack),/<img|<script>/);assert.match(spatialMapView(attack),/&lt;script&gt;/);
+});
+test('unconnected location records use a compact view without suggesting a measured map',()=>{
+ const game={entities:['port','square','forest'].map(entity),surfaces:[]},before=JSON.stringify(game);
+ const html=spatialMapView(game,{location:'港口'});
+ assert.match(html,/class="atlas-sparse"/);assert.match(html,/aria-label="已知地点记录"/);
+ assert.match(html,/class="atlas-place is-current"[^>]*data-entity="port"/);
+ assert.match(html,/data-action="map-scope"[^>]*data-anchor="square"/);
+ assert.match(html,/data-action="map-scope"[^>]*data-anchor="forest"/);
+ assert.doesNotMatch(html,/class="atlas-canvas"|data-action="map-zoom"|class="atlas-road-line"|class="atlas-scale"/);
+ assert.equal(JSON.stringify(game),before);
+});
+test('long map labels retain their full inspectable name and escaped detail',()=>{
+ const game=advanceGame(undefined,update(),1),longName='港口东岸旧仓库与通往沿河集市的石阶交界处';
+ game.entities[0].name=longName;game.entities[0].detail='门上写着“请进” <script>不会执行</script>';
+ const before=JSON.stringify(game),html=spatialMapView(game,{location:longName,version:1,node:'turn-map'});
+ assert.match(html,new RegExp(`aria-label="查看地点：${longName}"`));
+ assert.match(html,new RegExp(`title="${longName} — 门上写着“请进” &lt;script&gt;`));
+ assert.match(html,/data-entity="port" data-node="turn-map"/);assert.match(html,/aria-current="location"/);
+ assert.doesNotMatch(html,/<script>/);assert.equal(JSON.stringify(game),before);
 });
 test('public recall preserves durable geography after its original card expires',()=>{
  const original=advanceGame(undefined,update(),1),later=advanceGame(original,null,2),state={version:2,location:'港口',game:later};

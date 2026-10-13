@@ -1,5 +1,6 @@
 // A deliberately finite, data-only language shared by preview and authoritative replay.
 // It has no script evaluator, dynamic property lookup, network or storage capability.
+import {RICH_VIEW_TYPES,validateRichView} from './rich-interaction.js';
 const denied=new Set(['__proto__','prototype','constructor']);
 export const check=(ok,message)=>{if(!ok)throw new Error(message);};
 export const canonical=value=>JSON.stringify(value,(_,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.entries(v).sort(([a],[b])=>a.localeCompare(b))):v);
@@ -59,11 +60,11 @@ export function validateDefinition(d,state){
   check(Array.isArray(d.fields)&&d.fields.length<=24&&unique(d.fields)&&Array.isArray(d.steps)&&d.steps.length<=8&&unique(d.steps)&&Array.isArray(d.actions)&&d.actions.length<=12&&unique(d.actions),'输入或动作数量、标识无效。');
   for(const f of d.fields){check(['number','text','choice','multiple','boolean'].includes(f.type)&&text(f.label),'输入类型无效。');if(f.type==='number')check(Number.isFinite(f.min)&&Number.isFinite(f.max)&&f.min<=f.max&&Math.abs(f.min)<=1e12&&Math.abs(f.max)<=1e12,'数量范围无效。');if(['choice','multiple'].includes(f.type))check(Array.isArray(f.options)&&f.options.length>0&&f.options.length<=100&&new Set(f.options.map(o=>o.id)).size===f.options.length&&f.options.every(o=>typeof o.id==='string'&&o.id.length>0&&o.id.length<=100&&!denied.has(o.id)&&text(o.label)),'选项无效。');}
   for(const step of d.steps)check(text(step.title)&&Array.isArray(step.fields)&&step.fields.every(k=>d.fields.some(f=>f.id===k)),'步骤引用无效。');
-  let nodes=0;function node(n,depth=0){check(n&&++nodes<=200&&depth<=8&&['group','row','text','value','repeat','meter'].includes(n.type),'不支持的显示组件或布局过深。');if(n.children){check(Array.isArray(n.children),'布局子项无效。');n.children.forEach(x=>node(x,depth+1));}if(n.type==='text')check(text(n.text),'显示文字无效。');}
+  let nodes=0;function node(n,depth=0){check(n&&++nodes<=200&&depth<=8&&['group','row','text','value','repeat','meter',...RICH_VIEW_TYPES].includes(n.type),'不支持的显示组件或布局过深。');if(n.children){check(Array.isArray(n.children),'布局子项无效。');n.children.forEach(x=>node(x,depth+1));}if(n.type==='text')check(text(n.text),'显示文字无效。');}
   check(Array.isArray(d.view),'缺少显示布局。');d.view.forEach(n=>node(n));
   for(const a of d.actions){check(text(a.label)&&['rule','attempt'].includes(a.mode)&&Array.isArray(a.targets)&&a.targets.length<=32&&a.targets.every(k=>state.game?.entities.some(e=>e.id===k)),'动作对象不存在。');check(Array.isArray(a.effects)&&a.effects.length<=32&&Array.isArray(a.checks)&&a.checks.length<=24,'规则数量无效。');check(a.mode==='rule'||!a.effects.length,'尝试不能保证结果。');for(const effect of a.effects)check(a.targets.includes(effect.entityId)&&['delta','status'].includes(effect.kind),'规则越过了声明的对象。');check(Array.isArray(a.evidence)&&a.evidence.length>0&&a.evidence.every(q=>text(q)&&q.trim()),'行动规则缺少已知依据。');}
   const verify=e=>validateExpression(e,d,state);
-  function expressions(n){if(n.when!==undefined)verify(n.when);if(n.value!==undefined)verify(n.value);if(n.max!==undefined)verify(n.max);if(n.items!==undefined)verify(n.items);n.children?.forEach(expressions);}d.view.forEach(expressions);
+  function expressions(n){if(validateRichView(n,{check,verify}))return;if(n.when!==undefined)verify(n.when);if(n.value!==undefined)verify(n.value);if(n.max!==undefined)verify(n.max);if(n.items!==undefined)verify(n.items);n.children?.forEach(expressions);}d.view.forEach(expressions);
   for(const f of d.fields){if(f.when!==undefined)verify(f.when);if(f.validate!==undefined)verify(f.validate);if(f.default!==undefined)validateParams({...d,fields:[{...f,required:false,validate:undefined}]},{[f.id]:f.default});}
   for(const s of d.steps){if(s.when!==undefined)verify(s.when);if(s.validate!==undefined)verify(s.validate);}
   for(const a of d.actions){a.checks.forEach(c=>{check(text(c.message),'条件说明无效。');verify(c.when);});a.effects.forEach(e=>verify(e.value));verify(a.result);}
@@ -93,4 +94,4 @@ export function applyDynamic(state,before,operation){
   for(const change of receipt.changes){const e=state.game.entities.find(e=>e.id===change.entityId);e[change.kind==='delta'?'value':'status']=change.after;e.sourceVersion=state.version;}
   return state;
 }
-export const DYNAMIC_PROMPT_VERSION='elselife-dynamic-3';
+export const DYNAMIC_PROMPT_VERSION='elselife-dynamic-6';

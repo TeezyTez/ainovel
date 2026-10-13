@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {createSession,currentState,validateArchive,forkBranch} from '../src/core.js';
+import {createSession,currentState,validateArchive,forkBranch,commitTurn} from '../src/core.js';
 import {BranchLedger} from '../src/server-branch-ledger.mjs';
 import {DynamicInteractions,dynamicScope} from '../src/server-dynamic.mjs';
 import {expression,resolveDynamic,validateDefinition,validateParams,publicContext} from '../src/dynamic-rules.js';
@@ -28,6 +28,27 @@ test('finite decimal rules preserve continuous inputs without binary rounding or
 test('changing the visible interface does not remove approved world rules from free-input execution',async t=>{const f=await service(t),original=f.svc.model;f.svc.model=async(config,kind,context,signal)=>kind==='prepare'?{value:{...f.definition,id:'comparison',actions:[]},metrics:{kind,durationMs:0}}:original(config,kind,context,signal);await f.svc.prepare('owner',{...f.scope,intent:'只比较'},f.signal);const result=await f.svc.input('owner',{...f.scope,input:'现在买2瓶',requestId:'outside-buttons'},f.signal);assert.ok(result.operationId);assert.deepEqual(result.authoritativeBranch.turns[0].state.game.entities.map(e=>e.value),[4,3,2]);});
 test('client-imported contracts cannot bypass server approval',async t=>{const f=await service(t),data=await f.ledger.load('owner',f.session.id);delete data.dynamicApprovals;await f.ledger.save('owner',data);await assert.rejects(f.svc.execute('owner',f.request,f.signal),/审核/);assert.equal((await f.ledger.load('owner',f.session.id)).session.branches[0].turns.length,0);});
 
+test('display-only views never add model routing to ordinary input, including old catalog entries',async t=>{
+ const f=await service(t),data=await f.ledger.load('owner',f.session.id),b=data.session.branches[0];
+ delete b.initialState.game;
+ const display={...f.definition,id:'known-people',fields:[],steps:[],actions:[],view:[{type:'cards',items:[{title:'商人',body:'等待交谈。'}]}]};
+ b.dynamic.definition=display;data.dynamicCatalog[b.id]=[structuredClone(display)];
+ let calls=0;f.svc.model=async()=>{calls++;return {value:{kind:'unrelated'},metrics:{kind:'input',durationMs:0}};};
+ for(const phase of ['current','historical']){
+  if(phase==='historical'){
+   commitTurn(data.session,world,'继续',{requestId:'continue-scene',baseVersion:0,prose:'商人仍在柜台前等候。',events:[]},b.id);
+   b.dynamic={...b.dynamic,definition:null,scope:dynamicScope(data.session,b)};
+  }
+  await f.ledger.save('owner',data);
+  const request={...f.scope,baseVersion:phase==='historical'?1:0,requestId:'question-'+phase,input:'目前有些什么人物'};
+  assert.deepEqual(await f.svc.input('owner',request,f.signal),{handled:false});
+  await assert.rejects(f.svc.input('owner',{...request,requestId:'forged-'+phase,dynamicAttempt:{actionId:'invented'}},f.signal));
+ }
+ assert.equal(calls,0,'presentation-only history must not invoke the action interpreter');
+ const saved=(await f.ledger.load('owner',f.session.id)).session.branches[0];
+ assert.equal(saved.turns.length,1);assert.equal(saved.turns[0].prose,'商人仍在柜台前等候。');
+});
+
 test('ordinary text scenes support useful attempt interfaces without invented numeric entities',async t=>{
  const f=await service(t),data=await f.ledger.load('owner',f.session.id),b=data.session.branches[0];delete b.initialState.game;delete b.dynamic;delete data.dynamicCatalog;await f.ledger.save('owner',data);
  const d={...f.definition,id:'ask-purpose',fields:[{id:'question',label:'想了解什么',type:'text',required:true}],steps:[],view:[{type:'text',text:world.opening}],actions:[{id:'ask',label:'向商人询问',mode:'attempt',targets:[],checks:[],effects:[],result:'提出问题，等待对方回应。',evidence:[world.opening]}]};
@@ -43,4 +64,28 @@ test('old null decisions refresh after prompt changes and new decisions retain a
  let calls=0;f.svc.model=async()=>{calls++;return {value:{needed:false,reason:'此刻只需听完这句话。'},metrics:{kind:'prepare',durationMs:0}};};
  const result=await f.svc.prepare('owner',f.scope,f.signal);assert.equal(calls,1);assert.equal(result.authoritativeBranch.dynamic.decisionReason,'此刻只需听完这句话。');assert.equal(result.authoritativeBranch.dynamic.reason,'');
  await f.svc.prepare('owner',f.scope,f.signal);assert.equal(calls,1);
+});
+test('automatic planning receives only recent committed inputs from the current public branch, separately from evidence',async t=>{
+ const f=await service(t),data=await f.ledger.load('owner',f.session.id),b=data.session.branches[0];
+ for(let i=1;i<=4;i++)commitTurn(data.session,world,`已提交的问题${i}`,{requestId:`dialogue-${i}`,baseVersion:i-1,prose:`商人公开回答${i}。`,events:[{type:'fact',visibility:'hidden',value:`SECRET_EVENT_${i}`}]},b.id);
+ b.draft='UNSENT_DRAFT';
+ const other=forkBranch(data.session,null,'另一条路');
+ commitTurn(data.session,world,'OTHER_BRANCH_INPUT',{requestId:'other-dialogue',baseVersion:0,prose:'OTHER_BRANCH_PROSE',events:[]},other.id);
+ await f.ledger.save('owner',data);
+ let received;f.svc.model=async(_config,kind,ctx)=>{received=ctx;return {value:{needed:false,reason:'普通对话无需界面。'},metrics:{kind,durationMs:0}};};
+ await f.svc.prepare('owner',{...f.scope,baseVersion:4,ui:{draft:'CLIENT_DRAFT'}},f.signal);
+ assert.deepEqual(received.recentInputs,['已提交的问题2','已提交的问题3','已提交的问题4']);
+ assert.deepEqual(received.recent,[world.opening,'商人公开回答2。','商人公开回答3。','商人公开回答4。']);
+ assert.equal(received.intent,'');
+ assert.doesNotMatch(JSON.stringify(received),/SECRET_EVENT_|UNSENT_DRAFT|CLIENT_DRAFT|OTHER_BRANCH_/);
+ assert.equal((await f.ledger.load('owner',f.session.id)).session.branches.find(branch=>branch.id===b.id).draft,'UNSENT_DRAFT');
+});
+test('failed policy refresh never relabels an old manually requested interface as a current automatic decision',async t=>{
+ const f=await service(t),data=await f.ledger.load('owner',f.session.id),b=data.session.branches[0];
+ b.dynamic.promptVersion='elselife-dynamic-4';b.dynamic.intent='请列出所有界面形式';await f.ledger.save('owner',data);
+ f.svc.model=async()=>{throw new Error('upstream unavailable');};
+ const result=await f.svc.prepare('owner',f.scope,f.signal);
+ assert.equal(result.authoritativeBranch.dynamic.definition,null);
+ assert.equal(result.authoritativeBranch.dynamic.intent,'');
+ assert.ok(result.authoritativeBranch.dynamic.reason);
 });

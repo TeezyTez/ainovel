@@ -11,7 +11,7 @@ const labels={status:'状态',map:'地点与路线',inventory:'物品',clues:'�
 const kinds={meter:'状态',item:'物品',place:'地点',clue:'线索',objective:'目标',actor:'人物'};
 const quantity=e=>numeric(e.value)?`${e.value}${numeric(e.max)?` / ${e.max}`:''}${e.unit?` ${e.unit}`:''}`:'';
 const inspect=(e,node,label=e.name)=>`<button type="button" class="game-inspect" data-action="game-inspect" data-entity="${esc(e.id)}" data-node="${esc(node)}">${esc(label)}</button>`;
-const detail=e=>`${e.detail?`<p class="game-detail">${esc(e.detail)}</p>`:''}${e.status?`<span class="game-entity-status">${esc(e.status)}</span>`:''}`;
+const detail=e=>`${e.detail&&String(e.detail).trim()!==String(e.name||'').trim()?`<p class="game-detail">${esc(e.detail)}</p>`:''}${e.status&&String(e.status).trim()!==String(e.detail||'').trim()?`<span class="game-entity-status${e.status.length>40?' is-description':''}">${esc(e.status)}</span>`:''}`;
 function progress(e){
   if(!numeric(e.value)||!numeric(e.max)||e.max<=0)return '';
   return `<progress class="game-progress" value="${Math.max(0,Math.min(e.max,e.value))}" max="${e.max}" aria-label="${esc(e.name)}：${esc(quantity(e))}">${esc(quantity(e))}</progress>`;
@@ -94,7 +94,7 @@ export function gameTurnView(turn={}, {currentVersion,branchId='',busy=false,end
   const readonlyReason=historical?'历史记录，仅可查看。':ended?'这一段已经结束。':busy?'故事正在继续，请稍候。':'';
   const requested=gameQuery(turn.input),cards=adaptiveSurfaces(turn,{previousState,previousTurn,historical,density,requested}),explicit=requested&&(requested==='all'||cards.some(c=>c.surface.kind===requested));
   const folded=historical||(!explicit&&density==='reading');
-  const content=receiptView(turn.gameAction,game,version)+cards.map(card=>`<details class="game-context-card" data-context-card="${esc(branchId+':'+turn.id+':'+card.surface.id+':'+(historical?'history':'current'))}"${card.open?' open':''}><summary><span class="game-context-label">${esc(labels[card.surface.kind]||'相关资料')}</span><span>${esc(card.surface.title||card.reason)}</span><span class="game-context-toggle">展开 / 收起</span></summary><p class="game-context-reason">${esc(card.reason)}</p>${surfaceView(card.surface,game,{state:turn.state,node:turn.id,version,branchId,readonlyReason,objects:card.objects})}</details>`).join('');
+  const content=receiptView(turn.gameAction,game,version)+cards.map(card=>`<details class="game-context-card" data-context-card="${esc(branchId+':'+turn.id+':'+card.surface.id+':'+(historical?'history':'current'))}"${card.open?' open':''}><summary><span class="game-context-heading">${card.surface.title&&card.surface.title!==labels[card.surface.kind]?`<span class="game-context-label">${esc(labels[card.surface.kind]||'相关资料')}</span>`:''}<span class="game-context-title">${esc(card.surface.title||labels[card.surface.kind]||card.reason)}</span></span><span class="game-context-toggle" aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6 9 6 6 6-6"/></svg></span></summary><p class="game-context-reason">${esc(card.reason)}</p>${surfaceView(card.surface,game,{state:turn.state,node:turn.id,version,branchId,readonlyReason,objects:card.objects})}</details>`).join('');
   return `<div data-reader-live="game-${esc(turn.id)}" class="game-turn">${content?folded?`<details class="game-history"><summary aria-label="${historical?'当时资料，只读':'相关资料与操作'}" title="${historical?'当时资料，只读':'相关资料与操作'}">${icon('layers')}${historical?'<span>当时 · 只读</span>':''}${cards.length?`<span>${cards.length}</span>`:''}</summary><div class="game-surfaces">${content}</div></details>`:`<div class="game-surfaces">${content}</div>`:''}</div>`;
 }
 
@@ -121,7 +121,14 @@ export function gameRecallView(state={}, {kind='all',node='',scope,anchorId}={})
   for(const [entityKind,surfaceKind] of Object.entries(mapping)){
     if(kind!=='all'&&kind!==surfaceKind)continue;
     const entities=list(game.entities).filter(e=>e.kind===entityKind&&!covered.has(e.id));
-    if(entities.length)surfaces.push({id:`recall-${surfaceKind}`,kind:surfaceKind,title:`已知${labels[surfaceKind]}`,entityIds:entities.map(e=>e.id),links:[],actions:[]});
+    if(entities.length)surfaces.push({id:`recall-${surfaceKind}`,kind:surfaceKind==='interaction'?'people':surfaceKind,title:surfaceKind==='interaction'?'已知人物':`已知${labels[surfaceKind]}`,entityIds:entities.map(e=>e.id),links:[],actions:[]});
   }
-  return `<aside class="game-recall" aria-label="唤出的已知玩法"><div class="game-recall-heading"><span>随时翻看</span><button type="button" class="btn game-dismiss-recall" data-action="game-dismiss-recall">收起</button><p>当前分支的已知资料 · 查看不推进时间</p></div>${surfaces.length?`<div class="game-surfaces">${surfaces.map(surface=>surfaceView({...surface,actions:[]},game,{state,node,scope,anchorId,version:state.version,readonlyReason:'查看模式'})).join('')}</div>`:`<div class="game-empty-state"><p>${empty}</p><p class="game-empty-note">可以在已发生的经历中查找，也可以继续阅读。</p><button type="button" class="btn" data-action="history">搜索与回顾</button></div>`}</aside>`;
+  function recalledSurface(surface){
+    const limited=kind==='all'&&['clues','people'].includes(surface.kind)&&surface.entityIds.length>3;
+    const shown=limited?{...surface,entityIds:surface.entityIds.slice(0,3)}:surface;
+    return surfaceView({...shown,actions:[]},game,{state,node,scope,anchorId,version:state.version,readonlyReason:'查看模式'})+(limited?`<button type="button" class="btn compact game-recall-more" data-action="reader-inspect" data-kind="${surface.kind==='people'?'interaction':'clues'}">查看全部 ${surface.entityIds.length} 条${surface.kind==='people'?'人物记录':'线索'}</button>`:'');
+  }
+  if(kind==='all'){const order={people:0,interaction:0,map:1,status:2,inventory:3,objectives:4,timeline:5,clues:6};surfaces.sort((a,b)=>(order[a.kind]??7)-(order[b.kind]??7));}
+  const recallTitle=kind==='all'?'已知资料':kind==='interaction'?'相关人物':labels[kind]||'相关资料';
+  return `<aside class="game-recall" aria-label="${esc(recallTitle)}"><div class="game-recall-heading"><div><span class="game-recall-kicker">故事备忘</span><h2>${esc(recallTitle)}</h2></div><button type="button" class="btn game-dismiss-recall" data-action="game-dismiss-recall">收起 ${icon('back')}</button><p>来自当前分支 · 查看不会推进时间</p></div>${surfaces.length?`<div class="game-surfaces">${surfaces.map(recalledSurface).join('')}</div>`:`<div class="game-empty-state">${icon(kind==='all'?'book':kind)}<p>${esc(empty)}</p><p class="game-empty-note">可以在已发生的经历中查找，也可以继续阅读。</p><button type="button" class="btn" data-action="history">搜索与回顾</button></div>`}</aside>`;
 }

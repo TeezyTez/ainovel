@@ -137,7 +137,10 @@ export function resolveReadingAnchor(branch,anchor=branch.personal?.anchor) {
   return fallback(anchor.turnId,'原段落已修订或位置不唯一，已回到该回合开头。');
 }
 export function setReadingAnchor(branch,anchor) {
-  validateAnchor(branch,anchor);const next=copy(branch);next.personal=ensurePersonal(branch);next.personal.anchor=copy(anchor);return next;
+  validateAnchor(branch,anchor);
+  // Story facts are untouched. Copy only the private subtree on this hot path.
+  const personal=ensurePersonal(branch);personal.anchor=copy(anchor);
+  return {...branch,personal};
 }
 export function setDraftContext(branch,{references=branch.personal?.draftReferences||[],intent=branch.personal?.intent||''}={}) {
   assert(Array.isArray(references)&&references.length<=20,'草稿引用最多二十项。');

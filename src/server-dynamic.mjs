@@ -11,20 +11,30 @@ const stateOf=b=>b.turns.at(-1)?.state??b.initialState;
 export function dynamicScope(session,branch){return {worldKey:branch.worldKey,sessionId:session.id,branchId:branch.id,sceneId:stateOf(branch).location,sourceTurnId:branch.turns.at(-1)?.id??null,baseVersion:stateOf(branch).version};}
 // Always use a player projection for UI planning, including legacy author archives.
 export function dynamicPublic(data,branch){const protectedData={...data,session:{...data.session,privateLedger:true}},archive=publicArchive(protectedData),b=archive.session.branches.find(b=>b.id===branch.id);return {branch:b,world:publicWorldForBranch(protectedData,branch.id)};}
-function context(data,branch,intent){const {branch:b,world}=dynamicPublic(data,branch);return {knownPeople:world.characters.map(c=>({...c,relationship:stateOf(b).relations[c.id]??'尚未明确'})),knownObjects:stateOf(b).experience?.objects??[],...publicContext(stateOf(b)),scope:dynamicScope(data.session,branch),recent:[b.opening,...b.turns.slice(-3).map(t=>t.prose)].filter(Boolean),intent:intent||'',pending:b.dynamic?.definition??null};}
+function context(data,branch,intent){const {branch:b,world}=dynamicPublic(data,branch),recentTurns=b.turns.slice(-3);return {knownPeople:world.characters.map(c=>({...c,relationship:stateOf(b).relations[c.id]??'尚未明确'})),knownObjects:stateOf(b).experience?.objects??[],...publicContext(stateOf(b)),scope:dynamicScope(data.session,branch),recent:[b.opening,...recentTurns.map(t=>t.prose)].filter(Boolean),recentInputs:recentTurns.map(t=>t.input),intent:intent||'',pending:b.dynamic?.definition??null};}
+// Include prose as well as state: polishing can change evidence without advancing a turn.
+function preparationSource(data,branch){return digest({scope:dynamicScope(data.session,branch),state:stateOf(branch),opening:branch.opening,recent:branch.turns.slice(-3).map(({id,input,prose,narration})=>({id,input,prose,narration})),world:data.worlds.find(w=>w.id+'@'+w.version===branch.worldKey),archived:!!(data.session.archived||branch.archived)});}
 export class DynamicInteractions{
-  constructor(ledger,config,{model=dynamicModel}={}){this.ledger=ledger;this.config=config;this.model=model;}
-  async locked(owner,body,fn){const key=owner+'\0'+body.sessionId;if(this.ledger.pending.has(key))fail('BRANCH_BUSY','故事正在处理，请稍后恢复。');this.ledger.pending.set(key,true);try{const data=await this.ledger.load(owner,body.sessionId),branch=this.ledger.branch(data,body.branchId);data.session.activeBranch=branch.id;return await fn(data,branch);}catch(e){if(e instanceof ApiError)throw e;fail('INVALID_INTERACTION',e.message,400);}finally{this.ledger.pending.delete(key);}}
+  constructor(ledger,config,{model=dynamicModel}={}){this.ledger=ledger;this.config=config;this.model=model;this.preparations=new Map();}
+  async locked(owner,body,fn,{activate=true}={}){const key=owner+'\0'+body.sessionId;if(this.ledger.pending.has(key))fail('BRANCH_BUSY','故事正在处理，请稍后恢复。');this.ledger.pending.set(key,true);try{const data=await this.ledger.load(owner,body.sessionId),branch=this.ledger.branch(data,body.branchId);if(activate)data.session.activeBranch=branch.id;return await fn(data,branch);}catch(e){if(e instanceof ApiError)throw e;fail('INVALID_INTERACTION',e.message,400);}finally{this.ledger.pending.delete(key);}}
   response(data,branch,extra={}){const p=dynamicPublic(data,branch);return {authoritativeBranch:p.branch,world:p.world,...extra};}
   metrics(data,metrics){data.dynamicMetrics??=[];data.dynamicMetrics.push({...metrics,at:Date.now()});data.dynamicMetrics=data.dynamicMetrics.slice(-500);}
-  async prepare(owner,body,signal){return this.locked(owner,body,async(data,branch)=>{
+  async prepare(owner,body,signal){
+    const key=owner+'\0'+body.sessionId+'\0'+body.branchId,job={};this.preparations.set(key,job);
+    const ensureCurrent=()=>{if(signal.aborted)fail('CANCELLED','已停止生成辅助交互。',499);if(this.preparations.get(key)!==job)fail('PREPARATION_SUPERSEDED','已有更新的整理请求。');};
+    try{
     check(typeof (body.intent??'')==='string'&&(body.intent??'').length<=2000,'意图过长。');
+    ensureCurrent();
+    // Atomic ledger reads give the model a stable snapshot without holding the story lock.
+    const data=await this.ledger.load(owner,body.sessionId),branch=this.ledger.branch(data,body.branchId);
+    ensureCurrent();
     const scope=dynamicScope(data.session,branch);if(body.baseVersion!==scope.baseVersion)fail('VERSION_CONFLICT','场景已改变，请恢复当前进度。');
     if(!body.retry&&branch.dynamic?.promptVersion===DYNAMIC_PROMPT_VERSION&&canonical(branch.dynamic.scope)===canonical(scope)&&branch.dynamic.intent===(body.intent||'')&&(!branch.dynamic.definition||data.dynamicApprovals?.[branch.dynamic.digest]))return this.response(data,branch);
-    const ctx=context(data,branch,body.intent);ctx.reading={viewport:body.ui?.viewport==='narrow'?'narrow':'wide',mode:body.ui?.readingMode==='paged'?'paged':'continuous',editing:body.ui?.editing===true,historical:body.ui?.readingHistorical===true};let definition=null,reason='',decisionReason='';
+    const prior=branch.dynamic,source=preparationSource(data,branch),metrics=[];
+    const ctx=context(data,branch,body.intent);ctx.reading={viewport:body.ui?.viewport==='narrow'?'narrow':'wide',mode:body.ui?.readingMode==='paged'?'paged':'continuous',editing:body.ui?.editing===true,historical:body.ui?.readingHistorical===true};let definition=null,reason='',decisionReason='',retained=false;
     try{
       for(let attempt=0;attempt<2;attempt++){
-        const proposed=await this.model(this.config,'prepare',ctx,signal);this.metrics(data,proposed.metrics);
+        const proposed=await this.model(this.config,'prepare',ctx,signal);ensureCurrent();metrics.push(proposed.metrics);
         if(proposed.value===null||proposed.value?.needed===false){definition=null;decisionReason=typeof proposed.value?.reason==='string'?proposed.value.reason.slice(0,1000):'';break;}
         definition={...proposed.value,scope};
         try{
@@ -32,16 +42,25 @@ export class DynamicInteractions{
           const evidence=[...ctx.recent,...ctx.facts,...Object.values(ctx.objects).map(e=>e.quote)].join('\n');
           for(const action of definition.actions)check(action.evidence.every(q=>evidence.includes(q)),'规则引用不在已保存的公开原文中。');
           const world=data.worlds.find(w=>w.id+'@'+w.version===branch.worldKey);
-          const judgement=await this.model(this.config,'judge',{world,state:stateOf(branch),publicContext:ctx,definition},signal);this.metrics(data,judgement.metrics);
+          const judgement=await this.model(this.config,'judge',{world,state:stateOf(branch),publicContext:ctx,definition},signal);ensureCurrent();metrics.push(judgement.metrics);
           check(judgement.value?.approved===true,'规则未通过世界一致性审核，请仅依照公开事实重新核对完整条件与效果。');break;
         }catch(e){if(attempt===1||e instanceof ApiError)throw e;ctx.validationIssue=e.message;ctx.invalidDefinition=definition;definition=null;}
       }
-    }catch(e){if(signal.aborted)throw e;definition=null;reason='辅助交互暂未形成可靠结果；可以继续自由行动。';this.metrics(data,{kind:'fallback',code:e.code||'INVALID_DEFINITION',durationMs:0});}
-    if(signal.aborted)fail('CANCELLED','已停止生成辅助交互。',499);
+    }catch(e){ensureCurrent();definition=null;reason='辅助交互暂未形成可靠结果；可以继续自由行动。';metrics.push({kind:'fallback',code:e.code||'INVALID_DEFINITION',durationMs:0});
+      if(prior?.definition&&prior.promptVersion===DYNAMIC_PROMPT_VERSION&&canonical(prior.scope)===canonical(scope)&&canonical(prior.definition.scope)===canonical(scope)&&prior.digest===digest(prior.definition)&&data.dynamicApprovals?.[prior.digest]){definition=clone(prior.definition);retained=true;}
+    }
+    ensureCurrent();
+    return await this.locked(owner,body,async(data,branch)=>{
+    ensureCurrent();
+    if(preparationSource(data,branch)!==source)fail('VERSION_CONFLICT','场景已改变，旧的整理结果未写入。');
+    for(const metric of metrics)this.metrics(data,metric);
     if(definition){data.dynamicApprovals??={};data.dynamicApprovals[digest(definition)]=true;data.dynamicCatalog??={};const catalog=(data.dynamicCatalog[branch.id]??[]).filter(x=>canonical(x.scope)===canonical(scope)&&digest(x)!==digest(definition));data.dynamicCatalog[branch.id]=[...catalog.slice(-15),clone(definition)];}
     if(branch.dynamic?.definition&&branch.dynamic.scope.baseVersion<scope.baseVersion){const source=branch.turns.find(t=>t.id===branch.dynamic.scope.sourceTurnId);if(source)source.interactionSnapshot=clone(branch.dynamic.definition);else branch.openingInteraction=clone(branch.dynamic.definition);}
-    branch.dynamic={scope,intent:body.intent||'',definition,digest:definition?digest(definition):null,promptVersion:DYNAMIC_PROMPT_VERSION,reason,decisionReason};validateArchive({schemaVersion:1,worlds:data.worlds,sessions:[data.session]});await this.ledger.save(owner,data);return this.response(data,branch);
-  });}
+    branch.dynamic={scope,intent:retained?prior.intent:(body.intent||''),definition,digest:definition?digest(definition):null,promptVersion:DYNAMIC_PROMPT_VERSION,reason,decisionReason};validateArchive({schemaVersion:1,worlds:data.worlds,sessions:[data.session]});await this.ledger.save(owner,data);return this.response(data,branch);
+    },{activate:false});
+    }catch(e){if(e instanceof ApiError)throw e;fail('INVALID_INTERACTION',e.message,400);}
+    finally{if(this.preparations.get(key)===job)this.preparations.delete(key);}
+  }
   async execute(owner,body,signal){return this.locked(owner,body,async(data,branch)=>this.commit(owner,data,branch,body,signal));}
   async commit(owner,data,branch,body,signal){
     inspect(body);check(typeof body.requestId==='string'&&/^[A-Za-z0-9_-]{1,200}$/.test(body.requestId),'请求标识无效。');
@@ -58,7 +77,8 @@ export class DynamicInteractions{
     const previous=branch.turns.find(t=>t.operation&&t.requestId===body.requestId);
     if(previous){check(previous.operation.request.input===body.input&&previous.operation.receipt.beforeVersion===body.baseVersion,'请求标识已用于不同输入。');return {handled:true,...this.response(data,branch,{operationId:previous.id})};}
     if(branch.turns.some(t=>t.requestId===body.requestId))return {handled:false};
-    const saved=branch.dynamic,catalog=[saved?.definition,...(data.dynamicCatalog?.[branch.id]??[])].filter(Boolean);
+    // Display-only artifacts contain no actions to interpret, including old views.
+    const saved=branch.dynamic,catalog=[saved?.definition,...(data.dynamicCatalog?.[branch.id]??[])].filter(d=>d?.actions?.length);
     if(!catalog.length&&!stateOf(branch).game?.entities.length){check(!body.dynamicAttempt,'尝试入口已过期。');return {handled:false};}
     check(body.baseVersion===stateOf(branch).version,'场景已改变。');
     const scope=dynamicScope(data.session,branch),available=[...new Map(catalog.filter(d=>canonical(d.scope)===canonical(scope)&&data.dynamicApprovals?.[digest(d)]).map(d=>[digest(d),d])).values()];

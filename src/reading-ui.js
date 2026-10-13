@@ -2,7 +2,10 @@ import {gameTurnView} from './game-ui.js';
 import {icon,readerQuickTools,readerTimeline,saveStatusView} from './ui-controls.js';
 import {gameRecallView} from './game-ui.js';
 import {gameRecallState} from './game-query.js';
+import {publicSituation} from './experience-state.js';
+import {dynamicView} from './dynamic-ui.js';
 import {objectActionView,timeFormView,aroundView,inventoryView,journalView,timePanelView} from './play-views.js';
+import {demoActions} from './demo.js';
 
 // These views accept public, branch-scoped records. They never derive hidden world facts.
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -38,13 +41,47 @@ function prose(text,objects=[],version=Infinity) {
   }).join('');
 }
 
-function historicalInteraction(d){return d?'<details class="dynamic-operation-record"><summary>当时的交互 · '+esc(d.title)+'</summary><p>'+esc(d.summary)+'</p><p>历史记录，不能再次执行。</p></details>':'';}
+function historicalInteraction(d,state,node='opening'){
+  let content='';
+  if(d){
+    const title='当时的记录 · '+plain(d.title);
+    if(state&&d.scope&&Array.isArray(d.view)){
+      // Reuse the bounded data renderer with the recorded state, never today's facts.
+      // Draft values were not snapshotted: do not substitute defaults for past choices.
+      try{content=dynamicView({...d,title,fields:[],actions:[],steps:[]},state,{},0,{busy:true,closed:true})
+        .replace('<details ','<details data-historical-rich ')
+        .replace('</summary>','</summary><p class="reading-history-annotation">历史记录 · 只读。可以排序、筛选和放大查看。</p>')
+        .replaceAll('这部分暂时无法显示；请补全输入，或重新整理。','这部分依赖当时未保存的选择，无法完整还原。');}catch{}
+    }
+    if(!content)content=`<details class="dynamic-operation-record" data-historical-rich><summary>${esc(title)}</summary><p>${esc(d.summary)}</p><p class="reading-history-annotation">历史记录 · 只读摘要。当时的状态未完整保存。</p></details>`;
+  }
+  return `<div data-history-interaction="${esc(node)}">${content}</div>`;
+}
 function turnFooter(turn,index){
   const node=turn?.id||'';
   return `<footer class="reading-turn-footer"><details class="turn-tools"><summary aria-label="${index===0?'开场':`回合 ${index}`}的记录选项" title="片段选项">${icon('more')}</summary><div class="reading-actions">${button('当时情况','historical-state','compact',`data-node="${esc(node)}"`)}${button('加书签','bookmark','compact',`data-node="${esc(node)}"`)}${button('从这里分支','fork','compact',`data-node="${esc(node)}"`)}</div></details></footer>`;
 }
 
-export function readerView({session={},branch={},world={},state={},situation={},busy=false,error='',notice='',settings={},intentMode='auto',focusMode=false,saveStatus='保存状态待确认',suggestions:providedSuggestions,references=[],page}={}) {
+function playerLine(input){
+  if(!input)return '';
+  if(input==='让当前场景自然继续。')return '<p class="reading-continued">继续经历</p>';
+  const quote=`<blockquote class="reading-player-line"><span class="reading-player-label">你</span><p>${esc(input).replaceAll('\n','<br>')}</p></blockquote>`;
+  return input.length>200?`<details class="reading-input-record"><summary>${esc(input.slice(0,100))}… <span>展开</span></summary>${quote}</details>`:quote;
+}
+
+export function demoReadOnly(session={},world={}){
+  return session.mode==='demo'&&demoActions(world,{step:0,flags:{}}).length===0;
+}
+
+export function pendingRecord(pending,error,busy,{readOnly=false,localDemo=false}={}){
+  if(!pending&&!error)return '';
+  const failure=plain(pending?.error)||error,status=failure||pending?.status==='error'?'error':pending?.status==='stopped'?'stopped':'waiting';
+  const stage={preparing:'正在理解这一步',writing:'正在续写',checking:'正在核对情节',saving:'正在保存'}[pending?.stage]||'正在续写';
+  const recovery=status!=='waiting'&&!busy&&!readOnly?`<div class="reading-pending-actions">${button('重试回应','retry-turn','primary')}${localDemo?'':button('核对已保存的结果','recover-turn')}</div>`:'';
+  return `<section class="reading-pending is-${status}" aria-label="当前回应" data-pending-state="${status}">${playerLine(plain(pending?.input))}<div class="reading-pending-body"><div class="reading-pending-heading"><p ${status==='error'?'role="alert"':'role="status"'}>${status==='waiting'?'<span class="reading-pending-dot" aria-hidden="true"></span>'+stage:status==='stopped'?'已停止等待':'这次回应尚未完成'}</p>${status==='waiting'&&!readOnly?button('停止','cancel-generation','reading-pending-stop'):''}</div>${status==='error'?`<p class="reading-pending-message">${esc(failure||'暂时无法完成回应，请重试或核对已保存的结果。')}</p>`:status==='stopped'?`<p class="reading-pending-message">${localDemo?'你提交的文字已保留，可以重试或选择新的行动。':'你提交的文字已保留，可以核对结果或重试。'}</p>`:''}${recovery}</div></section>`;
+}
+
+export function readerView({session={},branch={},world={},state={},situation={},busy=false,pending=null,error='',notice='',settings={},intentMode='auto',focusMode=false,saveStatus='保存状态待确认',suggestions:providedSuggestions,references=[],page}={}) {
   const turns=branch.turns||[],last=turns.at(-1),ended=!!last?.ended,objects=situation.objects||[];
   const paged=settings.readingMode==='paged',pageIndex=Math.max(0,Math.min(turns.length,Number.isFinite(Number(page))?Math.trunc(Number(page)):turns.length));
   const shownTurns=turns.map((turn,index)=>({turn,index})).filter(({index})=>!paged||index+1===pageIndex);
@@ -54,21 +91,30 @@ export function readerView({session={},branch={},world={},state={},situation={},
   const width=Math.min(960,Math.max(440,Number(settings.width)||720));
   const paragraphGap={wide:'1.6em',compact:'.7em',normal:'1.15em'}[settings.paragraphGap]||'1.15em';
   const family=['sans','system'].includes(settings.fontFamily)?'var(--sans)':'var(--serif)';
+  const historical=paged&&pageIndex<turns.length,orientationState=historical?(pageIndex?turns[pageIndex-1]?.state:branch.initialState):state;
+  const orientationClock=historical?(branch.initialState?publicSituation(branch,world,pageIndex?turns[pageIndex-1].id:null).clock:null):situation.clock;
+  const currentClock=plain(orientationClock?.label),orientation=[plain(orientationState?.location),settings.showTime!==false&&currentClock!=='故事时间未说明'?currentClock:''].filter(Boolean);
+  const waiting=!!pending&&!error&&!pending.error&&!['error','stopped'].includes(pending.status);
+  const readOnly=demoReadOnly(session,world),localDemo=session.mode==='demo'&&!readOnly,blocked=busy||waiting||ended||(!localDemo&&(!!pending||!!error));
+  const demoSuggestions=session.mode==='demo'&&!readOnly&&!ended?(Array.isArray(providedSuggestions)?providedSuggestions:demoActions(world,state)).filter(s=>s?.id&&s?.text).slice(0,3):[];
   return `<div class="reading-experience ${focusMode?'reading-focus':''}" style="--reading-size:${fontSize}px;--reading-leading:${lineHeight};--reading-width:${width}px;--reading-font:${family};--reading-paragraph-gap:${paragraphGap}">
-    <header class="reading-header" data-reader-live="header"><a href="#/stories" class="reading-back" aria-label="返回我的故事" title="我的故事">${icon('back')}</a><div class="reading-heading"><div class="reading-title">${esc(session.title||world.title||'我的故事')}</div></div><div class="reading-header-end"><span class="reading-save" data-save title="${esc(saveStatus)}">${saveStatusView(saveStatus)}</span></div></header>
-    <main id="main" class="reader reading-paper"><header class="reading-chapter"><h1>${esc(world.title||session.title||'故事')}</h1></header>
-    ${!paged||pageIndex===0?`<section class="opening prose reading-prose" id="turn-opening" aria-label="故事开场">${prose(branch.opening??world.opening,objects,0)}</section>${historicalInteraction(branch.openingInteraction)}${turnFooter(null,0)}`:''}
-    <div data-reader-turns>${shownTurns.map(({turn,index})=>`<section class="turn reading-turn" id="turn-${esc(turn.id)}" data-turn="${esc(turn.id)}"><div class="reading-turn-heading"><span>回合 ${index+1}</span>${settings.showTime!==false&&turn.experience?.clock?.label?`<span>${esc(turn.experience.clock.label)}${turn.experience.clock.elapsed?' · 经过 '+esc(turn.experience.clock.elapsed):''}</span>`:''}</div>${turn.input?`<details class="reading-input-record"><summary title="查看完整输入">${esc(turn.input==='让当前场景自然继续。'?'继续阅读':turn.input.slice(0,60))}${turn.input.length>60?'…':''}</summary><p>${esc(turn.input).replaceAll('\n','<br>')}</p></details>`:''}<div class="prose reading-prose">${prose(turn.prose,objects,turn.state?.version)}</div>${(turn.experience?.folded||[]).map(fold=>`<details class="time-fold"><summary>${esc(fold.title||'这段时间的记录')}</summary>${fold.summary?`<p>${esc(fold.summary)}</p>`:''}<blockquote>${esc(fold.quote||'没有额外保存的细节。')}</blockquote></details>`).join('')}${turn.experience?.stop?.reason?`<details class="reading-stop-note"><summary>此刻的提醒</summary><p>${esc(turn.experience.stop.reason)}</p></details>`:''}${turn.operation?`<details class="dynamic-operation-record"><summary>已保存的行动结果</summary><pre>${esc(turn.operation.receipt.result)}\n${turn.operation.receipt.changes.map(c=>esc((turn.state.game.entities.find(e=>e.id===c.entityId)?.name||c.entityId)+"："+c.before+" → "+c.after)).join("\n")}</pre></details>`:((branch.dynamic&&turn===last)?'':gameTurnView(turn,{currentVersion:state.version,branchId:branch.id,busy,ended,density:settings.interactionDensity||'reading',previousState:turns[index-1]?.state||branch.initialState,previousTurn:turns[index-1]}))}${historicalInteraction(turn.interactionSnapshot)}${turnFooter(turn,index+1)}</section>`).join('')}</div>
+    <header class="reading-header" data-reader-live="header"><a href="#/stories" class="reading-back" aria-label="返回我的世界" title="我的世界">${icon('back')}</a><div class="reading-heading"><div class="reading-title">${esc(session.title||world.title||'我的世界')}</div>${orientation.length?`<div class="reading-context">${orientation.map(text=>`<span>${esc(text)}</span>`).join('<span aria-hidden="true" class="reading-context-dot">·</span>')}</div>`:''}</div><div class="reading-header-end"><span class="reading-save" data-save title="${esc(saveStatus)}">${saveStatusView(saveStatus)}</span><nav class="reading-header-tools" aria-label="故事查阅"><button type="button" class="reading-header-tool" data-action="reader-inspect" data-kind="all" aria-label="查阅故事资料" title="资料">${icon('book')}<span>资料</span></button><button type="button" class="reading-header-tool" data-action="history" aria-label="回顾故事经历" title="回顾">${icon('history')}<span>回顾</span></button></nav><button type="button" class="reading-appearance" data-action="reader-settings" aria-label="阅读设置" title="阅读设置"><span aria-hidden="true">Aa</span></button></div></header>
+    <main id="main" class="reader reading-paper">${!paged||pageIndex===0?`<header class="reading-chapter"><p class="reading-kicker">故事开场</p><h1>${esc(world.title||session.title||'故事')}</h1></header>`:`<h1 class="sr-only">${esc(world.title||session.title||'故事')} · 回合 ${pageIndex}</h1>`}
+    ${!paged||pageIndex===0?`<section class="opening prose reading-prose" id="turn-opening" aria-label="故事开场">${prose(branch.opening??world.opening,objects,0)}</section>${historicalInteraction(branch.openingInteraction,branch.initialState)}${turnFooter(null,0)}`:''}
+    <div data-reader-turns>${shownTurns.map(({turn,index})=>`<section class="turn reading-turn" id="turn-${esc(turn.id)}" data-turn="${esc(turn.id)}" aria-label="回合 ${index+1}"><div class="reading-turn-heading"><span class="reading-turn-number" title="回合 ${index+1}">${String(index+1).padStart(2,'0')}</span>${settings.showTime!==false&&turn.experience?.clock?.label?`<span>${esc(turn.experience.clock.label)}${turn.experience.clock.elapsed?' · '+esc(turn.experience.clock.elapsed):''}</span>`:''}</div>${playerLine(turn.input)}<div class="prose reading-prose">${prose(turn.prose,objects,turn.state?.version)}</div>${(turn.experience?.folded||[]).map(fold=>`<details class="time-fold"><summary>${esc(fold.title||'这段时间的记录')}</summary>${fold.summary?`<p>${esc(fold.summary)}</p>`:''}<blockquote>${esc(fold.quote||'没有额外保存的细节。')}</blockquote></details>`).join('')}${turn.experience?.stop?.reason?`<details class="reading-stop-note"><summary>此刻的提醒</summary><p>${esc(turn.experience.stop.reason)}</p></details>`:''}${turn.operation?`<details class="dynamic-operation-record"><summary>已保存的行动结果</summary><pre>${esc(turn.operation.receipt.result)}\n${turn.operation.receipt.changes.map(c=>esc((turn.state.game.entities.find(e=>e.id===c.entityId)?.name||c.entityId)+"："+c.before+" → "+c.after)).join("\n")}</pre></details>`:((branch.dynamic&&turn===last)?'':gameTurnView(turn,{currentVersion:state.version,branchId:branch.id,busy,ended,density:settings.interactionDensity||'reading',previousState:turns[index-1]?.state||branch.initialState,previousTurn:turns[index-1]}))}${historicalInteraction(turn.interactionSnapshot,turn.state,turn.id)}${turnFooter(turn,index+1)}</section>`).join('')}</div>
     <div data-reader-live="pagination">${pagination}</div>
     <div data-reader-live="ending">${ended?`<section class="reading-ending"><span class="reading-kicker">故事完结</span><h2>这一段，告一段落。</h2><p>已有的正文可以随时回读。你也可以选择开启后日谈，或从某个片刻分支。</p><div class="reading-actions">${button('封存这一段','finish-experience','primary')}${button('回顾经历','history')}${session.mode==='demo'?'':button('自愿开启后日谈','epilogue')}</div></section>`:''}</div>
-    <div id="reader-bottom" tabindex="-1"></div></main>
+    <div data-reader-live="pending">${pendingRecord(pending,error,busy,{readOnly,localDemo})}</div><div id="reader-bottom" tabindex="-1"></div></main>
     <section data-reader-live="composer" class="composer-wrap reading-composer-wrap" aria-label="继续故事与行动"><div class="composer reading-composer">
-      ${error?`<div role="alert" class="notice error reader-error">${esc(error)} ${!busy?'可输入“恢复进度”核对结果，或输入“重试”。':''}</div>`:''}${notice?`<p class="reading-notice" role="status">${esc(notice)}</p>`:''}
+      ${notice?`<p class="reading-notice" role="status">${esc(notice)}</p>`:''}
       <div data-history-notice hidden class="reading-history-notice"></div>
-      <div data-selection-tools hidden class="reading-selection-tools" aria-label="选中文字的操作">${button('引用到草稿','selection-reference','compact')}${button('私人笔记','selection-note','compact')}${button('收藏片段','selection-clip','compact')}${button('问这段','selection-ask','compact')}${button('反馈问题','selection-feedback','compact')}<button type="button" class="icon-button" data-action="dismiss-selection" aria-label="关闭选文工具">×</button></div>
-      ${busy?'<p class="reading-generation" role="status">正在回应…</p>':''}
-      ${readerQuickTools({busy,ended,participation:session.preferences?.participation||'act'})}
-      <form id="action-form"><div class="reading-compose-box"><button type="button" class="reader-tools-trigger" popovertarget="reader-quick-tools" aria-label="打开故事工具" title="故事工具">${icon('plus')}</button><label class="hidden" for="action-input">行动、提问或继续阅读</label><textarea id="action-input" name="action" rows="1" maxlength="8000" placeholder="行动、提问，或说“继续”……" aria-label="行动、提问或继续阅读" title="${settings.sendEnter?'Enter 发送 · Shift + Enter 换行':'Enter 换行 · Ctrl / ⌘ + Enter 发送'}">${esc(branch.draft||'')}</textarea><div class="reading-send-row">${busy?'<button class="btn reading-send" type="button" data-action="cancel-generation" aria-label="停止生成" title="停止生成">■</button>':`<button class="btn reading-send" type="submit" aria-label="发送" title="发送" ${branch.draft?.trim()?'':'disabled'}>${icon('arrow')}</button>`}</div></div></form>
+      <div data-selection-tools hidden class="reading-selection-tools" aria-label="选中文字的操作">${readOnly?'':button('引用到草稿','selection-reference','compact')}${button('私人笔记','selection-note','compact')}${button('收藏片段','selection-clip','compact')}${readOnly?'':button('问这段','selection-ask','compact')}${button('反馈问题','selection-feedback','compact')}<button type="button" class="icon-button" data-action="dismiss-selection" aria-label="关闭选文工具">×</button></div>
+      ${busy&&!pending?'<p class="reading-generation" role="status">正在处理…</p>':''}
+      ${readerQuickTools({busy:blocked||readOnly||localDemo,ended:ended||readOnly,participation:session.preferences?.participation||'act'})}
+      ${readOnly?`<div class="reading-readonly"><div><strong>只读开场</strong><p>这个世界没有预设剧情。连接模型后，可从世界页面开启自由游玩。</p></div><a class="btn" href="#/settings">连接模型</a><button type="button" class="reader-tools-trigger" popovertarget="reader-quick-tools" aria-label="打开故事工具" title="故事工具">${icon('plus')}</button></div>`:`
+      ${!ended?`<div class="reading-composer-actions"><p>${session.mode==='demo'?'预设演示 · 选择建议后发送':waiting?'回应完成后可以继续，草稿会保留。':pending||error?'先核对或重试上一次回应，草稿会保留。':'让当前场景自然继续，保留你的草稿。'}</p>${button('继续阅读','continue','reading-continue',blocked?'disabled':'')}</div>`:''}
+      ${demoSuggestions.length?`<div class="reading-demo-suggestions" aria-label="当前预设行动">${demoSuggestions.map(s=>button(s.text,'suggest','reading-suggestion',`data-id="${esc(s.id)}" ${blocked?'disabled':''}`)).join('')}</div>`:''}
+      <form id="action-form" data-story-blocked="${blocked?'true':'false'}"><div class="reading-compose-box"><button type="button" class="reader-tools-trigger" popovertarget="reader-quick-tools" aria-label="打开故事工具" title="故事工具">${icon('plus')}</button><label class="hidden" for="action-input">行动、提问或继续经历</label><textarea id="action-input" name="action" rows="1" maxlength="8000" placeholder="${ended?'这一段已完结；你的草稿仍可保留。':waiting?'可以先写下接下来的想法…':session.mode==='demo'?'选择建议后发送…':'你想说什么，或做些什么？'}" aria-label="行动、提问或继续经历" title="${settings.sendEnter?'Enter 发送 · Shift + Enter 换行':'Enter 换行 · Ctrl / ⌘ + Enter 发送'}">${esc(branch.draft||'')}</textarea><div class="reading-send-row">${busy&&!waiting?'<button class="btn reading-send" type="button" data-action="cancel-generation" aria-label="停止生成" title="停止生成"><span class="reading-stop-symbol" aria-hidden="true"></span></button>':`<button class="btn reading-send" type="submit" aria-label="发送" title="${ended?'这一段已完结':blocked?'先完成或核对当前回应':'发送'}" ${blocked||!branch.draft?.trim()?'disabled':''}>${icon('arrow')}</button>`}</div></div><div class="reading-compose-footer"><span>${ended?'故事已完结 · 已有草稿仍保留':waiting?'下一条草稿 · 当前回应完成后可发送':localDemo?'自由行动需要连接模型':pending||error?'草稿已保留 · 先处理上一次回应':'写下行动与对话，让故事继续'}</span><span class="reading-key-hint">${settings.sendEnter?'<kbd>Enter</kbd> 发送':'<kbd>Ctrl / ⌘</kbd> + <kbd>Enter</kbd> 发送'}</span></div></form>`}
       <div data-draft-references class="draft-references"></div>
       ${references.length?`<p class="reading-reference-note">已附上 ${references.length} 处引用</p>`:''}
     </div></section><button class="btn new-content hidden" id="new-content" data-action="new-content">有新内容 ↓</button></div>`;
@@ -77,7 +123,7 @@ export function readerView({session={},branch={},world={},state={},situation={},
 export function readerRecallView({kind='all',state={},situation={},branch={},busy=false,query=''}={}) {
   const views={around:['周围',aroundView],inventory:['身上',inventoryView],journal:['手记',journalView],time:['时间与日程',timePanelView],timeline:['时间线',()=>readerTimeline(branch)]};
   const entry=views[kind];
-  if(!entry)return gameRecallView(gameRecallState(state,situation),{kind,node:branch.turns?.at(-1)?.id});
+  if(!entry)return gameRecallView(gameRecallState(state,situation),{kind,node:branch.turns?.at(-1)?.id||'opening'});
   const args={state,situation:{...situation,currentLocation:state.location,currentVersion:state.version},branch,personal:branch.personal||{},busy,ended:!!branch.turns?.at(-1)?.ended,query};
   return `<section class="reader-response" aria-label="${entry[0]}"><header class="reader-response-heading"><h2>${entry[0]}</h2><button type="button" class="icon-button" data-action="game-dismiss-recall" aria-label="收起${entry[0]}" title="收起">×</button></header>${kind==='around'?`<p class="reader-response-location">${esc(state.location||'当前位置尚未明确')}</p>`:''}${entry[1](args)}</section>`;
 }
@@ -90,7 +136,7 @@ export function situationView({situation={},filter='all',query='',view='cards',s
   const visibleColumns=new Set(columns);
   const kindOptions=[['all','全部资料'],['present','确认在场的人'],...Object.entries(kinds).filter(([key])=>objects.some(o=>o.kind===key))];
   const detail=o=>button(o.name||'未命名记录','object-detail','object-title',`data-object="${esc(o.id)}"`);
-  return `<section class="situation-panel reading-panel"><p class="panel-context-label">${situation.historical?'历史快照 · 仅含当时已知内容':'当前分支 · 已知资料'}</p><div class="situation-summary"><p>${esc(situation.summary||'故事中的情况尚未明确记录，可以继续阅读已有正文。')}</p>${!situation.summary?.includes(clockLabel(situation.clock))?`<span>${esc(clockLabel(situation.clock))}</span>`:''}</div><p class="small muted">没有记录，不代表不存在。</p>
+  return `<section class="situation-panel reading-panel"><p class="panel-context-label">${situation.historical?'历史快照 · 仅含当时已知内容':'当前分支 · 已知资料'}</p><div class="situation-summary"><p>${esc(situation.summary||'故事中的情况尚未明确记录，可以继续经历已有正文。')}</p>${!situation.summary?.includes(clockLabel(situation.clock))?`<span>${esc(clockLabel(situation.clock))}</span>`:''}</div><p class="small muted">没有记录，不代表不存在。</p>
     <form id="situation-form" class="situation-search"><label class="field">查找已知资料<input type="search" name="query" value="${esc(query)}" placeholder="人物、地点、物品或关键词" maxlength="500"></label><div class="situation-filters"><label class="field">类别<select name="filter">${options(kindOptions,filter)}</select></label><label class="field">呈现<select name="view">${options([['cards','卡片'],['table','表格'],['text','文字摘要']],view)}</select></label><label class="field">排序<select name="sort">${options([['name','名称'],['updated','最近记录']],sort)}</select></label><button type="submit" class="btn">筛选资料</button></div><details class="situation-columns"><summary>表格显示哪些内容</summary><div class="reading-actions">${[['summary','情况摘要'],['status','当前状态'],['certainty','依据性质']].map(([key,label])=>`<label><input type="checkbox" name="columns" value="${key}" ${visibleColumns.has(key)?'checked':''}> ${label}</label>`).join('')}</div></details></form>
     <p class="small muted" role="status">${filtered.length} 条已知记录</p>${filter==='present'?'<p class="small muted">只列出该回合正文明确记录在当前位置的人物。较早的地点记录和他人说法不能确认现在在场。</p>':''}${!filtered.length?`<div class="reading-empty">${filter==='present'?'当前记录尚未确认符合条件的在场人物；这不表示现场无人。':'当前已知资料中没有匹配的记录。可以换个关键词，或回看正文。'}</div>`:view==='table'?`<div class="situation-table-wrap" tabindex="0" role="region" aria-label="已知资料表，可横向滚动"><table class="situation-table"><thead><tr><th scope="col">对象</th><th scope="col">类别</th>${visibleColumns.has('certainty')?'<th scope="col">依据性质</th>':''}${visibleColumns.has('summary')?'<th scope="col">已知情况</th>':''}${visibleColumns.has('status')?'<th scope="col">当前状态</th>':''}</tr></thead><tbody>${filtered.map(o=>`<tr><th scope="row">${detail(o)}</th><td>${esc(kinds[o.kind]||'见闻')}</td>${visibleColumns.has('certainty')?`<td>${esc(certainty[o.certainty]||certainty.unknown)}</td>`:''}${visibleColumns.has('summary')?`<td>${esc(o.summary||'尚未明确')}</td>`:''}${visibleColumns.has('status')?`<td>${esc(o.status||'尚未明确')}</td>`:''}</tr>`).join('')}</tbody></table></div>`:view==='text'?`<ul class="situation-text-list">${filtered.map(o=>`<li>${detail(o)}<span class="record-certainty">${esc(certainty[o.certainty]||certainty.unknown)}</span><p>${esc(o.summary||o.status||'尚未明确')}</p></li>`).join('')}</ul>`:`<div class="situation-records">${filtered.map(o=>`<article class="situation-record"><div class="record-meta"><span>${esc(kinds[o.kind]||'见闻')}</span><span>${esc(certainty[o.certainty]||certainty.unknown)}</span></div><h3>${detail(o)}</h3><p>${esc(o.summary||'尚无进一步的公开记录。')}</p>${o.status&&o.status!=='已知'?`<p class="record-status">${esc(o.status)}</p>`:''}</article>`).join('')}</div>`}</section>`;
 }

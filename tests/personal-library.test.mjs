@@ -6,6 +6,13 @@ import {PRESET_WORLDS} from '../src/worlds.js';
 import {selectContext,applyPolish} from '../src/experience.js';
 
 function fixture(){const world=PRESET_WORLDS[0],session=createSession(world);commitTurn(session,world,'看看',{requestId:crypto.randomUUID(),baseVersion:0,prose:'旧门已经打开。\n\n很久以前的稀有蓝色围巾在这里。\n\n你坐下来。',events:[{type:'fact',value:'幕后绝密不进入搜索',visibility:'hidden'}],suggestions:[]});return {session,world,branch:getBranch(session)};}
+test('saving a reading anchor copies private metadata without cloning immutable story history',()=>{
+ const {branch}=fixture(),before=structuredClone(branch),anchor=library.captureReadingAnchor(branch,{turnId:branch.turns[0].id,paragraphIndex:1,offset:-18});
+ const next=library.setReadingAnchor(branch,anchor);
+ assert.notEqual(next,branch);assert.equal(next.turns,branch.turns);assert.equal(next.initialState,branch.initialState);
+ assert.deepEqual(branch,before);assert.notEqual(next.personal,branch.personal);assert.notEqual(next.personal.anchor,anchor);
+ next.personal.anchor.offset=99;assert.equal(anchor.offset,-18);
+});
 test('private annotations have exact sources and never modify state or model context',()=>{
  const {session,branch}=fixture(),before=structuredClone(branch),turn=branch.turns[0];
  const noted=library.addAnnotation(branch,{turnId:turn.id,quote:'旧门已经打开。',note:'我的猜测不是角色知识',kind:'note'});

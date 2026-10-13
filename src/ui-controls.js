@@ -29,13 +29,16 @@ export function readerTimeline(branch={}){
 }
 
 export function readerQuickTools({busy=false,ended=false,participation='act'}={}){
-  const items=[['map','地图','map'],['status','状态','status'],['inventory','物品','inventory'],['interaction','人物','people'],['timeline','时间线','timeline'],['clues','线索','clues']];
   const entry=(label,action,symbol,attrs='')=>`<button type="button" data-action="${action}" ${attrs}>${icon(symbol)}<span>${label}</span></button>`;
   return `<div id="reader-quick-tools" class="reader-quick-tools" popover="auto" aria-label="故事工具"><nav aria-label="按需使用的故事功能">
-    <p class="quick-tools-label">查看</p>
-    <div class="quick-tools-grid">${items.map(([kind,label,symbol])=>`<button type="button" data-action="reader-inspect" data-kind="${kind}">${icon(symbol)}<span>${label}</span></button>`).join('')}</div>
-    <div class="quick-tools-list">${entry('整理当前处境','dynamic-prepare','compass')}${entry('周围','play-around','compass')}${entry('时间与日程','play-time','time')}${entry('手记','play-journal','book')}${entry('搜索与回顾','history','history')}</div>
-    <div class="quick-tools-list quick-tools-section">${!busy&&!ended?entry('继续阅读','continue','play'):''}${entry('安排一段时间','time-control','time',busy||ended?'disabled':'')}${entry(participation==='observe'?'参与方式 · 旁观中':'参与方式','play-participation','people')}${participation==='observe'?entry('亲自接手','take-control','arrow'):''}</div>
-    <details class="quick-tools-more"><summary>存档与设置</summary><div class="quick-tools-list">${entry('分支与存档','branches','layers')}${entry('导出正文','export-story','book')}${entry('导出存档','export-session','history')}${entry('阅读设置','reader-settings','settings')}${entry('更多故事选项','story-tools','more')}${entry('帮助','help','compass')}</div></details>
+    <p class="quick-tools-label">这一段，怎样继续</p>
+    <div class="quick-tools-list">${!busy&&!ended?entry('继续经历','continue','play'):''}${entry('安排一段时间','time-control','time',busy||ended?'disabled':'')}${entry(participation==='observe'?'参与方式 · 旁观中':'参与方式','play-participation','people')}</div>
+    <div class="quick-tools-list quick-tools-section">${entry('故事资料','reader-inspect','book','data-kind="all"')}${entry('回顾与搜索','history','history')}${entry('分支与存档','branches','layers')}</div>
+    <details class="quick-tools-more"><summary>更多</summary><div class="quick-tools-list">${entry('导出正文','export-story','book')}${entry('阅读设置','reader-settings','settings')}${entry('故事选项','story-tools','more')}${entry('帮助','help','compass')}</div></details>
   </nav></div>`;
+}
+
+export function readerDossierNav(kind='all'){
+ const items=[['all','概览'],['interaction','人物'],['map','地点'],['inventory','物品'],['clues','线索'],['status','状态'],['time','时间'],['journal','手记']];
+ return `<nav class="reader-dossier-nav" aria-label="故事资料分类">${items.map(([id,label])=>`<button type="button" data-action="reader-inspect" data-kind="${id}" aria-pressed="${id===kind}">${label}</button>`).join('')}</nav>`;
 }

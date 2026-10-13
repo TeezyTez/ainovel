@@ -107,9 +107,9 @@ test('returning to a world puts resume first and keeps new game explicitly folde
   const html=detailView({...base,sessions:[{id:'keep',worldId:world.id,updatedAt:10}]});
   assert.match(html,/class="btn primary resume-world" href="#\/story\/keep"/);
   assert.match(html,/<details class="restart-world"><summary>重新开始<\/summary>/);
-  assert.ok(html.indexOf('继续阅读')<html.indexOf('id="start-form"'));
+  assert.ok(html.indexOf('返回世界')>=0&&html.indexOf('返回世界')<html.indexOf('id="start-form"'));
   const fresh=detailView({...base,sessions:[{id:'trash',worldId:world.id,personal:{trashedAt:20}}]});
-  assert.doesNotMatch(fresh,/resume-world/);assert.match(fresh,/开始故事/);
+  assert.doesNotMatch(fresh,/resume-world/);assert.match(fresh,/进入世界/);
 });
 
 test('single-character common nouns do not become distracting prose links',()=>{

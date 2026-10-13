@@ -10,7 +10,12 @@ import { generateNarrative } from './src/server-narrative.mjs';
 import {BranchLedger} from './src/server-branch-ledger.mjs';
 
 const ROOT=dirname(fileURLToPath(import.meta.url));
-function json(res,status,value) {if(!res.destroyed&&!res.writableEnded){res.writeHead(status,{'content-type':'application/json; charset=utf-8','cache-control':'no-store'});res.end(JSON.stringify(value));}}
+function json(res,status,value) {if(!res.destroyed&&!res.writableEnded){if(res.generationStream){res.end(JSON.stringify(status>=400?{type:'error',...value}:{type:'result',value})+'\n');return;}res.writeHead(status,{'content-type':'application/json; charset=utf-8','cache-control':'no-store'});res.end(JSON.stringify(value));}}
+function generationProgress(req,res){
+ if(!req.headers.accept?.includes('application/x-ndjson'))return ()=>{};
+ res.generationStream=true;res.writeHead(200,{'content-type':'application/x-ndjson; charset=utf-8','cache-control':'no-store','x-accel-buffering':'no'});res.flushHeaders();
+ return stage=>{if(!res.destroyed&&!res.writableEnded&&['preparing','writing','checking','saving'].includes(stage))res.write(JSON.stringify({type:'progress',stage})+'\n');};
+}
 function checkOrigin(req,server) {
   const host=req.headers.host||'';
   let parsed;
@@ -60,9 +65,10 @@ export function createServer({env=process.env,root=ROOT,cacheLimit=100,cacheTtlM
         if(!assisting&&raw.sessionId!==undefined){
           const owner=ledger.owner(req),controller=new AbortController();res.once('close',()=>controller.abort());
           if(!config.available)throw new ApiError(503,'MODEL_UNAVAILABLE','尚未配置真实模型，故事未改变。');
+          const onProgress=generationProgress(req,res);onProgress('preparing');
           delete raw.interpreted;
           if(!raw.control&&!raw.gameAction){let result=await dynamic.input(owner,raw,controller.signal);if(result.compose){await dynamic.prepare(owner,{...raw,intent:raw.input,retry:true},controller.signal);result=await dynamic.input(owner,{...raw,compositionAttempted:true},controller.signal);}if(result.handled){if(result.clarify)throw new ApiError(409,'CLARIFY_ACTION',result.clarify);return json(res,200,result);}if(result.interpreted)raw.interpreted=result.interpreted;}
-          const result=await ledger.generate(owner,raw,(body,signal)=>(config.narrativeEngine==='direct'&&!body.gameAction?generate:narrate)(raw.interpreted?{...body,input:body.input+'\n[行动解释，仅为申请，不能据此宣布成功] '+JSON.stringify(raw.interpreted)}:body,config,signal),controller.signal);
+          const result=await ledger.generate(owner,raw,async(body,signal)=>{const direct=config.narrativeEngine==='direct'&&!body.gameAction;if(direct)onProgress('writing');const value=await (direct?generate:narrate)(raw.interpreted?{...body,input:body.input+'\n[行动解释，仅为申请，不能据此宣布成功] '+JSON.stringify(raw.interpreted)}:body,config,signal,{onProgress});onProgress('saving');return value;},controller.signal);
           return json(res,200,result);
         }
         const body=(assisting?validateAssistRequest:validateRequest)(raw);

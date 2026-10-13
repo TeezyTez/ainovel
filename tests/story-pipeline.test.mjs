@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {generateNarrative} from '../src/server-narrative.mjs';
 import {modelConfig} from '../src/server-model.mjs';
-import {storyContext} from '../src/server-story.mjs';
+import {storyContext,generateStory} from '../src/server-story.mjs';
 import {createSession,commitTurn,validateArchive,getBranch} from '../src/core.js';
 import {publicArchive} from '../src/server-public-archive.mjs';
 
@@ -21,11 +21,57 @@ test('default engine separates prose from bookkeeping, leaves a quiet response i
  assert.equal(calls[1].data.fixedProse,prose);assert.equal(result.prose,prose);assert.equal(result.ended,false);assert.equal(JSON.stringify(f.body),before);
  commitTurn(f.session,world,'没有',result);validateArchive({schemaVersion:1,worlds:[world],sessions:[f.session]});
 });
+test('progress reports only real stage transitions and keeps unvalidated prose private',async()=>{
+ const order=[],bad=record();bad.record.events=[{type:'fact',entity:null,value:'医生到了',visibility:'player'}];bad.record.eventEvidence=[{index:0,quote:'医生到了'}];
+ const replies=[{prose},bad,record()];let count=0;
+ const result=await generateStory(fixture().body,config,new AbortController().signal,{
+  onProgress:(...args)=>{assert.equal(args.length,1);order.push(args[0]);},
+  requestJSON:async()=>{order.push('request');return structuredClone(replies[count++]);}
+ });
+ assert.deepEqual(order,['writing','request','checking','request','request']);assert.equal(result.prose,prose);assert.equal(count,3);
+});
 test('reader history excludes old technical schemas and distinguishes background names from read prose',()=>{
  const b=fixture().body;b.recent=[{input:'看一眼',prose:'门还关着。',state:{flags:{private:'STATE_ONLY'}},operation:{huge:'OPERATION_ONLY'}}];
  const c=storyContext(b);assert.deepEqual(c.reader.recent,[{input:'看一眼',prose:'门还关着。'}]);
  assert.equal(JSON.stringify(c.reader).includes('BACKGROUND_ONLY'),false);assert.equal(JSON.stringify(c).includes('STATE_ONLY'),false);assert.equal(JSON.stringify(c).includes('OPERATION_ONLY'),false);
  assert.equal(c.background.characters[0].secret,'BACKGROUND_ONLY');assert.ok(c.reader.opening.includes('护士'));
+});
+test('reader continuity includes only the last three committed changes without narrative machinery',()=>{
+ const b=fixture().body;b.narrative={recentBeats:[
+  {summary:'旧线索已经查清。',kind:'payoff',methodId:'OLD_METHOD'},
+  {summary:'护士找到备用手电。',kind:'progress',methodId:'METHOD_ONLY'},
+  {summary:'门外的来人报出自己是送药员。',kind:'setup',privateNote:'PRIVATE_ONLY'},
+  {summary:'护士答应隔着门核对配送单。',kind:'progress',methodId:'METHOD_ONLY'}
+ ],threads:[]};
+ const c=storyContext(b);assert.deepEqual(c.reader.recentChanges,['护士找到备用手电。','门外的来人报出自己是送药员。','护士答应隔着门核对配送单。']);
+ assert.equal(JSON.stringify(c.reader).includes('METHOD_ONLY'),false);assert.equal(JSON.stringify(c.reader).includes('PRIVATE_ONLY'),false);
+ assert.equal(storyContext(fixture().body).reader.recentChanges,undefined);
+});
+test('background names carry explicit reader knowledge without treating aliases or short substrings as introductions',()=>{
+ const b=fixture().body;b.world=structuredClone(b.world);b.world.characters=[{id:'keeper',name:'陶岳',secret:'BACKGROUND_ONLY'},{id:'short',name:'周',secret:''}];
+ b.world.opening='周围很安静，周宁拿着灯。无线电里的值班员自称老陶。';
+ b.state.experience={objects:[{id:'person:keeper',kind:'person',name:'老陶',nameKnown:false}]};
+ assert.deepEqual(storyContext(b).background.characters.map(c=>c.nameKnownToReader),[false,false]);
+ b.recent=[{prose:'值班员说：“我叫陶岳。”',input:'该怎么称呼您？'}];
+ assert.equal(storyContext(b).background.characters[0].nameKnownToReader,true);
+ b.recent=[];b.state.experience.objects=[{id:'person:keeper',kind:'person',name:'陶岳',nameKnown:true}];
+ assert.equal(storyContext(b).background.characters[0].nameKnownToReader,true);
+ assert.equal(JSON.stringify(storyContext(b).reader).includes('BACKGROUND_ONLY'),false);
+});
+test('record repair keeps literal entity names and cannot turn a paraphrased label into evidence',async()=>{
+ const authored='插销横在座扣里，两颗固定螺钉都在。',bad=record();
+ bad.record.game={entities:[{id:'door:latch',kind:'clue',name:'后门插销状况',detail:'两颗螺钉都在。',status:'已检查',value:null,max:null,unit:'',quote:authored}],surfaces:[],spatial:null,journeys:null};
+ const corrected=structuredClone(bad);corrected.record.game.entities[0].name='插销';
+ const {calls,result}=await run([{prose:authored},bad,corrected]);
+ assert.match(calls[2].data.validationIssue,/quote必须包含其name/);assert.equal(result.game.entities[0].name,'插销');assert.equal(result.prose,authored);
+ await assert.rejects(run([{prose:authored},bad,bad]),e=>e.code==='INVALID_MODEL_RESULT');
+});
+test('geography still rejects display names as endpoint identifiers instead of silently accepting a broken map',async()=>{
+ const authored='桥头的铁栏门关着，通往岗亭的小路到此为止。',bad=record();
+ bad.record.game={entities:[{id:'place:gate',kind:'place',name:'桥头的铁栏门',detail:'小路到此为止。',status:'关闭',value:null,max:null,unit:'',quote:authored}],surfaces:[],spatial:{sites:[],relations:[{id:'path:gate',from:'渡口候船室',to:'place:gate',kind:'route',bearing:null,distanceMeters:null,passage:'unknown',bidirectional:true,label:'小路',quote:authored}]},journeys:null};
+ await assert.rejects(run([{prose:authored},bad,bad]),e=>e.code==='INVALID_MODEL_RESULT'&&e.diagnostic.reason==='空间关系字段无效。');
+ const corrected=structuredClone(bad);corrected.record.game.spatial=null;
+ const {result}=await run([{prose:authored},corrected]);assert.equal(result.game.entities[0].name,'桥头的铁栏门');assert.equal(result.game.spatial,null);
 });
 test('record repair cannot overwrite authored prose or invent evidence, and never reruns the author',async()=>{
  const bad=record();bad.record.events=[{type:'fact',entity:null,value:'医生到了',visibility:'player'}];bad.record.eventEvidence=[{index:0,quote:'医生到了'}];

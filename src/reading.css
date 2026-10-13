@@ -1,7 +1,6 @@
 /* Personal reading stays one column. Panels appear only when requested. */
-.reading-experience,.reading-panel,dialog:has(.reading-panel){--accent:#8b4c2b;--soft:#f4e9dc;--ink:#352b25;--muted:#75665b;--line:#e5dace;--paper:#fffcf7;--bg:#faf6ee}
+/* Color and font tokens are defined once in interface.css. */
 .reading-experience{background:var(--bg);color:var(--ink);min-height:100dvh}
-body[data-theme=dark] .reading-experience,body[data-theme=dark] .reading-panel,body[data-theme=dark] dialog:has(.reading-panel){--accent:#e4ad83;--soft:#342a23;--ink:#f0e6da;--muted:#c1af9e;--line:#534437;--paper:#27211c;--bg:#211c18}
 .reading-experience :where(button,a,summary,input,select,textarea):focus-visible,.reading-panel :where(button,a,summary,input,select,textarea):focus-visible{outline:3px solid var(--accent)!important;outline-offset:3px}
 .reading-experience .btn,.reading-panel .btn{min-height:44px;border-radius:8px;font-size:14px;line-height:1.45}
 .reading-experience .btn.primary{color:#fff9f2;background:var(--accent)}

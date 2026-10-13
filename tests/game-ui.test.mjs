@@ -179,6 +179,28 @@ test('committed receipt remains visible without new surfaces and reports only co
 
 test('recall can be dismissed and gameplay theme variables all exist in reader or base styles',()=>{
   assert.match(gameRecallView(turn.state),/data-action="game-dismiss-recall"/);
-  const css=readFileSync(new URL('../src/game-ui.css',import.meta.url),'utf8'),reader=readFileSync(new URL('../src/reading.css',import.meta.url),'utf8');
+  const css=readFileSync(new URL('../src/game-ui.css',import.meta.url),'utf8'),reader=readFileSync(new URL('../src/reading.css',import.meta.url),'utf8')+readFileSync(new URL('../src/interface.css',import.meta.url),'utf8');
   for(const name of new Set([...css.matchAll(/var\((--[\w-]+)\)/g)].map(m=>m[1])))if(!['--sans','--serif'].includes(name))assert.ok(reader.includes(`${name}:`),`${name} must be defined`);
+});
+test('recall headings name the requested content and preserve the empty recovery action',()=>{
+ const html=gameRecallView({}, {kind:'inventory'});
+ assert.match(html,/<aside class="game-recall" aria-label="物品">/);
+ assert.match(html,/<h2>物品<\/h2>/);assert.match(html,/故事备忘/);
+ assert.match(html,/data-action="game-dismiss-recall"/);assert.match(html,/data-action="history"/);
+ assert.doesNotMatch(html,/唤出的已知玩法|随时翻看|data-action="game-act"/);
+});
+test('context disclosures avoid repeating an identical category and title',()=>{
+ const t={id:'context',state:{version:2,game:{entities:[entities[0]],surfaces:[{id:'status',kind:'status',title:'状态',entityIds:['energy'],version:2}]}}};
+ const summary=gameTurnView(t,{currentVersion:2}).match(/<summary>([\s\S]*?)<\/summary>/)[1];
+ assert.match(summary,/game-context-title">状态/);assert.doesNotMatch(summary,/game-context-label|展开 \/ 收起/);
+ assert.match(summary,/game-context-toggle" aria-hidden="true"/);
+});
+test('dossier overview previews long collections without dropping their dedicated records',()=>{
+ const clues=Array.from({length:5},(_,i)=>entity('c'+i,'clue','线索正文'+i,{detail:'线索正文'+i,status:'已知'}));
+ const state={version:1,game:{entities:[...clues,entity('person','actor','林岑',{detail:'护士'})],surfaces:[]}},before=JSON.stringify(state);
+ const overview=gameRecallView(state),all=gameRecallView(state,{kind:'clues'});
+ assert.match(overview,/已知人物/);assert.doesNotMatch(overview,/已知眼前的选择/);
+ assert.match(overview,/查看全部 5 条线索/);assert.doesNotMatch(overview,/线索正文4/);
+ assert.equal((all.match(/线索正文4/g)||[]).length,1);assert.doesNotMatch(all,/查看全部/);
+ assert.equal(JSON.stringify(state),before);
 });

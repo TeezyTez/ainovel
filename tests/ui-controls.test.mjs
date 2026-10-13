@@ -6,9 +6,10 @@ import {readerView} from '../src/reading-ui.js';
 test('one tool entry exposes read-only queries; execution is unavailable while busy or ended',()=>{
   for(const state of [{busy:true},{ended:true},{}]){
     const html=readerQuickTools(state);
-    assert.equal((html.match(/data-action="reader-inspect"/g)||[]).length,6);
-    for(const kind of ['map','status','inventory','interaction','timeline','clues'])assert.ok(html.includes(`data-kind="${kind}"`));
+    assert.equal((html.match(/data-action="reader-inspect"/g)||[]).length,1);
+    assert.ok(html.includes('data-kind="all"'));
     assert.doesNotMatch(html,/<input|<textarea|autofocus/);
+    assert.doesNotMatch(html,/dynamic-prepare|智能交互|整理当前处境/);
     if(state.busy||state.ended){assert.doesNotMatch(html,/data-action="continue"/);assert.match(html,/data-action="time-control" disabled/);}
     else assert.match(html,/data-action="continue"/);
   }

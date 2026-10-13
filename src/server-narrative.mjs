@@ -178,8 +178,9 @@ function selectScene(plan,body,methods,needs) {
   return verified.sort((a,b)=>priority(b)-priority(a))[0];
 }
 
-export async function generateNarrative(body,config,signal,{requestJSON=requestModelJSON}={}) {
-  if(config.narrativeEngine==='story')return (await import('./server-story.mjs')).generateStory(body,config,signal,{requestJSON});
+export async function generateNarrative(body,config,signal,{requestJSON=requestModelJSON,onProgress}={}) {
+  if(config.narrativeEngine==='story')return (await import('./server-story.mjs')).generateStory(body,config,signal,{requestJSON,onProgress});
+  onProgress?.('writing');
   if(!config.available)throw new ApiError(503,'MODEL_UNAVAILABLE','尚未配置真实模型。请配置服务端 .env；本次没有切换到演示或修改故事。');
   const controller=new AbortController(),deadline=Date.now()+config.timeoutMs;
   const cancelled=()=>new ApiError(499,'CANCELLED','已取消生成，故事没有改变。');
