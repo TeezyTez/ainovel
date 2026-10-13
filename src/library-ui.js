@@ -1,5 +1,6 @@
 import {filterSessions} from './personal-library.js';
 import {icon} from './ui-controls.js';
+import {universeSculpture} from './multiverse-art.js';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const normalize=value=>String(value||'').normalize('NFKC').toLocaleLowerCase();
@@ -26,13 +27,13 @@ const snippet=(value,query='',limit=150)=>{
 };
 const reset=(href,action)=>`<a class="library-reset" href="${href}" data-action="${action}">清空筛选</a>`;
 
-// Decorative motifs identify known worlds without illustrating generated scenes.
+// Decorative artwork identifies known worlds without claiming to depict generated events.
 export function worldAtmosphere(world) {
   const key=String(world.worldId||world.id||world.title||'world');
   const hash=[...key].reduce((value,char)=>(value*31+char.codePointAt(0))>>>0,0);
   const tone=['forest','clay','midnight','gold','plum','slate'][hash%6];
   const motif=worldMotifs.get(world.worldId||world.id)||'portal';
-  return '<div class="world-atmosphere" data-world-tone="'+tone+'" data-world-motif="'+motif+'" data-field-seed="'+hash+'" aria-hidden="true"><canvas></canvas></div>';
+  return '<div class="world-atmosphere" data-world-tone="'+tone+'" data-world-motif="'+motif+'" data-field-seed="'+hash+'" aria-hidden="true"><div class="world-scene"></div></div>';
 }
 const currentContext=session=>{
   const branch=branchOf(session),state=branch?.turns?.at(-1)?.state||branch?.initialState;
@@ -52,22 +53,22 @@ export function discoveryView({worlds=[],sessions=[],getExperience,recap,availab
   const matches=[...filtered.slice(shift),...filtered.slice(0,shift)];
   const last=filterSessions(sessions,{category:'active'}).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))[0];
   const filteredNow=!!(query||tag||excludeTag||onlyFavorites);
-  const card=world=>{
+  const card=(world,index)=>{
     const favorite=favoriteIds.has(world.id),summary=snippet(getExperience?.(world)?.promise||world.description||'', '',54);
     const firstSentence=String(world.opening||'').match(/^[\s\S]*?(?:[。！？][”’」』]?|[.!?](?:\s|$))/)?.[0];
     const opening=snippet(firstSentence||world.opening,'',54);
-    return `<article class="discovery-card">${worldAtmosphere(world)}<div class="discovery-card-content"><div class="library-card-meta"><span>${esc(world.tags?.[0]||(world.custom?'我的创作':'自由探索'))}</span>${favorite?'<span class="discovery-favorite-state">已收藏</span>':''}</div><h3><a href="#/world/${esc(world.id)}">${esc(world.title)}</a></h3>${summary?`<p class="discovery-summary">${esc(summary)}</p>`:''}${opening?`<blockquote class="discovery-opening">${esc(opening)}</blockquote>`:''}${world.identity?`<p class="discovery-role">你的身份：${esc(world.identity)}</p>`:''}<span class="discovery-enter" aria-hidden="true">探索世界 ↗</span><div class="discovery-card-footer"><details class="discovery-more"><summary aria-label="${esc(world.title)}的开局选项"><span aria-hidden="true">···</span></summary><div class="discovery-menu">${button(favorite?'取消收藏':'收藏','favorite-world',world.id,`aria-pressed="${favorite}" aria-label="${esc((favorite?'取消收藏：':'收藏开局：')+world.title)}"`)}${button('隐藏世界','exclude-world',world.id)}</div></details></div></div></article>`;
+    return `<article class="discovery-card">${worldAtmosphere(world)}<span class="world-coordinate" aria-hidden="true">WORLD / ${String(index+1).padStart(2,'0')}</span><div class="discovery-card-content"><div class="library-card-meta"><span>${esc(world.tags?.[0]||(world.custom?'我的创作':'自由探索'))}</span>${favorite?'<span class="discovery-favorite-state">已收藏</span>':''}</div><h3><a href="#/world/${esc(world.id)}">${esc(world.title)}</a></h3>${summary?`<p class="discovery-summary">${esc(summary)}</p>`:''}${opening?`<blockquote class="discovery-opening">${esc(opening)}</blockquote>`:''}${world.identity?`<p class="discovery-role">你的身份：${esc(world.identity)}</p>`:''}<span class="discovery-enter" aria-hidden="true">探索世界 <span>↗</span></span><div class="discovery-card-footer"><details class="discovery-more"><summary aria-label="${esc(world.title)}的开局选项"><span aria-hidden="true">···</span></summary><div class="discovery-menu">${button(favorite?'取消收藏':'收藏','favorite-world',world.id,`aria-pressed="${favorite}" aria-label="${esc((favorite?'取消收藏：':'收藏开局：')+world.title)}"`)}${button('隐藏世界','exclude-world',world.id)}</div></details></div></div></article>`;
   };
   const empty=`<div class="library-empty"><h3>${onlyFavorites&&!favorites.length?'还没有收藏的开局':supply.length?'没有找到符合条件的开局':'这里暂时没有开局'}</h3><div class="library-empty-actions">${filteredNow?reset('#/','reset-discovery'):''}<a class="btn" href="#/create">创造一个世界</a></div></div>`;
   return `<main id="main" class="page library-surface discovery-page">
-    <header class="discovery-toolbar"><h1>今天，<span>想去哪里？</span></h1><a class="btn primary" href="#/create">创造世界 <span aria-hidden="true">＋</span></a></header>
+    <header class="discovery-toolbar"><div class="universe-hero-copy"><p class="universe-eyebrow">ELSELIFE <span>人生的另一种可能</span></p><h1>世界之外，<br><span>另有<span class="hero-emphasis">人生</span>。</span></h1><p class="universe-hero-intro">从一个念头出发，走进另一种人生。<br>故事的下一页，由你决定。</p><div class="universe-hero-actions"><a class="btn primary" href="#/create">创造世界 <span aria-hidden="true">↗</span></a><a class="btn cinema-secondary" href="#/stories">我的世界 <span aria-hidden="true">→</span></a></div></div>${universeSculpture()}</header>
     ${last?discoveryReturn(last):''}
-    <section aria-labelledby="discovery-title"><div class="discovery-section-bar"><h2 id="discovery-title">${filteredNow?'筛选结果':'发现世界'}</h2><span class="library-results" aria-live="polite">${matches.length} 个</span><button type="button" class="text-button" data-action="surprise-world" ${matches.length?'':'disabled'}>替我挑一个</button></div>
+    <section class="universe-catalog" aria-labelledby="discovery-title"><div class="discovery-section-bar"><div><p class="universe-section-label">每一个世界，都有不同的可能。</p><h2 id="discovery-title">${filteredNow?'筛选结果':'发现世界'}</h2></div><span class="library-results" aria-live="polite">${matches.length} 个世界</span><button type="button" class="text-button" data-action="surprise-world" ${matches.length?'':'disabled'}>${icon('compass')} 替我挑一个 <span aria-hidden="true">↗</span></button></div>
     <details class="discovery-search" id="discovery-search"${filteredNow?' open':''}><summary>搜索与筛选${filteredNow?' · 已启用':''}</summary>
       <form id="discovery-form" class="library-filters" role="search"><label class="library-search"><span class="sr-only">搜索开局</span><input type="search" name="query" value="${esc(query)}" placeholder="搜索世界" maxlength="300"></label><button type="submit" class="btn">搜索</button><div class="discovery-filter-options"><label>题材<select name="tag">${option('','全部题材',tag)}${tags.map(value=>option(value,value,tag)).join('')}</select></label><label>排除题材<select name="excludeTag">${option('','不限',excludeTag)}${tags.map(value=>option(value,value,excludeTag)).join('')}</select></label><label class="library-check"><input type="checkbox" name="onlyFavorites" value="true"${onlyFavorites?' checked':''}>只看收藏</label>${button('换个顺序','shuffle-worlds','',matches.length>1?'':'disabled')}${filteredNow?reset('#/','reset-discovery'):''}</div></form>
     </details>
     ${matches.length?`<div class="discovery-grid">${matches.map(card).join('')}</div>`:empty}${hiddenView}</section>
-    ${!available?'<p class="library-footnote" data-discovery-model-note>生成新内容需连接模型，已有经历仍可回顾。</p>':''}</main>`;
+    ${!available?'<p class="library-footnote" data-discovery-model-note>生成新内容需连接模型，已有经历仍可回顾。</p>':''}<footer class="universe-footer"><span>ELSELIFE / 人生复本</span><span>每一个选择，都是一个世界的开始。</span><a href="#/stories">回到我的世界 ↗</a></footer></main>`;
 }
 
 function discoveryReturn(session){

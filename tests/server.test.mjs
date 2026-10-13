@@ -67,6 +67,20 @@ test('only public static files are served; secrets and encoded traversal are rej
   for(const path of ['/.env','/package.json','/src/server-model.mjs','/.git/config','/src/%2e%2e%2f.env','/%2eenv']) assert.equal((await fetch(url+path)).status,404,path);
 });
 
+test('cinematic world artwork is served as images without exposing other assets',async t=>{
+  const root=await mkdtemp(join(tmpdir(),'elselife-art-'));t.after(()=>rm(root,{recursive:true,force:true}));
+  const folder=join(root,'assets','worlds');await mkdir(folder,{recursive:true});
+  const bytes=Buffer.from([0xff,0xd8,0xff,0xd9]);
+  await writeFile(join(folder,'cinema-hero.jpg'),bytes);
+  await writeFile(join(folder,'private.jpg'),bytes);
+  const url=await app(t,{root}),response=await fetch(url+'/assets/worlds/cinema-hero.jpg');
+  assert.equal(response.status,200);assert.equal(response.headers.get('content-type'),'image/jpeg');
+  assert.deepEqual(Buffer.from(await response.arrayBuffer()),bytes);
+  const head=await fetch(url+'/assets/worlds/cinema-hero.jpg',{method:'HEAD'});
+  assert.equal(head.status,200);assert.equal((await head.arrayBuffer()).byteLength,0);
+  for(const path of ['/assets/worlds/private.jpg','/assets/worlds/../../.env','/assets/worlds/%2e%2e%2f.env'])assert.equal((await fetch(url+path)).status,404);
+});
+
 test('cross-origin posts, unexpected host, malformed structures and excessive input are rejected',async t=>{
   const url=await app(t);
   assert.equal((await post(url,payload(),{headers:{origin:'https://evil.example'}})).status,403);

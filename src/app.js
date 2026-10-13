@@ -2,6 +2,7 @@ import {createWorldField} from './world-field.js';
 import {productShell} from './product-shell.js';
 import {createDynamicControls} from './dynamic-ui.js';
 import {createEditorialMotion} from './elselife-motion.js';
+import {createInterfaceMotion} from './interface-motion.js';
 import {richInteractionRequest,appendInteractionDraft} from './rich-request.js';
 import {bindRichControls} from './rich-interaction-controls.js';
 import {createDialogNavigation} from './dialog-navigation.js';
@@ -40,6 +41,7 @@ import {DemoProvider,RealProvider} from './providers.js';
 const $=s=>document.querySelector(s), app=$('#app'), dialog=$('#dialog');
 const editorialMotion=createEditorialMotion({root:app});
 const worldField=createWorldField({root:app});
+const interfaceMotion=createInterfaceMotion({root:app});
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const paragraphs=s=>String(s||'').split(/\n\s*\n/).filter(Boolean).map(p=>`<p>${esc(p).replaceAll('\n','<br>')}</p>`).join('');
 const button=(label,action,classes='',attrs='')=>`<button type="button" class="btn ${classes}" data-action="${action}" ${attrs}>${label}</button>`;
@@ -127,7 +129,7 @@ const readingProgress=createReadingProgress({capture:({branch,y})=>{
   branch.readingPosition=y;experience.persistAnchor(branch);
   clearTimeout(saveTimer);saveTimer=setTimeout(()=>save(true),300);
 }});
-function render(keepScroll=false){readingProgress.flush();const restorePageFocus=hasPageContentFocus();const journeyFocus=keepScroll?document.activeElement?.closest?.("[data-story-id]")?.dataset.storyId:null;rememberContextCards();const y=scrollY,{path,id}=currentRoute();applySettings();document.body.classList.toggle('focus-mode',focusMode&&path==='story');if(loadError){app.innerHTML=notFound('本机存档暂时无法读取',loadError)+`<div style="text-align:center;padding:20px">${button('下载原始数据备份','export-raw')}${button('导入有效存档以恢复','recover-import')}</div>`;return;}try{app.innerHTML=path==='world'?worldDetail(id):path==='create'?createView():path==='edit'?createView(id):path==='stories'?stories():path==='story'?reader():path==='settings'?settings():path===''?home():notFound('这一页没有找到','请通过导航返回世界或已有故事。');}catch(e){console.error(e);app.innerHTML=notFound('这一页暂时无法打开','数据没有被删除。请返回我的世界或从设置导出备份。');}refreshModelUI();updateSaveLabels();document.title=(path==='story'&&sessionNow()?sessionNow().title+' · ':'')+'elselife · 人生复本';restoreContextCards();bindForms();refreshDossier();worldField.mount();if(restorePageFocus)focusPageContent();if(journeyFocus){const next=app.querySelector('[data-story-id="'+CSS.escape(journeyFocus)+'"] .library-more>summary')||app.querySelector('.library-category-nav input:checked');next?.focus({preventScroll:true});}if(keepScroll)requestAnimationFrame(()=>scrollTo({top:y,behavior:'instant'}));}
+function render(keepScroll=false){interfaceMotion.mount();readingProgress.flush();const restorePageFocus=hasPageContentFocus();const journeyFocus=keepScroll?document.activeElement?.closest?.("[data-story-id]")?.dataset.storyId:null;rememberContextCards();const y=scrollY,{path,id}=currentRoute();applySettings();document.body.classList.toggle('focus-mode',focusMode&&path==='story');if(loadError){app.innerHTML=notFound('本机存档暂时无法读取',loadError)+`<div style="text-align:center;padding:20px">${button('下载原始数据备份','export-raw')}${button('导入有效存档以恢复','recover-import')}</div>`;return;}try{app.innerHTML=path==='world'?worldDetail(id):path==='create'?createView():path==='edit'?createView(id):path==='stories'?stories():path==='story'?reader():path==='settings'?settings():path===''?home():notFound('这一页没有找到','请通过导航返回世界或已有故事。');}catch(e){console.error(e);app.innerHTML=notFound('这一页暂时无法打开','数据没有被删除。请返回我的世界或从设置导出备份。');}refreshModelUI();updateSaveLabels();document.title=(path==='story'&&sessionNow()?sessionNow().title+' · ':'')+'elselife · 人生复本';restoreContextCards();bindForms();refreshDossier();worldField.mount();if(restorePageFocus)focusPageContent();if(journeyFocus){const next=app.querySelector('[data-story-id="'+CSS.escape(journeyFocus)+'"] .library-more>summary')||app.querySelector('.library-category-nav input:checked');next?.focus({preventScroll:true});}if(keepScroll)requestAnimationFrame(()=>scrollTo({top:y,behavior:'instant'}));}
 let composerObserver,librarySearchTimer;
 const historicalRichBindings=new WeakSet();
 function bindHistoricalRich(){for(const root of document.querySelectorAll('[data-historical-rich]')){if(historicalRichBindings.has(root))continue;historicalRichBindings.add(root);bindRichControls(root,{ready:()=>false,toast});}}

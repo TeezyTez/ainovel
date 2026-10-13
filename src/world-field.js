@@ -14,223 +14,235 @@ export function portalPoint(u,v,{seed=0,x=0,y=0,phase=0}={}){
 }
 
 const palettes={
-  forest:{sky:'#acbcb0',haze:'#e0ddc2',far:'#7b9991',ridge:'#557e79',land:'#355d58',deep:'#243e3c',water:'#668b86',paper:'#f0e7cc',light:'#dbcba0',accent:'#b78966'},
-  clay:{sky:'#bdaba1',haze:'#eee0c8',far:'#a89697',ridge:'#867b83',land:'#625b69',deep:'#3e3a48',water:'#8c9395',paper:'#f5e5c8',light:'#e7bc88',accent:'#b16e55'},
-  midnight:{sky:'#728897',haze:'#c8c8bd',far:'#758c96',ridge:'#506c7d',land:'#365364',deep:'#283d50',water:'#647f8c',paper:'#e7dfc6',light:'#e4c98e',accent:'#b58768'},
-  gold:{sky:'#c1b494',haze:'#ece2c7',far:'#a6aa94',ridge:'#7d8c79',land:'#566b5f',deep:'#354b46',water:'#899f91',paper:'#f6e8c8',light:'#e4c38b',accent:'#aa7860'},
-  plum:{sky:'#aca3b5',haze:'#e4d7cc',far:'#9b95a8',ridge:'#787d92',land:'#565e76',deep:'#383f55',water:'#878da0',paper:'#efe3d0',light:'#e4c6a0',accent:'#ac7f78'},
-  slate:{sky:'#a3b7bb',haze:'#e3e0ce',far:'#8ca3a5',ridge:'#68868c',land:'#49656d',deep:'#2c4854',water:'#829fa5',paper:'#f0e5cd',light:'#e3c899',accent:'#ad856b'}
+  forest:{sky:'#090e28',haze:'#1c2b82',far:'#537aff',ridge:'#3045a1',land:'#182554',deep:'#080b1b',water:'#375bcc',paper:'#f4f3ff',light:'#8ba9ff',accent:'#f15cff'},
+  clay:{sky:'#210b22',haze:'#7e2049',far:'#f64d78',ridge:'#992c5a',land:'#481333',deep:'#130b1e',water:'#b83361',paper:'#fff4fc',light:'#ff8fbd',accent:'#9876ff'},
+  midnight:{sky:'#07122e',haze:'#183c9d',far:'#438bff',ridge:'#2453b1',land:'#122d62',deep:'#060b20',water:'#316beb',paper:'#f1f6ff',light:'#7dbdff',accent:'#ba78ff'},
+  gold:{sky:'#160b32',haze:'#552a9f',far:'#ad68ff',ridge:'#693fb0',land:'#34205d',deep:'#0c0920',water:'#714ed1',paper:'#fbf6ff',light:'#d6a2ff',accent:'#5995ff'},
+  plum:{sky:'#200a30',haze:'#782590',far:'#e660dc',ridge:'#9136a7',land:'#481853',deep:'#12091e',water:'#a23bb7',paper:'#fff4ff',light:'#f99aff',accent:'#718dff'},
+  slate:{sky:'#0b1031',haze:'#262773',far:'#7c72ff',ridge:'#443fa6',land:'#242052',deep:'#080a1d',water:'#5049c3',paper:'#f5f4ff',light:'#a39aff',accent:'#ff617f'}
 };
 const tau=Math.PI*2;
 
-// All scenes share a 400-unit height. Wider surfaces reveal more landscape;
-// landmarks keep their proportions and remain useful transfer-animation targets.
+// Artwork uses a 400-unit height so its central gateway keeps the same proportions
+// in a discovery card, a detail cover, and the shared entrance transition.
 function sceneTools(ctx){
   return {
     shape(points,color,alpha=1){ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();},
     line(points,color,width=1,alpha=1){ctx.globalAlpha=alpha;ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();},
     rect(x,y,w,h,color,alpha=1){ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.fillRect(x,y,w,h);},
     ellipse(x,y,rx,ry,color,alpha=1){ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,tau);ctx.fill();},
+    ring(x,y,rx,ry,color,width=1,alpha=1,rotation=0){ctx.globalAlpha=alpha;ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.ellipse(x,y,rx,ry,rotation,0,tau);ctx.stroke();},
     curve(start,controls,color,width=1,alpha=1){ctx.globalAlpha=alpha;ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(...start);controls.forEach(c=>ctx.bezierCurveTo(...c));ctx.stroke();}
   };
 }
 
-function arch(ctx,x,y,width,height){
-  const r=width/2;
-  ctx.beginPath();ctx.moveTo(x,y+height);ctx.lineTo(x,y+r);
-  ctx.arc(x+r,y+r,r,Math.PI,tau);ctx.lineTo(x+width,y+height);ctx.closePath();
+function glow(ctx,g,x,y,r,color,alpha=1){
+  const light=ctx.createRadialGradient(x,y,0,x,y,r);
+  light.addColorStop(0,color);light.addColorStop(1,`${color}00`);
+  g.ellipse(x,y,r,r,light,alpha);
 }
 
-function birds(g,x,y,c){
-  g.curve([x-10,y],[[x-5,y-4,x-2,y-3,x,y],[x+2,y-4,x+6,y-5,x+11,y-2]],c,1.2,.6);
-  g.curve([x+28,y+13],[[x+32,y+10,x+35,y+10,x+38,y+13],[x+41,y+10,x+44,y+10,x+47,y+12]],c,.9,.45);
-}
-
-function branch(g,x,y,scale,c){
-  g.curve([x,y],[[x+8*scale,y-30*scale,x-5*scale,y-55*scale,x+18*scale,y-95*scale]],c,2.3*scale,.85);
-  for(let i=0;i<6;i++){
-    const lx=x+(i%2?10:-7)*scale,ly=y-(22+i*12)*scale;
-    g.ellipse(lx,ly,11*scale,3.5*scale,c,.82);
+function cosmos(ctx,g,p,edge,seed){
+  const wash=ctx.createLinearGradient(-edge,0,edge,400);
+  wash.addColorStop(0,'#080810');wash.addColorStop(.52,p.sky);wash.addColorStop(1,'#080810');
+  g.rect(-edge,-12,edge*2,424,wash);
+  glow(ctx,g,-62,156,285,p.haze,.75);
+  glow(ctx,g,148,252,185,p.accent,.15);
+  // Seeded stars stay still: no perpetual particle loop or reading distraction.
+  for(let i=0;i<72;i++){
+    const x=((i*137+seed*43)%(Math.ceil(edge*2)+1))-edge;
+    const y=8+((i*79+seed*19)%384),radius=i%11===0?1.2:.48;
+    g.ellipse(x,y,radius,radius,p.paper,i%7===0?.5:.18);
+    if(i%23===0){g.line([[x-4,y],[x+4,y]],p.paper,.6,.28);g.line([[x,y-4],[x,y+4]],p.paper,.6,.28);}
   }
+  // Long orbital paths continue beyond the aperture to give wide covers depth.
+  g.ring(12,204,Math.max(245,edge*.75),99,p.light,.6,.13,-.3);
+  g.ring(-20,200,Math.max(285,edge*.9),116,p.paper,.5,.07,.29);
+  g.line([[-edge,351],[edge,351]],p.light,.6,.07);
 }
 
-function sky(ctx,g,p,edge,seed){
-  const wash=ctx.createLinearGradient(0,0,0,320);
-  wash.addColorStop(0,p.sky);wash.addColorStop(1,p.haze);
-  g.rect(-edge,0,edge*2,400,wash);
-  g.ellipse(104,94,43,43,p.paper,.66);
-  g.ellipse(104,94,34,34,p.paper,.33);
-  // Quiet, horizontal cloud marks establish an engraved print vocabulary.
-  g.curve([-edge,126],[[-120,126,-143,111,-34,115],[13,116,4,125,79,124]],p.paper,1,.35);
-  g.curve([112,151],[[183,144,204,157,edge,149]],p.paper,1,.32);
-  for(let i=0;i<48;i++){
-    const x=((i*97+seed*41)%(Math.ceil(edge*2)+1))-edge;
-    const y=20+((i*53+seed*17)%330);
-    g.ellipse(x,y,.55,.55,p.paper,.13);
+function sceneSky(ctx,g,p,seed){
+  const wash=ctx.createLinearGradient(0,20,0,330);
+  wash.addColorStop(0,p.sky);wash.addColorStop(.58,p.haze);wash.addColorStop(1,p.far);
+  g.rect(-210,0,420,400,wash);
+  glow(ctx,g,73,135,124,p.light,.23);
+  g.ellipse(73,117,36,36,p.paper,.92);
+  g.ellipse(84,110,35,35,p.haze,.88);
+  for(let i=0;i<23;i++)g.ellipse(-159+((i*53+seed*31)%318),35+(i*41)%154,.65,.65,p.paper,.3);
+}
+
+function harbor(ctx,g,p){
+  g.shape([[-220,275],[-220,223],[-144,202],[-87,226],[-32,214],[26,229],[109,199],[220,231],[220,290]],p.ridge);
+  const water=ctx.createLinearGradient(0,245,0,400);water.addColorStop(0,p.water);water.addColorStop(1,p.deep);
+  g.rect(-220,245,440,160,water);
+  for(let i=0;i<15;i++){
+    const y=253+i*8;
+    g.line([[-195+(i%4)*17,y],[-101+(i%3)*19,y]],p.light,.7,.24);
+    g.line([[67+(i%3)*9,y+3],[166-(i%4)*7,y+3]],p.paper,.65,.24);
   }
+  g.shape([[-220,400],[-220,341],[-124,298],[-63,287],[-3,298],[52,344],[149,373],[220,400]],p.deep);
+  g.shape([[-96,303],[-70,272],[-18,272],[5,312]],p.land);
+  g.shape([[-72,278],[-58,114],[-29,114],[-13,278]],p.paper);
+  g.shape([[-43,114],[-29,114],[-13,278],[-39,278]],p.far);
+  g.rect(-61,98,35,20,p.deep);g.rect(-55,100,22,16,p.light);
+  g.shape([[-67,98],[-44,76],[-20,98]],p.deep);
+  g.line([[-44,76],[-44,65]],p.light,1,.9);
+  g.line([[-67,120],[-22,120]],p.light,2,.9);
+  g.rect(-51,151,9,19,p.deep);g.rect(-52,201,9,19,p.deep);g.rect(-50,253,13,24,p.deep);
+  // The beam cuts a warm wedge through the cold ocean atmosphere.
+  g.shape([[-32,104],[210,57],[210,131],[-32,110]],p.light,.12);
+  glow(ctx,g,-43,108,44,p.light,.28);
+  g.shape([[96,277],[154,277],[144,289],[106,286]],p.deep);
+  g.line([[124,277],[124,215]],p.light,1,.75);
+  g.shape([[120,220],[120,269],[93,269]],p.paper,.9);
+  g.shape([[129,235],[129,269],[150,269]],p.light,.66);
+  g.line([[-94,301],[-61,289],[-18,294]],p.light,1,.42);
 }
 
-function harbor(ctx,g,p,edge){
-  g.shape([[-edge,237],[-edge,216],[-220,211],[-163,191],[-122,204],[-51,193],[11,224],[95,206],[192,224],[edge,210],[edge,260]],p.far);
-  const sea=ctx.createLinearGradient(0,227,0,400);sea.addColorStop(0,p.water);sea.addColorStop(1,p.land);
-  g.rect(-edge,235,edge*2,165,sea);
-  for(let i=0;i<17;i++){
-    const y=244+i*9,x=-edge+((i*67)%151);
-    g.line([[x,y],[x+40+(i%4)*24,y]],p.paper,.8,.12+(i%3)*.045);
-    g.line([[96+(i%4)*22,y+3],[Math.min(edge,202+i*6),y+3]],p.paper,.7,.22);
+function mountain(ctx,g,p,seed){
+  const offset=(seed%5-2)*7;
+  g.shape([[-220,330],[-220,252],[-157,201],[-113,227],[-46+offset,111],[30,225],[101,159],[220,259],[220,400]],p.ridge);
+  g.shape([[-46+offset,111],[-61,223],[-18,243],[30,225]],p.far,.65);
+  g.line([[-46+offset,111],[-79,190],[-101,217]],p.light,1,.73);
+  g.shape([[-220,400],[-220,309],[-123,266],[-50,318],[21,254],[100,287],[174,239],[220,292],[220,400]],p.land);
+  // Floating strata turn a familiar mountain landscape into another reality.
+  for(const [x,y,w,h] of [[-117,158,47,26],[78,107,42,31],[122,213,35,22]]){
+    g.shape([[x-w,y],[x+w,y-4],[x+w*.45,y+h],[x-w*.2,y+h*.75]],p.deep);
+    g.line([[x-w,y],[x,y-9],[x+w,y-4]],p.light,1,.78);
+    g.line([[x-w*.2,y+4],[x,y+h*.65]],p.far,1,.5);
   }
-  g.shape([[-edge,400],[-edge,321],[-167,305],[-95,279],[-37,287],[28,267],[91,291],[136,326],[220,343],[edge,390],[edge,400]],p.deep);
-  g.shape([[-174,317],[-95,284],[-34,292],[25,276],[82,296],[139,328],[91,326],[15,303],[-81,314]],p.land);
-  g.line([[-151,314],[-90,291],[-38,299],[25,284],[64,296]],p.paper,1.2,.23);
-  // Limestone lighthouse: a lit face, shaded return, copper cap and lantern.
-  g.shape([[-25,285],[-10,125],[27,125],[43,285]],p.paper);
-  g.shape([[12,125],[27,125],[43,285],[15,285]],p.far);
-  g.rect(-15,119,47,9,p.deep);g.rect(-7,93,30,26,p.light);
-  g.rect(12,94,11,25,p.accent,.75);
-  g.line([[-7,93],[-7,119],[23,119],[23,93]],p.deep,3);
-  g.line([[8,94],[8,118]],p.deep,2);
-  g.shape([[-16,92],[8,71],[33,92]],p.deep);g.line([[8,71],[8,63]],p.deep,2);
-  g.rect(-18,116,53,3,p.deep);g.line([[-16,107],[-16,118],[33,118],[33,107]],p.deep,1);
-  for(let i=0;i<4;i++)g.line([[-13+i*14,107],[-13+i*14,118]],p.deep,1);
-  g.shape([[-6,110],[-177,141],[-177,117],[-6,104]],p.paper,.14);
-  g.rect(0,154,8,17,p.deep,.86);g.rect(-3,201,8,16,p.deep,.82);g.rect(-4,259,13,25,p.deep);
-  g.line([[-15,245],[34,245]],p.accent,1,.55);g.rect(-33,284,85,6,p.deep);
-  // A small sail provides a second scale in the open water.
-  g.shape([[149,277],[200,277],[191,286],[158,285]],p.deep);
-  g.line([[173,277],[173,221]],p.deep,1.5);g.shape([[170,227],[170,268],[143,268]],p.paper,.82);
-  g.shape([[177,235],[177,269],[197,269]],p.light,.72);
-  birds(g,-102,86,p.deep);branch(g,-173,366,.65,p.ridge);
-  g.line([[-66,353],[-12,342],[42,350]],p.paper,1,.12);
+  g.curve([-212,296],[[-130,266,-46,315,14,281],[81,255,136,281,213,262]],p.paper,15,.12);
+  g.shape([[-35,400],[-20,355],[24,329],[51,298],[74,274],[88,273],[64,313],[43,345],[3,370],[-6,400]],p.light,.6);
+  g.rect(62,242,5,35,p.deep);g.rect(89,242,5,35,p.deep);
+  g.rect(60,242,37,5,p.light);
+  g.shape([[48,242],[62,235],[79,219],[94,235],[109,242]],p.deep);
+  g.line([[48,242],[109,242]],p.paper,1,.8);
+  g.rect(76,248,5,10,p.accent);
 }
 
-function mountain(ctx,g,p,edge,seed=0){
-  const shift=(seed%5-2)*9;
-  g.shape([[-edge,302],[-edge,213],[-198,195],[-135,104],[-102,147],[-42,88],[20,188],[68,138],[154,218],[edge,157],[edge,400]],p.far);
-  g.shape([[-edge,324],[-226,229],[-141,252],[-48+shift,135],[39,223],[106,181],[191,278],[edge,234],[edge,400]],p.ridge);
-  g.shape([[-48+shift,135],[-30,221],[3,252],[-13,213],[8,218]],p.haze,.17);
-  g.line([[-157,246],[-106,222],[-48+shift,135],[-69,196]],p.paper,.9,.35);
-  g.shape([[-edge,400],[-edge,341],[-153,278],[-98,296],[-39,271],[12,274],[64,252],[130,280],[edge,291],[edge,400]],p.land);
-  g.curve([-edge,290],[[-112,269,-81,278,-2,265],[105,247,112,277,edge,265]],p.haze,21,.38);
-  g.curve([-edge,300],[[-114,281,-82,290,6,278],[107,262,136,286,edge,278]],p.paper,1.3,.3);
-  // A modest mountain gate and the pale path leading to it.
-  g.shape([[-45,400],[-29,364],[28,337],[46,306],[74,277],[91,277],[63,316],[39,347],[-5,376],[-16,400]],p.haze,.55);
-  for(let i=0;i<6;i++)g.line([[40-i*9,333+i*9],[60-i*11,333+i*9]],p.deep,1,.26);
-  g.rect(60,246,6,33,p.deep);g.rect(89,246,6,33,p.deep);
-  g.rect(61,246,33,6,p.paper);g.shape([[46,247],[63,240],[78,224],[92,240],[109,247]],p.deep);
-  g.line([[48,247],[109,247]],p.light,1.5,.7);g.rect(75,252,6,10,p.accent);
-  g.shape([[-edge,400],[-edge,367],[-196,347],[-154,363],[-103,355],[-59,384],[-18,400]],p.deep);
-  g.shape([[130,400],[165,357],[197,345],[244,359],[edge,330],[edge,400]],p.deep);
-  branch(g,-135,370,.8,p.deep);branch(g,184,357,.55,p.deep);birds(g,-99,74,p.deep);
-}
-
-function books(ctx,g,p,edge,seed){
-  g.rect(-edge,0,edge*2,400,p.deep,.36);
-  // The shop's arched display is a solid architectural object, not an icon.
-  ctx.globalAlpha=1;arch(ctx,-149,32,298,302);ctx.fillStyle=p.deep;ctx.fill();
-  ctx.save();arch(ctx,-136,45,272,278);ctx.clip();
-  const glow=ctx.createLinearGradient(0,45,0,323);glow.addColorStop(0,p.paper);glow.addColorStop(1,p.light);
-  g.rect(-136,45,272,280,glow);g.ellipse(57,103,83,83,p.paper,.35);
-  g.shape([[-136,227],[-136,175],[-94,159],[-59,190],[-19,172],[20,189],[54,165],[136,201],[136,247]],p.far,.36);
-  for(let i=0;i<12;i++){
-    const x=-123+i*22,y=66+(i*47)%112;
-    g.line([[x,y],[x-4,y+21]],p.paper,1.2,.52);
-  }
-  g.rect(-136,160,272,7,p.deep);g.rect(-4,45,8,222,p.deep);
-  g.line([[-128,58],[-128,316]],p.paper,1,.3);
-  // Two shelves of differently sized, deterministic book spines.
-  for(let row=0;row<2;row++){
-    const base=242+row*69;
-    for(let i=0;i<14;i++){
-      const x=-121+i*18,height=25+((i*13+row*17+seed)%23),color=[p.deep,p.accent,p.ridge,p.paper][(i+row)%4];
-      g.rect(x,base-height,12+(i%3),height,color,.9);
-      g.line([[x+3,base-height+5],[x+3,base-4]],p.paper,.8,.3);
-      if(i%3===0)g.line([[x+2,base-8],[x+10,base-8]],p.light,1,.65);
+function books(ctx,g,p,seed){
+  g.rect(-220,0,440,400,p.sky,.72);
+  glow(ctx,g,0,187,155,p.light,.3);
+  // Receding shelves form an impossible, luminous library corridor.
+  for(let layer=0;layer<5;layer++){
+    const inset=layer*23,left=-184+inset,right=184-inset,top=41+layer*24,bottom=369-layer*20;
+    const c=layer%2?p.ridge:p.land;
+    g.line([[left,bottom],[left,top],[right,top],[right,bottom]],c,14,.9);
+    g.line([[left+7,bottom],[left+7,top+7],[right-7,top+7],[right-7,bottom]],p.light,.8,.42);
+    for(let row=0;row<3;row++){
+      const base=top+51+row*(bottom-top-57)/3;
+      for(let i=0;i<5-layer%2;i++){
+        const h=13+((i*7+row*11+seed)%18);
+        g.rect(left+9+i*6,base-h,4,h,[p.far,p.light,p.accent][(i+row)%3],.8);
+        g.rect(right-13-i*6,base-h,4,h,[p.light,p.far,p.accent][(i+row)%3],.66);
+      }
+      g.line([[left+6,base+2],[left+43,base+2]],p.light,.8,.6);
+      g.line([[right-6,base+2],[right-43,base+2]],p.light,.8,.6);
     }
-    g.rect(-136,base,272,7,p.deep);g.line([[-136,base],[136,base]],p.paper,1,.4);
   }
-  ctx.restore();
-  g.rect(-161,322,322,13,p.deep);g.rect(-153,322,307,2,p.paper,.48);
-  g.line([[-edge,338],[edge,338]],p.deep,2,.38);
-  g.rect(-edge,350,edge*2,50,p.deep,.83);
-  g.ellipse(2,368,119,12,p.deep,.35);
-  // An open book catches the window light on the sill.
-  g.shape([[-83,336],[-43,330],[0,341],[43,330],[83,336],[100,361],[53,353],[0,367],[-53,353],[-100,361]],p.paper);
-  g.shape([[0,341],[43,330],[83,336],[100,361],[53,353],[0,367]],p.light,.65);
-  g.line([[0,341],[0,365]],p.deep,1,.6);
+  g.ellipse(0,185,24,43,p.paper,.16);
+  g.ring(0,185,28,47,p.light,1,.7);
+  g.shape([[-125,400],[-34,231],[34,231],[125,400]],p.deep);
+  g.line([[-106,399],[-26,232]],p.light,1,.54);g.line([[106,399],[26,232]],p.light,1,.54);
+  for(let i=0;i<5;i++)g.line([[-37-i*16,250+i*28],[37+i*16,250+i*28]],p.light,.65,.3);
+  // A suspended open volume is the foreground anchor.
+  g.ellipse(0,318,82,9,p.light,.12);
+  g.shape([[-96,251],[-51,242],[0,259],[51,242],[96,251],[110,282],[53,273],[0,291],[-53,273],[-110,282]],p.paper);
+  g.shape([[0,259],[51,242],[96,251],[110,282],[53,273],[0,291]],p.light,.8);
+  g.line([[0,259],[0,291]],p.deep,1,.6);
   for(let i=0;i<3;i++){
-    g.line([[-73,339+i*5],[-45,337+i*5],[-12,347+i*4]],p.deep,.7,.22);
-    g.line([[12,347+i*4],[45,337+i*5],[73,339+i*5]],p.deep,.7,.22);
+    g.line([[-80,251+i*6],[-53,249+i*6],[-15,263+i*6]],p.deep,.6,.34);
+    g.line([[15,263+i*6],[53,249+i*6],[80,251+i*6]],p.deep,.6,.34);
   }
-  g.line([[0,17],[0,75]],p.deep,1.5);g.shape([[-25,91],[-13,75],[13,75],[25,91]],p.deep);
-  g.ellipse(0,92,17,3,p.light);
-  branch(g,-197,349,.85,p.deep);branch(g,196,353,.7,p.deep);
 }
 
-function tea(ctx,g,p,edge){
-  g.rect(-edge,0,edge*2,400,p.ridge,.12);
-  // A round garden window sits behind the tea table.
-  g.ellipse(18,156,122,122,p.deep);
-  ctx.save();ctx.beginPath();ctx.arc(18,156,112,0,tau);ctx.clip();
-  const wash=ctx.createLinearGradient(0,40,0,273);wash.addColorStop(0,p.haze);wash.addColorStop(1,p.far);
-  g.rect(-104,35,245,245,wash);g.ellipse(73,101,30,30,p.paper,.83);
-  g.shape([[-110,240],[-92,157],[-64,174],[-10,122],[53,208],[102,155],[141,186],[141,283],[-110,283]],p.ridge,.55);
-  g.shape([[-110,259],[-61,215],[3,226],[66,198],[141,247],[141,283],[-110,283]],p.land,.7);
-  g.rect(-105,202,247,5,p.deep);g.rect(16,40,5,231,p.deep);
-  ctx.restore();
-  g.ellipse(18,156,124,124,p.paper,.04);
-  g.rect(-edge,299,edge*2,101,p.deep);g.rect(-edge,299,edge*2,3,p.paper,.36);
-  g.shape([[-166,399],[-121,314],[116,314],[192,399]],p.accent,.19);
-  g.ellipse(25,339,112,14,p.deep,.6);g.ellipse(11,322,73,11,p.light);g.ellipse(11,320,58,6,p.paper);
-  // Porcelain cup and a handle with an open center.
-  g.ellipse(61,280,23,23,p.paper);g.ellipse(62,279,14,14,p.deep);
-  ctx.globalAlpha=1;ctx.fillStyle=p.paper;ctx.beginPath();ctx.moveTo(-47,263);ctx.bezierCurveTo(-45,302,-33,317,10,317);ctx.bezierCurveTo(48,317,58,296,59,263);ctx.closePath();ctx.fill();
-  g.shape([[20,271],[58,264],[53,294],[41,311],[18,317]],p.light,.64);
-  g.ellipse(6,263,53,10,p.paper);g.ellipse(6,263,44,6,p.accent);g.ellipse(3,261,35,3,p.deep,.5);
-  g.line([[-24,287],[-19,299]],p.light,2,.56);
-  g.curve([-13,237],[[-35,214,8,197,-7,168]],p.paper,2.4,.61);
-  g.curve([15,233],[[40,207,-2,188,18,152]],p.paper,1.5,.42);
-  g.curve([35,243],[[23,230,52,219,40,197]],p.paper,1,.3);
-  g.ellipse(-103,336,18,5,p.light,.64);g.ellipse(-122,342,17,5,p.light,.5);
-  branch(g,-173,298,1.3,p.deep);branch(g,191,301,.84,p.deep);
+function tea(ctx,g,p){
+  g.shape([[-210,300],[-210,237],[-129,153],[-84,219],[-31,171],[39,255],[122,195],[210,248],[210,400]],p.ridge,.82);
+  g.shape([[-210,400],[-210,302],[-102,246],[-23,281],[49,241],[133,272],[210,254],[210,400]],p.land);
+  g.ring(0,178,103,103,p.light,1,.38);
+  g.ring(0,178,91,91,p.paper,.6,.21);
+  g.line([[0,75],[0,124]],p.light,.8,.4);
+  g.line([[-104,178],[-51,178]],p.light,.8,.4);
+  g.line([[104,178],[51,178]],p.light,.8,.4);
+  g.ellipse(0,337,113,12,p.light,.12);
+  g.ellipse(0,302,83,12,p.light);g.ellipse(0,299,70,7,p.paper);
+  // Porcelain floats above the landscape, its steam becoming an orbital ribbon.
+  g.ring(55,254,23,23,p.paper,10,1);g.ring(57,253,14,14,p.light,1,.8);
+  ctx.globalAlpha=1;ctx.fillStyle=p.paper;ctx.beginPath();ctx.moveTo(-57,234);ctx.bezierCurveTo(-55,273,-43,295,0,295);ctx.bezierCurveTo(43,295,54,273,55,234);ctx.closePath();ctx.fill();
+  g.shape([[20,241],[54,236],[48,272],[29,291],[5,296]],p.light,.55);
+  g.ellipse(-1,234,56,11,p.paper);g.ellipse(-1,234,47,7,p.deep);g.ellipse(0,232,36,4,p.accent,.7);
+  g.curve([-11,215],[[-63,177,30,151,-3,110]],p.paper,1.5,.8);
+  g.curve([14,215],[[62,176,-22,156,17,125]],p.light,2,.65);
+  g.ring(0,169,49,16,p.paper,.8,.45,-.42);
+  g.ellipse(26,111,2,2,p.light,.9);
 }
 
 function unknownWorld(ctx,g,p,edge,seed){
-  // Custom worlds get a seeded landscape through a stone opening. It deliberately
-  // suggests possibility rather than claiming to depict their generated events.
-  g.shape([[-edge,400],[-edge,283],[-143,251],[-64,283],[27,241],[142,274],[edge,235],[edge,400]],p.far,.65);
-  g.shape([[-edge,400],[-edge,343],[-131,304],[-52,327],[31,311],[130,338],[edge,308],[edge,400]],p.land);
-  const opening=seed%2===0,width=opening?184:212,left=-width/2;
-  ctx.globalAlpha=1;arch(ctx,left-13,48,width+26,282);ctx.fillStyle=p.paper;ctx.fill();
-  ctx.save();arch(ctx,left,60,width,270);ctx.clip();
-  const inside=ctx.createLinearGradient(0,60,0,330);inside.addColorStop(0,p.deep);inside.addColorStop(1,p.ridge);
-  g.rect(left,59,width,274,inside);
-  g.ellipse(38,123,29,29,p.light,.92);
-  g.shape([[left,272],[left,235],[-67,174],[-17,239],[25,192],[73,243],[width/2,224],[width/2,333],[left,333]],p.far);
-  g.shape([[left,333],[left,285],[-48,262],[-3,280],[47,245],[width/2,281],[width/2,333]],p.land);
-  g.shape([[-25,333],[-2,303],[25,281],[41,267],[33,292],[17,309],[2,333]],p.paper,.64);
-  if(!opening){g.rect(-3,60,6,272,p.paper);g.rect(left,193,width,5,p.paper);}
-  for(let i=0;i<9;i++)g.ellipse(-67+((seed+i*47)%141),83+(i*29)%123,.8,.8,p.paper,.58);
-  ctx.restore();
-  g.shape([[width/2+13,156],[width/2+29,168],[width/2+29,342],[width/2+13,331]],p.deep,.5);
-  g.rect(left-23,330,width+46,9,p.deep);g.rect(left-18,329,width+36,3,p.paper);
-  g.shape([[-38,400],[-16,358],[-2,340],[25,340],[18,368],[4,400]],p.haze,.43);
-  g.line([[left-6,175],[left-6,316]],p.deep,.7,.23);
-  branch(g,-154,360,.9,p.deep);branch(g,172,373,1.1,p.deep);birds(g,-143,114,p.deep);
-  for(let i=0;i<4;i++)g.line([[-80-i*11,379+i*5],[-56-i*9,379+i*5]],p.paper,.8,.17);
+  const offset=(seed%5-2)*8;
+  // The custom-world artwork suggests possibility without inventing story facts.
+  g.rect(-220,0,440,400,p.sky,.55);
+  glow(ctx,g,0,185,154,p.light,.32);
+  g.ellipse(58+offset,124,51,51,p.paper,.82);
+  g.ellipse(71+offset,113,47,47,p.haze);
+  g.ring(58+offset,124,82,18,p.light,1,.55,-.38);
+  g.shape([[-220,340],[-220,242],[-131,266],[-47,208],[42,258],[117,230],[220,249],[220,400]],p.ridge);
+  g.shape([[-220,400],[-220,306],[-122,278],[-21,306],[68,273],[161,314],[220,295],[220,400]],p.land);
+  // A monolithic opening crosses the horizon; stacked planes imply other layers.
+  const left=-57+offset,width=106;
+  g.shape([[left,291],[left,141],[left+width,107],[left+width,265]],p.deep);
+  g.shape([[left+width,107],[left+width+11,112],[left+width+11,272],[left+width,265]],p.far);
+  const inner=ctx.createLinearGradient(left,135,left+width,283);inner.addColorStop(0,p.light);inner.addColorStop(.6,p.far);inner.addColorStop(1,p.deep);
+  g.shape([[left+9,282],[left+9,148],[left+width-8,120],[left+width-8,262]],inner);
+  g.line([[left+1,290],[left+1,142],[left+width,107]],p.paper,1.6,.9);
+  g.line([[left+9,282],[left+9,148],[left+width-8,120]],p.light,2,.9);
+  g.shape([[left+9,282],[left+48,262],[left+width-8,262],[20,337],[-45,350]],p.light,.18);
+  g.shape([[-48,400],[-29,356],[1,313],[25,285],[34,285],[19,325],[3,366],[-15,400]],p.paper,.55);
+  for(const [x,y,w] of [[-105,170,24],[101,203,20],[-125,274,17]]){
+    g.shape([[x-w,y],[x+w,y-11],[x+w,y-6],[x-w,y+5]],p.light,.75);
+    g.line([[x-w,y+12],[x+w,y+1]],p.far,.9,.6);
+  }
 }
 
-function paintScene(ctx,{motif,palette,seed,width,height,x,y}){
+function gateway(ctx,g,p,seed,phase){
+  // Concentric optical edges, interrupted orbital marks, and one bright point
+  // make each illustration read as a portal instead of a framed landscape.
+  g.ring(0,199,176,169,p.light,17,.055);
+  g.ring(0,199,174,167,p.light,6,.2);
+  g.ring(0,199,172,165,p.light,1.7,.83);
+  g.ring(0,199,179,172,p.paper,.6,.35);
+  g.ring(0,199,187,180,p.light,.6,.16);
+  const angle=-.65+(seed%7)*.1+Math.sin(phase)*.025;
+  for(let i=0;i<36;i++){
+    if(i%9>5)continue;
+    const a=i*tau/36+angle,inner=185,outer=i%3===0?193:189;
+    g.line([[Math.cos(a)*inner,199+Math.sin(a)*(inner-7)],[Math.cos(a)*outer,199+Math.sin(a)*(outer-7)]],p.light,.85,i%3===0?.57:.25);
+  }
+  const px=Math.cos(angle)*174,py=199+Math.sin(angle)*167;
+  glow(ctx,g,-px,398-py,46,p.accent,.55);
+  glow(ctx,g,px,py,30,p.light,.85);g.ellipse(px,py,2.7,2.7,p.paper);
+  g.ring(-3,205,215,109,p.paper,.6,.3,-.28);
+}
+
+function paintScene(ctx,{motif,palette:p,seed,width,height,x,y,phase=0}){
   const unit=height/400,edge=width/unit/2+12;
-  ctx.save();ctx.translate(width/2+x*2,height*.005+y);ctx.scale(unit,unit);
+  ctx.save();ctx.translate(width/2,height*.005);ctx.scale(unit,unit);
   ctx.lineCap='round';ctx.lineJoin='round';
-  const g=sceneTools(ctx);sky(ctx,g,palette,edge,seed);
-  if(motif==='harbor')harbor(ctx,g,palette,edge);
-  else if(motif==='mountain')mountain(ctx,g,palette,edge);
-  else if(motif==='books')books(ctx,g,palette,edge,seed);
-  else if(motif==='tea')tea(ctx,g,palette,edge);
-  else unknownWorld(ctx,g,palette,edge,seed);
-  // A light keyline ties the different scenes to a shared print-like material.
-  g.line([[-edge,399],[edge,399]],palette.paper,1,.22);
+  const g=sceneTools(ctx);cosmos(ctx,g,p,edge,seed);
+  ctx.save();ctx.translate(x*4,y*2);
+  ctx.save();ctx.beginPath();ctx.ellipse(0,199,171,164,0,0,tau);ctx.clip();
+  sceneSky(ctx,g,p,seed);
+  if(motif==='harbor')harbor(ctx,g,p);
+  else if(motif==='mountain')mountain(ctx,g,p,seed);
+  else if(motif==='books')books(ctx,g,p,seed);
+  else if(motif==='tea')tea(ctx,g,p);
+  else unknownWorld(ctx,g,p,edge,seed);
+  const shade=ctx.createLinearGradient(0,220,0,370);shade.addColorStop(0,`${p.deep}00`);shade.addColorStop(1,p.deep);
+  g.rect(-210,220,420,170,shade,.48);
+  ctx.restore();
+  gateway(ctx,g,p,seed,phase);ctx.restore();
+  // Sparse coordinates remain purely decorative, with no fabricated game stats.
+  g.line([[-edge+25,29],[-edge+25,38],[-edge+34,38]],p.paper,.6,.24);
+  g.line([[edge-25,361],[edge-25,370],[edge-34,370]],p.paper,.6,.24);
   ctx.restore();
 }
 
@@ -254,7 +266,7 @@ export function createWorldField({root=globalThis.document}={}){
     // This prevents exposed edges when the artwork moves by a few pixels.
     const palette=palettes[host.dataset.worldTone]||palettes.plum;
     ctx.fillStyle=palette.sky;ctx.fillRect(0,0,w,h);
-    paintScene(ctx,{motif:host.dataset.worldMotif,palette,seed:item.seed,width:w,height:h,x:item.x,y:item.y});
+    paintScene(ctx,{motif:host.dataset.worldMotif,palette,seed:item.seed,width:w,height:h,x:item.x,y:item.y,phase:item.phase});
   }
   function tick(now){
     raf=0;if(destroyed||doc.hidden)return;
@@ -283,7 +295,7 @@ export function createWorldField({root=globalThis.document}={}){
     for(const host of root.querySelectorAll('.world-atmosphere')){
       const canvas=host.querySelector('canvas');if(!canvas)continue;
       let context;try{context=canvas.getContext('2d');}catch{continue;}if(!context)continue;
-      const surface=host.closest('.discovery-card,.world-current,.world-intro');if(!surface)continue;
+      const surface=host.closest('.discovery-card,.world-current,.world-intro,.universe-hero-art');if(!surface)continue;
       const seed=Number(host.dataset.fieldSeed)||0;
       const item={host,canvas,context,surface,seed:seed%100,x:0,y:0,tx:0,ty:0,phase:seed%13,visible:false,until:0};entries.push(item);paint(item);
       const move=e=>{if(reduced()||!fine.matches||e.pointerType==='touch')return;const r=surface.getBoundingClientRect();item.tx=Math.max(-1,Math.min(1,(e.clientX-r.left)/r.width*2-1));item.ty=Math.max(-1,Math.min(1,(e.clientY-r.top)/r.height*2-1));item.until=win.performance.now()+350;wake();};

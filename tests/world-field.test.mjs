@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createWorldField,portalPoint} from '../src/world-field.js';
 
-function fixture({width=600,height=300,motif='portal',seed='57',recordDrawing=false}={}){
+function fixture({width=600,height=300,motif='portal',seed='57',recordDrawing=false,surfaceClass='discovery-card'}={}){
  let now=0,reduced=false,appReduced=false,paints=0,io,settings,id=0;
  const frames=new Map(),events=new Map(),mediaEvents=new Map(),documentEvents=new Map(),styles=new Map(),drawing=[];
  const record=(method,args)=>{if(recordDrawing)drawing.push([method,...args]);};
@@ -13,7 +13,7 @@ function fixture({width=600,height=300,motif='portal',seed='57',recordDrawing=fa
  });
  const surface={classList:{contains:()=>false},style:{setProperty:(k,v)=>styles.set(k,v),removeProperty:k=>styles.delete(k)},getBoundingClientRect:()=>({left:0,top:0,width:600,height:300}),addEventListener:(key,fn)=>events.set(key,fn),removeEventListener:key=>events.delete(key)};
  const canvas={getContext:()=>context,width:0,height:0};
- const host={clientWidth:width,clientHeight:height,dataset:{fieldSeed:seed,worldTone:'plum',worldMotif:motif},parentElement:{classList:{contains:()=>false}},querySelector:()=>canvas,closest:()=>surface};
+ const host={clientWidth:width,clientHeight:height,dataset:{fieldSeed:seed,worldTone:'plum',worldMotif:motif},parentElement:{classList:{contains:()=>false}},querySelector:()=>canvas,closest:selector=>selector.split(',').includes(`.${surfaceClass}`)?surface:null};
  const win={devicePixelRatio:2,performance:{now:()=>now},requestAnimationFrame:fn=>{frames.set(++id,fn);return id;},cancelAnimationFrame:key=>frames.delete(key),
   matchMedia:query=>query.includes('reduced')?{get matches(){return reduced;},addEventListener:(k,f)=>mediaEvents.set(k,f),removeEventListener:k=>mediaEvents.delete(k)}:{matches:true},
   IntersectionObserver:class{constructor(fn){io=fn;}observe(){}disconnect(){}},ResizeObserver:class{observe(){}disconnect(){}},MutationObserver:class{constructor(fn){settings=fn;}observe(){}disconnect(){}}
@@ -34,6 +34,14 @@ test('visible entrance settles to zero scheduled frames and bounds canvas densit
  for(let i=0;i<100;i++)f.step();
  assert.equal(f.frames.size,0);assert.ok(f.paints>2);assert.equal(f.canvas.width,900);
  f.field.destroy();
+});
+test('the discovery hero paints its gateway and cleans up its bounded entrance',()=>{
+ const f=fixture({width:480,height:420,surfaceClass:'universe-hero-art'});f.field.mount();
+ assert.ok(f.paints>0,'the hero has static artwork before intersection observation');
+ assert.equal(f.canvas.width,720);assert.equal(f.canvas.height,630);
+ f.visible();for(let i=0;i<100;i++)f.step();
+ assert.equal(f.frames.size,0);assert.ok(f.paints>2);
+ f.field.destroy();assert.equal(f.events.size,0);assert.equal(f.frames.size,0);
 });
 test('offscreen motion stops, remount cleans listeners, destroy prevents reinstallation',()=>{
  const f=fixture();f.field.mount();f.visible();f.step();f.visible(false);f.step();assert.equal(f.frames.size,0);

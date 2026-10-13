@@ -1,0 +1,422 @@
+/* A quiet place inside the multiverse. Reading preferences still own the prose. */
+.reading-experience,
+body:has(.reading-experience) dialog {
+  --bg: #f7f7f8;
+  --paper: #ffffff;
+  --ink: #24252a;
+  --muted: #62636d;
+  --line: #dedee3;
+  --soft: #ededf0;
+  --accent: #292a30;
+  --accent-ink: #ffffff;
+  --highlight: #ffffffcc;
+  --reader-shadow: 0 18px 48px -28px #18191f36, 0 2px 8px #18191f06;
+  --signal: #3564d6;
+  --reader-rule: #a8a9b1;
+  --reader-ease: cubic-bezier(.22, .78, .22, 1);
+  color: var(--ink);
+  color-scheme: light;
+}
+
+body[data-theme=dark] .reading-experience,
+body[data-theme=dark]:has(.reading-experience) dialog {
+  --bg: #0b0c10;
+  --paper: #15161b;
+  --ink: #f4f4f5;
+  --muted: #a6a7b1;
+  --line: #303137;
+  --soft: #222329;
+  --accent: #efeff1;
+  --accent-ink: #15161b;
+  --highlight: #ffffff08;
+  --reader-shadow: 0 18px 54px -24px #000a, 0 2px 8px #0003;
+  --signal: #91b0ff;
+  --reader-rule: #737580;
+  color-scheme: dark;
+}
+
+.reading-experience {
+  min-height: 100dvh;
+  background: var(--bg);
+}
+.reading-experience ::selection {
+  background: color-mix(in srgb, var(--ink) 16%, var(--bg));
+  color: var(--ink);
+}
+.reading-experience :where(button,a,summary),
+body:has(.reading-experience) dialog :where(button,a,summary,input,select,textarea) {
+  transition: background-color 160ms, color 160ms, border-color 160ms,
+    box-shadow 180ms var(--reader-ease), transform 160ms var(--reader-ease);
+}
+.reading-experience :where(button,a,summary,input,select):focus-visible,
+body:has(.reading-experience) dialog :where(button,a,summary,input,select,textarea):focus-visible {
+  outline: 2px solid var(--signal) !important;
+  outline-offset: 3px;
+}
+.reading-experience .btn:disabled,
+body:has(.reading-experience) dialog button:disabled {
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.reading-header {
+  min-height: 74px;
+  border-bottom-color: color-mix(in srgb, var(--line) 75%, transparent);
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  box-shadow: 0 1px 0 var(--highlight);
+}
+
+.reading-back {
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--ink);
+}
+.reading-back:hover { border-color: var(--accent); }
+.reading-title { font-weight: 600; letter-spacing: .03em; }
+.reading-context { font-size: 11px; letter-spacing: .025em; }
+.reading-context-dot { color: var(--muted); opacity: .65; }
+.reading-save .ui-icon { color: var(--muted); }
+.reading-save.save-error .ui-icon { color: var(--danger); }
+.reading-header-tool,
+.reading-appearance { border-radius: 50px; }
+.reading-header-tool[aria-expanded=true] {
+  background: var(--soft);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.reading-header-tool[aria-expanded=true] .ui-icon { color: var(--signal); }
+.reading-appearance { font-family: var(--sans); font-size: 16px; letter-spacing: -.07em; }
+.reading-experience :is(.reading-back,.reading-header-tool,.reading-appearance,.reader-tools-trigger,.reading-send,.reading-continue):active:not(:disabled) {
+  transform: translateY(1px) scale(.97);
+}
+.reading-header :where(.reading-back,.reading-header-tool,.reading-appearance) .ui-icon {
+  flex: none;
+}
+
+.reading-paper.reader { position: relative; padding-top: 68px; }
+.reading-chapter { padding-bottom: 32px; margin-bottom: 38px; }
+.reading-chapter::after { width: 32px; height: 1px; background: var(--reader-rule); }
+.reading-chapter .reading-kicker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 19px;
+  font-size: 10px;
+  letter-spacing: .24em;
+}
+.reading-chapter .reading-kicker::before {
+  content: '';
+  width: 13px;
+  height: 13px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px var(--bg), inset 0 0 0 4px currentColor;
+  transform: rotate(-32deg) scaleX(.7);
+}
+.reading-chapter h1 {
+  max-width: 22ch;
+  font: 500 clamp(30px, 3.3vw, 40px)/1.5 var(--display);
+  text-wrap: balance;
+  letter-spacing: .015em;
+}
+.reading-paper .reading-prose {
+  color: var(--ink);
+  /* Do not set font, size, measure or leading here: these are reader controls. */
+}
+.reading-prose .object-link {
+  border-bottom-color: color-mix(in srgb, var(--reader-rule) 65%, transparent);
+}
+.reading-prose .object-link:hover {
+  color: inherit;
+  background: var(--soft);
+  border-bottom-color: var(--reader-rule);
+}
+.reading-turn { margin-top: 44px; }
+.reading-turn-heading { color: var(--muted); letter-spacing: .045em; }
+.reading-turn-heading>span:first-child {
+  color: var(--accent);
+  font: 500 11px/1.7 ui-monospace, SFMono-Regular, Consolas, monospace;
+  letter-spacing: .08em;
+}
+.reading-turn-heading::after {
+  flex-basis: 40px;
+  background: linear-gradient(90deg, var(--reader-rule), transparent);
+}
+.reading-player-line { color: var(--muted); }
+.reading-player-label { font-weight: 600; }
+.reading-player-line p { padding-left: 14px; border-left: 1px solid var(--reader-rule); }
+.reading-continued::before { width: 16px; background: var(--reader-rule); }
+.turn-tools>summary { border-radius: 50%; }
+.turn-tools .reading-actions { border-radius: 14px; }
+.turn-tools .reading-actions .btn { border-radius: 9px; }
+.reading-paper :where(.time-fold,.reading-stop-note) {
+  border-left-width: 1px;
+  border-left-color: var(--reader-rule);
+}
+.reading-pagination select { background: var(--paper); }
+.reading-ending { border-top-style: solid; }
+.reading-ending h2 { font-family: var(--sans); font-weight: 550; letter-spacing: -.025em; }
+.reading-ending .reading-kicker { letter-spacing: .19em; }
+.reading-pending { border-top: 1px dashed var(--reader-rule); }
+.reading-pending-dot { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 8%, transparent); }
+
+/* The action dock stays restrained, with one unmistakable sending control. */
+.reading-composer-wrap.composer-wrap {
+  padding-top: 32px;
+  background: linear-gradient(180deg, transparent, var(--bg) var(--composer-fade, 38px), var(--bg));
+}
+.reading-composer {
+  padding: 13px 17px 12px;
+  border-color: var(--line);
+  border-radius: 19px;
+  background: var(--paper);
+  box-shadow: inset 0 1px 0 var(--highlight), var(--reader-shadow);
+}
+.reading-composer:focus-within {
+  border-color: color-mix(in srgb, var(--signal) 55%, var(--line));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--signal) 8%, transparent), var(--reader-shadow);
+}
+.reading-composer-actions { margin-bottom: 8px; padding-bottom: 11px; }
+.reading-composer-actions>p { font-size: 11px; }
+.reading-composer .reading-continue {
+  min-height: 44px;
+  padding-inline: 15px;
+  border: 1px solid var(--line);
+  border-radius: 50px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 12px;
+}
+.reading-composer .reading-continue::after {
+  color: var(--accent);
+  transition: transform 160ms var(--reader-ease);
+}
+.reading-composer .reading-continue:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--soft);
+}
+.reading-composer .reading-continue:disabled::after { color: var(--muted); }
+.reading-composer .reading-compose-box { gap: 11px; }
+.reading-composer .reader-tools-trigger {
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--muted);
+}
+.reading-composer .reader-tools-trigger:hover:not(:disabled) {
+  border-color: var(--reader-rule);
+  color: var(--ink);
+}
+.reading-composer:has(.reader-quick-tools:popover-open) .reader-tools-trigger {
+  background: var(--soft);
+  border-color: var(--reader-rule);
+  color: var(--signal);
+}
+.reading-composer .reading-send {
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.reading-composer .reading-send:disabled { background: var(--soft); color: var(--muted); }
+.reading-composer .reading-send:active:not(:disabled) { box-shadow: none; }
+.reading-compose-footer { padding-top: 8px; font-size: 10px; letter-spacing: .015em; }
+.reading-key-hint { font-size: 10px; }
+.reading-composer .reading-suggestion {
+  border-radius: 12px;
+  background: var(--bg);
+  border-color: var(--line);
+}
+.reading-composer .reference-chip { border-radius: 50px; }
+.reading-composer .reference-chip button { border-radius: 0 50px 50px 0; }
+.reading-composer .reading-selection-tools .btn { border-radius: 50px; }
+.reading-experience .reader-quick-tools {
+  padding: 13px;
+  border-radius: 18px;
+  box-shadow: var(--reader-shadow);
+  animation: none;
+}
+.reader-quick-tools .quick-tools-label { font-size: 11px; letter-spacing: .05em; }
+.reader-quick-tools .quick-tools-grid { gap: 5px; }
+.reader-quick-tools .quick-tools-grid button { border-radius: 12px; background: var(--bg); }
+.reader-quick-tools .quick-tools-grid button:hover:not(:disabled) { background: var(--soft); }
+.reader-quick-tools :where(.quick-tools-grid,.quick-tools-list) button:disabled {
+  background: transparent;
+  color: var(--muted);
+  cursor: not-allowed;
+}
+.reading-experience .new-content.btn { border-radius: 50px; border-color: var(--reader-rule); }
+
+/* Records and reading settings use the same material as the action dock. */
+body:has(.reading-experience) dialog {
+  border-color: var(--line);
+  border-radius: 20px;
+  background: var(--paper);
+  box-shadow: 0 32px 100px -25px #0d0d0d66;
+}
+body:has(.reading-experience) dialog::backdrop { background: #090a0e80; backdrop-filter: blur(5px); }
+body:has(.reading-experience) .dialog-head { background: var(--paper); border-bottom-color: var(--line); }
+body:has(.reading-experience) .dialog-head h2 { font: 600 22px/1.5 var(--sans); letter-spacing: -.02em; }
+body:has(.reading-experience) .dialog-head .icon-button {
+  width: 44px;
+  height: 44px;
+  border-color: transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+}
+body:has(.reading-experience) .dialog-head .icon-button:hover {
+  background: var(--soft);
+  color: var(--ink);
+}
+body:has(.reading-experience) .reader-dossier-nav button {
+  min-height: 44px;
+}
+body:has(.reading-experience) .reader-dossier-nav button[aria-pressed=true] {
+  background: var(--soft);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.reading-panel .panel-context-label { font-size: 11px; letter-spacing: .035em; }
+.reading-panel :where(.situation-record,.object-private,.time-limit) { border-radius: 13px; }
+.reading-panel .object-title { font-family: var(--sans); font-size: 17px; font-weight: 550; }
+.reading-panel.object-panel>h3 { font: 600 29px/1.45 var(--sans); letter-spacing: -.025em; }
+.reading-panel .situation-summary { border-left-width: 1px; }
+.reading-panel .history-entry-label { font-size: 11px; }
+.reading-panel .history-input { border-left-width: 1px; }
+body:has(.reading-experience) #reader-settings-form input[type=range] { accent-color: var(--accent); }
+
+/* Only explicitly opened utility surfaces enter; live story updates stay still. */
+body:has(.reading-experience) dialog[open] {
+  animation: reader-panel-enter 180ms var(--reader-ease);
+}
+body:has(.reading-experience) dialog[open]::backdrop {
+  animation: reader-backdrop-enter 180ms ease-out;
+}
+.reading-experience .reader-quick-tools:popover-open,
+.reading-experience .turn-tools[open] .reading-actions {
+  animation: reader-menu-enter 150ms var(--reader-ease);
+  transform-origin: bottom left;
+}
+@keyframes reader-panel-enter {
+  from { opacity: .8; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes reader-backdrop-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes reader-menu-enter {
+  from { opacity: .7; transform: translateY(4px) scale(.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .reading-composer .reading-continue:hover:not(:disabled)::after { transform: translateX(3px); }
+}
+
+@media (min-width: 1100px) {
+  .reading-paper.reader { padding-top: 72px; }
+  .reading-chapter { padding-bottom: 35px; margin-bottom: 42px; }
+  .reading-player-line p { margin-left: -15px; }
+  .reading-turn-heading>span:first-child { width: 26px; right: calc(100% + 18px); }
+}
+
+@media (max-width: 760px) {
+  .reading-experience { background: var(--bg); }
+  .reading-header { min-height: 72px; padding-block: 10px; }
+  .reading-header-end { flex-direction: row; gap: 2px; align-items: center; }
+  .reading-header-tools { padding-right: 1px; }
+  .reading-header .reading-save:not(.save-error) { display: none; }
+  .reading-title { font-size: 13px; letter-spacing: 0; }
+  .reading-context { font-size: 10px; }
+  .reading-paper.reader { padding-top: 40px; }
+  .reading-chapter { padding-bottom: 27px; margin-bottom: 29px; }
+  .reading-chapter .reading-kicker { margin-bottom: 15px; font-size: 10px; }
+  .reading-chapter h1 { font-size: 29px; line-height: 1.5; }
+  .reading-turn { margin-top: 34px; }
+  .reading-player-line p { padding-left: 11px; }
+  .reading-composer-wrap.composer-wrap { padding-top: 23px; --composer-fade: 28px; }
+  .reading-composer { padding: 10px 11px; border-radius: 17px; }
+  .reading-composer-actions { padding-bottom: 8px; margin-bottom: 5px; }
+  .reading-composer-actions>p { font-size: 10px; }
+  .reading-composer .reading-continue { padding-inline: 12px; font-size: 11px; }
+  .reading-composer .reading-compose-box { gap: 7px; }
+  .reading-composer .reading-compose-box textarea { font-size: 16px; }
+  .reading-compose-footer { font-size: 10px; padding-top: 5px; }
+  body:has(.reading-experience) dialog:has(.reading-panel) { border-radius: 20px 20px 0 0; }
+}
+
+@media (max-width: 380px) {
+  .reading-header { column-gap: 3px; }
+  .reading-chapter h1 { font-size: 27px; }
+  .reading-composer { padding-inline: 9px; }
+  .reading-composer .reading-compose-box { gap: 5px; }
+  .reading-composer .reading-continue { padding-inline: 9px; }
+}
+
+@media (max-height: 520px) {
+  .reading-header { min-height: 54px; padding-block: 5px; }
+  .reading-composer-wrap.composer-wrap { padding-top: 8px; --composer-fade: 10px; }
+  .reading-composer { padding-block: 7px; }
+  .reading-composer-actions { margin-bottom: 4px; padding-bottom: 4px; }
+  .reading-compose-footer { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reading-experience *,
+  .reading-experience *::before,
+  .reading-experience *::after,
+  body:has(.reading-experience) dialog,
+  body:has(.reading-experience) dialog *,
+  body:has(.reading-experience) dialog::backdrop { animation: none !important; transition: none !important; }
+  .reading-experience :is(.reading-back,.reading-header-tool,.reading-appearance,.reader-tools-trigger,.reading-send,.reading-continue):active:not(:disabled),
+  .reading-composer .reading-continue:hover:not(:disabled)::after { transform: none; }
+}
+body.reduce-motion .reading-experience *,
+body.reduce-motion .reading-experience *::before,
+body.reduce-motion .reading-experience *::after,
+body.reduce-motion:has(.reading-experience) dialog,
+body.reduce-motion:has(.reading-experience) dialog *,
+body.reduce-motion:has(.reading-experience) dialog::backdrop { animation: none !important; transition: none !important; }
+body.reduce-motion .reading-experience :is(.reading-back,.reading-header-tool,.reading-appearance,.reader-tools-trigger,.reading-send,.reading-continue):active:not(:disabled),
+body.reduce-motion .reading-composer .reading-continue:hover:not(:disabled)::after { transform: none; }
+
+@media (forced-colors: active) {
+  .reading-experience,
+  body:has(.reading-experience) dialog,
+  body[data-theme=dark] .reading-experience,
+  body[data-theme=dark]:has(.reading-experience) dialog {
+    --bg: Canvas;
+    --paper: Canvas;
+    --ink: CanvasText;
+    --muted: CanvasText;
+    --line: ButtonBorder;
+    --soft: Canvas;
+    --accent: ButtonText;
+    --accent-ink: ButtonFace;
+    --signal: Highlight;
+    --reader-rule: ButtonBorder;
+    --reader-shadow: none;
+  }
+  .reading-header { background: Canvas; backdrop-filter: none; }
+  .reading-composer-wrap.composer-wrap { background: Canvas; }
+  .reading-composer,
+  .reading-experience .reader-quick-tools { border: 1px solid ButtonBorder; box-shadow: none; }
+  .reading-composer:focus-within { outline: 1px solid Highlight; outline-offset: 2px; }
+  .reading-composer .reading-send { border: 1px solid ButtonText; }
+  .reading-experience button:disabled,
+  .reading-composer .reading-send:disabled,
+  .reading-composer .reading-continue:disabled,
+  body:has(.reading-experience) dialog button:disabled { color: GrayText; opacity: 1; }
+  .reading-header-tool[aria-expanded=true],
+  body:has(.reading-experience) .reader-dossier-nav button[aria-pressed=true] { outline: 1px solid Highlight; }
+  .reading-prose .object-link { border-bottom-color: LinkText; }
+  body:has(.reading-experience) dialog::backdrop { backdrop-filter: none; }
+  .reading-experience .reader-quick-tools:popover-open,
+  .reading-experience .turn-tools[open] .reading-actions,
+  body:has(.reading-experience) dialog[open],
+  body:has(.reading-experience) dialog[open]::backdrop { animation: none; }
+  .reading-experience :is(.reading-back,.reading-header-tool,.reading-appearance,.reader-tools-trigger,.reading-send,.reading-continue):active:not(:disabled),
+  .reading-composer .reading-continue:hover:not(:disabled)::after { transform: none; }
+}

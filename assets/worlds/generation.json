@@ -1,0 +1,28 @@
+{
+  "tool": "Built-in image_gen",
+  "purpose": "Decorative fictional world artwork; does not represent generated story events.",
+  "reference": "https://seed.bytedance.com/en/seedance2_0",
+  "reference_note": "Official page text available; dynamic browser preview timed out. Original assets, not copied site media.",
+  "assets": [
+    {
+      "file": "cinema-hero.jpg",
+      "prompt": "Use case: stylized-concept. Create a premium cinematic website hero background, very wide 16:9 image, no text no logos no UI. A breathtaking impossible ocean between alternate realities: vast black water, monumental vertical curtains of iridescent liquid glass and atmospheric cloud striations rising into a dark sky, a faraway red sun, deep electric blue horizon, subtle violet refraction. Rich filmic photographed material detail, atmospheric perspective, realistic light scattering, 35mm science-fiction cinema still. The left half is dark negative space for big white webpage typography, luminous extraordinary landscape occupies right half and lower third. Restrained composition, vast scale, bold black white violet crimson cobalt palette, luxury editorial art direction. No cartoon, no vector art, no outlined neon circles, no space HUD, no portal door, no tiny stars scattered uniformly. Output landscape image."
+    },
+    {
+      "file": "cinema-harbor.jpg",
+      "prompt": "Use case: photorealistic-natural. A cinematic landscape image for an interactive fiction world named fog harbor, no text. A solitary old lighthouse on a stone breakwater at night, stormy black ocean, rolling fog lit by a distant cobalt blue dawn, warm tiny white lamp, subtle deep violet cloud. Contemporary high-end film still shot on 35mm anamorphic lens, convincing wet stone and sea foam, strong shadows, atmospheric scale. Horizontal 16:9 composition, lighthouse right of center, dark bottom for white title overlay. Photoreal atmospheric and cinematic, no illustration no graphic borders no circles no UI no watermark."
+    },
+    {
+      "file": "cinema-mountain.jpg",
+      "prompt": "Use case: stylized-concept. Cinematic landscape background for an eastern fantasy fiction world. Enormous rugged mountain pinnacles disappearing into dense charcoal fog, one long narrow stone path leading toward a tiny ancient Chinese temple, distant giant crimson setting sun reflected through fine mist, deep black foreground and red-white light. Photoreal film still with detailed rocks and volumetric atmosphere, sophisticated restrained art direction, epic scale with silent spaciousness. Wide 16:9, focal mountain toward right half, dark bottom for title overlay. No text no watermark no UI no stylized low-poly geometry no neon circles."
+    },
+    {
+      "file": "cinema-books.jpg",
+      "prompt": "Use case: photorealistic-natural. Premium cinematic film still of a quiet old independent bookstore on a rainy Thursday evening, viewed through a rain-covered window; towering bookshelves and one open book on a dark wooden desk, luminous cold blue rainy street reflections interleaved with soft white light inside, subtle violet depths, black shadows, detailed paper and glass and rain, analog film grain. Wide landscape 16:9, strong atmospheric perspective, no people, enough dark bottom for title overlay. Literary mysterious intimate and sophisticated. No readable text no logos no UI no cartoon no circular frame."
+    },
+    {
+      "file": "cinema-tea.jpg",
+      "prompt": "Use case: photorealistic-natural. Premium cinematic film still of a small teahouse in a fantastical city where people speak the truth. Close view of one finely crafted ivory porcelain teacup on a dark lacquer counter, delicate steam lit by soft white window light, rain outside, rich dark plum shadows and subtle crimson distant light reflecting on wet street, black backdrop, tactility and elegant imperfection. Deep atmospheric space and shallow depth of field, sophisticated luxury editorial photography, moody quiet story. Wide 16:9 composition cup toward right half with dark space bottom for white title. No text no logo no cartoon no vector no floating cups no circular frame."
+    }
+  ]
+}
