@@ -1,4 +1,4 @@
-const controls='button, a.btn, a.workspace-create, .world-return-strip > a, a.world-return, .workspace-nav-link, details > summary, .icon-button';
+const controls='button, a.btn, a.workspace-create, .world-return-strip > a, a.world-return, a.reading-back, a.text-button, .workspace-nav-link, details > summary, .icon-button';
 const clamp=value=>Math.max(0,Math.min(1,value));
 
 /** Decorative feedback only. Native clicks, focus, form submission and routing stay untouched. */
@@ -13,7 +13,7 @@ export function createControlMotion({
   const reduced=view?.matchMedia?.('(prefers-reduced-motion: reduce)');
   const fine=view?.matchMedia?.('(hover: hover) and (pointer: fine)');
   const ripples=new Map();
-  let mounted=false,destroyed=false,frame=null,active=null,point=null,cleanup=[];
+  let mounted=false,destroyed=false,frame=null,active=null,point=null,lens=null,cleanup=[];
 
   function allowed(){
     return mounted&&!destroyed&&!document?.hidden&&!reduced?.matches&&
@@ -22,7 +22,7 @@ export function createControlMotion({
 
   function targetControl(target){
     const control=target?.closest?.(controls);
-    if(!control||!root.contains(control)||control.isConnected===false||control.matches(':disabled, input, select, textarea')||
+    if(!control||!root.contains(control)||control.isConnected===false||control.matches(':disabled, input, select, textarea, [aria-busy="true"]')||
       control.closest('[aria-disabled="true"], [inert], [hidden], .hidden, .danger'))return null;
     if(/(?:^|-)(?:delete|trash|remove|clear)(?:-|$)/.test(control.dataset?.action||''))return null;
     return control;
@@ -39,11 +39,26 @@ export function createControlMotion({
 
   function clearHover(){
     if(frame!==null){cancelFrame?.(frame);frame=null;}
+    lens?.remove();lens=null;
     if(active){
       active.style.removeProperty('--control-x');active.style.removeProperty('--control-y');
       active.removeAttribute('data-control-active');
     }
     active=null;point=null;
+  }
+
+  function showLens(){
+    if(lens&&active.contains(lens))return;
+    lens?.remove();lens=null;
+    const node=document.createElement('span');
+    node.className='control-lens';node.setAttribute('aria-hidden','true');node.style.pointerEvents='none';
+    for(let index=0;index<3;index++){
+      const orbit=document.createElement('i');
+      orbit.className='control-orbit';orbit.setAttribute('data-orbit',String(index));
+      node.appendChild(orbit);
+    }
+    const core=document.createElement('span');core.className='control-lens-core';node.appendChild(core);
+    active.appendChild(node);lens=node;
   }
 
   function clearRipple(control,record=ripples.get(control)){
@@ -61,6 +76,7 @@ export function createControlMotion({
     active.style.setProperty('--control-x',`${(clamp((point.x-rect.left)/rect.width)*100).toFixed(2)}%`);
     active.style.setProperty('--control-y',`${(clamp((point.y-rect.top)/rect.height)*100).toFixed(2)}%`);
     active.setAttribute('data-control-active','true');
+    showLens();
   }
 
   function move(event){
@@ -89,9 +105,10 @@ export function createControlMotion({
     try{
       control.appendChild(node);
       record.animation=node.animate([
-        {transform:'translate(-50%, -50%) scale(0)',opacity:.5},
-        {transform:'translate(-50%, -50%) scale(1)',opacity:0}
-      ],{duration:560,easing:'cubic-bezier(.16, 1, .3, 1)'});
+        {transform:'translate(-50%, -50%) scale(.8)',opacity:0,offset:0},
+        {transform:'translate(-50%, -50%) scale(.38)',opacity:.38,offset:.35},
+        {transform:'translate(-50%, -50%) scale(.06)',opacity:0,offset:1}
+      ],{duration:520,easing:'cubic-bezier(.22, 1, .36, 1)'});
       const finished=()=>{if(ripples.get(control)===record)clearRipple(control,record);};
       record.animation.finished.then(finished,finished);
     }catch{clearRipple(control,record);}
@@ -129,7 +146,7 @@ export function createControlMotion({
     listen(reduced,'change',refresh);listen(fine,'change',reset);
     if(MutationObserver&&document?.body){
       const observer=new MutationObserver(refresh);
-      observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','disabled','aria-disabled','hidden','inert','data-action']});
+      observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','disabled','aria-disabled','aria-busy','hidden','inert','data-action']});
       cleanup.push(()=>observer.disconnect());
     }
   }

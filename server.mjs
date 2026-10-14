@@ -100,9 +100,10 @@ export function createServer({env=process.env,root=ROOT,cacheLimit=100,cacheTtlM
       const path=url.pathname==='/'?'/index.html':url.pathname;
       const artwork=/^\/assets\/worlds\/cinema-(?:hero|harbor|mountain|books|tea)\.jpg$/.test(path);
       const font=/^\/assets\/fonts\/[a-zA-Z0-9_-]+\.woff2$/.test(path);
-      if(!(/^\/(?:index\.html|favicon\.svg)$/.test(path)||/^\/src\/[a-zA-Z0-9_-]+\.(?:js|css)$/.test(path)||artwork||font))return json(res,404,{error:'页面不存在。'});
+      const vendor=/^\/vendor\/three\.(?:module|core)\.js$/.test(path);
+      if(!(/^\/(?:index\.html|favicon\.svg)$/.test(path)||/^\/src\/[a-zA-Z0-9_-]+\.(?:js|css)$/.test(path)||artwork||font||vendor))return json(res,404,{error:'页面不存在。'});
       try {
-        const base=await realpath(root),file=await realpath(resolve(base,'.'+path)),rel=relative(base,file);
+        const base=await realpath(root),file=await realpath(resolve(base,vendor?'node_modules/three/build/'+path.slice('/vendor/'.length):'.'+path)),rel=relative(base,file);
         if(rel.startsWith('..')||isAbsolute(rel)||(await stat(file)).size>2097152)return json(res,404,{error:'页面不存在。'});
         const bytes=await readFile(file),type={'.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.jpg':'image/jpeg','.woff2':'font/woff2'}[extname(file)];
         res.writeHead(200,{'content-type':artwork||font?type:`${type}; charset=utf-8`,'cache-control':'no-cache'});res.end(req.method==='HEAD'?undefined:bytes);

@@ -79,6 +79,7 @@ test('route content remains readable throughout its entrance',()=>{
   const f=fixture();
   f.motion.settleRoute({changed:true});
   assert.ok(f.animations[0].keyframes.every(frame=>frame.opacity>=.88));
+  assert.ok(f.animations[0].keyframes.every(frame=>!frame.transform&&!frame.filter),'prose never shifts or blurs during navigation');
   assert.equal(f.animations[0].keyframes.at(-1).opacity,1);
   f.motion.destroy();
 });

@@ -1,38 +1,22 @@
-/* A quiet place inside the multiverse. Reading preferences still own the prose. */
+/* The same optical material as the wormhole, kept at the edges of the story.
+   Reading preferences still own the prose; shared tokens own both themes. */
 .reading-experience,
+.reading-panel,
 body:has(.reading-experience) dialog {
-  --bg: #f7f7f8;
-  --paper: #ffffff;
-  --ink: #24252a;
-  --muted: #62636d;
-  --line: #dedee3;
-  --soft: #ededf0;
-  --accent: #292a30;
-  --accent-ink: #ffffff;
-  --highlight: #ffffffcc;
-  --reader-shadow: 0 18px 48px -28px #18191f36, 0 2px 8px #18191f06;
-  --signal: #3564d6;
-  --reader-rule: #a8a9b1;
-  --reader-ease: cubic-bezier(.22, .78, .22, 1);
+  --reader-shadow: 0 18px 52px -30px rgb(var(--portal-glow, 160 142 201) / .28), 0 3px 12px #11142708;
+  --reader-rule: color-mix(in srgb, var(--portal-violet, #a998d1) 46%, var(--line));
+  --reader-glass: color-mix(in srgb, var(--paper) 96%, var(--portal-violet, #a998d1));
+  --reader-tint: color-mix(in srgb, var(--portal-violet, #a998d1) 7%, var(--paper));
+  --reader-ease: var(--portal-ease, cubic-bezier(.22, 1, .36, 1));
   color: var(--ink);
-  color-scheme: light;
 }
 
 body[data-theme=dark] .reading-experience,
+body[data-theme=dark] .reading-panel,
 body[data-theme=dark]:has(.reading-experience) dialog {
-  --bg: #0b0c10;
-  --paper: #15161b;
-  --ink: #f4f4f5;
-  --muted: #a6a7b1;
-  --line: #303137;
-  --soft: #222329;
-  --accent: #efeff1;
-  --accent-ink: #15161b;
-  --highlight: #ffffff08;
-  --reader-shadow: 0 18px 54px -24px #000a, 0 2px 8px #0003;
-  --signal: #91b0ff;
-  --reader-rule: #737580;
-  color-scheme: dark;
+  --reader-shadow: 0 20px 64px -25px #0009, 0 2px 14px rgb(var(--portal-glow, 160 142 201) / .055);
+  --reader-glass: color-mix(in srgb, var(--paper) 95%, var(--portal-cyan, #86bdc8));
+  --reader-tint: color-mix(in srgb, var(--portal-violet, #a998d1) 6%, var(--paper));
 }
 
 .reading-experience {
@@ -40,7 +24,7 @@ body[data-theme=dark]:has(.reading-experience) dialog {
   background: var(--bg);
 }
 .reading-experience ::selection {
-  background: color-mix(in srgb, var(--ink) 16%, var(--bg));
+  background: color-mix(in srgb, var(--portal-violet, #a998d1) 28%, var(--bg));
   color: var(--ink);
 }
 .reading-experience :where(button,a,summary),
@@ -64,25 +48,26 @@ body:has(.reading-experience) dialog button:disabled {
 .reading-header {
   min-height: 74px;
   border-bottom-color: color-mix(in srgb, var(--line) 75%, transparent);
-  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  background: linear-gradient(110deg, color-mix(in srgb, var(--portal-violet, #a998d1) 4%, transparent), transparent 42%, color-mix(in srgb, var(--portal-cyan, #86bdc8) 3%, transparent)), color-mix(in srgb, var(--bg) 94%, transparent);
   box-shadow: 0 1px 0 var(--highlight);
 }
+.reading-header::after { content: none; }
 
 .reading-back {
   border: 1px solid var(--line);
   border-radius: 50%;
   color: var(--ink);
 }
-.reading-back:hover { border-color: var(--accent); }
+.reading-back:hover { border-color: var(--reader-rule); background: var(--reader-tint); }
 .reading-title { font-weight: 600; letter-spacing: .03em; }
 .reading-context { font-size: 11px; letter-spacing: .025em; }
-.reading-context-dot { color: var(--muted); opacity: .65; }
+.reading-context-dot { color: var(--portal-violet, #a998d1); opacity: .85; }
 .reading-save .ui-icon { color: var(--muted); }
 .reading-save.save-error .ui-icon { color: var(--danger); }
 .reading-header-tool,
 .reading-appearance { border-radius: 50px; }
 .reading-header-tool[aria-expanded=true] {
-  background: var(--soft);
+  background: var(--reader-tint);
   color: var(--ink);
   box-shadow: inset 0 0 0 1px var(--line);
 }
@@ -97,7 +82,7 @@ body:has(.reading-experience) dialog button:disabled {
 
 .reading-paper.reader { position: relative; padding-top: 68px; }
 .reading-chapter { padding-bottom: 32px; margin-bottom: 38px; }
-.reading-chapter::after { width: 32px; height: 1px; background: var(--reader-rule); }
+.reading-chapter::after { content: none; }
 .reading-chapter .reading-kicker {
   display: flex;
   align-items: center;
@@ -110,9 +95,10 @@ body:has(.reading-experience) dialog button:disabled {
   content: '';
   width: 13px;
   height: 13px;
-  border: 1px solid currentColor;
+  border: 1px solid var(--reader-rule);
   border-radius: 50%;
-  box-shadow: inset 0 0 0 3px var(--bg), inset 0 0 0 4px currentColor;
+  background: radial-gradient(ellipse, var(--portal-cyan, #86bdc8) 0 12%, transparent 18%);
+  box-shadow: inset 0 0 0 3px var(--bg), inset 0 0 0 4px var(--reader-rule), 0 0 9px rgb(var(--portal-glow, 160 142 201) / .12);
   transform: rotate(-32deg) scaleX(.7);
 }
 .reading-chapter h1 {
@@ -123,15 +109,16 @@ body:has(.reading-experience) dialog button:disabled {
 }
 .reading-paper .reading-prose {
   color: var(--ink);
+  background: none;
   /* Do not set font, size, measure or leading here: these are reader controls. */
 }
 .reading-prose .object-link {
-  border-bottom-color: color-mix(in srgb, var(--reader-rule) 65%, transparent);
+  border-bottom-color: var(--line);
 }
 .reading-prose .object-link:hover {
   color: inherit;
   background: var(--soft);
-  border-bottom-color: var(--reader-rule);
+  border-bottom-color: color-mix(in srgb, var(--ink) 35%, transparent);
 }
 .reading-turn { margin-top: 44px; }
 .reading-turn-heading { color: var(--muted); letter-spacing: .045em; }
@@ -142,14 +129,14 @@ body:has(.reading-experience) dialog button:disabled {
 }
 .reading-turn-heading::after {
   flex-basis: 40px;
-  background: linear-gradient(90deg, var(--reader-rule), transparent);
+  background: var(--line);
 }
 .reading-player-line { color: var(--muted); }
 .reading-player-label { font-weight: 600; }
 .reading-player-line p { padding-left: 14px; border-left: 1px solid var(--reader-rule); }
 .reading-continued::before { width: 16px; background: var(--reader-rule); }
 .turn-tools>summary { border-radius: 50%; }
-.turn-tools .reading-actions { border-radius: 14px; }
+.turn-tools .reading-actions { border-radius: 14px; border-color: var(--reader-rule); background: var(--reader-glass); }
 .turn-tools .reading-actions .btn { border-radius: 9px; }
 .reading-paper :where(.time-fold,.reading-stop-note) {
   border-left-width: 1px;
@@ -159,8 +146,17 @@ body:has(.reading-experience) dialog button:disabled {
 .reading-ending { border-top-style: solid; }
 .reading-ending h2 { font-family: var(--sans); font-weight: 550; letter-spacing: -.025em; }
 .reading-ending .reading-kicker { letter-spacing: .19em; }
-.reading-pending { border-top: 1px dashed var(--reader-rule); }
-.reading-pending-dot { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 8%, transparent); }
+.reading-pending { border-top: 1px solid var(--reader-rule); }
+.reading-pending-dot {
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--portal-cyan, #86bdc8);
+  background: var(--paper);
+  box-shadow: inset 0 0 0 2px var(--paper), inset 0 0 0 4px var(--portal-violet, #a998d1), 0 0 0 4px rgb(var(--portal-glow, 160 142 201) / .09);
+  animation-duration: 2.8s;
+}
+.reading-pending.is-error { border-top-color: color-mix(in srgb, var(--danger) 35%, var(--line)); }
+.reading-pending.is-stopped { border-top-color: var(--line); }
 
 /* The action dock stays restrained, with one unmistakable sending control. */
 .reading-composer-wrap.composer-wrap {
@@ -169,14 +165,14 @@ body:has(.reading-experience) dialog button:disabled {
 }
 .reading-composer {
   padding: 13px 17px 12px;
-  border-color: var(--line);
-  border-radius: 19px;
-  background: var(--paper);
+  border-color: color-mix(in srgb, var(--reader-rule) 65%, var(--line));
+  border-radius: 22px;
+  background: linear-gradient(115deg, var(--reader-glass), var(--paper) 48%, var(--reader-tint));
   box-shadow: inset 0 1px 0 var(--highlight), var(--reader-shadow);
 }
 .reading-composer:focus-within {
-  border-color: color-mix(in srgb, var(--signal) 55%, var(--line));
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--signal) 8%, transparent), var(--reader-shadow);
+  border-color: var(--reader-rule);
+  box-shadow: 0 0 0 3px rgb(var(--portal-glow, 160 142 201) / .10), inset 0 1px 0 var(--highlight), var(--reader-shadow);
 }
 .reading-composer-actions { margin-bottom: 8px; padding-bottom: 11px; }
 .reading-composer-actions>p { font-size: 11px; }
@@ -194,8 +190,9 @@ body:has(.reading-experience) dialog button:disabled {
   transition: transform 160ms var(--reader-ease);
 }
 .reading-composer .reading-continue:hover:not(:disabled) {
-  border-color: var(--accent);
-  background: var(--soft);
+  border-color: var(--reader-rule);
+  background: var(--reader-tint);
+  box-shadow: 0 3px 16px -8px rgb(var(--portal-glow, 160 142 201) / .38);
 }
 .reading-composer .reading-continue:disabled::after { color: var(--muted); }
 .reading-composer .reading-compose-box { gap: 11px; }
@@ -204,6 +201,12 @@ body:has(.reading-experience) dialog button:disabled {
   border-radius: 50%;
   color: var(--muted);
 }
+/* The read-only dock has its own grid; the compose-row placement must not leak. */
+.reading-composer .reading-readonly>.reader-tools-trigger {
+  grid-column: auto;
+  grid-row: auto;
+}
+.reading-readonly>div { min-width: 0; }
 .reading-composer .reader-tools-trigger:hover:not(:disabled) {
   border-color: var(--reader-rule);
   color: var(--ink);
@@ -215,16 +218,19 @@ body:has(.reading-experience) dialog button:disabled {
 }
 .reading-composer .reading-send {
   border-radius: 50%;
-  background: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 72%, var(--portal-violet, #a998d1));
+  background: linear-gradient(140deg, color-mix(in srgb, var(--accent) 86%, var(--portal-cyan, #86bdc8)), var(--accent) 60%, color-mix(in srgb, var(--accent) 88%, var(--portal-violet, #a998d1)));
   color: var(--accent-ink);
+  box-shadow: inset 0 1px 0 #ffffff25, 0 4px 14px -8px rgb(var(--portal-glow, 160 142 201) / .5);
 }
-.reading-composer .reading-send:disabled { background: var(--soft); color: var(--muted); }
+.reading-composer .reading-send:hover:not(:disabled) { background: var(--accent); box-shadow: inset 0 1px 0 #ffffff25, 0 0 0 4px rgb(var(--portal-glow, 160 142 201) / .10); }
+.reading-composer .reading-send:disabled { background: var(--soft); border-color: transparent; color: var(--muted); }
 .reading-composer .reading-send:active:not(:disabled) { box-shadow: none; }
 .reading-compose-footer { padding-top: 8px; font-size: 10px; letter-spacing: .015em; }
 .reading-key-hint { font-size: 10px; }
 .reading-composer .reading-suggestion {
-  border-radius: 12px;
-  background: var(--bg);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--reader-tint) 65%, var(--bg));
   border-color: var(--line);
 }
 .reading-composer .reference-chip { border-radius: 50px; }
@@ -233,13 +239,17 @@ body:has(.reading-experience) dialog button:disabled {
 .reading-experience .reader-quick-tools {
   padding: 13px;
   border-radius: 18px;
+  border-color: var(--reader-rule);
+  background: var(--reader-glass);
   box-shadow: var(--reader-shadow);
   animation: none;
 }
 .reader-quick-tools .quick-tools-label { font-size: 11px; letter-spacing: .05em; }
 .reader-quick-tools .quick-tools-grid { gap: 5px; }
 .reader-quick-tools .quick-tools-grid button { border-radius: 12px; background: var(--bg); }
-.reader-quick-tools .quick-tools-grid button:hover:not(:disabled) { background: var(--soft); }
+.reader-quick-tools :where(.quick-tools-grid,.quick-tools-list) button:hover:not(:disabled) { background: var(--reader-tint); }
+.reader-quick-tools .quick-tools-list .ui-icon { color: color-mix(in srgb, var(--portal-violet, #a998d1) 44%, var(--ink)); }
+.reader-quick-tools .quick-tools-section .ui-icon { color: color-mix(in srgb, var(--portal-cyan, #86bdc8) 44%, var(--ink)); }
 .reader-quick-tools :where(.quick-tools-grid,.quick-tools-list) button:disabled {
   background: transparent;
   color: var(--muted);
@@ -247,64 +257,108 @@ body:has(.reading-experience) dialog button:disabled {
 }
 .reading-experience .new-content.btn { border-radius: 50px; border-color: var(--reader-rule); }
 
-/* Records and reading settings use the same material as the action dock. */
-body:has(.reading-experience) dialog {
-  border-color: var(--line);
-  border-radius: 20px;
-  background: var(--paper);
-  box-shadow: 0 32px 100px -25px #0d0d0d66;
-}
-body:has(.reading-experience) dialog::backdrop { background: #090a0e80; backdrop-filter: blur(5px); }
-body:has(.reading-experience) .dialog-head { background: var(--paper); border-bottom-color: var(--line); }
-body:has(.reading-experience) .dialog-head h2 { font: 600 22px/1.5 var(--sans); letter-spacing: -.02em; }
-body:has(.reading-experience) .dialog-head .icon-button {
-  width: 44px;
-  height: 44px;
-  border-color: transparent;
-  border-radius: 50%;
-  background: transparent;
-  color: var(--muted);
-}
-body:has(.reading-experience) .dialog-head .icon-button:hover {
-  background: var(--soft);
-  color: var(--ink);
-}
+/* The shared layer owns dialog shells. Records inherit their optical material. */
 body:has(.reading-experience) .reader-dossier-nav button {
   min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: 12px;
 }
 body:has(.reading-experience) .reader-dossier-nav button[aria-pressed=true] {
-  background: var(--soft);
+  background: var(--reader-tint);
   color: var(--ink);
-  box-shadow: inset 0 0 0 1px var(--line);
+  border-color: var(--reader-rule);
+  box-shadow: inset 0 1px 0 var(--highlight);
 }
 .reading-panel .panel-context-label { font-size: 11px; letter-spacing: .035em; }
-.reading-panel :where(.situation-record,.object-private,.time-limit) { border-radius: 13px; }
+.reading-panel :where(.situation-record,.object-private,.time-limit) {
+  border-radius: 16px;
+  border-color: var(--line);
+  background: linear-gradient(125deg, var(--reader-tint), var(--paper) 62%);
+  box-shadow: inset 0 1px 0 var(--highlight);
+}
 .reading-panel .object-title { font-family: var(--sans); font-size: 17px; font-weight: 550; }
 .reading-panel.object-panel>h3 { font: 600 29px/1.45 var(--sans); letter-spacing: -.025em; }
-.reading-panel .situation-summary { border-left-width: 1px; }
+.reading-panel .situation-summary { border-left-width: 1px; border-left-color: var(--reader-rule); }
+.reading-panel :where(.situation-record,.object-private,.time-limit):focus-within { border-color: var(--reader-rule); }
+.reading-panel .record-meta { gap: 8px; line-height: 1.8; }
+.reading-panel .record-meta>span:first-child { color: color-mix(in srgb, var(--portal-cyan, #86bdc8) 35%, var(--ink)); }
+.reading-panel .situation-table-wrap { border-radius: 14px; }
+.reading-panel .situation-table thead { background: var(--reader-tint); }
+.reading-panel .situation-table tbody tr:hover { background: color-mix(in srgb, var(--reader-tint) 55%, transparent); }
 .reading-panel .history-entry-label { font-size: 11px; }
-.reading-panel .history-input { border-left-width: 1px; }
-body:has(.reading-experience) #reader-settings-form input[type=range] { accent-color: var(--accent); }
+.reading-panel .history-input { border-left-width: 1px; border-left-color: var(--reader-rule); }
+.reading-panel .history-entries>li { position: relative; padding-left: 18px; }
+.reading-panel .history-entries>li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 27px;
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--reader-rule);
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: 0 0 0 3px var(--reader-tint);
+}
+.reading-panel .reading-empty,
+body:has(.reading-experience) .reader-dossier .game-empty-state {
+  padding: 22px 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: linear-gradient(130deg, var(--reader-tint), transparent 75%);
+  line-height: 1.9;
+}
+body:has(.reading-experience) .reader-timeline ol { border-left-color: var(--reader-rule); }
+body:has(.reading-experience) .reader-timeline .timeline-dot {
+  width: 9px;
+  height: 9px;
+  left: -5px;
+  border: 1px solid var(--reader-rule);
+  background: var(--paper);
+  box-shadow: 0 0 0 4px var(--paper), inset 0 0 0 2px var(--paper), inset 0 0 0 4px var(--portal-violet, #a998d1);
+}
+body:has(.reading-experience) .reader-timeline li:nth-child(3n + 2) .timeline-dot { --reader-rule: var(--portal-cyan, #86bdc8); }
+body:has(.reading-experience) .reader-timeline li:nth-child(3n) .timeline-dot { --reader-rule: var(--portal-gold, #cfb48a); }
+body:has(.reading-experience) .reader-timeline .timeline-meta { font-variant-numeric: tabular-nums; letter-spacing: .025em; }
+body:has(.reading-experience) .reader-timeline .text-button { min-height: 44px; }
+body:has(.reading-experience) .branch-row {
+  position: relative;
+  margin: 12px 0;
+  padding: 17px 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: linear-gradient(120deg, var(--reader-tint), var(--paper) 68%);
+  box-shadow: inset 0 1px 0 var(--highlight);
+  overflow-wrap: anywhere;
+}
+body:has(.reading-experience) .branch-row:has(.tag) { border-color: var(--reader-rule); }
+body:has(.reading-experience) .branch-row h3 { font: 550 16px/1.7 var(--sans); }
+body:has(.reading-experience) .branch-row p { margin-bottom: 0; line-height: 1.8; }
+body:has(.reading-experience) .branch-row .tag { margin-left: 6px; background: var(--reader-tint); border-color: var(--reader-rule); }
 
-/* Only explicitly opened utility surfaces enter; live story updates stay still. */
-body:has(.reading-experience) dialog[open] {
-  animation: reader-panel-enter 180ms var(--reader-ease);
+/* Choices are optical surfaces; their prose and live updates remain still. */
+.reading-experience :where(.game-context-card,.interaction-data-card,.game-action-button),
+body:has(.reading-experience) .reader-dossier :where(.game-context-card,.interaction-data-card,.game-action-button) {
+  border-radius: 16px;
+  border-color: var(--line);
+  background: linear-gradient(125deg, var(--reader-tint), var(--paper) 70%);
 }
-body:has(.reading-experience) dialog[open]::backdrop {
-  animation: reader-backdrop-enter 180ms ease-out;
+.reading-experience :where(.game-action-button,.reading-suggestion):hover:not(:disabled),
+body:has(.reading-experience) .reader-dossier .game-action-button:hover:not(:disabled) {
+  border-color: var(--reader-rule);
+  color: var(--ink);
 }
+.reading-experience .interaction-pick:has(input:checked) { color: var(--ink); background: var(--reader-tint); }
+.reading-experience .game-progress::-webkit-progress-value,
+body:has(.reading-experience) .reader-dossier .game-progress::-webkit-progress-value { background: var(--portal-spectrum, linear-gradient(115deg, #a998d1, #86bdc8, #cfb48a)); }
+.reading-experience .game-progress::-moz-progress-bar,
+body:has(.reading-experience) .reader-dossier .game-progress::-moz-progress-bar { background: var(--portal-spectrum, linear-gradient(115deg, #a998d1, #86bdc8, #cfb48a)); }
+
+/* Only explicitly opened utility menus enter. */
 .reading-experience .reader-quick-tools:popover-open,
 .reading-experience .turn-tools[open] .reading-actions {
   animation: reader-menu-enter 150ms var(--reader-ease);
   transform-origin: bottom left;
-}
-@keyframes reader-panel-enter {
-  from { opacity: .8; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes reader-backdrop-enter {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
 @keyframes reader-menu-enter {
   from { opacity: .7; transform: translateY(4px) scale(.99); }
@@ -344,7 +398,6 @@ body:has(.reading-experience) dialog[open]::backdrop {
   .reading-composer .reading-compose-box { gap: 7px; }
   .reading-composer .reading-compose-box textarea { font-size: 16px; }
   .reading-compose-footer { font-size: 10px; padding-top: 5px; }
-  body:has(.reading-experience) dialog:has(.reading-panel) { border-radius: 20px 20px 0 0; }
 }
 
 @media (max-width: 380px) {
@@ -362,6 +415,10 @@ body:has(.reading-experience) dialog[open]::backdrop {
   .reading-composer-actions { margin-bottom: 4px; padding-bottom: 4px; }
   .reading-compose-footer { display: none; }
 }
+
+.reading-focus .reading-header::after { opacity: .14; }
+.reading-focus .reading-composer { background: var(--paper); }
+.reading-focus .reading-chapter .reading-kicker::before { box-shadow: none; background: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .reading-experience *,
@@ -384,8 +441,10 @@ body.reduce-motion .reading-composer .reading-continue:hover:not(:disabled)::aft
 
 @media (forced-colors: active) {
   .reading-experience,
+  .reading-panel,
   body:has(.reading-experience) dialog,
   body[data-theme=dark] .reading-experience,
+  body[data-theme=dark] .reading-panel,
   body[data-theme=dark]:has(.reading-experience) dialog {
     --bg: Canvas;
     --paper: Canvas;
@@ -397,14 +456,31 @@ body.reduce-motion .reading-composer .reading-continue:hover:not(:disabled)::aft
     --accent-ink: ButtonFace;
     --signal: Highlight;
     --reader-rule: ButtonBorder;
+    --reader-glass: Canvas;
+    --reader-tint: Canvas;
     --reader-shadow: none;
   }
   .reading-header { background: Canvas; backdrop-filter: none; }
+  .reading-header::after,
+  .reading-chapter .reading-kicker::before,
+  .reading-panel .history-entries>li::before { display: none; }
+  .reading-chapter::after { background: ButtonBorder; }
   .reading-composer-wrap.composer-wrap { background: Canvas; }
   .reading-composer,
-  .reading-experience .reader-quick-tools { border: 1px solid ButtonBorder; box-shadow: none; }
+  .reading-experience .reader-quick-tools,
+  .reading-panel :where(.situation-record,.object-private,.time-limit,.reading-empty),
+  body:has(.reading-experience) .branch-row,
+  .reading-experience :where(.game-context-card,.interaction-data-card,.game-action-button),
+  body:has(.reading-experience) .reader-dossier :where(.game-empty-state,.game-context-card,.interaction-data-card,.game-action-button) { background: Canvas; border: 1px solid ButtonBorder; box-shadow: none; }
   .reading-composer:focus-within { outline: 1px solid Highlight; outline-offset: 2px; }
-  .reading-composer .reading-send { border: 1px solid ButtonText; }
+  .reading-composer .reading-send,
+  .reading-composer .reading-send:hover:not(:disabled) { background: ButtonFace; color: ButtonText; border: 1px solid ButtonText; box-shadow: none; }
+  .reading-pending-dot,
+  body:has(.reading-experience) .reader-timeline .timeline-dot { background: CanvasText; border-color: CanvasText; box-shadow: none; }
+  .reading-experience .game-progress::-webkit-progress-value,
+  body:has(.reading-experience) .reader-dossier .game-progress::-webkit-progress-value { background: Highlight; }
+  .reading-experience .game-progress::-moz-progress-bar,
+  body:has(.reading-experience) .reader-dossier .game-progress::-moz-progress-bar { background: Highlight; }
   .reading-experience button:disabled,
   .reading-composer .reading-send:disabled,
   .reading-composer .reading-continue:disabled,

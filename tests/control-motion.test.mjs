@@ -68,13 +68,44 @@ test('control spotlight batches pointer movement and follows a nested icon withi
   f.motion.destroy();
 });
 
+test('hover owns one non-interactive lens, reuses it during movement and removes it on leave',()=>{
+  const f=fixture();f.motion.mount();
+  const move=f.move(f.icon);f.step();
+  assert.equal(move.defaultPrevented,false);
+  assert.equal(f.button.children.length,1);
+  const lens=f.button.children[0];
+  assert.equal(lens.className,'control-lens');assert.equal(lens.attributes.get('aria-hidden'),'true');
+  assert.equal(lens.style.pointerEvents,'none');
+  assert.deepEqual(lens.children.map(child=>[child.className,child.getAttribute('data-orbit')]),[
+    ['control-orbit','0'],['control-orbit','1'],['control-orbit','2'],['control-lens-core',null]
+  ]);
+  f.move(f.icon,75,45);f.step();f.mutate();
+  assert.equal(f.button.children.length,1);assert.equal(f.button.children[0],lens);
+  assert.equal(f.frames.size,0,'a stationary hover needs no controller animation loop');
+  f.root.emit('pointerout',{target:f.icon,relatedTarget:f.button});assert.equal(lens.isConnected,true);
+  f.move(f.link);assert.equal(lens.isConnected,false);f.step();
+  assert.equal(f.button.children.length,0);assert.equal(f.link.children.length,1);
+  f.root.emit('pointerleave');assert.equal(f.link.children.length,0);assert.equal(f.frames.size,0);
+  f.motion.destroy();
+});
+
+test('hover lens and click ripple coexist without restarting or replacing the hover artwork',async()=>{
+  const f=fixture();f.motion.mount();f.move();f.step();
+  const lens=f.button.children[0];f.click();
+  assert.equal(f.button.children.length,2);assert.equal(f.button.children[0],lens);
+  assert.equal(f.button.children[1].className,'control-ripple');
+  f.animations[0].finish();await Promise.resolve();
+  assert.equal(f.button.children.length,1);assert.equal(f.button.children[0],lens);
+  f.motion.destroy();assert.equal(lens.isConnected,false);
+});
+
 test('click feedback preserves native events and removes its hidden decoration when the animation finishes',async()=>{
   const f=fixture();f.motion.mount();const event=f.click(f.icon);
   assert.equal(event.defaultPrevented,false);assert.equal(f.animations.length,1);
   const ripple=f.button.children[0];assert.equal(ripple.className,'control-ripple');assert.equal(ripple.attributes.get('aria-hidden'),'true');
   assert.equal(ripple.style.left,'50px');assert.equal(ripple.style.top,'25px');assert.equal(ripple.style.pointerEvents,'none');
   assert.ok(Number.parseFloat(ripple.style.width)>300,'the wave can reach the far corner');
-  assert.match(f.animations[0].keyframes[0].transform,/scale\(0/);assert.equal(f.animations[0].keyframes.at(-1).opacity,0);
+  assert.equal(f.animations[0].keyframes.at(-1).opacity,0);
   assert.ok(f.root.listeners.every(listener=>listener.options.passive),'motion must never take over input');
   f.animations[0].finish();await Promise.resolve();assert.equal(f.button.children.length,0);f.motion.destroy();
 });
@@ -88,8 +119,9 @@ test('touch and keyboard clicks keep feedback without hover tracking on coarse d
 
 test('button-like links and summaries participate while native appearance inputs remain untouched',()=>{
   const f=fixture();f.motion.mount();
-  for(const [tag,className] of [['a','btn'],['a','workspace-create'],['a','world-return'],['button','icon-button']]){
-    const control=f.element(tag,className);f.click(control);assert.equal(control.children.length,1);
+  for(const [tag,className] of [['a','btn'],['a','workspace-create'],['a','world-return'],['a','reading-back'],['a','text-button'],['button','icon-button']]){
+    const control=f.element(tag,className);f.move(control);f.step();assert.equal(control.children[0].className,'control-lens');
+    f.root.emit('pointerleave');f.click(control);assert.equal(control.children.length,1);
   }
   const strip=f.element('div','world-return-strip'),returnLink=f.element('a','',strip);f.click(returnLink);assert.equal(returnLink.children.length,1);
   for(const tag of ['input','select','textarea']){const input=f.element(tag,'icon-button');f.click(input);f.move(input);f.step();assert.equal(input.children.length,0);assert.equal(input.values.size,0);}
@@ -137,6 +169,18 @@ test('touch contact clears stale mouse spotlight without blocking contact or key
   const event=f.root.emit('pointerdown',{target:f.button,pointerType:'touch'});
   assert.equal(event.defaultPrevented,false);assert.equal(f.button.values.size,0);assert.equal(f.frames.size,0);
   f.click(f.button,{detail:0});assert.equal(f.animations.length,1);f.motion.destroy();
+});
+
+test('a busy control settles its effects while other controls in an updating panel stay usable',()=>{
+  const f=fixture();f.motion.mount();
+  f.move();f.step();f.click();f.button.setAttribute('aria-busy','true');f.mutate();
+  assert.equal(f.button.values.size,0);assert.equal(f.button.children.length,0);assert.ok(f.animations[0].cancelled);
+  f.move();f.step();f.click();assert.equal(f.animations.length,1);
+  const panel=f.element('section');panel.setAttribute('aria-busy','true');panel.setAttribute('data-busy','true');
+  const cancel=f.element('button','',panel);cancel.dataset.action='cancel-generation';
+  const event=f.click(cancel);assert.equal(event.defaultPrevented,false);assert.equal(cancel.children.length,1);
+  f.button.removeAttribute('aria-busy');f.mutate();f.click();assert.equal(f.button.children.length,1);
+  f.motion.destroy();
 });
 
 test('unavailable or rejected animation support leaves no orphan decoration',()=>{

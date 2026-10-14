@@ -108,6 +108,18 @@ test('cross-origin posts, unexpected host, malformed structures and excessive in
   assert.equal((await post(url,{...payload(),extra:'x'.repeat(270000)})).status,413);
 });
 
+test('only the two pinned Three browser modules are served from dependencies',async t=>{
+  const root=await mkdtemp(join(tmpdir(),'elselife-three-'));t.after(()=>rm(root,{recursive:true,force:true}));
+  const folder=join(root,'node_modules','three','build');await mkdir(folder,{recursive:true});
+  for(const name of ['three.module.js','three.core.js','private.js'])await writeFile(join(folder,name),'export const fixture=1;');
+  const url=await app(t,{root});
+  for(const name of ['three.module.js','three.core.js']){
+    const response=await fetch(url+'/vendor/'+name);assert.equal(response.status,200);
+    assert.match(response.headers.get('content-type'),/javascript/);assert.equal(await response.text(),'export const fixture=1;');
+  }
+  for(const path of ['/vendor/private.js','/node_modules/three/build/three.module.js','/vendor/%2e%2e%2f.env'])assert.equal((await fetch(url+path)).status,404,path);
+});
+
 test('upstream failures do not echo credentials or provider error payloads',async t=>{
   const up=await upstream(t,(req,res)=>{res.writeHead(401);res.end('server-only-test-secret private provider trace');});
   const url=await app(t,{env:env(up)});const response=await post(url,payload());

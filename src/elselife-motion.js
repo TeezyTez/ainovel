@@ -97,7 +97,7 @@ export function createEditorialMotion({root=globalThis.document,reduced}={}){
         {transform:'translate(0, 0) scale(1)',opacity:1,offset:0},
         {opacity:1,offset:.72},
         {transform:`translate(${x}px, ${y}px) scale(${scale})`,opacity:0,offset:1}
-      ],{duration:420,easing});
+      ],{duration:360,easing});
       // Cleanup restores the real surface even after cancellation or browser failure.
       const finished=()=>{if(portal===record)clearPortal(record);};
       record.animation.finished.then(finished,finished);
@@ -108,15 +108,15 @@ export function createEditorialMotion({root=globalThis.document,reduced}={}){
     clearEntrance();
     if(portal?.animation)clearPortal();
     if(!changed||!allowed()){clearPortal();return;}
-    // Measure the portal before animating its parent, so its endpoint is the settled layout.
+    // Only the artwork travels. Reading text keeps its exact position throughout navigation.
     flyPortal();
     const page=root.querySelector('.reading-paper')||root.querySelector('main');
     if(typeof page?.animate!=='function')return;
     try{
       const animation=page.animate([
-        {opacity:.88,transform:'translateY(12px)'},
-        {opacity:1,transform:'translateY(0)'}
-      ],{duration:420,easing});
+        {opacity:.94},
+        {opacity:1}
+      ],{duration:280,easing});
       entrance=animation;
       const finished=()=>{if(entrance===animation)entrance=null;};
       animation.finished.then(finished,finished);

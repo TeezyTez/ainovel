@@ -1,9 +1,88 @@
-/* Color stays in the portal and a few small identity details, on a neutral UI. */
-.product-app {
-  --iridescent: linear-gradient(110deg,#9e8ad9 0%,#77b9c7 28%,#8cc7b8 48%,#d7b991 70%,#c18ab8 100%);
+/* One spectrum, shared by the portal, the workspace and the reading tools. */
+:root {
+  --portal-violet: #a998d1; --portal-cyan: #86bdc8; --portal-gold: #cfb48a;
+  --portal-spectrum: linear-gradient(115deg,#a998d1 0%,#86bdc8 40%,#a9c3b5 58%,#cfb48a 82%,#bd94b8 100%);
+  --iridescent: var(--portal-spectrum);
+  --portal-ease: cubic-bezier(.22,1,.36,1);
+  --portal-glow: 133 109 180;
+  --bg: #f4f3f8; --paper: #fcfbff; --ink: #2c293b; --muted: #6e697f;
+  --line: #0000001a; --soft: #ece8f4; --signal: #75618e; --signal-soft: #8870ae13;
+  --accent: #66537e; --accent-ink: #fffaff; --action: #65517f; --action-hover: #75618f;
+  --subtle: #eeebf4; --surface-subtle: #efedf5; --highlight: #ffffffd9; --danger: #ae3655;
+  --portal-hairline: #b5a5cc6b; --portal-field: #a791d20b; --portal-depth: #77608616;
+  --shadow: 0 2px 4px #34304b03,0 18px 44px -28px #4c37682e;
+  --shadow-raised: 0 1px 0 #ffffffbd inset,0 18px 50px -24px #54426826;
+  --shadow-dialog: 0 32px 100px -28px #30214048,0 1px 0 #fff inset;
 }
+body[data-theme=dark] {
+  --portal-glow: 169 152 209;
+  --bg: #0b0d15; --paper: #141721; --ink: #eceaf5; --muted: #aaa8bd;
+  --line: #ffffff17; --soft: #a998d110; --signal: #b8aad9; --signal-soft: #a998d117;
+  --accent: #beb1dd; --accent-ink: #1a1627; --action: #c4b9dc; --action-hover: #ded3ef;
+  --subtle: #10131d; --surface-subtle: #10131d; --highlight: #ece3ff0c; --danger: #f29aaa;
+  --portal-hairline: #bbb0d940; --portal-field: #a791d209; --portal-depth: #05070f66;
+  --shadow: 0 1px 0 #ddd1ff06 inset,0 18px 50px -24px #0006;
+  --shadow-raised: 0 1px 0 #ddd1ff0c inset,0 20px 60px -28px #0009;
+  --shadow-dialog: 0 30px 110px -20px #000b,0 1px 0 #e2d2ff12 inset;
+}
+body, .product-app, dialog {
+  --portal-surface: linear-gradient(135deg,var(--highlight),transparent 48%),var(--paper);
+  --portal-border: color-mix(in srgb,var(--portal-violet) 26%,var(--line));
+  --workspace-bg: var(--bg); --sidebar-bg: var(--bg); --surface: var(--paper);
+  --edge: var(--line); --text: var(--ink); --secondary: var(--muted);
+  --brand: var(--accent); --brand-soft: var(--soft); --brand-ink: var(--accent-ink);
+  --sage: var(--soft); --stage: var(--subtle);
+}
+body { color: var(--ink); background: var(--bg); }
+.product-app { color-scheme: light; }
+body[data-theme=dark] .product-app { color-scheme: dark; }
+::selection, .product-app ::selection { background: color-mix(in srgb,var(--signal) 24%,transparent); color: var(--ink); }
 .workspace-brand .brand-sigil { color: var(--ink); }
 .workspace-brand .brand-sigil svg g { stroke: url(#brand-spectrum); }
+
+/* The scene is spacious; the surrounding chrome carries only a trace of it. */
+.product-app {
+  background: radial-gradient(ellipse 75% 440px at 12% 90px,var(--portal-field),transparent),
+    radial-gradient(ellipse 45% 520px at 100% 65%,#86bdc804,transparent),var(--bg);
+}
+.workspace-sidebar { background: color-mix(in srgb,var(--bg) 86%,transparent); }
+.workspace-sidebar::after { content: none; }
+.workspace-nav a.is-active { background: linear-gradient(180deg,transparent,var(--signal-soft)); color: var(--ink); }
+.workspace-nav a.is-active::after { content: none; display: none; }
+.workspace-recent-menu, .discovery-menu {
+  background: var(--portal-surface); border-color: var(--portal-border); box-shadow: var(--shadow-dialog);
+}
+.workspace-main :is(.page-heading,.journey-heading) { position: relative; }
+.workspace-main :is(.page-heading,.journey-heading)::after { content: none; }
+.library-kicker, .eyebrow { color: var(--signal); }
+.notice { border: 1px solid var(--line); background: var(--portal-surface); }
+.notice.error { border-color: color-mix(in srgb,var(--danger) 35%,var(--line)); background: color-mix(in srgb,var(--danger) 5%,var(--paper)); }
+.library-empty { position: relative; background: var(--portal-surface); border-color: var(--portal-border); box-shadow: var(--shadow); }
+.library-empty::before {
+  content: ""; display: block; width: 48px; height: 48px; margin: 0 auto 26px; border-radius: 50%;
+  border: 1px solid var(--portal-hairline); box-shadow: 0 0 0 9px var(--signal-soft),inset 0 0 18px var(--signal-soft);
+  background: radial-gradient(ellipse at 30% 20%,var(--signal-soft),transparent 65%); transform: rotateX(35deg) rotate(-20deg); pointer-events: none;
+}
+
+/* Modal layers feel like a nearby plane; their contents remain opaque and clear. */
+dialog {
+  border: 1px solid var(--portal-border); border-radius: 20px;
+  color: var(--ink); background: var(--portal-surface); box-shadow: var(--shadow-dialog);
+}
+dialog::backdrop { background: #0709138f; backdrop-filter: blur(10px) saturate(.65); }
+body[data-theme=light] dialog::backdrop { background: #25203555; }
+dialog[open] { animation: portal-layer-arrive 260ms var(--portal-ease) both; }
+.dialog-head { background: var(--paper); border-bottom-color: var(--line); }
+.dialog-head::after { content: none; }
+.dialog-head h2 { letter-spacing: .015em; }
+.dialog-content { scrollbar-color: var(--portal-hairline) transparent; }
+#toast {
+  color: var(--ink); background: var(--portal-surface); border: 1px solid var(--portal-border);
+  border-radius: 12px; box-shadow: var(--shadow-dialog); padding: 14px 22px;
+}
+@keyframes portal-layer-arrive { from { opacity: 0; transform: translateY(6px) scale(.985); } to { opacity: 1; transform: none; } }
+
+/* Legacy vector fallback uses the same palette as the WebGL sculpture. */
 .universe-sculpture {
   --portal-core: #0e1428; --portal-depth: #3e225d; --portal-face: #243c61; --portal-edge: #1b2948;
   --portal-magenta: #b786d5; --portal-cyan: #85b7c9; --portal-yellow: #dfcda7; --portal-ink: #f0eaf6;
@@ -15,6 +94,15 @@ body[data-theme=light] .universe-sculpture {
 .wormhole-routes { opacity: .32; stroke-dasharray: 3 6; }
 .wormhole-node-near { filter: hue-rotate(14deg); }
 .wormhole-node-foreground { filter: hue-rotate(-14deg); }
+@media (max-width: 800px) {
+  .workspace-nav { background: color-mix(in srgb,var(--paper) 92%,transparent); border-color: var(--portal-border); box-shadow: 0 -12px 40px -24px var(--portal-depth); }
+  #toast { bottom: calc(86px + env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion: reduce) { dialog[open] { animation: none; } }
+body.reduce-motion dialog[open] { animation: none; }
 @media (forced-colors: active) {
   .workspace-brand .brand-sigil svg g { stroke: CanvasText; }
+  .product-app, .workspace-sidebar, .workspace-nav, dialog, #toast { background: Canvas; color: CanvasText; }
+  .workspace-nav a.is-active { outline: 1px solid Highlight; }
+  .workspace-sidebar::after, .workspace-main :is(.page-heading,.journey-heading)::after, .dialog-head::after, .library-empty::before { display: none; }
 }

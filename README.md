@@ -4,11 +4,12 @@
 
 ## 启动
 
-需要 Node.js 22 或更高版本（开发验证环境：Node 24.20）。没有生产依赖，不需要 `npm install`。
+需要 Node.js 22 或更高版本（开发验证环境：Node 24.20）。首页动态虫洞使用固定版本 Three.js，首次运行先安装依赖。
 
 ```powershell
 git clone https://github.com/TeezyTez/ainovel.git
 cd ainovel
+npm ci
 npm start
 ```
 

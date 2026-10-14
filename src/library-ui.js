@@ -1,6 +1,6 @@
 import {filterSessions} from './personal-library.js';
 import {icon} from './ui-controls.js';
-import {universeSculpture} from './multiverse-art.js';
+import {universeHome} from './universe-home.js';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const normalize=value=>String(value||'').normalize('NFKC').toLocaleLowerCase();
@@ -61,7 +61,7 @@ export function discoveryView({worlds=[],sessions=[],getExperience,recap,availab
   };
   const empty=`<div class="library-empty"><h3>${onlyFavorites&&!favorites.length?'还没有收藏的开局':supply.length?'没有找到符合条件的开局':'这里暂时没有开局'}</h3><div class="library-empty-actions">${filteredNow?reset('#/','reset-discovery'):''}<a class="btn" href="#/create">创造一个世界</a></div></div>`;
   return `<main id="main" class="page library-surface discovery-page">
-    <header class="discovery-toolbar"><div class="universe-hero-copy"><h1>世界之外，<br><span>另有<span class="hero-emphasis">人生</span>。</span></h1><div class="universe-hero-actions"><a class="btn ${last?'cinema-secondary':'primary'}" href="#/create">创造世界 ${icon('arrow-up-right')}</a></div></div>${universeSculpture()}</header>
+    ${!filteredNow?universeHome():'<header class="discovery-toolbar"><div class="universe-hero-copy"><h1>发现另一个世界。</h1><div class="universe-hero-actions"><a class="btn" href="#/create">创造世界 ↗</a></div></div></header>'}
     ${last?discoveryReturn(last):''}
     <section class="universe-catalog" aria-labelledby="discovery-title"><div class="discovery-section-bar"><div><h2 id="discovery-title">${filteredNow?'筛选结果':'发现世界'}</h2></div><span class="library-results" aria-live="polite">${matches.length} 个世界</span><button type="button" class="text-button" data-action="surprise-world" ${matches.length?'':'disabled'}>${icon('compass')} 替我挑一个 ${icon('arrow-up-right')}</button></div>
     <details class="discovery-search" id="discovery-search"${filteredNow?' open':''}><summary>搜索与筛选${filteredNow?' · 已启用':''}${icon('chevron-down')}</summary>

@@ -75,7 +75,21 @@ test('resume ignores the recycle bin, archived and finished stories; rendering d
 });
 test('discovery displays latest version once and honest model-offline wording',()=>{
  const html=discover({worlds:[...worlds,{...worlds[0],version:2,title:'茶铺新版'}],available:false});
- assert.equal((html.match(/href="#\/world\/tea"/g)||[]).length,1);assert.match(html,/茶铺新版/);assert.match(html,/生成新内容需连接模型/);
+  const catalog=html.slice(html.indexOf('<section class="universe-catalog"'));
+  assert.equal((catalog.match(/href="#\/world\/tea"/g)||[]).length,1);assert.match(html,/茶铺新版/);assert.match(html,/生成新内容需连接模型/);
+});
+
+test('homepage art contains no world data or entrances; world selection remains in the catalog',()=>{
+ const html=discover({worlds:[...worlds,{id:'mountain',title:'山路',description:'云间行走'}, {id:'fourth',title:'第四个世界'}]});
+ const hero=html.match(/<section class="universe-journey"[\s\S]*?<\/section>/)?.[0]||'';
+ assert.match(hero,/data-universe-stage/);
+ assert.doesNotMatch(hero,/universe-gate|href="#\/world\/|隐秘线索|雨天茶铺|旧港|山路|fourth|data-cover/);
+ assert.match(hero,/class="universe-art" aria-hidden="true"/);
+ const catalog=html.slice(html.indexOf('<section class="universe-catalog"'));
+ for(const id of ['tea','harbor','mountain'])assert.match(catalog,new RegExp(`href="#/world/${id}"`));
+ assert.doesNotMatch(discover({query:'旧港'}),/data-universe-stage/);
+ assert.match(discover({excluded:['tea','harbor']}),/data-universe-stage/);
+ assert.doesNotMatch(discover({excluded:['tea']}),/href="#\/world\/tea"/);
 });
 test('library uses full branch search, category controls and reversible recycle actions',()=>{
  const active=session('active'),removed=session('removed',{personal:{trashedAt:4}});

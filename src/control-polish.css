@@ -1,13 +1,20 @@
-/* Optical controls: quiet at rest, luminous in response. */
+/* Shared optical controls: pearlescent edges, tactile light, quiet resting states. */
 :root {
   --sans: var(--font-ui);
   --serif: var(--font-display);
   --display: var(--font-display);
-  --control-glow: 131 101 184;
-  --control-ripple: 147 115 202;
-  --control-ease: cubic-bezier(.2,.75,.25,1);
+  --control-glow: var(--portal-glow,160 142 201);
+  --control-ripple: 147 145 188;
+  --control-ease: var(--portal-ease,cubic-bezier(.22,1,.36,1));
+  --control-primary-face: linear-gradient(118deg,#474055,#343d4c 58%,#3e3a43);
+  --control-primary-ink: #fcfaff;
+  --control-primary-edge: linear-gradient(115deg,#9282a8,#638592 54%,#9e8e78);
 }
-body { font-family: var(--font-ui); font-synthesis: none; }
+body :is(.product-app,.reading-experience,dialog) {
+  --control-face: linear-gradient(145deg,color-mix(in srgb,var(--paper) 95%,#fff),color-mix(in srgb,var(--paper) 94%,var(--portal-violet,#a998d1)));
+  --control-edge: linear-gradient(115deg,color-mix(in srgb,var(--line) 65%,var(--portal-violet,#a998d1)),var(--line) 45%,color-mix(in srgb,var(--line) 65%,var(--portal-cyan,#86bdc8)));
+}
+body { --control-glow: var(--portal-glow,160 142 201); font-family: var(--font-ui); font-synthesis: none; }
 button, input, textarea, select { font-family: var(--font-ui); }
 .brand-wordmark { font-family: var(--font-brand); font-weight: 600; letter-spacing: -.07em; }
 .universe-eyebrow, .world-coordinate, .universe-footer>span:first-child,
@@ -44,10 +51,10 @@ body[data-theme=dark] .workspace-theme>.ui-icon[data-icon=moon] { display: block
 .discovery-enter>.ui-icon, .world-entry-arrow>.ui-icon { width: 18px; height: 18px; }
 .world-entry-arrow { display: grid; place-items: center; }
 .world-return-mark {
-  width: 54px; height: 54px; border-radius: 50%; color: var(--muted);
-  border-color: color-mix(in srgb,var(--muted) 16%,transparent);
-  background: radial-gradient(circle at 35% 25%,var(--paper),var(--soft));
-  box-shadow: inset 0 1px 0 #ffffff66, 0 3px 12px #1b223006;
+  width: 54px; height: 54px; border-radius: 50%; color: var(--signal);
+  border-color: var(--portal-hairline);
+  background: radial-gradient(ellipse at 25% 10%,var(--signal-soft),transparent 65%);
+  box-shadow: 0 0 0 5px var(--signal-soft),inset 0 0 16px var(--signal-soft);
 }
 .world-return-mark .ui-icon { width: 29px; height: 29px; stroke-width: 1.3; }
 .universe-footer>a { display: inline-flex; align-items: center; gap: 9px; }
@@ -62,112 +69,219 @@ body[data-theme=dark] .workspace-theme>.ui-icon[data-icon=moon] { display: block
 .discovery-search>summary>.ui-icon { width: 15px; height: 15px; }
 .discovery-search[open]>summary>.ui-icon { transform: rotate(180deg); }
 
-/* Contain delegated ripples without changing native focus or hit areas. */
-:where(button,a.btn,a.workspace-create,.world-return-strip>a,a.world-return,
+/* Summaries and stretched links keep their existing pseudo-elements and hit areas. */
+:where(button,a.btn,a.workspace-create,.world-return-strip>a,a.world-return,a.reading-back,a.text-button,
   .workspace-nav-link,details>summary,.icon-button) {
   position: relative; isolation: isolate; overflow: hidden;
   -webkit-tap-highlight-color: transparent;
 }
 .control-ripple {
   position: absolute; z-index: -1; display: block; pointer-events: none; border-radius: 50%;
-  background: radial-gradient(circle, rgb(var(--control-ripple) / .3) 0%, rgb(var(--control-ripple) / .13) 45%, transparent 72%);
+  background: radial-gradient(circle,transparent 32%,rgb(var(--control-ripple) / .08) 44%,rgb(var(--control-ripple) / .42) 53%,rgb(var(--control-ripple) / .08) 63%,transparent 73%);
   contain: strict;
 }
-:is(.btn,.workspace-create,.world-return-strip>a,.world-return,.icon-button,
-  .workspace-nav-link,.reading-header-tool,.reading-back,.reading-appearance,.reader-tools-trigger) {
-  transition: color .2s ease, background .22s ease, border-color .22s ease,
-    box-shadow .28s var(--control-ease), transform .28s var(--control-ease);
+/* A single local gravity field follows the pointer on the active control.
+   Independent children preserve summary markers, active nav rules and labels. */
+body :is(button,a,summary)>.control-lens.control-lens {
+  --lens-violet: var(--control-lens-violet,var(--signal));
+  --lens-cyan: var(--control-lens-cyan,var(--portal-cyan));
+  --lens-gold: var(--control-lens-gold,var(--portal-gold));
+  position: absolute; display: block; z-index: -1; pointer-events: none;
+  left: var(--control-x,50%); top: var(--control-y,50%);
+  width: 176px; height: 142px; min-width: 0; min-height: 0; padding: 0; margin: 0;
+  /* Keep the pointer origin independent of existing arrow/span hover transforms. */
+  border: 0; border-radius: 50%; transform: translate(-50%,-50%)!important;
+  background: radial-gradient(ellipse at 50% 50%,transparent 12%,rgb(var(--control-glow) / .07) 26%,transparent 63%);
+  opacity: .8; animation: control-lens-arrive 360ms var(--control-ease) both;
 }
-.product-app .btn, .workspace-create {
-  border-color: color-mix(in srgb,var(--line) 82%,var(--signal));
-  box-shadow: inset 0 1px 0 #ffffff8c, 0 2px 4px #21172c04;
+body .control-lens>.control-orbit {
+  position: absolute; display: block; inset: 21% 4%; padding: 1px; margin: 0;
+  border: 0; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(from 38deg,transparent 0%,var(--lens-cyan) 15%,transparent 31%,var(--lens-violet) 50%,var(--lens-gold) 64%,transparent 81%);
+  mask: linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  transform-origin: 50% 50%; opacity: 0;
+  animation: control-orbit-fall 3.6s cubic-bezier(.25,.15,.3,1) infinite;
+}
+body .control-lens>.control-orbit[data-orbit="1"] { inset: 13% 8%; animation-duration: 4.3s; animation-delay: -1.7s; }
+body .control-lens>.control-orbit[data-orbit="2"] { inset: 26% 0%; animation-duration: 3.1s; animation-delay: -2.5s; }
+body .control-lens>.control-lens-core {
+  position: absolute; display: block; left: 50%; top: 50%; width: 18px; height: 12px;
+  min-width: 0; padding: 0; margin: 0; border: 1px solid color-mix(in srgb,var(--lens-violet) 35%,transparent); border-radius: 50%;
+  transform: translate(-50%,-50%) rotate(-28deg); pointer-events: none;
+  background: radial-gradient(ellipse,rgb(var(--control-glow) / .035),transparent 70%);
+  box-shadow: -4px 0 9px -4px color-mix(in srgb,var(--lens-violet) 75%,transparent),4px 1px 8px -4px color-mix(in srgb,var(--lens-cyan) 75%,transparent);
+}
+@keyframes control-lens-arrive { from { opacity: 0; scale: .88; } to { opacity: .8; scale: 1; } }
+@keyframes control-orbit-fall {
+  0% { opacity: 0; transform: rotate(-34deg) scale(1.2); }
+  18% { opacity: .72; }
+  72% { opacity: .52; }
+  100% { opacity: 0; transform: rotate(24deg) scale(.13); }
+}
+@media (hover:hover) and (pointer:fine) {
+  body :is(button,a.btn,a.workspace-create,a.world-return,a.reading-back,a.text-button,.workspace-nav-link,summary)[data-control-active=true] {
+    box-shadow: inset 0 0 0 1px rgb(var(--control-glow) / .3),0 3px 16px -8px rgb(var(--control-glow) / .35);
+  }
+  body :is(button,a,summary)[data-control-active=true]>.ui-icon {
+    color: var(--signal); filter: drop-shadow(0 0 5px rgb(var(--control-glow) / .32));
+  }
+  body :is(.btn.primary,a.world-return,.world-return-strip>a,.reading-send)[data-control-active=true]>.ui-icon { color: var(--control-primary-ink); }
+  body summary[data-control-active=true] { border-radius: 10px; }
+}
+body :is(.btn.primary,a.world-return,.world-return-strip>a,.reading-send) {
+  --control-lens-violet: #c0a6e4; --control-lens-cyan: #8dcbd5; --control-lens-gold: #d7c298;
+}
+body[data-theme=dark] :is(.btn.primary,a.world-return,.world-return-strip>a,.reading-send) {
+  --control-lens-violet: #6d4f8b; --control-lens-cyan: #3c7485; --control-lens-gold: #947247;
+}
+:is(.btn,.workspace-create,.world-return-strip>a,.world-return,.icon-button,.workspace-nav-link,
+  .reading-header-tool,.reading-back,.reading-appearance,.reader-tools-trigger,details>summary) {
+  transition: color .2s ease, background-color .22s ease, border-color .22s ease,
+    box-shadow .3s var(--control-ease), transform .3s var(--control-ease);
+}
+body[data-theme] :is(.product-app,.reading-experience,dialog) .btn,
+body :is(.workspace-create,.world-return-strip>a,.world-current-footer>a.world-return) {
+  min-height: 44px; border: 1px solid transparent;
+  background: var(--control-face) padding-box,var(--control-edge) border-box;
+  color: var(--ink); border-radius: 12px;
+  box-shadow: inset 0 1px 0 var(--highlight,#ffffff66),0 2px 5px #20172e05;
   font-weight: 500; letter-spacing: .025em;
+  filter: none;
 }
-.product-app .btn.primary,
-body[data-theme=dark] .product-app .btn.primary,
-.product-app .world-return-strip>a,
-body[data-theme=dark] .product-app .world-return-strip>a,
-.product-app a.world-return {
-  --control-glow: 143 158 180; --control-ripple: 228 237 249;
-  background: linear-gradient(150deg,#3b414b 0%,#282d35 52%,#20252d 100%);
-  color: #f8fafc; border: 1px solid #3b414b;
-  box-shadow: inset 0 1px 0 #ffffff29, inset 0 -1px 0 #11182755, 0 3px 9px #18202b16;
+body[data-theme] :is(.product-app,.reading-experience,dialog) .btn.primary,
+body :is(.world-return-strip>a,.world-current-footer>a.world-return),
+body .reading-composer .reading-send:not(:disabled) {
+  --control-ripple: 214 211 239;
+  background: var(--control-primary-face) padding-box,var(--control-primary-edge) border-box;
+  color: var(--control-primary-ink); border-color: transparent;
+  box-shadow: inset 0 1px 0 #ffffff25,inset 0 -1px 0 #0e0d191f,0 4px 12px -4px rgb(var(--control-glow) / .3);
 }
-:is(.product-app .btn,.workspace-create,.world-return-strip>a,.world-return)::before {
+body .reading-composer .reading-send { border-radius: 50%; }
+:is(.btn,.workspace-create,.world-return-strip>a,.world-return)::before {
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit;
-  background: radial-gradient(ellipse at var(--control-x,50%) var(--control-y,0%),rgb(var(--control-glow) / .16),transparent 70%);
-  opacity: 0; transition: opacity .3s ease;
+  background: radial-gradient(ellipse at var(--control-x,50%) var(--control-y,0%),rgb(var(--control-glow) / .2),transparent 74%);
+  opacity: 0; transition: opacity .35s ease;
 }
-:is(.product-app .btn.primary,.world-return-strip>a,.world-return)::before {
-  background: radial-gradient(ellipse at var(--control-x,50%) var(--control-y,0%),#e2edff30,transparent 75%);
+:is(.btn.primary,.world-return-strip>a,.world-return,.reading-send)::before {
+  background: radial-gradient(ellipse at var(--control-x,50%) var(--control-y,0%),#e9e1ff25,transparent 76%);
 }
-:is(.product-app .btn.primary,.workspace-create,.world-return-strip>a,.world-return)::after {
-  content: ""; position: absolute; inset: -60% -20%; z-index: -1; pointer-events: none;
-  background: linear-gradient(112deg,transparent 35%,#ffffff05 42%,#fff3 50%,#ffffff05 58%,transparent 65%);
-  transform: translateX(-110%); opacity: 0;
+body :is(.product-app,.reading-experience,dialog) :where(button,a,summary,input,select,textarea):focus-visible {
+  outline: 2px solid var(--signal)!important; outline-offset: 4px;
 }
-.product-app :is(.btn,.workspace-create,.world-return-strip>a,.world-return):focus-visible,
-:is(.icon-button,.workspace-nav-link,.reading-header-tool,.reading-back,.reading-appearance,.reader-tools-trigger):focus-visible {
-  outline: 2px solid var(--signal); outline-offset: 4px;
+body :is(.product-app,.reading-experience,dialog) :is(.btn,.icon-button,.workspace-create,.reading-header-tool,
+  .reading-back,.reading-appearance,.reader-tools-trigger):focus-visible {
   box-shadow: 0 0 0 5px rgb(var(--control-glow) / .12);
 }
-.btn:disabled, .btn[aria-disabled=true] { box-shadow: none; }
-.btn:disabled::before, .btn:disabled::after, .btn[aria-disabled=true]::before,
-.btn[aria-disabled=true]::after { content: none; }
-.ui-icon { transition: transform .35s var(--control-ease),filter .25s ease; }
+.ui-icon { transition: transform .35s var(--control-ease),color .25s ease; }
 
 @media (hover:hover) and (pointer:fine) {
-  .product-app .btn:not(:disabled):not([aria-disabled=true]):not(.danger):hover,
-  .workspace-create:hover {
-    border-color: color-mix(in srgb,var(--signal) 55%,var(--line));
-    box-shadow: inset 0 1px 0 #ffffff75,0 4px 16px rgb(var(--control-glow) / .13);
-    transform: translateY(-2px);
+  body :is(.product-app,.reading-experience,dialog) .btn:not(:disabled,[aria-disabled=true],[aria-busy=true],.danger):hover,
+  body :is(.workspace-create,.world-return-strip>a,.world-current-footer>a.world-return):not([aria-disabled=true],[aria-busy=true]):hover {
+    background: var(--control-face) padding-box,var(--control-edge) border-box;
+    color: var(--ink);
+    border-color: color-mix(in srgb,var(--portal-violet,#a998d1) 55%,transparent);
+    box-shadow: inset 0 1px 0 var(--highlight,#ffffff66),0 5px 18px -5px rgb(var(--control-glow) / .25);
+    transform: none; filter: none;
   }
-  body[data-theme] .product-app .btn.primary:not(:disabled):hover,
-  body[data-theme] .product-app .world-return-strip>a:hover,
-  .product-app .world-return:hover {
-    color: #fff; background: linear-gradient(150deg,#464f5c,#343b45 60%,#282e37);
-    border-color: #687384;
-    box-shadow: inset 0 1px 0 #ffffff40, 0 5px 15px #17253520, 0 0 0 1px #d2dfed18;
-    transform: translateY(-2px);
+  body :is(.product-app,.reading-experience,dialog) .btn.primary:not(:disabled,[aria-disabled=true],[aria-busy=true],.danger):hover,
+  body :is(.world-return-strip>a,.world-current-footer>a.world-return):not([aria-disabled=true],[aria-busy=true]):hover,
+  body .reading-composer .reading-send:not(:disabled,[aria-disabled=true],[aria-busy=true]):hover {
+    background: var(--control-primary-face) padding-box,var(--control-primary-edge) border-box;
+    color: var(--control-primary-ink); border-color: transparent;
   }
-  :is(.product-app .btn,.workspace-create,.world-return-strip>a,.world-return):not(:disabled):not(.danger):hover::before { opacity: 1; }
-  :is(.product-app .btn.primary,.workspace-create,.world-return-strip>a,.world-return):not(:disabled):hover::after { animation: control-sheen .85s var(--control-ease) both; }
-  :is(a,button,summary):hover>.ui-icon[data-icon=arrow-up-right] { transform: translate(2px,-2px); }
-  :is(a,button,summary):hover>.ui-icon[data-icon=arrow-right] { transform: translateX(3px); }
-  :is(a,button,summary):hover>.ui-icon[data-icon=back] { transform: translateX(-2px); }
-  :is(a,button,summary):hover>.ui-icon[data-icon=compass] { transform: rotate(22deg); }
-  :is(a,button,summary):hover>.ui-icon[data-icon=settings] { transform: rotate(45deg); }
-  :is(a,button,summary):hover>.ui-icon[data-icon=spark] { transform: scale(1.13) rotate(12deg); filter: drop-shadow(0 0 5px currentColor); }
-  .reader-tools-trigger:hover>.ui-icon[data-icon=plus] { transform: rotate(90deg); }
-  :is(.icon-button,.reading-header-tool,.reading-back,.reading-appearance,.reader-tools-trigger):hover {
-    color: var(--signal); background: var(--soft); box-shadow: 0 2px 10px rgb(var(--control-glow) / .12);
+  :is(.btn,.workspace-create,.world-return-strip>a,.world-return):not(:disabled,[aria-disabled=true],[aria-busy=true],.danger):hover::before { opacity: 1; }
+  :is(a,button,summary):not(:disabled,[aria-disabled=true],[aria-busy=true],.danger):hover>.ui-icon[data-icon=arrow-up-right] { transform: translate(1.5px,-1.5px); }
+  :is(a,button,summary):not(:disabled,[aria-disabled=true],[aria-busy=true],.danger):hover>.ui-icon[data-icon=arrow-right] { transform: translateX(2px); }
+  :is(a,button,summary):not(:disabled,[aria-disabled=true],[aria-busy=true],.danger):hover>.ui-icon[data-icon=back] { transform: translateX(-1.5px); }
+  :is(.icon-button,.reading-header-tool,.reading-back,.reading-appearance,.reader-tools-trigger):not(:disabled,[aria-disabled=true],[aria-busy=true]):hover {
+    color: var(--signal); background: color-mix(in srgb,var(--paper) 78%,var(--soft));
+    box-shadow: inset 0 0 0 1px rgb(var(--control-glow) / .15),0 2px 10px rgb(var(--control-glow) / .1);
   }
-  .discovery-card:hover .discovery-enter>.ui-icon { transform: translate(2px,-2px); }
+  details>summary:hover { color: var(--ink); }
+  .discovery-card:hover .discovery-enter>.ui-icon { transform: translate(1.5px,-1.5px); }
 }
-:is(.btn,.workspace-create,.world-return-strip>a,.world-return):not(:disabled):active { transform: translateY(0) scale(.98); }
-@keyframes control-sheen { 0% { transform: translateX(-90%); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateX(90%); opacity: 0; } }
+body :is(.product-app,.reading-experience,dialog) .btn:not(:disabled,[aria-disabled=true],[aria-busy=true]):active,
+body :is(.workspace-create,.world-return-strip>a,.world-return):not([aria-disabled=true],[aria-busy=true]):active {
+  transform: translateY(0) scale(.985); box-shadow: inset 0 2px 7px rgb(var(--control-glow) / .16);
+}
 
-body[data-theme=dark] { --control-glow: 167 132 214; --control-ripple: 203 178 243; }
-body[data-theme=dark] .product-app .btn:not(.primary) { box-shadow: inset 0 1px 0 #ffffff0d; }
-body[data-theme=dark] .product-app .btn.primary,
-body[data-theme=dark] .product-app .world-return-strip>a,
-body[data-theme=dark] .product-app a.world-return {
-  --control-ripple: 117 135 159;
-  color: #252c35; background: linear-gradient(150deg,#f5f7fa,#e4e8ee 62%,#d7dee7);
-  border-color: #d6dee8; box-shadow: inset 0 1px 0 #fff,0 3px 12px #0003;
+body[data-theme=dark] {
+  --control-ripple: 195 178 224;
+  --control-primary-face: linear-gradient(118deg,#ddd4e9,#c4d6dc 57%,#ded4c6);
+  --control-primary-ink: #242231;
+  --control-primary-edge: linear-gradient(115deg,#f0e3ff,#d9f0f0 55%,#f0e0c6);
 }
-@media (hover:hover) and (pointer:fine) {
-  body[data-theme=dark] .product-app .btn.primary:not(:disabled):hover,
-  body[data-theme=dark] .product-app .world-return-strip>a:hover,
-  body[data-theme=dark] .product-app a.world-return:hover {
-    color: #202731; background: linear-gradient(150deg,#fff,#f0f3f7 65%,#e1e8ef);
-    border-color: #fff; box-shadow: inset 0 1px 0 #fff,0 4px 18px #cbdcf21c;
-  }
+body[data-theme=dark] :is(.product-app,.reading-experience,dialog) {
+  --control-face: linear-gradient(145deg,color-mix(in srgb,var(--paper) 89%,var(--portal-violet,#a998d1)),var(--paper) 75%);
 }
-/* Reading keeps its restrained palette, using the same tactile feedback. */
-.reading-experience { --control-glow: 102 115 169; --control-ripple: 132 143 190; }
-.reading-send:not(:disabled) { --control-ripple: 240 235 255; }
+body[data-theme=dark] :is(.btn.primary,.world-return-strip>a,a.world-return,.reading-send) { --control-ripple: 137 128 158; }
+body[data-theme] :is(.product-app,.reading-experience,dialog) .btn.danger {
+  color: var(--danger); border-color: color-mix(in srgb,var(--danger) 24%,var(--line));
+  background: color-mix(in srgb,var(--paper) 97%,var(--danger)); box-shadow: none;
+}
+body :is(.product-app,.reading-experience,dialog) .btn.danger:hover:not(:disabled,[aria-disabled=true],[aria-busy=true]) {
+  border-color: var(--danger); background: color-mix(in srgb,var(--paper) 92%,var(--danger));
+}
+body[data-theme] :is(.product-app,.reading-experience,dialog) .btn:is(:disabled,[aria-disabled=true],[aria-busy=true]) {
+  color: var(--muted); background: var(--soft); border-color: var(--line);
+  box-shadow: none; filter: none; transform: none; cursor: not-allowed;
+}
+body :is(.product-app,.reading-experience,dialog) .btn[aria-busy=true] { cursor: progress; }
+:is(.btn,.workspace-create,.world-return-strip>a,.world-return):is(:disabled,[aria-disabled=true],[aria-busy=true],.danger)::before,
+:is(.btn,.workspace-create,.world-return-strip>a,.world-return):is(:disabled,[aria-disabled=true],[aria-busy=true],.danger)::after { content: none; }
+
+/* Inputs share an inset material; native editing, selection and validation stay intact. */
+body :is(.product-app,.reading-experience,dialog) :is(input:not([type=checkbox],[type=radio],[type=range],[type=hidden],[type=file],[type=color]),select,textarea) {
+  min-height: 44px; border: 1px solid var(--line); border-radius: 11px;
+  background: color-mix(in srgb,var(--paper) 95%,var(--bg)); color: var(--ink);
+  box-shadow: inset 0 1px 3px rgb(var(--control-glow) / .035),0 1px 0 var(--highlight,#ffffff40);
+  caret-color: var(--signal);
+  transition: border-color .2s ease,box-shadow .25s var(--control-ease),background-color .2s ease;
+}
+body :is(.product-app,.reading-experience,dialog) :is(input,select,textarea):focus-visible {
+  border-color: color-mix(in srgb,var(--signal) 65%,var(--line));
+  box-shadow: 0 0 0 4px rgb(var(--control-glow) / .09); outline-offset: 3px;
+}
+body :is(.product-app,.reading-experience,dialog) :is(input,textarea)::placeholder { color: var(--muted); opacity: .7; }
+body :is(.product-app,.reading-experience,dialog) :is(input,select,textarea):disabled {
+  color: var(--muted); background: var(--soft); box-shadow: none; cursor: not-allowed;
+}
+body :is(.product-app,.reading-experience,dialog) :is(input,select,textarea)[aria-invalid=true] { border-color: var(--danger); }
+body :is(.product-app,.reading-experience,dialog) :is(input[type=checkbox],input[type=radio],input[type=range]) { accent-color: var(--signal); }
+body :is(.product-app,.reading-experience,dialog) input[type=range] { min-height: 44px; cursor: pointer; }
+body .reading-experience :is(.reading-compose-box,.compose-box) textarea,
+body .product-app .journey-search input {
+  border: 0; border-radius: 0; background: transparent; box-shadow: none;
+}
+body .product-app .journey-search:focus-within { border-color: var(--signal); box-shadow: 0 0 0 3px rgb(var(--control-glow) / .075); }
+body .product-app .journey-search input:focus-visible { outline: none!important; box-shadow: none; }
+body .product-app .creator-seed-panel textarea:focus-visible { outline: none!important; box-shadow: none; }
+body :is(.reading-compose-box,.compose-box):focus-within {
+  border-color: color-mix(in srgb,var(--signal) 55%,var(--line));
+  box-shadow: 0 0 0 3px rgb(var(--control-glow) / .075);
+}
+body :is(.reading-experience,dialog) :is(.reading-compose-box,.compose-box) textarea:focus-visible { box-shadow: none; outline: none!important; }
+body input[type=file]::file-selector-button {
+  min-height: 44px; color: var(--ink); background: var(--control-face) padding-box,var(--control-edge) border-box;
+  border: 1px solid transparent; border-radius: 10px;
+}
+body .product-app input.setting-switch {
+  appearance: none; width: 48px; height: 44px; min-width: 48px; min-height: 44px;
+  border: 0; border-radius: 12px; background: transparent; box-shadow: none; cursor: pointer;
+}
+body .product-app input.setting-switch::before {
+  content: ""; position: absolute; inset: 8px 0; border: 1px solid var(--line); border-radius: 20px;
+  background: var(--soft); box-shadow: inset 0 1px 3px #00000008;
+  transition: background-color .2s ease,border-color .2s ease;
+}
+body .product-app input.setting-switch::after {
+  width: 20px; height: 20px; left: 4px; top: 12px; background: var(--muted);
+  box-shadow: 0 1px 3px #0000001a; transition: transform .28s var(--control-ease),background-color .2s ease;
+}
+body .product-app input.setting-switch:checked { border: 0; background: transparent; }
+body .product-app input.setting-switch:checked::before { background: var(--control-primary-face); border-color: var(--portal-violet,#a998d1); }
+body .product-app input.setting-switch:checked::after { background: var(--control-primary-ink); transform: translateX(20px); }
 
 @media (max-width:760px) {
   .workspace-main .discovery-toolbar h1 { font-size: clamp(38px,9.5vw,48px); letter-spacing: -.065em; }
@@ -175,30 +289,41 @@ body[data-theme=dark] .product-app a.world-return {
   .workspace-nav .ui-icon { width: 17px; height: 17px; }
   .workspace-theme>.ui-icon { left: 10px; top: calc(50% - 8px); width: 16px; height: 16px; }
   .workspace-theme select { min-width: 120px; max-width: none; padding-left: 31px; }
+  body :is(.product-app,.reading-experience,dialog) :is(.btn,.icon-button,.workspace-nav-link,.workspace-create,summary) { min-height: 44px; }
+  body :is(.product-app,.reading-experience,dialog) :is(input:not([type=checkbox],[type=radio],[type=range],[type=hidden],[type=file],[type=color]),select,textarea) { font-size: 16px; }
 }
 @media (max-width:420px) {
   .workspace-nav .ui-icon { width: 16px; height: 16px; }
   .workspace-nav-link { gap: 4px; }
 }
 /* Both the OS preference and the in-app control stop every decorative response. */
-body.reduce-motion :is(.btn,.workspace-create,.world-return-strip>a,.world-return,.ui-icon,.icon-button,
+body.reduce-motion :is(.btn,.workspace-create,.world-return-strip>a,.world-return,.ui-icon,.icon-button,input,select,textarea,details>summary,
   .workspace-nav-link,.reading-header-tool,.reading-back,.reading-appearance,.reader-tools-trigger),
 body.reduce-motion .ui-icon :is(.icon-accent,.icon-detail) { transition: none!important; transform: none!important; }
+body.reduce-motion :is(.btn,.workspace-create,.world-return-strip>a,.world-return)::before { transition: none!important; }
 body.reduce-motion :is(.btn,.workspace-create,.world-return-strip>a,.world-return)::after { animation: none!important; opacity: 0!important; }
-body.reduce-motion .control-ripple { display: none; }
+body.reduce-motion input.setting-switch::after,body.reduce-motion input.setting-switch::before { transition: none!important; }
+body.reduce-motion .control-ripple,body.reduce-motion .control-lens { display: none!important; }
 body.reduce-motion .discovery-search[open]>summary>.ui-icon { transform: rotate(180deg)!important; }
 @media (prefers-reduced-motion:reduce) {
-  :is(.btn,.workspace-create,.world-return-strip>a,.world-return,.ui-icon,.icon-button,.workspace-nav-link,
+  body .control-lens.control-lens { display: none!important; }
+  :is(.btn,.workspace-create,.world-return-strip>a,.world-return,.ui-icon,.icon-button,.workspace-nav-link,input,select,textarea,details>summary,
     .reading-header-tool,.reading-back,.reading-appearance,.reader-tools-trigger),
   .ui-icon :is(.icon-accent,.icon-detail) { transition: none!important; transform: none!important; }
   :is(.btn,.workspace-create,.world-return-strip>a,.world-return)::after { animation: none!important; opacity: 0!important; }
-  .control-ripple { display: none; }
+  :is(.btn,.workspace-create,.world-return-strip>a,.world-return)::before,input.setting-switch::after,input.setting-switch::before { transition: none!important; }
+  .control-ripple,.control-lens { display: none; }
   .discovery-search[open]>summary>.ui-icon { transform: rotate(180deg)!important; }
 }
 @media (forced-colors:active) {
-  .control-ripple, :is(.btn,.workspace-create,.world-return-strip>a,.world-return)::before,
+  body .control-lens.control-lens { display: none!important; }
+  .control-ripple,.control-lens, :is(.btn,.workspace-create,.world-return-strip>a,.world-return)::before,
   :is(.btn,.workspace-create,.world-return-strip>a,.world-return)::after { display: none; }
-  body[data-theme] .product-app :is(.btn,.workspace-create,.world-return-strip>a,.world-return) {
+  body[data-theme] :is(.product-app,.reading-experience,dialog) :is(.btn,.btn.primary,.workspace-create,.world-return-strip>a,.world-return) {
     color: ButtonText; background: ButtonFace; border: 1px solid ButtonText; box-shadow: none;
   }
+  body :is(.product-app,.reading-experience,dialog) :is(input,select,textarea) { color: FieldText; background: Field; border-color: ButtonText; box-shadow: none; }
+  body .product-app input.setting-switch { appearance: auto; }
+  body .product-app input.setting-switch::before,body .product-app input.setting-switch::after { display: none; }
+  body[data-theme] :is(.product-app,.reading-experience,dialog) :is(.btn,input,select,textarea):disabled { color: GrayText; border-color: GrayText; }
 }
