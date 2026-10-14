@@ -1,3 +1,4 @@
+import {icon} from './ui-controls.js';
 // Keep the actual panel nodes so Back also restores form drafts and listeners.
 export function createDialogNavigation(dialog,{escape,returnFallback=()=>null}={}){
   let stack=[],launcher=null,title='',onRestore,modal=true,switching=false;
@@ -13,7 +14,7 @@ export function createDialogNavigation(dialog,{escape,returnFallback=()=>null}={
     }
     title=nextTitle;onRestore=options.onRestore;
     dialog.className='';
-    dialog.innerHTML=`<div class="dialog-head">${stack.length?'<button class="icon-button dialog-back" type="button" aria-label="返回上一层" data-action="dialog-back">←</button>':''}<h2 id="dialog-title" tabindex="-1">${escape(title)}</h2><button class="icon-button" type="button" aria-label="关闭面板" data-action="close-dialog">×</button></div><div class="dialog-content">${content}</div>`;
+    dialog.innerHTML=`<div class="dialog-head">${stack.length?'<button class="icon-button dialog-back" type="button" aria-label="返回上一层" data-action="dialog-back">'+icon('back')+'</button>':''}<h2 id="dialog-title" tabindex="-1">${escape(title)}</h2><button class="icon-button" type="button" aria-label="关闭面板" data-action="close-dialog">${icon('close')}</button></div><div class="dialog-content">${content}</div>`;
     dialog.setAttribute('aria-labelledby','dialog-title');
     if(onSubmit)dialog.querySelector('form').onsubmit=async e=>{e.preventDefault();await onSubmit(new FormData(e.currentTarget));};
     const nextModal=options.modal!==false;

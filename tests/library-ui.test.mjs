@@ -9,7 +9,7 @@ const discover=patch=>discoveryView({worlds,sessions:[],getExperience:experience
 test('world entrance resumes the latest active experience and hides it during searches',()=>{
  const a=session('a'),b=session('b',{updatedAt:20}),trash=session('trash',{updatedAt:100,personal:{trashedAt:0}});
  const html=libraryView({sessions:[a,b,trash]});
- assert.match(html,/class="world-current"/);assert.match(html,/aria-label="继续阅读：我的茶铺"/);
+ assert.match(html,/class="world-current"/);assert.match(html,/aria-label="回到世界：我的茶铺"/);
  assert.ok(html.indexOf('class="world-current"')<html.indexOf('id="library-form"'));
  assert.match(html,/class="world-list"/);assert.match(html,/aria-label="我的茶铺的经历选项"/);
  assert.doesNotMatch(libraryView({sessions:[a,b,trash],query:'蓝围巾'}),/class="world-current"/);
@@ -124,7 +124,7 @@ test('discovery return contains only latest active prose with turn and branch co
  const before=structuredClone(s),html=discover({sessions:[s]});
  const strip=html.match(/<section class="world-return-strip"[\s\S]*?<\/section>/)?.[0]||'';
  assert.match(strip,/这句很早的蓝围巾原文。/);assert.match(strip,/1 回合/);assert.match(strip,/留下来/);
- assert.match(strip,/href="#\/story\/return"[^>]*[\s\S]*?继续阅读/);
+ assert.match(strip,/href="#\/story\/return"[^>]*[\s\S]*?回到世界/);
  assert.doesNotMatch(strip,/秘密分支|不能显示的另一条经历|真实停点/);
  assert.deepEqual(s,before);
 });

@@ -1,0 +1,26 @@
+{
+  "method": "Decoded WOFF2 Brotli table stream; union of cmap format 4 and 12 nonzero glyph mappings. Includes all delivered shards.",
+  "families": {
+    "Noto Sans SC": {
+      "unicodeCodepoints": 13635,
+      "hanCodepoints": 12269,
+      "sampleMissing": "",
+      "minimum": "U+20",
+      "maximum": "U+1F251"
+    },
+    "Noto Serif SC": {
+      "unicodeCodepoints": 13666,
+      "hanCodepoints": 12295,
+      "sampleMissing": "",
+      "minimum": "U+20",
+      "maximum": "U+1F251"
+    },
+    "Space Grotesk": {
+      "unicodeCodepoints": 634,
+      "hanCodepoints": 0,
+      "sampleMissing": null,
+      "minimum": "U+D",
+      "maximum": "U+2215"
+    }
+  }
+}

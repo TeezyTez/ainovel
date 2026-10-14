@@ -1,0 +1,20 @@
+/* Color stays in the portal and a few small identity details, on a neutral UI. */
+.product-app {
+  --iridescent: linear-gradient(110deg,#9e8ad9 0%,#77b9c7 28%,#8cc7b8 48%,#d7b991 70%,#c18ab8 100%);
+}
+.workspace-brand .brand-sigil { color: var(--ink); }
+.workspace-brand .brand-sigil svg g { stroke: url(#brand-spectrum); }
+.universe-sculpture {
+  --portal-core: #0e1428; --portal-depth: #3e225d; --portal-face: #243c61; --portal-edge: #1b2948;
+  --portal-magenta: #b786d5; --portal-cyan: #85b7c9; --portal-yellow: #dfcda7; --portal-ink: #f0eaf6;
+}
+body[data-theme=light] .universe-sculpture {
+  --portal-core: #302b46; --portal-depth: #a296ba; --portal-face: #e9e2f0; --portal-edge: #f2f1f7;
+  --portal-magenta: #a173ad; --portal-cyan: #749baa; --portal-yellow: #c5b68f; --portal-ink: #49415e;
+}
+.wormhole-routes { opacity: .32; stroke-dasharray: 3 6; }
+.wormhole-node-near { filter: hue-rotate(14deg); }
+.wormhole-node-foreground { filter: hue-rotate(-14deg); }
+@media (forced-colors: active) {
+  .workspace-brand .brand-sigil svg g { stroke: CanvasText; }
+}

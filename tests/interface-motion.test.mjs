@@ -27,10 +27,10 @@ function fixture(){
   root.contains=element('').contains;
   const product=element('product-app'),hero=element('universe-sculpture',product),card=element('discovery-card',product),cover=element('world-atmosphere',card),caption=element('caption',card);
   const reader=element('reading-app'),readerArt=element('universe-sculpture',reader);
-  const view={matchMedia:query=>query.includes('reduced')?reduced:fine};
+  const view=new Events();view.matchMedia=query=>query.includes('reduced')?reduced:fine;
   const motion=createInterfaceMotion({root,document:doc,view,requestFrame:callback=>{frames.set(++id,callback);return id;},cancelFrame:key=>frames.delete(key),
     MutationObserver:class{constructor(callback){this.callback=callback;}observe(){observers.add(this);}disconnect(){observers.delete(this);}}});
-  return {motion,root,doc,hero,card,cover,caption,readerArt,frames,observers,reduced,fine,
+  return {motion,root,doc,view,hero,card,cover,caption,readerArt,frames,observers,reduced,fine,
     move(target=hero,clientX=210,clientY=20,pointerType='mouse'){return root.emit('pointermove',{target,clientX,clientY,pointerType});},
     step(){const pending=[...frames.values()];frames.clear();pending.forEach(callback=>callback());},
     reduce(value=true){reduced.matches=value;reduced.emit('change');},
@@ -89,4 +89,20 @@ test('remount releases the old surface and destroy cancels all callbacks and sub
 test('a detached surface cannot be updated by a previously scheduled pointer frame',()=>{
   const f=fixture();f.motion.mount();f.move();assert.equal(f.frames.size,1);f.hero.parent=null;f.step();
   assert.equal(f.hero.values.size,0);assert.equal(f.frames.size,0);f.motion.destroy();
+});
+
+test('scrolling, resizing and window blur release stale hover transforms and pending frames',()=>{
+  for(const interrupt of [f=>f.doc.emit('scroll'),f=>f.view.emit('resize'),f=>f.view.emit('blur')]){
+    const f=fixture();f.motion.mount();f.move();f.step();f.move();interrupt(f);
+    assert.equal(f.hero.values.size,0);assert.equal(f.hero.attributes.size,0);assert.equal(f.frames.size,0);
+    f.move();f.step();assert.equal(f.hero.attributes.get('data-motion-active'),'true');
+    f.motion.destroy();assert.equal(f.view.listeners.length,0);
+  }
+});
+
+test('touch contact clears a mouse hover on devices that support both inputs',()=>{
+  const f=fixture();f.motion.mount();f.move();f.step();f.move();
+  const event=f.root.emit('pointerdown',{target:f.hero,pointerType:'touch'});
+  assert.equal(event.defaultPrevented,false);assert.equal(f.hero.values.size,0);assert.equal(f.frames.size,0);
+  f.motion.destroy();
 });

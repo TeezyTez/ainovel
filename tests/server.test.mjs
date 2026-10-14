@@ -81,6 +81,21 @@ test('cinematic world artwork is served as images without exposing other assets'
   for(const path of ['/assets/worlds/private.jpg','/assets/worlds/../../.env','/assets/worlds/%2e%2e%2f.env'])assert.equal((await fetch(url+path)).status,404);
 });
 
+test('bundled WOFF2 fonts are served as binary while other font-folder files stay private',async t=>{
+  const root=await mkdtemp(join(tmpdir(),'elselife-fonts-'));t.after(()=>rm(root,{recursive:true,force:true}));
+  const folder=join(root,'assets','fonts');await mkdir(folder,{recursive:true});
+  const bytes=Buffer.from([0x77,0x4f,0x46,0x32,0x80,0xff,0x00]);
+  await writeFile(join(folder,'interface-400.woff2'),bytes);
+  await writeFile(join(folder,'private.json'),'private');
+  await writeFile(join(folder,'oversized.woff2'),Buffer.alloc(2097153));
+  const url=await app(t,{root}),response=await fetch(url+'/assets/fonts/interface-400.woff2');
+  assert.equal(response.status,200);assert.equal(response.headers.get('content-type'),'font/woff2');
+  assert.deepEqual(Buffer.from(await response.arrayBuffer()),bytes);
+  const head=await fetch(url+'/assets/fonts/interface-400.woff2',{method:'HEAD'});
+  assert.equal(head.status,200);assert.equal((await head.arrayBuffer()).byteLength,0);
+  for(const path of ['/assets/fonts/private.json','/assets/fonts/oversized.woff2','/assets/fonts/%2e%2e%2f.env'])assert.equal((await fetch(url+path)).status,404,path);
+});
+
 test('cross-origin posts, unexpected host, malformed structures and excessive input are rejected',async t=>{
   const url=await app(t);
   assert.equal((await post(url,payload(),{headers:{origin:'https://evil.example'}})).status,403);

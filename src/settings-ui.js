@@ -1,10 +1,11 @@
+import {icon} from './ui-controls.js';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const button=(label,action)=>`<button type="button" class="btn compact" data-action="${action}">${label}</button>`;
 const options=(values,value)=>values.map(([key,label])=>`<option value="${esc(key)}" ${key===value?'selected':''}>${esc(label)}</option>`).join('');
 const heading=(title,description)=>`<header class="settings-section-heading"><h2>${title}</h2>${description?`<p>${description}</p>`:''}</header>`;
 
 export function modelStatus(config={}) {
-  return `<div class="model-connection-line"><span class="connection-dot${config.available?' is-connected':''}" aria-hidden="true"></span><strong>${config.available?'已连接 · '+esc(config.provider||'模型服务'):'模型未连接'}</strong></div><p class="small muted">${config.available?esc(config.model||'服务端默认模型'):'可以继续阅读已保存的故事，或体验预设演示。'}</p>`;
+  return `<div class="model-connection-line"><span class="connection-dot${config.available?' is-connected':''}" aria-hidden="true"></span><strong>${config.available?'已连接 · '+esc(config.provider||'模型服务'):'模型未连接'}</strong></div><p class="small muted">${config.available?esc(config.model||'服务端默认模型'):'可以回顾已有经历，或体验预设演示。'}</p>`;
 }
 
 export const settingsSections=['reading-settings','narrative-settings','model-settings','data-settings'];
@@ -22,12 +23,12 @@ export function selectSettingsSection(root,id){
 export function settingsView({settings:s={},modelConfig={},saveError='',telemetry=[],activeSection='reading-settings'}) {
   if(!settingsSections.includes(activeSection))activeSection='reading-settings';
   return `<main class="page settings-page" id="main"><header class="page-heading"><div><h1>设置</h1></div><span class="settings-autosave" data-save>修改自动保存</span></header>${saveError?`<div class="notice error" role="alert"><p>${esc(saveError)}</p>${button('重试保存','retry-save')}</div>`:''}
-    <div class="settings-layout"><nav class="settings-sidebar" aria-label="设置分类">${[['reading-settings','阅读外观','Aa'],['narrative-settings','新故事偏好','✦'],['model-settings','生成服务','◌'],['data-settings','数据与备份','▤']].map(([id,label,mark])=>`<button type="button" data-action="settings-jump" data-section="${id}" aria-controls="${id}" aria-pressed="${activeSection===id}"><span aria-hidden="true">${mark}</span>${label}</button>`).join('')}</nav><div>
-    <section class="settings-block" id="reading-settings" data-settings-panel tabindex="-1" aria-label="阅读外观"${activeSection==='reading-settings'?'':' hidden'}>${heading('阅读外观','')}
+    <div class="settings-layout"><nav class="settings-sidebar" aria-label="设置分类">${[['reading-settings','界面外观','typography'],['narrative-settings','新故事偏好','spark'],['model-settings','生成服务','orbit'],['data-settings','数据与备份','database']].map(([id,label,mark])=>`<button type="button" data-action="settings-jump" data-section="${id}" aria-controls="${id}" aria-pressed="${activeSection===id}"><span aria-hidden="true">${icon(mark)}</span>${label}</button>`).join('')}</nav><div>
+    <section class="settings-block" id="reading-settings" data-settings-panel tabindex="-1" aria-label="界面外观"${activeSection==='reading-settings'?'':' hidden'}>${heading('界面外观','')}
       <div class="setting-row"><label for="theme">主题</label><select id="theme" data-setting="theme">${options([['light','浅色'],['dark','深色'],['system','跟随系统']],s.theme||'light')}</select></div>
       ${[['fontSize','字号',16,30,1,'px',18],['lineHeight','行距',1.5,2.5,.05,'',1.95],['width','正文宽度',480,880,20,'px',720]].map(([key,label,min,max,step,unit,fallback])=>`<div class="setting-row"><label for="${key}">${label}</label><div class="setting-range"><input id="${key}" type="range" min="${min}" max="${max}" step="${step}" value="${esc(s[key]??fallback)}" data-setting="${key}"><output id="value-${key}" for="${key}">${esc(s[key]??fallback)}${unit}</output></div></div>`).join('')}
       <div class="reading-sample prose"><span class="preview-label">预览</span><p>雨停的时候，街上的灯刚好亮起。你把书翻过一页，决定再多坐一会儿。</p></div>
-      <details class="settings-extra"><summary>字体、排版与阅读习惯</summary>
+      <details class="settings-extra"><summary>字体、排版与交互习惯</summary>
         ${[['fontFamily','字体',[['serif','宋体／衬线'],['sans','黑体／无衬线'],['system','系统字体']]],['paragraphGap','段落间距',[['normal','适中'],['wide','宽松'],['compact','紧凑']]],['readingMode','阅读方式',[['continuous','连续滚动'],['paged','按回合翻页']]]].map(([key,label,values])=>`<div class="setting-row"><label for="${key}">${label}</label><select id="${key}" data-setting="${key}">${options(values,s[key]||values[0][0])}</select></div>`).join('')}
         ${[['showTime','显示故事时间','在阅读页显示故事内的时间'],['restReminder','休息提醒','连续阅读半小时后轻轻提醒'],['reducedMotion','减少动画','减少过渡与动态效果'],['sendEnter','Enter 发送','Shift + Enter 始终可以换行']].map(([key,label,description])=>`<div class="setting-row"><label for="${key}">${label}<small>${description}</small></label><input id="${key}" class="setting-switch" type="checkbox" role="switch" data-setting="${key}" ${(key==='showTime'?s[key]!==false:s[key])?'checked':''}></div>`).join('')}
       </details>

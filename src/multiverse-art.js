@@ -29,31 +29,35 @@ export function universeSculpture() {
   }).join('');
   markup=`<div class="universe-sculpture" aria-hidden="true"><svg viewBox="0 0 500 450" fill="none" focusable="false">
     <defs>
-      <radialGradient id="wormhole-aura"><stop stop-color="#48437e" stop-opacity=".2"/><stop offset=".64" stop-color="#282846" stop-opacity=".075"/><stop offset="1" stop-color="#141624" stop-opacity="0"/></radialGradient>
-      <radialGradient id="wormhole-depth" cx=".74" cy=".25" r=".63"><stop offset=".09" stop-color="#060810"/><stop offset=".38" stop-color="#0d0e20"/><stop offset=".75" stop-color="#191a31"/><stop offset="1" stop-color="#10131f"/></radialGradient>
-      <radialGradient id="wormhole-grid" cx="325" cy="173" r="207" gradientUnits="userSpaceOnUse"><stop offset=".05" stop-color="#46467a"/><stop offset=".4" stop-color="#847ed0"/><stop offset=".77" stop-color="#bdc8df"/><stop offset="1" stop-color="#65769c"/></radialGradient>
-      <linearGradient id="wormhole-rim" x1="124" y1="82" x2="377" y2="360" gradientUnits="userSpaceOnUse"><stop stop-color="#e1e6ef"/><stop offset=".36" stop-color="#a9b8d9"/><stop offset=".65" stop-color="#515078"/><stop offset="1" stop-color="#938ed0"/></linearGradient>
+      <radialGradient id="wormhole-aura"><stop stop-color="var(--portal-magenta)" stop-opacity=".14"/><stop offset=".64" stop-color="var(--portal-cyan)" stop-opacity=".055"/><stop offset="1" stop-color="var(--portal-cyan)" stop-opacity="0"/></radialGradient>
+      <radialGradient id="wormhole-depth" cx=".74" cy=".25" r=".63"><stop offset=".09" stop-color="var(--portal-core)"/><stop offset=".38" stop-color="var(--portal-depth)"/><stop offset=".75" stop-color="var(--portal-face)"/><stop offset="1" stop-color="var(--portal-edge)"/></radialGradient>
+      <radialGradient id="wormhole-grid" cx="325" cy="173" r="207" gradientUnits="userSpaceOnUse"><stop offset=".05" stop-color="var(--portal-yellow)"/><stop offset=".4" stop-color="var(--portal-magenta)"/><stop offset=".77" stop-color="var(--portal-cyan)"/><stop offset="1" stop-color="var(--portal-magenta)"/></radialGradient>
+      <linearGradient id="wormhole-rim" x1="124" y1="82" x2="377" y2="360" gradientUnits="userSpaceOnUse"><stop stop-color="var(--portal-cyan)"/><stop offset=".36" stop-color="var(--portal-yellow)"/><stop offset=".65" stop-color="var(--portal-magenta)"/><stop offset="1" stop-color="var(--portal-cyan)"/></linearGradient>
+      <pattern id="wormhole-print-dots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r=".8" fill="var(--portal-ink)"/></pattern>
       <filter id="wormhole-soft" x="-30%" y="-40%" width="160%" height="180%"><feGaussianBlur stdDeviation="2.5"/></filter>
       <filter id="wormhole-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
       <g id="wormhole-form" transform="translate(-245 -235)">
-      <g class="wormhole-echo" stroke="#686b9c" stroke-width=".65">
+      <g class="wormhole-echo" stroke="var(--portal-magenta)" stroke-width=".65">
         <ellipse cx="240" cy="234" rx="233" ry="157" transform="rotate(-29 240 234)" opacity=".22"/>
         <ellipse cx="250" cy="229" rx="226" ry="155" transform="rotate(-9 250 229)" opacity=".1"/>
         <ellipse cx="252" cy="231" rx="215" ry="151" transform="rotate(-43 252 231)" opacity=".13"/>
       </g>
       <polyline points="${circle(1)}" stroke="#847bc8" stroke-width="10" opacity=".16" filter="url(#wormhole-glow)"/>
       <polygon points="${circle(1)}" fill="url(#wormhole-depth)"/>
+      <polygon points="${circle(1)}" fill="url(#wormhole-print-dots)" opacity=".13"/>
       <g stroke="url(#wormhole-grid)" stroke-width=".65">${rings}${meridians}</g>
+      <polyline points="${circle(1)}" stroke="var(--portal-cyan)" stroke-width="2" transform="translate(-3 1.5)" opacity=".7"/>
+      <polyline points="${circle(1)}" stroke="var(--portal-magenta)" stroke-width="2" transform="translate(3 -1.5)" opacity=".7"/>
       <polyline points="${circle(1)}" stroke="url(#wormhole-rim)" stroke-width="1.3"/>
       <polyline points="${circle(.97,Math.PI*.85,Math.PI*1.72)}" stroke="#d0d8e7" stroke-width="2.4" opacity=".6" filter="url(#wormhole-soft)"/>
       <polyline class="wormhole-lensing" points="${circle(1.015)}" pathLength="100" stroke="#d8deee" stroke-width="1" stroke-dasharray="13 87" opacity=".75"/>
-      <g stroke="#b8b2ef" stroke-width="1" stroke-linecap="round">${streams}</g>
-      <ellipse cx="325" cy="173" rx="51" ry="32.5" transform="rotate(-23 325 173)" fill="#060810"/>
+      <g stroke="var(--portal-yellow)" stroke-width="1" stroke-linecap="round">${streams}</g>
+      <ellipse cx="325" cy="173" rx="51" ry="32.5" transform="rotate(-23 325 173)" fill="var(--portal-core)"/>
       <ellipse cx="325" cy="173" rx="51.5" ry="33" transform="rotate(-23 325 173)" stroke="#59578a" stroke-width=".6"/>
       </g>
     </defs>
     <ellipse cx="259" cy="228" rx="242" ry="213" fill="url(#wormhole-aura)"/>
-    <g class="wormhole-routes" stroke="#8283b9" stroke-width=".65" stroke-linecap="round">
+    <g class="wormhole-routes" stroke="var(--portal-cyan)" stroke-width=".65" stroke-linecap="round">
       <path d="M108 145C164 71 318 44 409 93"/>
       <path d="M110 147C150 200 212 214 294 253S408 279 437 247"/>
       <path d="M141 370C175 339 221 276 294 253C348 237 378 163 409 93"/>
@@ -68,6 +72,6 @@ export function universeSculpture() {
       <g class="wormhole-node wormhole-node-distant wormhole-node-late"><g transform="translate(435 365) rotate(-24) scale(.15)"><use href="#wormhole-form"/></g></g>
       <g class="wormhole-node wormhole-node-foreground"><g transform="translate(140 369) rotate(36) scale(.33)"><use href="#wormhole-form"/></g></g>
     </g>
-  </svg><span class="sculpture-caption"><i></i> 无数世界 · 同时存在</span></div>`;
+  </svg></div>`;
   return markup;
 }

@@ -26,7 +26,9 @@ function copyAppearance(source,clone,view){
 /** Visual effects only: rendering and navigation remain synchronous and caller-owned. */
 export function createEditorialMotion({root=globalThis.document,reduced}={}){
   const document=root?.ownerDocument||root,view=document?.defaultView;
-  const prefersReduced=reduced||(()=>Boolean(document?.body?.classList.contains('reduce-motion')||view?.matchMedia?.('(prefers-reduced-motion: reduce)').matches));
+  const motionPreference=view?.matchMedia?.('(prefers-reduced-motion: reduce)');
+  const prefersReduced=reduced||(()=>Boolean(document?.body?.classList.contains('reduce-motion')||motionPreference?.matches));
+  const cleanup=[];
   let destroyed=false,entrance=null,portal=null;
 
   function clearEntrance(){
@@ -43,7 +45,14 @@ export function createEditorialMotion({root=globalThis.document,reduced}={}){
     record.overlay.remove();
   }
 
-  function allowed(){return !destroyed&&root&&document?.body&&!prefersReduced();}
+  function allowed(){return !destroyed&&root&&document?.body&&!document.hidden&&!prefersReduced();}
+
+  function clearEffects(){clearEntrance();clearPortal();}
+  function preferenceChanged(){if(!allowed())clearEffects();}
+  function listen(target,type,handler){
+    target?.addEventListener?.(type,handler,{passive:true});
+    cleanup.push(()=>target?.removeEventListener?.(type,handler));
+  }
 
   function prepareRoute(){
     clearEntrance();clearPortal();
@@ -114,7 +123,16 @@ export function createEditorialMotion({root=globalThis.document,reduced}={}){
     }catch{/* Animation support must never hold up a route or hide its content. */}
   }
 
-  function destroy(){destroyed=true;clearEntrance();clearPortal();}
+  function destroy(){destroyed=true;clearEffects();for(const remove of cleanup)remove();cleanup.length=0;}
+
+  listen(document,'visibilitychange',preferenceChanged);
+  listen(view,'blur',clearEffects);
+  listen(motionPreference,'change',preferenceChanged);
+  if(view?.MutationObserver&&document?.body){
+    const observer=new view.MutationObserver(preferenceChanged);
+    observer.observe(document.body,{attributes:true,attributeFilter:['class']});
+    cleanup.push(()=>observer.disconnect());
+  }
 
   return {prepareRoute,settleRoute,destroy};
 }

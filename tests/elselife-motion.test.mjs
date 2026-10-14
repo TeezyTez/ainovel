@@ -2,9 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createEditorialMotion} from '../src/elselife-motion.js';
 
+class Events extends EventTarget{
+  listeners=[];
+  addEventListener(type,handler,options){super.addEventListener(type,handler,options);this.listeners.push({type,handler,options});}
+  removeEventListener(type,handler,options){super.removeEventListener(type,handler,options);this.listeners=this.listeners.filter(listener=>listener.type!==type||listener.handler!==handler);}
+  emit(type){this.dispatchEvent(new Event(type));}
+}
+
 // Browser layout and WAAPI are the boundary; the controller and its cleanup run unchanged.
 function fixture({reduced=false, activePortal=false}={}){
-  const animations=[], overlays=[];
+  const animations=[], overlays=[],observers=new Set();
+  const mediaReduced=new Events();mediaReduced.matches=false;
   const style=()=>({visibility:'',setProperty(name,value){this[name]=value;}});
   function node(rect={left:20,top:100,width:240,height:200}){
     return {style:style(),isConnected:true,children:[],attributes:{},
@@ -26,22 +34,25 @@ function fixture({reduced=false, activePortal=false}={}){
   const card={querySelector:selector=>selector==='.world-atmosphere'?source:null};
   const link={getAttribute:()=> '#/world/example',closest:selector=>selector==='.discovery-card'?card:link};
   let currentMain=main,showTarget=false;
-  const document={activeElement:activePortal?link:null,location:{hash:'#/world/example'},
+  const document=Object.assign(new Events(),{activeElement:activePortal?link:null,location:{hash:'#/world/example'},hidden:false,
     body:{classList:{contains:()=>reduced},appendChild(element){overlays.push(element);}},
-    defaultView:{innerWidth:1200,innerHeight:900,
-      matchMedia:()=>({matches:false}),
+    defaultView:Object.assign(new Events(),{innerWidth:1200,innerHeight:900,
+      matchMedia:()=>mediaReduced,
+      MutationObserver:class{constructor(callback){this.callback=callback;}observe(){observers.add(this);}disconnect(){observers.delete(this);}},
       getComputedStyle:()=>({0:'background-color',1:'color',2:'--portal-wash',length:3,
-        getPropertyValue:name=>({'background-color':'rgb(232, 223, 232)',color:'rgb(116, 85, 118)','--portal-wash':'#c9aec8'}[name])})},
+        getPropertyValue:name=>({'background-color':'rgb(232, 223, 232)',color:'rgb(116, 85, 118)','--portal-wash':'#c9aec8'}[name])})}),
     querySelector(selector){
       if(selector==='.world-intro .world-atmosphere')return showTarget?target:null;
       if(selector==='.reading-paper')return null;
       if(selector==='main')return currentMain;
       return null;
     }
-  };
+  });
   const motion=createEditorialMotion({root:document,reduced:()=>reduced});
-  return {document,motion,main,target,source,animations,overlays,
+  return {document,motion,main,target,source,animations,overlays,mediaReduced,observers,
     setReduced:value=>{reduced=value;},
+    appReduce(){reduced=true;for(const observer of observers)observer.callback();},
+    hide(){document.hidden=true;document.emit('visibilitychange');},
     renderWorld:()=>{showTarget=true;currentMain=node();return currentMain;}
   };
 }
@@ -193,13 +204,14 @@ test('the default preference respects both the application setting and the opera
   motion.settleRoute({changed:true});
   assert.equal(f.animations.length,0);
   f.setReduced(false);
-  f.document.defaultView.matchMedia=()=>({matches:true});
+  f.mediaReduced.matches=true;
   motion.settleRoute({changed:true});
   assert.equal(f.animations.length,0);
-  f.document.defaultView.matchMedia=()=>({matches:false});
+  f.mediaReduced.matches=false;
   motion.settleRoute({changed:true});
   assert.equal(f.animations.length,1);
   motion.destroy();
+  f.motion.destroy();
 });
 
 test('an unavailable destination discards the portal instead of leaving an overlay',()=>{
@@ -219,4 +231,26 @@ test('an animation rejected by the browser leaves the route usable',()=>{
   assert.doesNotThrow(()=>f.motion.settleRoute({changed:true}));
   assert.equal(f.overlays.length,0);
   assert.equal(f.target.style.visibility,'');
+});
+
+test('backgrounding, blur and reduced-motion changes immediately settle a running transition',()=>{
+  for(const interrupt of [f=>f.hide(),f=>f.document.defaultView.emit('blur'),f=>f.appReduce(),f=>{f.mediaReduced.matches=true;f.mediaReduced.emit('change');}]){
+    const f=fixture({activePortal:true});f.motion.destroy();
+    const motion=createEditorialMotion({root:f.document});
+    motion.prepareRoute();f.renderWorld();motion.settleRoute({changed:true});
+    assert.equal(f.overlays.length,1);assert.equal(f.target.style.opacity,'0');
+    interrupt(f);
+    assert.equal(f.overlays.length,0);assert.equal(f.target.style.opacity,'');
+    assert.ok(f.animations.every(animation=>animation.cancelled));
+    motion.destroy();
+    assert.equal(f.document.listeners.length,0);assert.equal(f.document.defaultView.listeners.length,0);
+    assert.equal(f.mediaReduced.listeners.length,0);assert.equal(f.observers.size,0);
+  }
+});
+
+test('a hidden document does not prepare or start a route transition',()=>{
+  const f=fixture({activePortal:true});f.hide();
+  f.motion.prepareRoute();f.renderWorld();f.motion.settleRoute({changed:true});
+  assert.equal(f.overlays.length,0);assert.equal(f.animations.length,0);
+  f.motion.destroy();
 });

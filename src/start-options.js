@@ -16,5 +16,9 @@ export function refreshStartOptions(form,{available=false,modelChecked=false,pro
   const note=form.querySelector('[data-start-availability]');
   if(note)note.innerHTML=describe({available,modelChecked,demo,mode:mode?.value});
   const submit=form.querySelector('[data-start-submit]');
-  if(submit){submit.disabled=!modelChecked;submit.textContent=modelChecked?(submit.dataset.defaultLabel||'进入世界')+' ↗':'正在检查连接…';}
+  if(submit){
+    submit.disabled=!modelChecked;
+    const label=submit.querySelector?.('[data-start-label]')||submit;
+    label.textContent=modelChecked?(submit.dataset.defaultLabel||'进入世界'):'正在检查连接…';
+  }
 }

@@ -14,7 +14,7 @@ const args={session:{title:'雨天',player:{name:'小叶'},preferences:{},mode:'
 test('continue is visible beside the draft and leaves unsent writing intact',()=>{
   const before=JSON.stringify(branch),html=readerView(args);
   const composer=html.slice(html.indexOf('<section data-reader-live="composer"'));
-  assert.match(composer,/<button[^>]*data-action="continue"[^>]*>继续阅读<\/button>/);
+  assert.match(composer,/<button[^>]*data-action="continue"[^>]*>继续经历<\/button>/);
   assert.match(composer,/<textarea[^>]*>我想再问一句。<\/textarea>/);
   assert.equal(JSON.stringify(branch),before);
 });
@@ -58,14 +58,14 @@ test('failed local demo input can be replaced with a usable suggestion without s
   const choice=html.match(/<button[^>]*data-action="suggest"[^>]*>/)?.[0];
   assert.ok(choice);
   assert.doesNotMatch(choice,/disabled/);
-  assert.match(html,/data-action="continue" >继续阅读<\/button>/);
+  assert.match(html,/data-action="continue" >继续经历<\/button>/);
   assert.doesNotMatch(html,/data-action="recover-turn"/);
 });
 
 test('reader orientation uses public location and respects the clock visibility preference',()=>{
   const html=readerView(args),header=html.match(/<header class="reading-header"[\s\S]*?<\/header>/)[0];
   assert.match(header,/reading-context/);assert.match(header,/钟表铺/);assert.match(header,/午后/);
-  assert.match(header,/aria-label="阅读设置"/);
+  assert.match(header,/aria-label="显示设置"/);
   const hidden=readerView({...args,settings:{showTime:false}}).match(/<header class="reading-header"[\s\S]*?<\/header>/)[0];
   assert.doesNotMatch(hidden,/午后/);
   const unknown=readerView({...args,state:{},situation:{clock:{label:'故事时间未说明'}}}).match(/<header class="reading-header"[\s\S]*?<\/header>/)[0];
@@ -102,7 +102,7 @@ test('reader shows a single readable story with honest clock and save status',()
   for(const kind of ['time','journal'])assert.match(dossier,new RegExp(`data-action="reader-inspect" data-kind="${kind}"`));
   const outside=html.replace(menu,'');
   assert.doesNotMatch(outside,/data-action="(?:play-time|play-map|play-inventory|play-journal|play-around|story-tools)"/);
-  assert.match(outside,/data-action="continue"[^>]*>继续阅读<\/button>/);
+  assert.match(outside,/data-action="continue"[^>]*>继续经历<\/button>/);
   assert.match(html,/popovertarget="reader-quick-tools"/);
   assert.doesNotMatch(html,/class="play-panel"|<aside/);
   assert.equal((html.match(/<textarea/g)||[]).length,1);

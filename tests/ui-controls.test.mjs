@@ -1,7 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readerQuickTools,readerTimeline} from '../src/ui-controls.js';
+import {icon,readerQuickTools,readerTimeline} from '../src/ui-controls.js';
 import {readerView} from '../src/reading-ui.js';
+
+test('icon names are allowlisted and unknown or inherited names use the safe fallback',()=>{
+  const fallback=icon('book');
+  for(const name of ['unknown','constructor','toString','__proto__','"><script>alert(1)</script>',null,undefined,{}]){
+    assert.equal(icon(name),fallback);
+  }
+  assert.match(icon('search'),/data-icon="search"/);
+  assert.match(icon('search'),/aria-hidden="true" focusable="false"/);
+});
 
 test('one tool entry exposes read-only queries; execution is unavailable while busy or ended',()=>{
   for(const state of [{busy:true},{ended:true},{}]){

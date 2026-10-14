@@ -19,10 +19,10 @@ test('connected and offline world details retain a live availability explanation
   assert.doesNotMatch(html,/<button[^>]*data-start-submit[^>]*disabled/);
  }
  const readonly=detailView({world:{...world,custom:true},experience,settings:{},available:false,modelChecked:true});
- assert.match(readonly,/只能阅读开场/);
+ assert.match(readonly,/仅能查看开场，暂不能推进世界/);
  assert.match(readonly,/data-demo-compatible="false"/);
  const unknown=detailView({world:{...world,id:'unknown-script'},experience,settings:{},available:false,modelChecked:true});
- assert.match(unknown,/只能阅读开场/);
+ assert.match(unknown,/仅能查看开场，暂不能推进世界/);
  assert.match(unknown,/data-demo-compatible="false"/);
 });
 

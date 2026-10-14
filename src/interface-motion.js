@@ -57,10 +57,11 @@ export function createInterfaceMotion({
   }
 
   function leave(event){if(surface&&!surface.contains(event.relatedTarget))reset();}
+  function contact(event){if(event.pointerType==='touch')reset();}
   function preferenceChanged(){if(!allowed())reset();}
-  function listen(target,type,handler){
-    target?.addEventListener?.(type,handler,{passive:true});
-    cleanup.push(()=>target?.removeEventListener?.(type,handler));
+  function listen(target,type,handler,options={passive:true}){
+    target?.addEventListener?.(type,handler,options);
+    cleanup.push(()=>target?.removeEventListener?.(type,handler,options));
   }
 
   function unmount(){
@@ -74,10 +75,15 @@ export function createInterfaceMotion({
     if(destroyed||!root?.addEventListener||!requestFrame)return;
     mounted=true;
     listen(root,'pointermove',move);
+    listen(root,'pointerdown',contact);
     listen(root,'pointerout',leave);
     listen(root,'pointerleave',reset);
     listen(root,'pointercancel',reset);
     listen(document,'visibilitychange',preferenceChanged);
+    // Layout changes invalidate the last pointer position, including nested scrolling.
+    listen(document,'scroll',reset,{passive:true,capture:true});
+    listen(view,'resize',reset);
+    listen(view,'blur',reset);
     listen(reduced,'change',preferenceChanged);
     listen(fine,'change',preferenceChanged);
     if(MutationObserver&&document?.body){

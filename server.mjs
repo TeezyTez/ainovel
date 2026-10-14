@@ -99,12 +99,13 @@ export function createServer({env=process.env,root=ROOT,cacheLimit=100,cacheTtlM
       if(!['GET','HEAD'].includes(req.method))return json(res,405,{error:'不支持这个请求方法。'});
       const path=url.pathname==='/'?'/index.html':url.pathname;
       const artwork=/^\/assets\/worlds\/cinema-(?:hero|harbor|mountain|books|tea)\.jpg$/.test(path);
-      if(!(/^\/(?:index\.html|favicon\.svg)$/.test(path)||/^\/src\/[a-zA-Z0-9_-]+\.(?:js|css)$/.test(path)||artwork))return json(res,404,{error:'页面不存在。'});
+      const font=/^\/assets\/fonts\/[a-zA-Z0-9_-]+\.woff2$/.test(path);
+      if(!(/^\/(?:index\.html|favicon\.svg)$/.test(path)||/^\/src\/[a-zA-Z0-9_-]+\.(?:js|css)$/.test(path)||artwork||font))return json(res,404,{error:'页面不存在。'});
       try {
         const base=await realpath(root),file=await realpath(resolve(base,'.'+path)),rel=relative(base,file);
         if(rel.startsWith('..')||isAbsolute(rel)||(await stat(file)).size>2097152)return json(res,404,{error:'页面不存在。'});
-        const bytes=await readFile(file),type={'.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.jpg':'image/jpeg'}[extname(file)];
-        res.writeHead(200,{'content-type':artwork?type:`${type}; charset=utf-8`,'cache-control':'no-cache'});res.end(req.method==='HEAD'?undefined:bytes);
+        const bytes=await readFile(file),type={'.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.jpg':'image/jpeg','.woff2':'font/woff2'}[extname(file)];
+        res.writeHead(200,{'content-type':artwork||font?type:`${type}; charset=utf-8`,'cache-control':'no-cache'});res.end(req.method==='HEAD'?undefined:bytes);
       } catch {json(res,404,{error:'页面不存在。'});}
     } catch(error) {if(env.MODEL_DIAGNOSTICS==='1'&&error.diagnostic){const {stage,rule,path,reason}=error.diagnostic;console.warn(JSON.stringify({code:error.code,stage,rule,path,reason}));}json(res,error instanceof ApiError?error.status:500,{code:error instanceof ApiError?error.code:'SERVER_ERROR',error:error instanceof ApiError?error.message:'服务暂时不可用，原故事没有改变。'});}
   });
