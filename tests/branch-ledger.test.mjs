@@ -8,8 +8,48 @@ import {createSession,validateArchive,forkBranch,clone,commitTurn} from '../src/
 import {publicArchive} from '../src/server-public-archive.mjs';
 const world={id:'test-world',version:1,title:'故事',location:'门前',opening:'你来到门前。',identity:'旅人',rules:[],characters:[]};
 const owner='local-test-owner-01234567890123456789';
-async function fixture(t,narrate,worldAssist){const directory=await mkdtemp(join(tmpdir(),'branch-ledger-'));let server;async function start(){server=createServer({ledgerDirectory:directory,env:{MODEL_PROVIDER:'codex'},narrate,...(worldAssist?{worldAssist}:{})});server.on('request',(req,res)=>{if(req.headers['x-drop-response'])res.end=()=>res.destroy();});await new Promise(r=>server.listen(0,'127.0.0.1',r));return `http://127.0.0.1:${server.address().port}`;}async function stop(){await new Promise(r=>{server.close(r);server.closeAllConnections();});}let url=await start();t.after(async()=>{await stop();await rm(directory,{recursive:true,force:true});});return {post:async(path,body,extra={})=>fetch(url+path,{method:'POST',headers:{'content-type':'application/json','x-branch-owner':owner,...extra.headers},body:JSON.stringify(body),signal:extra.signal}),restart:async()=>{await stop();url=await start();}};}
+async function fixture(t,narrate,worldAssist){
+ const directory=await mkdtemp(join(tmpdir(),'branch-ledger-'));let server;
+ async function stop(){await new Promise(r=>{server.close(r);server.closeAllConnections();});}
+ async function start(){
+  // A Windows ephemeral range can include ports forbidden by Fetch. Retry only
+  // that transport restriction, before creating any story or dropping responses.
+  for(let attempt=0;attempt<8;attempt++){
+   server=createServer({ledgerDirectory:directory,env:{MODEL_PROVIDER:'codex'},narrate,...(worldAssist?{worldAssist}:{})});
+   await new Promise(r=>server.listen(0,'127.0.0.1',r));
+   const address=`http://127.0.0.1:${server.address().port}`;
+   try{const response=await fetch(address+'/favicon.svg');await response.arrayBuffer();}
+   catch(error){await stop();if(error.cause?.message==='bad port')continue;throw error;}
+   server.on('request',(req,res)=>{if(req.headers['x-drop-response'])res.end=()=>res.destroy();});
+   return address;
+  }
+  throw new Error('Unable to allocate a Fetch-compatible test port.');
+ }
+ let url=await start();t.after(async()=>{await stop();await rm(directory,{recursive:true,force:true});});
+ return {post:async(path,body,extra={})=>fetch(url+path,{method:'POST',headers:{'content-type':'application/json','x-branch-owner':owner,...extra.headers},body:JSON.stringify(body),signal:extra.signal}),restart:async()=>{await stop();url=await start();}};
+}
 const proposal=body=>({requestId:body.requestId,baseVersion:body.state.version,prose:'你推开了门。',events:[{type:'fact',value:'门已打开',visibility:'player'}]});
+
+test('legacy session and request preferences cannot override world writing style',async t=>{
+ const authored={...world,narrative:{style:'干脆幽默',pace:'紧张与喘息交替'}},seen=[];
+ const f=await fixture(t,async body=>{seen.push(body);return proposal(body);});
+ const session=createSession(authored,{},'real');session.preferences={perspective:'第一人称',length:'舒展',style:'细腻克制',pace:'从容'};
+ assert.equal((await f.post('/api/branch/register',{session,worlds:[authored]})).status,200);
+ const scope={sessionId:session.id,branchId:session.activeBranch,input:'开门'};
+ assert.equal((await f.post('/api/generate',{...scope,requestId:'legacy-defaults',baseVersion:0})).status,200);
+ assert.equal((await f.post('/api/generate',{...scope,requestId:'legacy-overrides',baseVersion:1,preferences:{perspective:'第三人称',length:'简短',style:'抒情',pace:'缓慢'}})).status,200);
+ assert.deepEqual(seen.map(body=>body.preferences),[{perspective:'第一人称',length:'舒展'},{perspective:'第三人称',length:'简短'}]);
+ for(const body of seen)assert.deepEqual(body.world.narrative,{style:'干脆幽默',pace:'紧张与喘息交替'});
+});
+
+test('quickstart stores generated world style without creating session style overrides',async t=>{
+ const authored={...world,narrative:{perspective:'第二人称',length:'适中',style:'冷峻直接',pace:'骤起骤落'}};let worldRequest;
+ const f=await fixture(t,async body=>proposal(body),async body=>{worldRequest=body;return {world:authored};});
+ const response=await f.post('/api/world/start',{requestId:'world-style',seed:'停电后的医院',preferences:{perspective:'第一人称',length:'简短',style:'细腻克制',pace:'从容'}});
+ assert.equal(response.status,200);const result=await response.json();
+ assert.deepEqual(worldRequest.preferences,{perspective:'第一人称',length:'简短'});
+ assert.deepEqual(result.session.preferences,{perspective:'第一人称',length:'简短'});
+});
 test('scoped private world excludes characters and descriptions revealed only by sibling branch',async t=>{let siblingId;const privateWorld={...world,characters:[{id:'visitor',name:'神秘访客',public:'PRIVATE_DETAIL',secret:'PRIVATE_SECRET'}]};const f=await fixture(t,async body=>({...proposal(body),prose:body.branchId===siblingId?'神秘访客拿着紫色箱子走进门。':'门前仍然没有人。'}),async()=>({world:privateWorld}));const opening=await (await f.post('/api/world/start',{requestId:'siblings-start',seed:'一个新世界'})).json(),originalId=opening.session.activeBranch;const fork=forkBranch(opening.session,null,'另一条路');siblingId=fork.id;await f.post('/api/branch/register',{session:opening.session,worlds:opening.worlds});const scope={sessionId:opening.session.id,branchId:siblingId,baseVersion:0,requestId:'sibling-action',input:'开门'};const sibling=await (await f.post('/api/generate',scope)).json();assert.equal(sibling.world.characters[0].name,'神秘访客');const original=await (await f.post('/api/branch/read',{sessionId:opening.session.id,branchId:originalId})).json();assert.deepEqual(original.world.characters,[]);assert.equal(JSON.stringify(original).includes('紫色箱子'),false);assert.equal(JSON.stringify(original).includes('神秘访客'),false);const generated=await (await f.post('/api/generate',{...scope,branchId:originalId,requestId:'original-action'})).json();assert.deepEqual(generated.world.characters,[]);assert.equal(JSON.stringify(generated).includes('神秘访客'),false);});
 test('public historical snapshots remain unchanged when another character is later discovered',()=>{const privateWorld={...world,characters:[{id:'later',name:'后来者',public:'PRIVATE_PUBLIC',secret:'PRIVATE_SECRET'}]},session=createSession(privateWorld,{},'real');session.privateLedger=true;const data={session,worlds:[privateWorld]};const initial=publicArchive(data).session.branches[0].initialState;commitTurn(session,privateWorld,'等候',{requestId:'first',baseVersion:0,prose:'门前一片安静。',events:[]});const first=publicArchive(data).session.branches[0].turns[0];commitTurn(session,privateWorld,'再等候',{requestId:'second',baseVersion:1,prose:'后来者走到门前。',events:[{type:'relation',entity:'later',value:'刚刚认识',visibility:'player'}]});const projected=publicArchive(data);assert.deepEqual(projected.session.branches[0].initialState,initial);assert.deepEqual(projected.session.branches[0].turns[0],first);const fork=forkBranch(session,first.id,'旧节点');const afterFork=publicArchive(data).session.branches.find(b=>b.id===fork.id);assert.deepEqual(afterFork.initialState,initial);assert.equal(afterFork.initialState.characters.later,undefined);assert.deepEqual(afterFork.turns[0].state,first.state);});
 test('private author rules rewrite keeps full world secrets and permits empty-branch CAS',async t=>{const privateWorld={...world,characters:[{id:'future',name:'将来的人',public:'PRIVATE_SENTINEL',secret:'PRIVATE_SENTINEL'}]};const f=await fixture(t,async body=>{assert.equal(body.world.characters[0].secret,'PRIVATE_SENTINEL');assert.equal(body.world.rules[0],'新增规则');return proposal(body);},async()=>({world:privateWorld}));const opening=await (await f.post('/api/world/start',{requestId:'rules-start',seed:'一个新世界'})).json();const edit={kind:'rewrite',requestId:'rewrite-once',sessionId:opening.session.id,branchId:opening.session.activeBranch,baseVersion:0,turnId:null,expectedProse:'',rules:['新增规则']};const response=await f.post('/api/branch/edit',edit);assert.equal(response.status,200);const rewritten=await response.json();assert.equal(rewritten.worlds.length,2);assert.equal(rewritten.session.branches.length,2);assert.equal(JSON.stringify(rewritten).includes('PRIVATE_SENTINEL'),false);assert.equal((await (await f.post('/api/branch/edit',edit)).json()).session.branches.length,2);const generated=await f.post('/api/generate',{sessionId:opening.session.id,branchId:rewritten.branch.id,baseVersion:0,requestId:'after-rewrite',input:'开门'});assert.equal(generated.status,200);assert.equal((await (await f.post('/api/branch/edit',edit)).json()).branch.turns.length,1);});

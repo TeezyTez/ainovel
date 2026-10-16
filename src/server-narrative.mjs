@@ -205,7 +205,7 @@ export async function generateNarrative(body,config,signal,{requestJSON=requestM
     check();
     if(body.narrative!=null)validateNarrative(body.narrative,body.state.version,body.world.id+'@'+body.world.version);
     // Never forward undeclared client control fields into either model stage.
-    const accepted={...body,preferences:Object.fromEntries(['perspective','length','pace','style','participation','boundaries','availableMinutes'].filter(k=>typeof body.preferences?.[k]==='string').map(k=>[k,body.preferences[k]]))};
+    const accepted={...body,preferences:Object.fromEntries(['perspective','length','participation','boundaries','availableMinutes'].filter(k=>typeof body.preferences?.[k]==='string').map(k=>[k,body.preferences[k]]))};
     if(body.control!==undefined)accepted.control=validateControl(body.control,{worldKey:body.world.id+'@'+body.world.version,version:body.state.version,branchId:body.branchId});
     const input=Object.fromEntries(['requestId','world','state','player','preferences','memory','recent','input'].map(key=>[key,accepted[key]]));
     for(const key of ['control','references','branchId','selectedObjects'])if(accepted[key]!==undefined)input[key]=accepted[key];

@@ -7,6 +7,23 @@ const value=x=>expression(x,{params:{amount:3}});
 const render=(node,options={})=>renderRichView(node,{value,index:7,...options});
 const ref={op:'ref',path:['params','amount']};
 
+test('interactive rich view opens an opaque script sandbox and preserves its title',()=>{
+  const node={type:'interactive',title:'物资分配',description:'拖动试算',html:'<input type="range">',css:'',script:''};
+  const html=render(node,{index:'allocation'});
+  assert.match(html,/data-interactive-id="allocation"/);
+  assert.match(html,/<iframe[^>]*title="物资分配"[^>]*sandbox="allow-scripts"/);
+  assert.doesNotMatch(html,/allow-same-origin|srcdoc=/);
+});
+
+test('historical interactive rich view shows a static description without a live frame',()=>{
+  const node={type:'interactive',title:'物资分配',description:'拖动试算',html:'<input type="range">',css:'',script:''};
+  const html=render(node,{historical:true});
+  assert.match(html,/物资分配/);
+  assert.match(html,/拖动试算/);
+  assert.match(html,/历史交互图/);
+  assert.doesNotMatch(html,/<iframe|data-interactive-definition/);
+});
+
 test('table resolves cell expressions without mutating data and exposes accessible browsing controls',()=>{
   const table={type:'table',title:'配方比较',columns:['配方','用量'],rows:[['药水',ref],['茶',0]]};
   const before=JSON.stringify(table),html=render(table);
@@ -214,4 +231,24 @@ test('horizontal diagram labels stay above their line in either direction',()=>{
     assert.equal(line[1],line[2]);
     assert.ok(Number(label[1])<=Number(line[1])-14,'label must leave the horizontal connector visible');
   }
+});
+
+test('parallel routes between the same nodes keep distinct readable labels',()=>{
+  const html=render({type:'diagram',nodes:[{id:'a',label:'起点'},{id:'b',label:'终点'}],edges:[{from:'a',to:'b',label:'沿河小路'},{from:'a',to:'b',label:'山脊大道'}]});
+  const labels=[...html.matchAll(/<text x="([-\d.]+)" y="([-\d.]+)" text-anchor="middle" class="rich-diagram-edge-label">(沿河小路|山脊大道)<\/text>/g)];
+  assert.equal(labels.length,2);
+  assert.ok(Math.abs(Number(labels[0][2])-Number(labels[1][2]))>=18,'labels need separate lanes');
+  const mobile=html.match(/<svg[^>]*class="rich-diagram-mobile-flow"[^]*?<\/svg>/)?.[0]||'';
+  const mobileLabels=[...mobile.matchAll(/<text x="[-\d.]+" y="([-\d.]+)" class="rich-diagram-edge-label">(沿河小路|山脊大道)<\/text>/g)];
+  assert.equal(mobileLabels.length,2);
+  assert.ok(Math.abs(Number(mobileLabels[0][1])-Number(mobileLabels[1][1]))>=18,'mobile labels need separate lanes');
+});
+
+test('long diagram node names wrap inside the SVG instead of being cut off',()=>{
+  const label='北侧旧港口候船室与补给仓库';
+  const html=render({type:'diagram',nodes:[{id:'a',label}],edges:[]});
+  const svg=html.match(/<svg[^>]*class="rich-diagram-svg[^]*?<\/svg>/)?.[0]||'';
+  assert.match(svg,/<tspan[^>]*>北侧旧港口/);
+  assert.equal([...svg.matchAll(/<tspan[^>]*>([^<]*)<\/tspan>/g)].map(match=>match[1]).join(''),label);
+  assert.doesNotMatch(svg,/北侧旧港口候…/);
 });

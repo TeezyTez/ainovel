@@ -1,0 +1,33 @@
+{
+  "checkedAt": "2026-10-16T03:45:04.731Z",
+  "scope": "Real renderAdvanced module with synthetic state; host state echo simulated by update(), no Flutter end-to-end claim",
+  "browser": "155.0.4283.45",
+  "baseline": {
+    "echo": false,
+    "callbackObserved": true,
+    "beforeEcho": {
+      "connected": true,
+      "focused": true
+    },
+    "sameElement": true,
+    "originalConnected": true,
+    "focusPreserved": true,
+    "value": "正在输入",
+    "selectionStart": 2
+  },
+  "hostEcho": {
+    "echo": true,
+    "callbackObserved": true,
+    "beforeEcho": {
+      "connected": true,
+      "focused": true
+    },
+    "sameElement": false,
+    "originalConnected": false,
+    "focusPreserved": false,
+    "value": "正在输入",
+    "selectionStart": 0
+  },
+  "pageErrors": [],
+  "invariantPassed": false
+}

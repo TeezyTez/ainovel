@@ -1,4 +1,4 @@
-/* Shared optical controls: pearlescent edges, tactile light, quiet resting states. */
+/* Control hierarchy: filled primary actions, neutral secondary surfaces, quiet text links. */
 :root {
   --sans: var(--font-ui);
   --serif: var(--font-display);
@@ -80,60 +80,22 @@ body[data-theme=dark] .workspace-theme>.ui-icon[data-icon=moon] { display: block
   background: radial-gradient(circle,transparent 32%,rgb(var(--control-ripple) / .08) 44%,rgb(var(--control-ripple) / .42) 53%,rgb(var(--control-ripple) / .08) 63%,transparent 73%);
   contain: strict;
 }
-/* A single local gravity field follows the pointer on the active control.
-   Independent children preserve summary markers, active nav rules and labels. */
+/* One soft light stays inside prominent action surfaces; no extra hover frame. */
 body :is(button,a,summary)>.control-lens.control-lens {
-  --lens-violet: var(--control-lens-violet,var(--signal));
-  --lens-cyan: var(--control-lens-cyan,var(--portal-cyan));
-  --lens-gold: var(--control-lens-gold,var(--portal-gold));
   position: absolute; display: block; z-index: -1; pointer-events: none;
   left: var(--control-x,50%); top: var(--control-y,50%);
   width: 176px; height: 142px; min-width: 0; min-height: 0; padding: 0; margin: 0;
   /* Keep the pointer origin independent of existing arrow/span hover transforms. */
   border: 0; border-radius: 50%; transform: translate(-50%,-50%)!important;
-  background: radial-gradient(ellipse at 50% 50%,transparent 12%,rgb(var(--control-glow) / .07) 26%,transparent 63%);
-  opacity: .8; animation: control-lens-arrive 360ms var(--control-ease) both;
+  background: radial-gradient(ellipse at 50% 50%,rgb(var(--control-glow) / .18),transparent 68%);
+  opacity: .65; animation: control-lens-arrive 240ms ease-out both;
 }
-body .control-lens>.control-orbit {
-  position: absolute; display: block; inset: 21% 4%; padding: 1px; margin: 0;
-  border: 0; border-radius: 50%; pointer-events: none;
-  background: conic-gradient(from 38deg,transparent 0%,var(--lens-cyan) 15%,transparent 31%,var(--lens-violet) 50%,var(--lens-gold) 64%,transparent 81%);
-  mask: linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  transform-origin: 50% 50%; opacity: 0;
-  animation: control-orbit-fall 3.6s cubic-bezier(.25,.15,.3,1) infinite;
-}
-body .control-lens>.control-orbit[data-orbit="1"] { inset: 13% 8%; animation-duration: 4.3s; animation-delay: -1.7s; }
-body .control-lens>.control-orbit[data-orbit="2"] { inset: 26% 0%; animation-duration: 3.1s; animation-delay: -2.5s; }
-body .control-lens>.control-lens-core {
-  position: absolute; display: block; left: 50%; top: 50%; width: 18px; height: 12px;
-  min-width: 0; padding: 0; margin: 0; border: 1px solid color-mix(in srgb,var(--lens-violet) 35%,transparent); border-radius: 50%;
-  transform: translate(-50%,-50%) rotate(-28deg); pointer-events: none;
-  background: radial-gradient(ellipse,rgb(var(--control-glow) / .035),transparent 70%);
-  box-shadow: -4px 0 9px -4px color-mix(in srgb,var(--lens-violet) 75%,transparent),4px 1px 8px -4px color-mix(in srgb,var(--lens-cyan) 75%,transparent);
-}
-@keyframes control-lens-arrive { from { opacity: 0; scale: .88; } to { opacity: .8; scale: 1; } }
-@keyframes control-orbit-fall {
-  0% { opacity: 0; transform: rotate(-34deg) scale(1.2); }
-  18% { opacity: .72; }
-  72% { opacity: .52; }
-  100% { opacity: 0; transform: rotate(24deg) scale(.13); }
-}
-@media (hover:hover) and (pointer:fine) {
-  body :is(button,a.btn,a.workspace-create,a.world-return,a.reading-back,a.text-button,.workspace-nav-link,summary)[data-control-active=true] {
-    box-shadow: inset 0 0 0 1px rgb(var(--control-glow) / .3),0 3px 16px -8px rgb(var(--control-glow) / .35);
-  }
-  body :is(button,a,summary)[data-control-active=true]>.ui-icon {
-    color: var(--signal); filter: drop-shadow(0 0 5px rgb(var(--control-glow) / .32));
-  }
-  body :is(.btn.primary,a.world-return,.world-return-strip>a,.reading-send)[data-control-active=true]>.ui-icon { color: var(--control-primary-ink); }
-  body summary[data-control-active=true] { border-radius: 10px; }
-}
+@keyframes control-lens-arrive { from { opacity: 0; } to { opacity: .65; } }
 body :is(.btn.primary,a.world-return,.world-return-strip>a,.reading-send) {
-  --control-lens-violet: #c0a6e4; --control-lens-cyan: #8dcbd5; --control-lens-gold: #d7c298;
+  --control-glow: 214 211 239;
 }
 body[data-theme=dark] :is(.btn.primary,a.world-return,.world-return-strip>a,.reading-send) {
-  --control-lens-violet: #6d4f8b; --control-lens-cyan: #3c7485; --control-lens-gold: #947247;
+  --control-glow: 137 128 158;
 }
 :is(.btn,.workspace-create,.world-return-strip>a,.world-return,.icon-button,.workspace-nav-link,
   .reading-header-tool,.reading-back,.reading-appearance,.reader-tools-trigger,details>summary) {
@@ -142,10 +104,10 @@ body[data-theme=dark] :is(.btn.primary,a.world-return,.world-return-strip>a,.rea
 }
 body[data-theme] :is(.product-app,.reading-experience,dialog) .btn,
 body :is(.workspace-create,.world-return-strip>a,.world-current-footer>a.world-return) {
-  min-height: 44px; border: 1px solid transparent;
-  background: var(--control-face) padding-box,var(--control-edge) border-box;
+  min-height: 44px; border: 1px solid var(--line);
+  background: var(--paper);
   color: var(--ink); border-radius: 12px;
-  box-shadow: inset 0 1px 0 var(--highlight,#ffffff66),0 2px 5px #20172e05;
+  box-shadow: none;
   font-weight: 500; letter-spacing: .025em;
   filter: none;
 }
@@ -158,14 +120,6 @@ body .reading-composer .reading-send:not(:disabled) {
   box-shadow: inset 0 1px 0 #ffffff25,inset 0 -1px 0 #0e0d191f,0 4px 12px -4px rgb(var(--control-glow) / .3);
 }
 body .reading-composer .reading-send { border-radius: 50%; }
-:is(.btn,.workspace-create,.world-return-strip>a,.world-return)::before {
-  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit;
-  background: radial-gradient(ellipse at var(--control-x,50%) var(--control-y,0%),rgb(var(--control-glow) / .2),transparent 74%);
-  opacity: 0; transition: opacity .35s ease;
-}
-:is(.btn.primary,.world-return-strip>a,.world-return,.reading-send)::before {
-  background: radial-gradient(ellipse at var(--control-x,50%) var(--control-y,0%),#e9e1ff25,transparent 76%);
-}
 body :is(.product-app,.reading-experience,dialog) :where(button,a,summary,input,select,textarea):focus-visible {
   outline: 2px solid var(--signal)!important; outline-offset: 4px;
 }
@@ -178,10 +132,10 @@ body :is(.product-app,.reading-experience,dialog) :is(.btn,.icon-button,.workspa
 @media (hover:hover) and (pointer:fine) {
   body :is(.product-app,.reading-experience,dialog) .btn:not(:disabled,[aria-disabled=true],[aria-busy=true],.danger):hover,
   body :is(.workspace-create,.world-return-strip>a,.world-current-footer>a.world-return):not([aria-disabled=true],[aria-busy=true]):hover {
-    background: var(--control-face) padding-box,var(--control-edge) border-box;
+    background: color-mix(in srgb,var(--paper) 72%,var(--soft));
     color: var(--ink);
-    border-color: color-mix(in srgb,var(--portal-violet,#a998d1) 55%,transparent);
-    box-shadow: inset 0 1px 0 var(--highlight,#ffffff66),0 5px 18px -5px rgb(var(--control-glow) / .25);
+    border-color: color-mix(in srgb,var(--line) 82%,var(--muted));
+    box-shadow: none;
     transform: none; filter: none;
   }
   body :is(.product-app,.reading-experience,dialog) .btn.primary:not(:disabled,[aria-disabled=true],[aria-busy=true],.danger):hover,
@@ -189,14 +143,14 @@ body :is(.product-app,.reading-experience,dialog) :is(.btn,.icon-button,.workspa
   body .reading-composer .reading-send:not(:disabled,[aria-disabled=true],[aria-busy=true]):hover {
     background: var(--control-primary-face) padding-box,var(--control-primary-edge) border-box;
     color: var(--control-primary-ink); border-color: transparent;
+    box-shadow: inset 0 1px 0 #ffffff25,inset 0 -1px 0 #0e0d191f,0 4px 12px -4px rgb(var(--control-glow) / .3);
   }
-  :is(.btn,.workspace-create,.world-return-strip>a,.world-return):not(:disabled,[aria-disabled=true],[aria-busy=true],.danger):hover::before { opacity: 1; }
   :is(a,button,summary):not(:disabled,[aria-disabled=true],[aria-busy=true],.danger):hover>.ui-icon[data-icon=arrow-up-right] { transform: translate(1.5px,-1.5px); }
   :is(a,button,summary):not(:disabled,[aria-disabled=true],[aria-busy=true],.danger):hover>.ui-icon[data-icon=arrow-right] { transform: translateX(2px); }
   :is(a,button,summary):not(:disabled,[aria-disabled=true],[aria-busy=true],.danger):hover>.ui-icon[data-icon=back] { transform: translateX(-1.5px); }
   :is(.icon-button,.reading-header-tool,.reading-back,.reading-appearance,.reader-tools-trigger):not(:disabled,[aria-disabled=true],[aria-busy=true]):hover {
     color: var(--signal); background: color-mix(in srgb,var(--paper) 78%,var(--soft));
-    box-shadow: inset 0 0 0 1px rgb(var(--control-glow) / .15),0 2px 10px rgb(var(--control-glow) / .1);
+    box-shadow: none;
   }
   details>summary:hover { color: var(--ink); }
   .discovery-card:hover .discovery-enter>.ui-icon { transform: translate(1.5px,-1.5px); }

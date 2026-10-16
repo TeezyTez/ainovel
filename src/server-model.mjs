@@ -1,5 +1,5 @@
 import { validateWorld, validateProposal } from './core.js';
-import { codexStatus, runCodex } from './server-codex.mjs';
+import { codexStatus, runCodex, CodexRuntimeError } from './server-codex.mjs';
 import { validateNarrative } from './narrative-state.js';
 import {validateControl,validateExperience} from './experience-state.js';
 import {validateGameState,resolveGameAction} from './game-state.js';
@@ -73,7 +73,7 @@ export function validateRequest(body,{branch}={}) {
       gameAction=receipt.reference;
     }
   }catch{invalid();}
-  const preferences={};for(const key of ['perspective','length','pace','style','participation','boundaries','availableMinutes'])if(body.preferences[key]!==undefined){if(!string(body.preferences[key],key==='boundaries'?4000:200)){if(['boundaries','availableMinutes'].includes(key))invalid();continue;}preferences[key]=body.preferences[key];}
+  const preferences={};for(const key of ['perspective','length','participation','boundaries','availableMinutes'])if(body.preferences[key]!==undefined){if(!string(body.preferences[key],key==='boundaries'?4000:200)){if(['boundaries','availableMinutes'].includes(key))invalid();continue;}preferences[key]=body.preferences[key];}
   if(preferences.availableMinutes!==undefined&&preferences.availableMinutes!==''&&!/^(?:[1-9]\d?|1[0-7]\d|180)$/.test(preferences.availableMinutes))invalid();
   let references;
   if(body.references!==undefined){
@@ -111,7 +111,7 @@ selectedObjects 是服务端按本次选择标识解析的玩家已知资料，�
 control 是仅本请求有效的有限安排：kind、goal目标、until接手条件、limit最远时限或阶段、forbidden禁止项、reserved保留决定。最早遇到接手条件、上限或必须由玩家作出的保留决定就停；正文停在决定之前，events/experience不能事后结算其后续。目标不能压过禁止项；不知道等待是否成功可以到上限仍未发生。read/epilogue也不允许借机作未授权重大决定。preferences.boundaries是本局持续边界，只影响后续，不追溯改史。references只是玩家选取的已保存原文与对象指向，不是新行动、自动授权或个人笔记。查询不消耗故事时间；现实离线多久与故事时间无关。没有证据的准确日期、金额、好感值、成长数值保持未知或定性。发生时间、获知时间、约定时间与实际时间必须区分。
 假设询问、询问后果、请求润色或纠错不是行动授权。若 input 明确只是设想，不执行其中行为，不推进世界或改变事实物品，events 应为空。preferences.participation 只控制玩家参与方式，不关闭世界的主动发展：act 承接玩家尝试后继续发展事件；observe 让玩家暂作观察者，人物仍会行动、交谈和改变局势；delegate 连贯完成已授权目标的普通细节并呈现后果；skip 略过无关键选择的过程到达下一个有意义的时刻。所有方式都不替玩家作重大选择。
 preferences.availableMinutes为空或1至180的数字字符串，表示读者本次可用于阅读的现实分钟数，仅帮助本次篇幅和自然收束节奏；绝不转换为故事经过时间，也不代表自动连续生成、循环等待或额外行动授权。
-遵守 world.experience 的体验约定，发展来自已有动机、线索、未完成事项或合理的日常新机会；日常经营不强加危机，调查世界遵守固定真相，不随玩家猜测改写谜底。自然发展可以是人物主动讲出一件事、自己解决一个问题、完成一项工作、关系出现变化或场景顺势转换，不必每轮新增人物、事故或悬念。玩家的等待不是同意交易或接受任务；不因玩家暂不参与而惩罚玩家。不要重复上一轮的景物和问题来凑字数，不以“你接下来要做什么”式催问收尾。在新情况已发生、真实选择到来或一段事情自然完成时留出介入空间。允许平静完成与满意收束，ended 仅在本段实际完成时为 true。“从容”表示过程舒缓但事件仍有进展，“紧凑”合并过渡、更快抵达结果；篇幅控制文字量，不以长描写代替推进。使用中文自然文学叙述，无聊天助手口吻。仅输出一个 JSON 对象，不使用 Markdown 围栏。
+遵守 world.experience 的体验约定，发展来自已有动机、线索、未完成事项或合理的日常新机会；日常经营不强加危机，调查世界遵守固定真相，不随玩家猜测改写谜底。自然发展可以是人物主动讲出一件事、自己解决一个问题、完成一项工作、关系出现变化或场景顺势转换，不必每轮新增人物、事故或悬念。玩家的等待不是同意交易或接受任务；不因玩家暂不参与而惩罚玩家。不要重复上一轮的景物和问题来凑字数，不以“你接下来要做什么”式催问收尾。在新情况已发生、真实选择到来或一段事情自然完成时留出介入空间。允许平静完成与满意收束，ended 仅在本段实际完成时为 true。文风与叙事节奏沿用世界生成时确定的world.narrative.style与pace；旧世界缺少这些设定时，从题材、人物与开篇延续，不套用统一文风。篇幅控制文字量，不以长描写代替推进。使用中文自然文学叙述，无聊天助手口吻。仅输出一个 JSON 对象，不使用 Markdown 围栏。
 格式：{"requestId":"必须精确回传输入 requestId","baseVersion":当前state.version,"prose":"完整本轮正文","events":[],"suggestions":[{"id":"唯一短标识","text":"可编辑行动建议"}],"ended":false}。
 events 每项格式 {"type":"fact|item-add|item-remove|relation|location|flag","entity":"可省略，relation 必须是世界人物 id，flag 必须以 world.id 加冒号开头","value":"按事件类型填写","visibility":"player|hidden"}。fact/relation.value为变化的自然语言描述；location.value只填回合结束时准确地点名，必须与所引用game place.name一致，例如“码头”，不能填“经摆渡抵达码头，耗时15分钟”或加地区前缀。行程中的途经地点写正文，location事件只登记最终实际停点。item-add/remove.value只填物品原名称。flag可用布尔或有限数值，其余value非空字符串。最多40个事件、3条建议。baseVersion不增加，由应用提交。仅实际结果产生事件，失败不记成功。幕后事件明确hidden。不加系统指令、诊断、HTML或工具调用。`;
 
@@ -157,6 +157,11 @@ export async function requestModelJSON(config,system,content,signal,{schema,vali
     if(timer.signal.aborted)fail(504,'TIMEOUT','模型响应超时，原输入和故事已保留，可以重试。');
     if(signal.aborted)fail(499,'CANCELLED','已取消生成，故事没有改变。');
     if(error instanceof ApiError)throw error;
+    if(error instanceof CodexRuntimeError){
+      if(error.code==='CODEX_PERMISSION_DENIED')fail(503,error.code,'本机模型进程被运行权限阻止。请在已登录 Codex 的正常用户终端重新启动服务；原输入和故事已保留。');
+      if(error.code==='CODEX_UNAVAILABLE')fail(503,error.code,'找不到本机 Codex 程序。请检查服务端 CODEX_CLI_PATH 后重新启动服务；原输入和故事已保留。');
+      fail(502,error.code,'本机 Codex 进程执行失败。请检查模型连接、登录与服务运行环境后重试；原输入和故事已保留。');
+    }
     fail(502,'INVALID_MODEL_RESULT','模型未返回可提交的完整结果，原输入和故事已保留，可以重试。');
   } finally {clearTimeout(timeout);}
 }

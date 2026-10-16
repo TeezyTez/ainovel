@@ -246,12 +246,12 @@ function paintScene(ctx,{motif,palette:p,seed,width,height,x,y,phase=0}){
   ctx.restore();
 }
 
-export function createWorldField({root=globalThis.document}={}){
+export function createWorldField({root=globalThis.document,enabled=()=>true}={}){
   const doc=root?.ownerDocument||root,win=doc?.defaultView;
   if(!win)return {mount(){},destroy(){}};
   const media=win.matchMedia('(prefers-reduced-motion: reduce)'),fine=win.matchMedia('(hover: hover) and (pointer: fine)');
   let entries=[],raf=0,last=0,destroyed=false,observer,resizeObserver,cleanup=[];
-  const reduced=()=>media.matches||doc.body.classList.contains('reduce-motion');
+  const reduced=()=>!enabled()||media.matches||doc.body.classList.contains('reduce-motion');
   const clear=()=>{win.cancelAnimationFrame(raf);raf=0;observer?.disconnect();resizeObserver?.disconnect();cleanup.forEach(fn=>fn());cleanup=[];entries=[];};
   function paint(item){
     const {canvas,context:ctx,host}=item,w=host.clientWidth,h=host.clientHeight;

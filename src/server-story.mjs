@@ -11,6 +11,9 @@ const serverFields=new Set(['requestId','baseVersion','prose']);
 const recordSchema=structuredClone({...narrativeProposalSchema,required:narrativeProposalSchema.required.filter(k=>!serverFields.has(k)),properties:Object.fromEntries(Object.entries(narrativeProposalSchema.properties).filter(([k])=>!serverFields.has(k)))});
 const recordedObject=recordSchema.properties.experience.anyOf[0].properties.objects.items;
 recordedObject.properties.nameKnown={type:'boolean'};recordedObject.required.push('nameKnown');
+recordedObject.properties.name.description='人物沿用已登记的稳定id与公开称呼。姓名尚未公开时不要补幕后姓名或把称呼改成代词；本轮连续引文须包含完整name。';
+recordedObject.properties.nameKnown.description='人物真实姓名已向读者公开才为true；仅有公开称呼时为false，此时quote须逐字包含完整name。其他对象为true。';
+recordedObject.properties.quote.description='fixedProse中的连续原文，支持该对象本轮变化。nameKnown=false的人物须包含完整name；必要时扩展引文覆盖称呼和后续代词句，不改写、拼接原文或改名为代词。';
 const recordedGame=recordSchema.properties.game.properties;
 recordedGame.entities.items.properties.name.description='直接复制fixedProse引文中的完整连续称呼，如“插销”；不要概括成“后门插销状况”。解释写detail，沿用既有对象id。';
 recordedGame.entities.items.properties.quote.description='fixedProse的连续原句，须逐字包含本对象完整name并支持变化；不改写原句，不从先前正文补引用。';
@@ -21,7 +24,7 @@ for(const key of ['from','to'])spatialProperties.relations.items.properties[key]
 spatialProperties.relations.items.properties.id.description='稳定的ASCII关系id，仅字母数字与_.:-，不含中文。';
 spatialProperties.sites.items.properties.id.description='引用state.game或本轮game.entities中kind=place的ASCII id，不填地点显示名称。';
 spatialProperties.sites.items.properties.parentId.description='父地点已登记place实体的ASCII id；未知用null。';
-const extractionSchema={type:'object',additionalProperties:false,required:['compatible','reason','record'],properties:{compatible:{type:'boolean'},reason:{type:'string'},record:{anyOf:[recordSchema,{type:'null'}]}}};
+const extractionSchema={type:'object',additionalProperties:false,required:['record'],properties:{record:recordSchema}};
 const pick=(o,keys)=>Object.fromEntries(keys.filter(k=>o?.[k]!==undefined).map(k=>[k,structuredClone(o[k])]));
 
 // Use an authoritative public identity or a complete introduction. A short name
@@ -38,9 +41,9 @@ export function storyContext(body){
   const recent=body.recent.map(t=>pick(t,['input','prose']));
   const reader={opening:body.world.opening,recent,memory:body.memory.map(m=>pick(m,['summary','facts'])),...pick(body.state,['location','time','facts','inventory']),knownObjects:body.state.experience?.objects??[],objects:body.state.game?.entities??[]};
   if(body.narrative?.recentBeats?.length)reader.recentChanges=body.narrative.recentBeats.slice(-3).map(beat=>beat.summary);
-  const background=pick(body.world,['title','seed','description','era','identity','rules','characters','experience']);
+  const background=pick(body.world,['title','seed','description','era','identity','rules','characters','narrative','experience']);
   background.characters=background.characters.map(character=>({...character,nameKnownToReader:nameKnownToReader(character,reader)}));
-  return {background,reader,player:pick(body.player,['name','identity','goal']),preferences:pick(body.preferences,['perspective','length','pace','style','participation','boundaries','availableMinutes']),input:body.input,...(body.control?{control:body.control}:{}),...(body.references?{references:body.references.map(r=>pick(r,['quote','objectId']))}:{}),...(body.selectedObjects?{selectedObjects:body.selectedObjects}:{}),...(body.gameActionReceipt?{receipt:body.gameActionReceipt}:{}),unresolved:body.narrative?.threads.filter(t=>['open','progressed'].includes(t.status)).map(t=>pick(t,['question','stakes']))??[]};
+  return {background,reader,player:pick(body.player,['name','identity','goal']),preferences:pick(body.preferences,['perspective','length','participation','boundaries','availableMinutes']),input:body.input,...(body.control?{control:body.control}:{}),...(body.references?{references:body.references.map(r=>pick(r,['quote','objectId']))}:{}),...(body.selectedObjects?{selectedObjects:body.selectedObjects}:{}),...(body.gameActionReceipt?{receipt:body.gameActionReceipt}:{}),unresolved:body.narrative?.threads.filter(t=>['open','progressed'].includes(t.status)).map(t=>pick(t,['question','stakes']))??[]};
 }
 
 function pack(value,system,schema,config){
@@ -53,6 +56,31 @@ function pack(value,system,schema,config){
   }
   if(json.length>limit)throw new ApiError(413,'CONTEXT_TOO_LARGE','故事资料超出上下文预算，原输入和进度已保留。');
   return json;
+}
+
+// Report both stores at once: fixing only the first missing identity citation
+// used to spend the single repair pass while leaving the other store invalid.
+function identityEvidenceIssues(record,prose){
+  const issues=[];
+  for(const [path,objects,needsName] of [
+    ['$.experience.objects',record.experience?.objects??[],o=>o.kind==='person'&&o.nameKnown===false],
+    ['$.game.entities',record.game?.entities??[],()=>true]
+  ])objects.forEach((o,index)=>{
+    if(needsName(o)&&!o.quote.includes(o.name))issues.push({path:`${path}[${index}].quote`,id:o.id,name:o.name,quoteOnly:prose.includes(o.name),reason:'quote必须包含其name的原文全称；在fixedProse中选择包含称呼与变化的连续引文，不改写正文、不拼接引文、不改名为代词。'});
+  });
+  return issues;
+}
+
+function repairIdentityQuotes(original,repaired,issues){
+  const result=structuredClone(original);
+  for(const issue of issues){
+    const experience=issue.path.startsWith('$.experience.');
+    const target=(experience?result.experience.objects:result.game.entities).find(o=>o.id===issue.id);
+    const candidates=(experience?repaired.experience?.objects:repaired.game?.entities)?.filter(o=>o.id===issue.id)??[];
+    if(candidates.length!==1)throw new Error(`${issue.path}: 修复必须保留原对象id ${issue.id}。`);
+    target.quote=candidates[0].quote;
+  }
+  return result;
 }
 
 export function validateStoryRecord(body,prose,record){
@@ -70,7 +98,8 @@ export function validateStoryRecord(body,prose,record){
   for(const person of [...(cleaned.experience?.objects??[]).filter(o=>o.kind==='person'),...(cleaned.game?.entities??[]).filter(o=>o.kind==='actor')]){
     if(body.world.characters.some(c=>c.name===person.name)&&!disclosed.includes(person.name))throw new Error('人物姓名尚未在玩家经历中公开；仅登记正文中的称呼，不补全幕后姓名。');
   }
-  for(const entity of cleaned.game?.entities??[])if(!entity.quote.includes(entity.name))throw new Error('game实体quote必须包含其name的原文全称；新对象名称取正文现有称呼，不改写正文来凑名字。');
+  const issues=identityEvidenceIssues(cleaned,prose);
+  if(issues.length)throw Object.assign(new Error(issues.map(issue=>`${issue.path} (${issue.id}, name=${JSON.stringify(issue.name)}): ${issue.reason}`).join('\n')),{validationIssues:issues});
   if(body.gameActionReceipt){cleaned.gameAction=body.gameActionReceipt;cleaned.ended=false;}
   validateProposal(cleaned,body.world,body.state);
   applyEvents(body.state,cleaned.events,cleaned.experience,{game:cleaned.game,gameAction:cleaned.gameAction,branchId:body.branchId});
@@ -101,15 +130,24 @@ export async function generateStory(body,config,signal,{requestJSON=requestModel
     const draft=await request(STORY_SYSTEM,storyContext(input),proseSchema,'story');check();
     if(!conforms(draft,proseSchema))throw new Error('正文格式无效。');
     const data={...pick(input,['world','state','input','player','preferences','control','branchId','narrative','gameActionReceipt']),fixedProse:draft.prose};
-    let issue,invalidRecord;
-    onProgress?.('checking');
+    let issue,invalidRecord,validationIssues;
+    onProgress?.('recording');
     for(let attempt=0;attempt<2;attempt++){
-      const extraction=await request(RECORD_SYSTEM,{...data,...(issue?{validationIssue:issue,invalidRecord}: {})},extractionSchema,'record');check();
-      if(extraction?.compatible===false)throw new ApiError(502,'INCONSISTENT_STORY','正文与当前故事或行动授权不一致，本次未写入，请重试。');
+      const quoteRepair=!!validationIssues?.length&&validationIssues.every(issue=>issue.quoteOnly);
+      const extraction=await request(RECORD_SYSTEM,{...data,...(issue?{validationIssue:issue,...(validationIssues?{validationIssues}:{}),...(quoteRepair?{repairMode:'identity-quotes-only'}:{}),invalidRecord}: {})},extractionSchema,'record');check();
       try{
         if(!conforms(extraction,extractionSchema)||!extraction.record)throw new Error('记录格式错误：'+JSON.stringify(schemaFailure(extraction,extractionSchema)));
-        const result=validateStoryRecord(input,draft.prose,extraction.record);check();return result;
-      }catch(e){issue=e.message;invalidRecord=extraction.record;if(attempt===1)throw e;}
+        const candidate=quoteRepair?repairIdentityQuotes(invalidRecord,extraction.record,validationIssues):extraction.record;
+        let result;
+        try{result=validateStoryRecord(input,draft.prose,candidate);}
+        catch(error){
+          if(!quoteRepair)throw error;
+          // A later validator may expose another original error. A full repair
+          // is usable only when it independently passes every original check.
+          result=validateStoryRecord(input,draft.prose,extraction.record);
+        }
+        check();return result;
+      }catch(e){issue=e.message;validationIssues=e.validationIssues;invalidRecord=extraction.record;if(attempt===1)throw e;}
     }
   }catch(e){check();if(e instanceof ApiError)throw e;const error=new ApiError(502,'INVALID_MODEL_RESULT','正文记录未通过校验，原输入和进度已保留。');error.diagnostic={stage:'story-record',rule:'validation',reason:e.message};throw error;}
   finally{clearTimeout(timer);signal?.removeEventListener('abort',abort);}

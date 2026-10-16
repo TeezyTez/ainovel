@@ -4,6 +4,17 @@ import {LocalRepository,STORAGE_KEY} from '../src/storage.js';
 import {PRESET_WORLDS} from '../src/worlds.js';
 import {createSession,getBranch,currentState,commitTurn} from '../src/core.js';
 import {demoGenerate,demoActions} from '../src/demo.js';
+test('loading legacy writing preferences retires them while preserving the world and reading controls',()=>{
+ const world={...structuredClone(PRESET_WORLDS[0]),narrative:{style:'冷峻荒诞',pace:'急缓交替'}},session=createSession(world);
+ session.preferences={perspective:'第一人称',length:'舒展',pace:'从容',style:'细腻克制'};
+ let raw=JSON.stringify({schemaVersion:1,worlds:[world],sessions:[session],settings:{perspective:'第三人称',length:'简短',pace:'从容',style:'细腻克制'}});
+ const repo=new LocalRepository({getItem:()=>raw,setItem:(_key,value)=>{raw=value;}}),loaded=repo.load();
+ assert.deepEqual(loaded.sessions[0].preferences,{perspective:'第一人称',length:'舒展'});
+ assert.equal(loaded.settings.style,undefined);assert.equal(loaded.settings.pace,undefined);
+ assert.equal(loaded.settings.perspective,'第三人称');assert.equal(loaded.settings.length,'简短');
+ assert.deepEqual(loaded.worlds[0].narrative,{style:'冷峻荒诞',pace:'急缓交替'});
+ repo.save(loaded);assert.doesNotThrow(()=>repo.load());
+});
 test('persisted full story recovers current branch state and input draft',()=>{const memory=new Map(),storage={getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v)},repo=new LocalRepository(storage);const db=repo.load(PRESET_WORLDS),w=db.worlds[0],s=createSession(w);db.sessions.push(s);let action=demoActions(w,currentState(s))[0];commitTurn(s,w,action.text,demoGenerate({world:w,state:currentState(s),input:action.text,requestId:'one'}));getBranch(s).draft='尚未发出的行动';repo.save(db);const restored=repo.load(PRESET_WORLDS);assert.deepEqual(restored.sessions,db.sessions);});
 test('failed save reports failure and leaves previous committed storage untouched',()=>{let saved='old';const repo=new LocalRepository({getItem:()=>saved,setItem:()=>{throw new Error('QuotaExceededError')}});assert.throws(()=>repo.save({schemaVersion:1}),/保存失败/);assert.equal(saved,'old');});
 test('invalid existing data fails reading rather than being silently reset',()=>{let writes=0;const repo=new LocalRepository({getItem:()=>'{bad json',setItem:()=>writes++});assert.throws(()=>repo.load(PRESET_WORLDS),/原始数据未被覆盖/);assert.equal(writes,0);});

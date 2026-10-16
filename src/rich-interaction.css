@@ -30,3 +30,4 @@ dialog.rich-visual-dialog[open]{animation:rich-inspect-enter .2s ease-out}
 @media(max-width:600px){.rich-diagram-desktop{display:none}.rich-diagram-mobile,.rich-diagram-mobile-list{display:block}.rich-diagram-mobile .rich-mobile-links{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}.rich-table-hint{display:block}}
 @media(prefers-reduced-motion:reduce){dialog.rich-visual-dialog[open]{animation:none}}
 body.reduce-motion dialog.rich-visual-dialog[open]{animation:none}
+.rich-interactive iframe{display:block;width:100%;min-width:0;border:0;border-radius:10px;background:var(--paper)}.rich-interactive [data-artifact-status]{font-size:13px;color:var(--muted)}.rich-interactive [hidden]{display:none}

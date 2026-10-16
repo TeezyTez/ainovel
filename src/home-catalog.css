@@ -1,0 +1,480 @@
+/* The world atlas shares the hero's spectrum while keeping real choices legible. */
+.discovery-page .universe-catalog {
+  position: relative;
+  margin: 0;
+  padding-top: 66px;
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 42px;
+}
+.discovery-page .universe-catalog::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 112px;
+  height: 1px;
+  background: var(--portal-spectrum);
+}
+.discovery-page .discovery-section-bar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0;
+  border: 0;
+}
+.discovery-page .discovery-section-bar>.discovery-heading {
+  display: block;
+  min-width: 0;
+}
+.discovery-page .discovery-kicker {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font: 500 10px/1.5 var(--font-brand,var(--sans));
+  letter-spacing: .17em;
+}
+.product-app .discovery-page .discovery-section-bar h2 {
+  width: fit-content;
+  margin: 0;
+  color: var(--ink);
+  font: 550 clamp(30px,3vw,40px)/1.4 var(--font-display,var(--serif));
+  letter-spacing: -.045em;
+  scroll-margin-top: 40px;
+}
+.discovery-page .discovery-intro {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font: 400 13px/1.9 var(--sans);
+  letter-spacing: .025em;
+}
+.discovery-page .discovery-section-bar>.discovery-catalog-tools {
+  display: flex;
+  flex-direction: row;
+  flex: none;
+  align-items: center;
+  gap: 22px;
+  padding-bottom: 3px;
+}
+.discovery-page .discovery-section-bar .library-results {
+  display: block;
+  align-self: auto;
+  margin: 0;
+  color: var(--muted);
+  font: 400 12px/1.6 var(--sans);
+  white-space: nowrap;
+}
+.discovery-page .discovery-section-bar .text-button {
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 15px;
+  gap: 10px;
+  border: 1px solid var(--portal-border);
+  border-radius: 8px;
+  color: var(--ink);
+  background: var(--paper);
+  font: 500 12px/1.5 var(--sans);
+}
+.discovery-page .discovery-section-bar .text-button .ui-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  color: var(--signal);
+}
+.discovery-page .discovery-section-bar .text-button:hover:not(:disabled) {
+  color: var(--ink);
+  background: var(--soft);
+  border-color: var(--portal-violet);
+}
+.discovery-page .discovery-search {
+  position: relative;
+  margin: 24px 0 28px;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--line)!important;
+}
+.discovery-page .discovery-search>summary {
+  position: static;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: fit-content;
+  min-height: 44px;
+  margin: 0;
+  padding: 9px 0;
+  border-radius: 6px;
+  color: var(--muted);
+  font: 450 12px/1.6 var(--sans);
+}
+.discovery-page .discovery-search>summary:hover {
+  background: transparent;
+  color: var(--ink);
+}
+.discovery-page .discovery-search[open]>summary {
+  color: var(--ink);
+}
+.discovery-page .discovery-search .library-filters {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 10px 0 0;
+  padding: 22px;
+  border: 1px solid var(--portal-border);
+  border-radius: 12px;
+  background: var(--paper);
+}
+.discovery-page .library-filters>.library-search {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.discovery-page .library-filters :is(input:not([type=checkbox]),select) {
+  min-height: 46px;
+  max-width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+}
+.discovery-page .library-filters .btn {
+  min-height: 46px;
+  padding: 10px 17px;
+  border-radius: 7px;
+  font-size: 12px;
+}
+.discovery-page .discovery-filter-options {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  flex-basis: 100%;
+  gap: 16px;
+  padding-top: 8px;
+}
+.discovery-page .discovery-filter-options>label {
+  flex: 1 1 150px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.discovery-page .discovery-filter-options .library-check {
+  flex: 0 1 auto;
+  min-height: 46px;
+  padding-inline: 4px;
+  color: var(--ink);
+}
+.discovery-page .discovery-grid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  align-items: stretch;
+  gap: 30px 24px;
+}
+.discovery-page .discovery-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--portal-border);
+  border-radius: 14px;
+  background: var(--paper);
+  box-shadow: 0 3px 8px -6px rgb(var(--portal-glow) / .08);
+  overflow: visible;
+  transition: border-color 220ms ease,box-shadow 300ms ease;
+}
+.discovery-page .discovery-card:hover,
+.discovery-page .discovery-card:focus-within {
+  transform: none;
+  border: 1px solid color-mix(in srgb,var(--portal-violet) 65%,var(--line));
+  box-shadow: 0 14px 34px -22px rgb(var(--portal-glow) / .32);
+}
+.discovery-page .discovery-card>.world-atmosphere {
+  position: relative;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1.65;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 13px 13px 0 0;
+  box-shadow: none;
+  transform: none;
+}
+.discovery-page .discovery-card:hover>.world-atmosphere {
+  box-shadow: none;
+}
+.discovery-page .discovery-index {
+  position: absolute;
+  top: 16px;
+  left: 17px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 26px;
+  padding: 2px 7px;
+  border: 1px solid #ffffff66;
+  border-radius: 4px;
+  background: #151b2d55;
+  color: #fff;
+  font: 400 10px/1 var(--font-brand,var(--sans));
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .08em;
+  pointer-events: none;
+}
+.discovery-page .discovery-card-content {
+  position: static;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  padding: 23px 23px 18px;
+}
+.discovery-page .library-card-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-height: 18px;
+  color: var(--muted);
+  font: 450 11px/1.65 var(--sans);
+  letter-spacing: .035em;
+}
+.discovery-page .library-card-meta>span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.discovery-page .library-card-meta>span:first-child::before {
+  content: "";
+  display: block;
+  flex: none;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--portal-violet);
+}
+.discovery-page .discovery-card:nth-child(3n+2) .library-card-meta>span:first-child::before {
+  background: var(--portal-cyan);
+}
+.discovery-page .discovery-card:nth-child(3n) .library-card-meta>span:first-child::before {
+  background: var(--portal-gold);
+}
+.product-app .discovery-page .discovery-card h3 {
+  margin: 10px 0 9px;
+  color: var(--ink);
+  font: 600 25px/1.5 var(--font-display,var(--serif));
+  letter-spacing: -.035em;
+  overflow-wrap: anywhere;
+}
+.discovery-page .discovery-card h3 a::after {
+  border-radius: 14px;
+}
+.discovery-page .discovery-card h3 a:focus-visible::after {
+  outline: 2px solid var(--signal);
+  outline-offset: 4px;
+}
+.discovery-page .discovery-summary {
+  min-height: 3.7em;
+  margin: 0 0 22px;
+  color: var(--muted);
+  font: 400 13px/1.85 var(--sans);
+  letter-spacing: .015em;
+  -webkit-line-clamp: 2;
+}
+.discovery-page .discovery-enter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  margin-top: auto;
+  padding: 14px 54px 0 0;
+  border-top: 1px solid var(--line);
+  color: var(--ink);
+  font: 500 12px/1.5 var(--sans);
+}
+.discovery-page .discovery-enter>.ui-icon {
+  width: 17px;
+  height: 17px;
+  color: var(--signal);
+  transition: transform 220ms var(--portal-ease);
+}
+.discovery-page .discovery-card-footer {
+  position: absolute;
+  top: auto;
+  right: 17px;
+  bottom: 12px;
+  z-index: 3;
+}
+.discovery-page .discovery-more {
+  margin: 0;
+}
+.discovery-page .discovery-card-footer summary {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 10px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+}
+.discovery-page .discovery-card-footer summary:hover,
+.discovery-page .discovery-more[open]>summary {
+  border-color: var(--portal-border);
+  background: var(--soft);
+  color: var(--ink);
+}
+.discovery-page .discovery-more summary>.ui-icon {
+  width: 19px;
+  height: 19px;
+}
+.discovery-page .discovery-menu {
+  top: calc(100% + 7px);
+  right: 0;
+  min-width: 164px;
+  padding: 6px;
+  border: 1px solid var(--portal-border);
+  border-radius: 10px;
+  background: var(--paper);
+  box-shadow: var(--shadow-raised);
+}
+.product-app .discovery-page .discovery-menu .btn {
+  min-height: 44px;
+  border: 0;
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: transparent;
+  color: var(--ink);
+}
+.product-app .discovery-page .discovery-menu .btn:hover {
+  background: var(--soft);
+}
+.discovery-page .world-return-strip {
+  margin: 0 0 46px;
+  padding: 22px 25px;
+  border-radius: 12px;
+  background: var(--paper);
+  box-shadow: none;
+}
+.discovery-page .world-return-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  box-shadow: none;
+}
+.discovery-page .world-return-mark .ui-icon {
+  width: 25px;
+  height: 25px;
+}
+.discovery-page .world-return-strip h2 {
+  margin-block: 3px;
+}
+.discovery-page .world-return-strip>a {
+  min-height: 44px;
+  border-radius: 8px;
+}
+.discovery-page .library-hidden {
+  margin-top: 28px;
+  border-color: var(--line);
+}
+.discovery-page .library-hidden>summary {
+  min-height: 44px;
+  color: var(--muted);
+}
+.discovery-page .library-hidden li {
+  color: var(--ink);
+  border-color: var(--line);
+}
+.discovery-page .library-hidden li>span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.discovery-page .library-hidden .btn {
+  flex: none;
+  min-height: 44px;
+}
+.discovery-page .library-empty {
+  padding: 60px 24px;
+  border: 1px solid var(--portal-border);
+  border-radius: 14px;
+  background: var(--paper);
+}
+.discovery-page>.library-footnote {
+  margin: 28px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+/* A lone final world becomes a landscape entrance instead of an orphaned card. */
+@media (min-width: 1051px) {
+  .discovery-page .discovery-card:last-child:nth-child(3n + 1):not(:first-child) {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1.45fr;
+  }
+  .discovery-page .discovery-card:last-child:nth-child(3n + 1):not(:first-child)>.world-atmosphere {
+    height: 100%;
+    min-height: 252px;
+    aspect-ratio: auto;
+    border: 0;
+    border-right: 1px solid var(--line);
+    border-radius: 13px 0 0 13px;
+  }
+  .discovery-page .discovery-card:last-child:nth-child(3n + 1):not(:first-child) .discovery-card-content {
+    padding: 30px 34px 22px;
+  }
+  .discovery-page .discovery-grid:has(>.discovery-card:last-child:nth-child(2)) {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 1050px) {
+  .discovery-page .discovery-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; }
+  .discovery-page .discovery-card-content { padding: 22px 22px 18px; }
+  .discovery-page .discovery-section-bar>.discovery-catalog-tools { gap: 14px; }
+}
+@media (max-width: 700px) {
+  .discovery-page .universe-catalog { padding-top: 40px; }
+  .discovery-page .discovery-section-bar { display: block; }
+  .product-app .discovery-page .discovery-section-bar h2 { font-size: 32px; }
+  .discovery-page .discovery-intro { max-width: 26em; font-size: 12px; }
+  .discovery-page .discovery-section-bar>.discovery-catalog-tools { justify-content: space-between; margin-top: 22px; padding: 0; }
+  .discovery-page .discovery-search { margin: 18px 0 22px; padding-top: 9px; }
+  .discovery-page .discovery-search .library-filters { padding: 16px; gap: 10px; }
+  .discovery-page .library-filters>.library-search { flex-basis: 150px; }
+  .discovery-page .library-filters :is(input:not([type=checkbox]),select) { font-size: 16px; }
+  .discovery-page .discovery-filter-options { gap: 12px; }
+  .discovery-page .discovery-filter-options>label { flex-basis: 100%; }
+  .discovery-page .discovery-filter-options .library-check { flex: 1 1 130px; }
+  .discovery-page .discovery-grid { grid-template-columns: minmax(0,1fr); gap: 24px; }
+  .discovery-page .discovery-card-content { padding: 22px 22px 18px; }
+  .product-app .discovery-page .discovery-card h3 { font-size: 26px; }
+  .discovery-page .discovery-summary { min-height: auto; font-size: 13px; }
+  .discovery-page .world-return-strip { flex-wrap: wrap; gap: 14px; margin-bottom: 34px; padding: 20px; }
+  .discovery-page .world-return-strip-content { flex: 1 1 calc(100% - 58px); }
+  .discovery-page .world-return-strip>a { margin-left: 58px; }
+}
+@media (max-width: 360px) {
+  .discovery-page .discovery-section-bar .text-button { padding-inline: 12px; gap: 8px; }
+  .discovery-page .discovery-card-content { padding-inline: 18px; }
+  .discovery-page .library-filters>.library-search { flex-basis: 100%; }
+  .discovery-page .library-filters>button[type=submit] { width: 100%; }
+  .discovery-page .world-return-strip { padding: 18px; }
+  .discovery-page .world-return-strip>a { margin-left: 0; }
+}
+@media (max-width: 620px) {
+  .discovery-page .world-return-strip { display: flex; align-items: flex-start; gap: 14px; }
+  .discovery-page .world-return-strip-content { flex: 1 1 100%; }
+  .discovery-page .world-return-strip>a { margin: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .discovery-page :is(.discovery-card,.discovery-card .world-scene,.discovery-enter>.ui-icon) { transition: none; }
+}
+body.reduce-motion .discovery-page :is(.discovery-card,.discovery-card .world-scene,.discovery-enter>.ui-icon) { transition: none; }
+@media (forced-colors: active) {
+  .discovery-page .universe-catalog::before,
+  .discovery-page .discovery-index { display: none; }
+  .discovery-page :is(.discovery-card,.world-return-strip,.library-empty,.discovery-menu) { border: 1px solid CanvasText; background: Canvas; color: CanvasText; }
+  .discovery-page .discovery-card h3 a:focus-visible::after { outline-color: Highlight; }
+  .discovery-page .library-card-meta>span:first-child::before { background: CanvasText; }
+}

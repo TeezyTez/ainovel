@@ -1,4 +1,5 @@
-// Rich views remain data-only: no model-authored HTML, external resources or actions.
+// Fixed rich views remain data-only; interactive views run inside an opaque artifact frame.
+import {artifactFrame} from './interactive-artifact.js';
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const labels={table:'资料对照',chart:'数值比较',diagram:'关系与路径',cards:'展开思路',timeline:'事件顺序',illustration:'概念示意'};
 const scalar=value=>value===null||['string','boolean'].includes(typeof value)||(typeof value==='number'&&Number.isFinite(value));
@@ -6,9 +7,12 @@ const number=(value,fallback=0,min=-2000,max=2000)=>typeof value==='number'&&Num
 const round=value=>Number(value.toFixed(4));
 const color=(value,fallback)=>['ink','muted','accent','soft','paper'].includes(value)?`var(--${value})`:value==='none'||/^#(?:[\da-f]{3,4}|[\da-f]{6}|[\da-f]{8})$/i.test(value??'')?value:fallback;
 const short=(text,max=16)=>{const chars=Array.from(String(text??''));return chars.length>max?chars.slice(0,max-1).join('')+'…':chars.join('');};
+const lines=(label,max)=>{const chars=Array.from(String(label??'')),result=[];for(let i=0;i<chars.length;i+=max)result.push(chars.slice(i,i+max).join(''));return result.length?result:[''];};
+const wrappedLabel=(label,x,baseY,max,boxHeight)=>{const parts=lines(label,max),first=baseY+(boxHeight-(parts.length-1)*17)/2+5;return `<text x="${x}" y="${round(first)}" text-anchor="middle" class="rich-diagram-label">${parts.map((part,i)=>`<tspan x="${x}" ${i?'dy="17"':''}>${escapeHtml(part)}</tspan>`).join('')}</text>`;};
 const expandIcon='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M8 8 3 3m13 5 5-5M8 16l-5 5m13-5 5 5"/></svg>';
 
-export function renderRichView(node,{value=x=>x,esc=escapeHtml,plain=x=>x??'',index=0,busy=false,omitTitle=false,omitCaption=false}={}){
+export function renderRichView(node,{value=x=>x,esc=escapeHtml,plain=x=>x??'',index=0,busy=false,omitTitle=false,omitCaption=false,historical=false}={}){
+  if(node?.type==='interactive'||node?.type==='react')return artifactFrame(node,{id:index,historical});
   if(!Object.hasOwn(labels,node?.type))return null;
   const title=node.title||labels[node.type],id='rich-'+String(index).replace(/[^a-zA-Z0-9-]/gu,c=>'_'+c.codePointAt(0).toString(16)+'_'),text=x=>esc(plain(x));
   const draft=prompt=>typeof prompt==='string'&&prompt.trim()?`<button type="button" class="btn compact rich-draft" data-rich-draft="${esc(prompt)}" ${busy?'disabled':''}><span data-rich-draft-label>写入草稿</span> <span aria-hidden="true">↗</span></button>`:'';
@@ -47,11 +51,17 @@ export function renderRichView(node,{value=x=>x,esc=escapeHtml,plain=x=>x??'',in
       return [item.id,{x:120+i%3*240,y:80+Math.floor(i/3)*150}];
     }));
     const usableEdges=edges.filter(edge=>positions.has(edge.from)&&positions.has(edge.to));
+    const pairCounts=new Map(),pairIndexes=new Map();
+    for(const edge of usableEdges){const key=`${edge.from}\u0000${edge.to}`;pairCounts.set(key,(pairCounts.get(key)||0)+1);}
     const links=usableEdges.map((edge,i)=>{
       const a=positions.get(edge.from),b=positions.get(edge.to),dx=b.x-a.x,dy=b.y-a.y,distance=Math.hypot(dx,dy)||1;
+      const pair=`${edge.from}\u0000${edge.to}`,pairIndex=pairIndexes.get(pair)||0;pairIndexes.set(pair,pairIndex+1);
+      const parallel=(pairIndex-(pairCounts.get(pair)-1)/2)*22;
       const trim=Math.min(1,Math.min(dx?92/Math.abs(dx):Infinity,dy?31/Math.abs(dy):Infinity)),x1=round(a.x+dx*trim),y1=round(a.y+dy*trim),x2=round(b.x-dx*trim),y2=round(b.y-dy*trim);
       if(edge.from===edge.to)return `<path d="M ${a.x+80} ${a.y-20} C ${a.x+142} ${a.y-60}, ${a.x-142} ${a.y-60}, ${a.x-80} ${a.y-20}" class="rich-diagram-edge" marker-end="url(#${id}-arrow)" ${edge.dashed?'stroke-dasharray="6 5"':''}/>`;
       let path=`M ${x1} ${y1} L ${x2} ${y2}`,labelX=round((a.x+b.x)/2-dy/distance*12),labelY=dy===0?a.y-14:round((a.y+b.y)/2+dx/distance*12-5);
+      if(parallel&&dy===0){path=`M ${x1} ${round(y1+parallel)} L ${x2} ${round(y2+parallel)}`;labelY=round(labelY+parallel);}
+      else if(parallel){labelX=round(labelX-dy/distance*parallel);labelY=round(labelY+dx/distance*parallel);}
       // Flow connectors use the gaps between rows, leaving unrelated labels clear.
       if(!radial&&dy===0&&Math.abs(dx)>240){
         const lane=a.y-56-(i%3)*8;
@@ -64,19 +74,22 @@ export function renderRichView(node,{value=x=>x,esc=escapeHtml,plain=x=>x??'',in
       const label=edge.label?`<text x="${labelX}" y="${labelY}" text-anchor="middle" class="rich-diagram-edge-label">${esc(short(edge.label,16))}</text>`:'';
       return `<path d="${path}" class="rich-diagram-edge" marker-end="url(#${id}-arrow)" ${edge.dashed?'stroke-dasharray="6 5"':''}/>${label}`;
     }).join('');
-    const boxes=nodes.map((item,i)=>{const p=positions.get(item.id);return `<g transform="translate(${p.x-91} ${p.y-30})"><rect width="182" height="60" rx="10" class="rich-diagram-node ${radial&&i===0?'is-center':''}"/><text x="91" y="35" text-anchor="middle" class="rich-diagram-label">${esc(short(item.label,11))}</text></g>`;}).join('');
+    const boxes=nodes.map((item,i)=>{const p=positions.get(item.id),lineCount=lines(item.label,11).length,boxHeight=Math.max(60,lineCount*17+14);return `<g transform="translate(${p.x-91} ${round(p.y-boxHeight/2)})"><rect width="182" height="${boxHeight}" rx="10" class="rich-diagram-node ${radial&&i===0?'is-center':''}"/>${wrappedLabel(item.label,91,0,11,boxHeight)}</g>`;}).join('');
     const diagram=`<svg xmlns="http://www.w3.org/2000/svg" class="rich-diagram-svg ${radial?'is-radial':''} ${dense?'is-dense':''}" viewBox="0 0 ${width} ${height}" aria-hidden="true" focusable="false"><defs><marker id="${id}-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" class="rich-diagram-arrow"/></marker></defs>${links}${boxes}</svg>`;
     const mobileLinks=items=>`<ul class="rich-mobile-links">${items.map(edge=>`<li class="rich-mobile-link${edge.dashed?' is-dashed':''}"><div><span>${esc(nodes.find(item=>item.id===edge.from).label)}</span><span class="rich-mobile-arrow" aria-label="${edge.dashed?'虚线关系':'关系'}">${edge.dashed?'⇢':'→'}</span><span>${esc(nodes.find(item=>item.id===edge.to).label)}</span></div>${edge.label?`<p>${esc(edge.label)}</p>`:''}</li>`).join('')}</ul>`;
     let mobile;
     if(!radial&&nodes.length<=4){
       const y=new Map(nodes.map((item,i)=>[item.id,42+i*112]));
+      const mobilePairIndexes=new Map();
       const verticalLinks=usableEdges.map(edge=>{
         const from=y.get(edge.from),to=y.get(edge.to),direction=Math.sign(to-from)||1;
         const adjacent=Math.abs(to-from)===112;
-        const path=from===to?`M 277 ${from-10} C 319 ${from-47}, 319 ${from+47}, 277 ${from+10}`:adjacent?`M 160 ${from+direction*27} L 160 ${to-direction*27}`:`M 277 ${from} L 307 ${from} L 307 ${to} L 277 ${to}`;
-        return `<path d="${path}" class="rich-diagram-edge" marker-end="url(#${id}-mobile-arrow)" ${edge.dashed?'stroke-dasharray="6 5"':''}/>${adjacent&&edge.label?`<text x="174" y="${(from+to)/2+5}" class="rich-diagram-edge-label">${esc(short(edge.label,8))}</text>`:''}`;
+        const pair=`${edge.from}\u0000${edge.to}`,pairIndex=mobilePairIndexes.get(pair)||0;mobilePairIndexes.set(pair,pairIndex+1);
+        const parallel=(pairIndex-(pairCounts.get(pair)-1)/2)*22,connectorX=round(160+parallel/2);
+        const path=from===to?`M 277 ${from-10} C 319 ${from-47}, 319 ${from+47}, 277 ${from+10}`:adjacent?`M ${connectorX} ${from+direction*27} L ${connectorX} ${to-direction*27}`:`M 277 ${from} L 307 ${from} L 307 ${to} L 277 ${to}`;
+        return `<path d="${path}" class="rich-diagram-edge" marker-end="url(#${id}-mobile-arrow)" ${edge.dashed?'stroke-dasharray="6 5"':''}/>${adjacent&&edge.label?`<text x="${round(174+parallel/2)}" y="${round((from+to)/2+5+parallel)}" class="rich-diagram-edge-label">${esc(short(edge.label,8))}</text>`:''}`;
       }).join('');
-      const verticalBoxes=nodes.map(item=>`<g><rect x="43" y="${y.get(item.id)-26}" width="234" height="52" rx="9" class="rich-diagram-node"/><text x="160" y="${y.get(item.id)+6}" text-anchor="middle" class="rich-diagram-label">${esc(short(item.label,14))}</text></g>`).join('');
+      const verticalBoxes=nodes.map(item=>{const lineCount=lines(item.label,14).length,boxHeight=Math.max(52,lineCount*17+12);return `<g transform="translate(43 ${round(y.get(item.id)-boxHeight/2)})"><rect width="234" height="${boxHeight}" rx="9" class="rich-diagram-node"/>${wrappedLabel(item.label,117,0,14,boxHeight)}</g>`;}).join('');
       const crossings=usableEdges.filter(edge=>Math.abs(y.get(edge.from)-y.get(edge.to))!==112);
       mobile=`<div class="rich-diagram-mobile"><svg xmlns="http://www.w3.org/2000/svg" class="rich-diagram-mobile-flow" viewBox="0 0 320 ${Math.max(84,(nodes.length-1)*112+84)}" aria-hidden="true" focusable="false"><defs><marker id="${id}-mobile-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 1 L 9 5 L 0 9" class="rich-diagram-arrow"/></marker></defs>${verticalLinks}${verticalBoxes}</svg>${crossings.length?mobileLinks(crossings):''}</div>`;
     }else{

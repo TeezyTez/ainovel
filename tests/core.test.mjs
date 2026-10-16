@@ -4,6 +4,13 @@ import * as core from '../src/core.js';
 const world = {id:'test',version:1,title:'日常',location:'书店',opening:'门开了。',identity:'店主',rules:['没有超自然'],characters:[{id:'lin',name:'林',public:'邻居',secret:'秘密'}]};
 const setup = () => core.createSession(world, {name:'小雨',identity:'店主'}, 'demo');
 const proposal = (s,id,events=[]) => ({requestId:id,baseVersion:core.currentState(s).version,prose:'她把收据留下。',events,suggestions:[],ended:false});
+
+test('new sessions keep reading controls without overriding the world writing style',()=>{
+ const authored={...world,narrative:{perspective:'第三人称',length:'长篇',style:'黑色幽默',pace:'紧张中带停顿'}},session=core.createSession(authored,{},'real');
+ assert.deepEqual(session.preferences,{perspective:'第二人称',length:'适中'});
+ assert.doesNotThrow(()=>core.validateArchive({schemaVersion:1,worlds:[authored],sessions:[session]}));
+ assert.equal(authored.narrative.style,'黑色幽默');assert.equal(authored.narrative.pace,'紧张中带停顿');
+});
 test('independent new games never share state',()=> { const a=setup(),b=setup(); assert.notEqual(a.id,b.id); core.commitTurn(a,world,'询问',proposal(a,'r1',[{type:'item-add',value:'收据',visibility:'player'}])); assert.deepEqual(core.currentState(b).inventory,[]); });
 test('branch at old node restores facts, items, relations, memory and world version',()=> {const s=setup(); core.commitTurn(s,world,'问好',proposal(s,'r1',[{type:'relation',entity:'lin',value:'愿意合作',visibility:'player'}])); const node=core.getBranch(s).turns[0].id; core.commitTurn(s,world,'收下',proposal(s,'r2',[{type:'item-add',value:'收据',visibility:'player'},{type:'fact',value:'后来才知道的事',visibility:'player'}])); const old=core.getBranch(s).id; core.forkBranch(s,node,'另一条路'); assert.deepEqual(core.currentState(s).inventory,[]); assert.deepEqual(core.currentState(s).facts,[]); assert.equal(core.getBranch(s).turns.length,1); assert.equal(core.currentState(s).relations.lin,'愿意合作'); assert.equal(core.getBranch(s).worldKey,'test@1'); s.activeBranch=old; assert.deepEqual(core.currentState(s).inventory,['收据']); });
 test('stale and duplicate replies cannot append or partially change state',()=> {const s=setup(), p=proposal(s,'one',[{type:'item-add',value:'收据',visibility:'player'}]); core.commitTurn(s,world,'拿起',p); const before=JSON.stringify(s); assert.throws(()=>core.commitTurn(s,world,'拿起',p)); assert.equal(JSON.stringify(s),before); assert.throws(()=>core.commitTurn(s,world,'继续',{...p,requestId:'two'})); assert.equal(JSON.stringify(s),before); });

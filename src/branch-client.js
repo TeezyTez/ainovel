@@ -4,13 +4,22 @@ export class BranchClient{
  owner(){let token=this.storage.getItem(TOKEN_KEY);if(!token){token=crypto.randomUUID()+crypto.randomUUID();this.storage.setItem(TOKEN_KEY,token);}return token;}
  async request(path,body,signal){const response=await this.fetcher(path,{method:'POST',headers:{'content-type':'application/json','x-branch-owner':this.owner()},body:JSON.stringify(body),signal});const data=await response.json();if(!response.ok){const error=new Error(data.error||'本机故事服务暂不可用。');error.code=data.code;throw error;}return data;}
  async register(session,worlds,signal){const key=session.id+':'+session.activeBranch;if(this.registered.has(key))return null;const data=await this.request('/api/branch/register',{session,worlds},signal);this.registered.add(key);return data;}
- read(session,requestId){return this.request('/api/branch/read',{sessionId:session.id,branchId:session.activeBranch,...(requestId?{requestId}:{})});}
+ async read(session,requestId,signal){
+  if(signal?.aborted)throw signal.reason;
+  const controller=new AbortController(),cancel=()=>controller.abort(signal.reason);
+  signal?.addEventListener('abort',cancel,{once:true});
+  const timer=setTimeout(()=>controller.abort(Object.assign(new Error('核对进度超时，请稍后重试。你的输入仍已保留。'),{code:'RECOVERY_TIMEOUT'})),15000);
+  let onAbort;
+  const stopped=new Promise((_,reject)=>{onAbort=()=>reject(controller.signal.reason);controller.signal.addEventListener('abort',onAbort,{once:true});});
+  try{return await Promise.race([this.request('/api/branch/read',{sessionId:session.id,branchId:session.activeBranch,...(requestId?{requestId}:{})},controller.signal),stopped]);}
+  finally{clearTimeout(timer);signal?.removeEventListener('abort',cancel);controller.signal.removeEventListener('abort',onAbort);}
+ }
  async generate(body,signal,onProgress){
   const response=await this.fetcher('/api/generate',{method:'POST',headers:{'content-type':'application/json','accept':'application/x-ndjson','x-branch-owner':this.owner()},body:JSON.stringify(body),signal});
   const failure=data=>Object.assign(new Error(data.error||'本机故事服务暂不可用。'),{code:data.code});
   if(!response.headers?.get('content-type')?.includes('application/x-ndjson')){const data=await response.json();if(!response.ok)throw failure(data);return data;}
   const reader=response.body.getReader(),decoder=new TextDecoder();let buffer='',result,complete=false;
-  const line=value=>{if(!value.trim())return;const event=JSON.parse(value);if(event.type==='error')throw failure(event);if(event.type==='progress'&&['preparing','writing','checking','saving'].includes(event.stage))onProgress?.(event.stage);if(event.type==='result'){result=event.value;complete=true;}};
+  const line=value=>{if(!value.trim())return;const event=JSON.parse(value);if(event.type==='error')throw failure(event);if(event.type==='progress'&&['preparing','writing','recording','checking','saving'].includes(event.stage))onProgress?.(event.stage);if(event.type==='result'){result=event.value;complete=true;}};
   try{while(true){const {done,value}=await reader.read();buffer+=done?decoder.decode():decoder.decode(value,{stream:true});let cut;while((cut=buffer.indexOf('\n'))>=0){line(buffer.slice(0,cut));buffer=buffer.slice(cut+1);}if(done){if(buffer.trim())line(buffer);break;}}}finally{reader.releaseLock();}
   if(!complete)throw failure({code:'INCOMPLETE_RESPONSE',error:'连接中断，正在保留本次请求。可恢复进度或重试。'});return result;
  }
@@ -30,7 +39,7 @@ export function mergeConfirmedBranch(local,confirmed){
  if(local.id!==confirmed.id||local.worldKey!==confirmed.worldKey)throw new Error('恢复结果不属于当前分支。');
  const before=local.turns.at(-1)?.state.version??local.initialState.version,after=confirmed.turns.at(-1)?.state.version??confirmed.initialState.version;
  if(after<before)throw new Error('服务端记录较旧，已保留当前存档。');
- const personal={...(local.dynamicDraftHistory?{dynamicDraftHistory:structuredClone(local.dynamicDraftHistory)}:{}),...(local.dynamicDraft?{dynamicDraft:structuredClone(local.dynamicDraft)}:{}),draft:local.draft,readingPosition:local.readingPosition,...(local.personal?{personal:structuredClone(local.personal)}:{}),name:local.name,...(local.archived!==undefined?{archived:local.archived}:{})};
+ const personal={...(local.recoveredSubmission?{recoveredSubmission:structuredClone(local.recoveredSubmission)}:{}),...(local.dynamicDraftHistory?{dynamicDraftHistory:structuredClone(local.dynamicDraftHistory)}:{}),...(local.dynamicDraft?{dynamicDraft:structuredClone(local.dynamicDraft)}:{}),draft:local.draft,readingPosition:local.readingPosition,...(local.personal?{personal:structuredClone(local.personal)}:{}),name:local.name,...(local.archived!==undefined?{archived:local.archived}:{})};
  return {...structuredClone(confirmed),...personal};
 }
 export function mergeConfirmedBranches(local,confirmed){

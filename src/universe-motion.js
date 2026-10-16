@@ -71,6 +71,13 @@ export function createUniverseMotion({root=globalThis.document,load=()=>import('
   listen(stage,'pointerleave',()=>{tx=ty=0;clearCursor();});
   listen(stage,'pointerdown',event=>{if(event.pointerType==='touch')clearCursor();});
   listen(pause,'click',()=>{paused=!paused;sync();});
+  listen(stage,'click',event=>{
+   if(!event.target.closest('[data-universe-explore]'))return;
+   const destination=root.querySelector('#discovery-title');
+   if(!destination)return;
+   destination.focus({preventScroll:true});
+   destination.scrollIntoView({block:'start',behavior:reduced()?'instant':'smooth'});
+  });
   listen(view,'scroll',()=>{clearCursor();sync();});
   listen(view,'resize',()=>{scene?.resize();sync();});
   listen(view,'blur',()=>{tx=ty=0;clearCursor();});

@@ -6,6 +6,11 @@ import { join } from 'node:path';
 export const proposalSchema={type:'object',additionalProperties:false,required:['requestId','baseVersion','prose','events','suggestions','ended'],properties:{requestId:{type:'string'},baseVersion:{type:'integer'},prose:{type:'string'},ended:{type:'boolean'},events:{type:'array',items:{type:'object',additionalProperties:false,required:['type','entity','value','visibility'],properties:{type:{type:'string',enum:['fact','item-add','item-remove','relation','location','flag']},entity:{type:['string','null']},value:{anyOf:[{type:'string'},{type:'number'},{type:'boolean'}]},visibility:{type:'string',enum:['player','hidden']}}}},suggestions:{type:'array',items:{type:'object',additionalProperties:false,required:['id','text'],properties:{id:{type:'string'},text:{type:'string'}}}}}};
 const disabled=['shell_tool','unified_exec','apps','plugins','browser_use','browser_use_external','browser_use_full_cdp_access','computer_use','in_app_browser','multi_agent','hooks','image_generation','view_image','shell_snapshot','code_mode_host','goals','sleep_tool'];
 
+// Keep raw CLI output private: it may contain local paths or authorization data.
+export class CodexRuntimeError extends Error {
+  constructor(code) { super(code); this.code=code; }
+}
+
 function execute(config,args,{input='',signal,cwd}={}) {
   return new Promise((resolve,reject)=>{
     if(signal?.aborted)return reject(new Error('cancelled'));
@@ -15,7 +20,7 @@ function execute(config,args,{input='',signal,cwd}={}) {
     const abort=()=>child.kill();signal?.addEventListener('abort',abort,{once:true});
     const collect=which=>chunk=>{size+=chunk.length;if(size>1048576){overflow=true;child.kill();return;}if(which==='out')stdout+=chunk.toString();else stderr+=chunk.toString();};
     child.stdout.on('data',collect('out'));child.stderr.on('data',collect('err'));
-    child.once('error',error=>{signal?.removeEventListener('abort',abort);reject(error);});
+    child.once('error',error=>{signal?.removeEventListener('abort',abort);reject(new CodexRuntimeError(['EACCES','EPERM'].includes(error.code)?'CODEX_PERMISSION_DENIED':error.code==='ENOENT'?'CODEX_UNAVAILABLE':'CODEX_EXECUTION_FAILED'));});
     child.once('close',code=>{signal?.removeEventListener('abort',abort);if(signal?.aborted||overflow)reject(new Error('cancelled or oversized'));else resolve({code,stdout,stderr});});
     child.stdin.on('error',()=>{});child.stdin.end(input);
   });
@@ -34,12 +39,16 @@ export async function runCodex(config,system,content,signal,{schema=proposalSche
   try {
     await writeFile(schemaFile,JSON.stringify(schema));
     await writeFile(instructionsFile,system+'\n仅生成符合给定 schema 的 JSON，不调用工具。');
-    const args=['exec','--ignore-user-config','--ephemeral','--skip-git-repo-check','--sandbox','read-only','--json','--color','never','--cd',dir,'--output-schema',schemaFile,'--enable','skip_host_skill_discovery','-c',`model_instructions_file=${JSON.stringify(instructionsFile)}`,'-c','web_search="disabled"','-c','project_doc_max_bytes=0','-c','model_reasoning_effort="low"'];
+    const effort=['low','medium','high'].includes(config.reasoningEffort)?config.reasoningEffort:'low';
+    const args=['exec','--ignore-user-config','--ephemeral','--skip-git-repo-check','--sandbox','read-only','--json','--color','never','--cd',dir,'--output-schema',schemaFile,'--enable','skip_host_skill_discovery','-c',`model_instructions_file=${JSON.stringify(instructionsFile)}`,'-c','web_search="disabled"','-c','project_doc_max_bytes=0','-c',`model_reasoning_effort="${effort}"`];
     for(const feature of disabled)args.push('--disable',feature);
     if(config.model)args.push('--model',config.model);
     args.push('-');
     const result=await execute(config,args,{input:content,signal,cwd:dir});
-    if(result.code!==0)throw new Error('Codex CLI failed');
+    if(result.code!==0){
+      const permissionDenied=/^Error:.*(?:access is denied|permission denied|拒绝访问|os error 5)|attempt to write a readonly database/im.test(result.stderr);
+      throw new CodexRuntimeError(permissionDenied?'CODEX_PERMISSION_DENIED':'CODEX_EXECUTION_FAILED');
+    }
     const events=result.stdout.split(/\r?\n/).filter(Boolean).map(line=>JSON.parse(line));
     if(events.some(e=>e.type==='error'||e.type==='turn.failed'||(e.item&&['command_execution','mcp_tool_call','web_search','file_change'].includes(e.item.type))))throw new Error('Unexpected CLI operation');
     const message=events.filter(e=>e.type==='item.completed'&&e.item?.type==='agent_message').at(-1)?.item.text;

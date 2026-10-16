@@ -18,7 +18,7 @@ export function initialState(world) {
 }
 export function createSession(world,player={},mode='demo') {
   const branch={id:uid(),name:'最初的故事',worldKey:worldKey(world),opening:world.opening,parentBranch:null,parentTurn:null,initialState:initialState(world),turns:[],draft:'',readingPosition:0};
-  return {id:uid(),title:world.title,worldId:world.id,player:{name:'旅人',identity:world.identity,goal:world.goal||'',...player},mode,activeBranch:branch.id,branches:[branch],saves:[],archived:false,createdAt:Date.now(),updatedAt:Date.now(),preferences:{perspective:'第二人称',length:'适中',pace:'从容',style:'细腻克制'}};
+  return {id:uid(),title:world.title,worldId:world.id,player:{name:'旅人',identity:world.identity,goal:world.goal||'',...player},mode,activeBranch:branch.id,branches:[branch],saves:[],archived:false,createdAt:Date.now(),updatedAt:Date.now(),preferences:{perspective:'第二人称',length:'适中'}};
 }
 export const getBranch = session => session.branches.find(b=>b.id===session.activeBranch);
 export const currentState = session => {const b=getBranch(session); return b.turns.at(-1)?.state || b.initialState;};
@@ -136,7 +136,7 @@ export function validateArchive(data) {
   const worldMap=new Map(); for(const w of data.worlds){validateWorld(w);assert(!worldMap.has(worldKey(w)),'存档的世界版本重复。');worldMap.set(worldKey(w),w);}
   const ids=new Set(); for(const s of data.sessions){
     assert(s&&safeKey(s.id)&&!ids.has(s.id)&&text(s.title,200)&&['demo','real'].includes(s.mode)&&s.player&&text(s.player.name,200)&&text(s.player.identity,2000),'故事资料无效。');ids.add(s.id);
-    assert(timestamp(s.createdAt)&&timestamp(s.updatedAt)&&object(s.preferences)&&['perspective','length','pace','style'].every(k=>text(s.preferences[k],200)),'故事日期或叙述偏好格式无效。');
+    assert(timestamp(s.createdAt)&&timestamp(s.updatedAt)&&object(s.preferences)&&['perspective','length'].every(k=>text(s.preferences[k],200)),'故事日期或叙述偏好格式无效。');
     if(s.preferences.boundaries!==undefined)assert(text(s.preferences.boundaries,4000),'本局底线格式无效。');
     if(s.preferences.availableMinutes!==undefined)assert(text(s.preferences.availableMinutes,3)&&(s.preferences.availableMinutes===''||/^(?:[1-9]\d?|1[0-7]\d|180)$/.test(s.preferences.availableMinutes)),'本次阅读时长偏好无效。');
     assert(data.worlds.some(w=>w.id===s.worldId),'故事关联的世界不存在。');

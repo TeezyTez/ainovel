@@ -10,7 +10,7 @@ class Events extends EventTarget{
 }
 
 // Only browser layout, selectors and WAAPI are doubled; the controller owns all effects.
-function fixture(){
+function fixture({enabled=()=>true}={}){
   let id=0,appReduced=false;
   const frames=new Map(),observers=new Set(),animations=[];
   const reduced=new Events(),fine=new Events();reduced.matches=false;fine.matches=true;
@@ -41,11 +41,11 @@ function fixture(){
     return node;
   }
   root.contains=element().contains;
-  const button=element(),icon=element('svg','',button),link=element('a','workspace-nav-link'),details=element('details'),summary=element('summary','',details);
+  const button=element('button','btn primary'),icon=element('svg','',button),link=element('a','workspace-create'),details=element('details'),summary=element('summary','',details);
   const view=new Events();view.innerWidth=1200;view.innerHeight=800;view.matchMedia=query=>query.includes('reduced')?reduced:fine;
   view.getComputedStyle=()=>({visibility:'visible',display:'block'});
   doc.createElement=tag=>element(tag,'',null);
-  const motion=createControlMotion({root,document:doc,view,requestFrame:callback=>{frames.set(++id,callback);return id;},cancelFrame:key=>frames.delete(key),
+  const motion=createControlMotion({root,document:doc,view,enabled,requestFrame:callback=>{frames.set(++id,callback);return id;},cancelFrame:key=>frames.delete(key),
     MutationObserver:class{constructor(callback){this.callback=callback;}observe(){observers.add(this);}disconnect(){observers.delete(this);}}});
   const f={motion,root,doc,view,button,icon,link,summary,frames,animations,observers,reduced,fine,element,
     move(target=button,clientX=110,clientY=70,pointerType='mouse'){return root.emit('pointermove',{target,clientX,clientY,pointerType});},
@@ -76,9 +76,7 @@ test('hover owns one non-interactive lens, reuses it during movement and removes
   const lens=f.button.children[0];
   assert.equal(lens.className,'control-lens');assert.equal(lens.attributes.get('aria-hidden'),'true');
   assert.equal(lens.style.pointerEvents,'none');
-  assert.deepEqual(lens.children.map(child=>[child.className,child.getAttribute('data-orbit')]),[
-    ['control-orbit','0'],['control-orbit','1'],['control-orbit','2'],['control-lens-core',null]
-  ]);
+  assert.equal(lens.children.length,0,'the light is a single surface, without orbit decorations');
   f.move(f.icon,75,45);f.step();f.mutate();
   assert.equal(f.button.children.length,1);assert.equal(f.button.children[0],lens);
   assert.equal(f.frames.size,0,'a stationary hover needs no controller animation loop');
@@ -114,22 +112,37 @@ test('touch and keyboard clicks keep feedback without hover tracking on coarse d
   const f=fixture();f.fine.matches=false;f.motion.mount();f.move();f.move(f.button,60,45,'touch');assert.equal(f.frames.size,0);
   f.click(f.button,{pointerType:'touch'});assert.equal(f.button.children[0].style.left,'50px');assert.equal(f.button.children[0].style.top,'25px');
   f.click(f.link,{detail:0,clientX:0,clientY:0});assert.equal(f.link.children[0].style.left,'100px');assert.equal(f.link.children[0].style.top,'50px');
-  f.click(f.summary,{detail:0});assert.equal(f.summary.children.length,1);f.motion.destroy();
+  f.click(f.summary,{detail:0});assert.equal(f.summary.children.length,0);f.motion.destroy();
 });
 
-test('button-like links and summaries participate while native appearance inputs remain untouched',()=>{
+test('only prominent action surfaces receive decorative light',()=>{
   const f=fixture();f.motion.mount();
-  for(const [tag,className] of [['a','btn'],['a','workspace-create'],['a','world-return'],['a','reading-back'],['a','text-button'],['button','icon-button']]){
+  for(const [tag,className] of [['a','btn primary'],['a','workspace-create'],['a','world-return'],['button','reading-send']]){
     const control=f.element(tag,className);f.move(control);f.step();assert.equal(control.children[0].className,'control-lens');
     f.root.emit('pointerleave');f.click(control);assert.equal(control.children.length,1);
   }
   const strip=f.element('div','world-return-strip'),returnLink=f.element('a','',strip);f.click(returnLink);assert.equal(returnLink.children.length,1);
-  for(const tag of ['input','select','textarea']){const input=f.element(tag,'icon-button');f.click(input);f.move(input);f.step();assert.equal(input.children.length,0);assert.equal(input.values.size,0);}
+  for(const tag of ['input','select','textarea']){const input=f.element(tag,'btn primary');f.click(input);f.move(input);f.step();assert.equal(input.children.length,0);assert.equal(input.values.size,0);}
+  f.motion.destroy();
+});
+
+test('secondary buttons, text links, navigation and disclosure rows stay free of injected effects',()=>{
+  const f=fixture();f.motion.mount();
+  for(const [tag,className] of [['button','btn'],['a','btn cinema-secondary'],['a','workspace-nav-link'],['a','reading-back'],['a','text-button'],['button','icon-button'],['button','universe-motion-toggle']]){
+    const control=f.element(tag,className);
+    assert.equal(f.move(control).defaultPrevented,false);f.step();
+    assert.equal(f.click(control).defaultPrevented,false);
+    assert.equal(control.children.length,0);assert.equal(control.values.size,0);assert.equal(control.attributes.size,0);
+  }
+  f.move();f.step();const lens=f.button.children[0];
+  f.move(f.summary);f.step();f.click(f.summary);
+  assert.equal(lens.isConnected,false);assert.equal(f.summary.children.length,0);
+  assert.equal(f.summary.values.size,0);assert.equal(f.frames.size,0);assert.equal(f.animations.length,0);
   f.motion.destroy();
 });
 
 test('disabled, inert, destructive, detached and offscreen controls never receive decorative effects',()=>{
-  const blocked=[f=>{f.button.disabled=true;},f=>f.button.setAttribute('aria-disabled','true'),f=>{const parent=f.element('div');parent.setAttribute('inert','');f.button.parent=parent;},f=>{f.button.className='danger';},f=>{f.button.dataset.action='batch-trash';},f=>{f.button.parent=null;},f=>{f.button.rect.left=1400;},f=>{f.button.rect.width=0;},f=>{f.button.rect.top=Number.NaN;}];
+  const blocked=[f=>{f.button.disabled=true;},f=>f.button.setAttribute('aria-disabled','true'),f=>{const parent=f.element('div');parent.setAttribute('inert','');f.button.parent=parent;},f=>{f.button.className='btn primary danger';},f=>{f.button.dataset.action='batch-trash';},f=>{f.button.parent=null;},f=>{f.button.rect.left=1400;},f=>{f.button.rect.width=0;},f=>{f.button.rect.top=Number.NaN;}];
   for(const block of blocked){const f=fixture();f.motion.mount();block(f);f.move();f.step();f.click();assert.equal(f.button.values.size,0);assert.equal(f.button.children.length,0);assert.equal(f.animations.length,0);f.motion.destroy();}
   const f=fixture();f.motion.mount();const text=f.element('a');f.move(text);f.step();f.click(text);assert.equal(f.animations.length,0);assert.equal(text.values.size,0);f.motion.destroy();
 });
@@ -177,7 +190,7 @@ test('a busy control settles its effects while other controls in an updating pan
   assert.equal(f.button.values.size,0);assert.equal(f.button.children.length,0);assert.ok(f.animations[0].cancelled);
   f.move();f.step();f.click();assert.equal(f.animations.length,1);
   const panel=f.element('section');panel.setAttribute('aria-busy','true');panel.setAttribute('data-busy','true');
-  const cancel=f.element('button','',panel);cancel.dataset.action='cancel-generation';
+  const cancel=f.element('button','btn primary',panel);cancel.dataset.action='cancel-generation';
   const event=f.click(cancel);assert.equal(event.defaultPrevented,false);assert.equal(cancel.children.length,1);
   f.button.removeAttribute('aria-busy');f.mutate();f.click();assert.equal(f.button.children.length,1);
   f.motion.destroy();
@@ -188,4 +201,15 @@ test('unavailable or rejected animation support leaves no orphan decoration',()=
     const f=fixture();f.doc.createElement=tag=>Object.assign(f.element(tag,'',null),{animate});f.motion.mount();
     assert.doesNotThrow(()=>f.click());assert.equal(f.button.children.length,0);f.motion.destroy();
   }
+});
+
+
+test('route gate removes home effects and leaves reading controls native, then restores home effects',()=>{
+  let home=true;const f=fixture({enabled:()=>home});f.motion.mount();f.move();f.step();f.click();
+  const lens=f.button.children[0];assert.equal(lens.isConnected,true);
+  home=false;f.motion.mount();assert.equal(lens.isConnected,false);
+  assert.equal(f.click().defaultPrevented,false);f.move();f.step();
+  assert.equal(f.button.children.length,0);assert.equal(f.frames.size,0);assert.equal(f.animations.length,1);
+  home=true;f.motion.mount();f.move();f.step();assert.equal(f.button.children.length,1);
+  f.motion.destroy();
 });

@@ -1,0 +1,163 @@
+@import './interior-worlds.css';
+@import './interior-forms.css';
+@import './interior-reader.css';
+
+/* Shared interior chrome. Each imported module owns only its route's content. */
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .product-app {
+  --interior-radius: 12px;
+  background: radial-gradient(ellipse 75% 360px at 10% 70px,var(--portal-field),transparent),var(--bg);
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-sidebar {
+  height: 80px;
+  gap: 18px;
+  background: var(--bg);
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-brand {
+  gap: 10px;
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .brand-wordmark {
+  font-size: 28px;
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-nav {
+  gap: 4px;
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-nav a {
+  padding: 10px 16px;
+  font-size: 13px;
+  border-radius: 6px;
+  background: transparent;
+  box-shadow: none;
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-nav a:hover {
+  color: var(--signal);
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-nav a.is-active::after {
+  content: '';
+  display: block;
+  position: absolute;
+  inset: auto 16px 3px;
+  height: 1px;
+  background: var(--portal-spectrum);
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-nav .ui-icon {
+  display: none;
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-theme select {
+  min-width: 112px;
+  font-size: 12px;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-create {
+  border-radius: 7px;
+  font-size: 12px;
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-recents>summary {
+  min-height: 44px;
+  border-radius: 7px;
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-recents>summary:hover {
+  background: var(--soft);
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-recent-menu {
+  padding: 8px;
+  border-radius: 12px;
+  background: var(--paper);
+  box-shadow: var(--shadow-raised);
+}
+body:is([data-page=stories],[data-page=create],[data-page=edit],[data-page=settings]) .interior-kicker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  color: var(--muted);
+  font: 10px/1.5 var(--font-brand);
+  letter-spacing: .15em;
+}
+body:is([data-page=stories],[data-page=create],[data-page=edit],[data-page=settings]) .interior-kicker::before {
+  content: '';
+  width: 22px;
+  height: 1px;
+  flex: none;
+  background: var(--portal-spectrum);
+}
+body:is([data-page=stories],[data-page=create],[data-page=edit],[data-page=settings]) .interior-intro {
+  margin: 12px 0 0;
+  max-width: 60ch;
+  color: var(--muted);
+  font: 13px/1.8 var(--sans);
+  letter-spacing: .015em;
+}
+
+/* Stable, opaque dialogs keep long forms legible in both interface themes. */
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) dialog {
+  width: min(640px,calc(100vw - 32px));
+  max-height: min(88dvh,900px);
+  border-radius: 16px;
+  background: var(--paper);
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .dialog-head {
+  gap: 20px;
+  padding: 20px 28px;
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .dialog-head h2 {
+  margin: 0;
+  font: 550 24px/1.5 var(--font-display);
+  letter-spacing: -.035em;
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .dialog-head button {
+  flex: none;
+  width: 44px;
+  min-height: 44px;
+  padding: 10px;
+  border-radius: 8px;
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .dialog-content {
+  padding: 26px 28px;
+  font-size: 14px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .dialog-content>.field {
+  margin-top: 22px;
+}
+body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .dialog-footer {
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+@media (max-width:800px) {
+  body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-sidebar {
+    height: 68px;
+    gap: 12px;
+  }
+  body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .brand-wordmark { font-size: 25px; }
+  body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-nav {
+    gap: 4px;
+    background: var(--paper);
+  }
+  body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-nav a {
+    padding: 7px 3px;
+    gap: 5px;
+    font-size: 11px;
+    border-radius: 7px;
+  }
+  body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-nav .ui-icon { display: block; width: 17px; height: 17px; }
+  body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-nav a.is-active { background: var(--signal-soft); }
+  body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-nav a.is-active::after { display: none; }
+}
+@media (max-width:520px) {
+  body:is([data-page=stories],[data-page=create],[data-page=edit],[data-page=settings]) .interior-intro { font-size: 12px; margin-top: 9px; }
+  body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .dialog-head { padding: 14px 18px; gap: 12px; }
+  body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .dialog-head h2 { font-size: 21px; }
+  body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .dialog-content { padding: 20px 18px; }
+  body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .dialog-footer .btn { flex: 1 1 auto; }
+}
+@media (forced-colors:active) {
+  body:is([data-page=stories],[data-page=world],[data-page=create],[data-page=edit],[data-page=settings]) .workspace-nav a.is-active { outline: 1px solid Highlight; outline-offset: -2px; }
+}

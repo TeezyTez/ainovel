@@ -48,7 +48,7 @@ function publicContext(body){
     world:{...publicText(body.world,['id','title','description','era','identity','location','opening']),version:body.world.version,rules:body.world.rules,characters:known},
     state:{...pick(body.state,['version','step','location','time','facts','inventory','experience','game']),relations:Object.fromEntries(Object.entries(body.state.relations).filter(([id])=>knownIds.has(id)))},
     player:publicText(body.player,['name','identity','goal']),
-    preferences:publicText(body.preferences,['perspective','length','pace','style','participation','boundaries','availableMinutes']),
+    preferences:publicText(body.preferences,['perspective','length','participation','boundaries','availableMinutes']),
     ...(body.references?{references:body.references}:{}),
     ...(body.selectedObjects?{selectedObjects:body.selectedObjects}:{}),
     memory:body.memory.filter(m=>object(m)&&m.visibility!=='hidden'&&!m.hidden).map(m=>({...publicText(m,['sourceTurn','branchId','summary']),facts:Array.isArray(m.facts)?m.facts.filter(v=>text(v,2000)):[],events:publicEvents(m.events)})),

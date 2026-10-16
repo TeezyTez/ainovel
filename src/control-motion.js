@@ -1,9 +1,12 @@
-const controls='button, a.btn, a.workspace-create, .world-return-strip > a, a.world-return, a.reading-back, a.text-button, .workspace-nav-link, details > summary, .icon-button';
+// Only filled action surfaces own optical effects. Text links and disclosure
+// rows keep native feedback and never acquire an extra box or positioned art.
+const controls='.btn.primary, a.workspace-create, .world-return-strip > a, a.world-return, .reading-send';
 const clamp=value=>Math.max(0,Math.min(1,value));
 
 /** Decorative feedback only. Native clicks, focus, form submission and routing stay untouched. */
 export function createControlMotion({
   root=globalThis.document,
+  enabled=()=>true,
   document=root?.ownerDocument||root,
   view=document?.defaultView,
   requestFrame=view?.requestAnimationFrame?.bind(view),
@@ -16,7 +19,7 @@ export function createControlMotion({
   let mounted=false,destroyed=false,frame=null,active=null,point=null,lens=null,cleanup=[];
 
   function allowed(){
-    return mounted&&!destroyed&&!document?.hidden&&!reduced?.matches&&
+    return enabled()&&mounted&&!destroyed&&!document?.hidden&&!reduced?.matches&&
       !document?.body?.classList.contains('reduce-motion');
   }
 
@@ -52,12 +55,6 @@ export function createControlMotion({
     lens?.remove();lens=null;
     const node=document.createElement('span');
     node.className='control-lens';node.setAttribute('aria-hidden','true');node.style.pointerEvents='none';
-    for(let index=0;index<3;index++){
-      const orbit=document.createElement('i');
-      orbit.className='control-orbit';orbit.setAttribute('data-orbit',String(index));
-      node.appendChild(orbit);
-    }
-    const core=document.createElement('span');core.className='control-lens-core';node.appendChild(core);
     active.appendChild(node);lens=node;
   }
 
@@ -132,7 +129,7 @@ export function createControlMotion({
 
   function mount(){
     unmount();
-    if(destroyed||!root?.addEventListener)return;
+    if(destroyed||!enabled()||!root?.addEventListener)return;
     mounted=true;
     listen(root,'pointermove',move);
     listen(root,'pointerdown',contact);

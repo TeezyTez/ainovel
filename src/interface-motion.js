@@ -4,6 +4,7 @@ const clamp=value=>Math.max(0,Math.min(1,value));
 /** Small pointer responses for product artwork. Navigation and scrolling stay native. */
 export function createInterfaceMotion({
   root=globalThis.document,
+  enabled=()=>true,
   document=root?.ownerDocument||root,
   view=document?.defaultView,
   requestFrame=view?.requestAnimationFrame?.bind(view),
@@ -15,7 +16,7 @@ export function createInterfaceMotion({
   let destroyed=false,mounted=false,frame=null,surface=null,point=null,cleanup=[];
 
   function allowed(){
-    return mounted&&!destroyed&&!document?.hidden&&!reduced?.matches&&fine?.matches&&
+    return enabled()&&mounted&&!destroyed&&!document?.hidden&&!reduced?.matches&&fine?.matches&&
       !document?.body?.classList.contains('reduce-motion');
   }
 
@@ -72,7 +73,7 @@ export function createInterfaceMotion({
 
   function mount(){
     unmount();
-    if(destroyed||!root?.addEventListener||!requestFrame)return;
+    if(destroyed||!enabled()||!root?.addEventListener||!requestFrame)return;
     mounted=true;
     listen(root,'pointermove',move);
     listen(root,'pointerdown',contact);

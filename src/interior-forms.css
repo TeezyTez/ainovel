@@ -1,0 +1,310 @@
+/* Creation and preferences share the homepage's spectral editorial language.
+ * Route scopes are deliberate: the homepage, reader and common shell are untouched. */
+body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) :is(.creator-page,.settings-page) {
+  --form-border: color-mix(in srgb,var(--portal-violet) 22%,var(--line));
+  --form-surface: color-mix(in srgb,var(--paper) 97%,var(--portal-violet));
+  --form-wash: color-mix(in srgb,var(--paper) 92%,var(--bg));
+  --form-shadow: 0 1px 0 var(--highlight) inset,0 18px 48px -34px var(--portal-depth);
+  min-width: 0;
+  padding-top: 56px;
+  padding-bottom: 80px;
+}
+body:is([data-page="create"],[data-page="edit"]) .workspace-main>.creator-page { max-width: 980px; }
+body[data-page="settings"] .workspace-main>.settings-page { max-width: 1120px; }
+body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) :is(.creator-page,.settings-page) .page-heading {
+  position: relative;
+  margin-bottom: 36px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid var(--line);
+}
+body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) :is(.creator-page,.settings-page) .page-heading::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 64px;
+  height: 1px;
+  background: var(--portal-spectrum);
+}
+body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) .product-app :is(.creator-page,.settings-page) h1 {
+  margin: 0;
+  color: var(--ink);
+  font: 500 clamp(34px,3.5vw,44px)/1.45 var(--font-display);
+  letter-spacing: -.04em;
+  overflow-wrap: anywhere;
+}
+body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) .product-app :is(.creator-page,.settings-page) .btn {
+  min-height: 46px;
+  padding: 11px 17px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: normal;
+  text-align: center;
+}
+body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) :is(.creator-page,.settings-page) .field {
+  min-width: 0;
+  gap: 9px;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.75;
+}
+body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) .product-app :is(.creator-page,.settings-page) :is(.field input,.field select,.field textarea,.setting-row select) {
+  min-width: 0;
+  min-height: 48px;
+  border: 1px solid var(--form-border);
+  border-radius: 8px;
+  background: var(--form-wash);
+  color: var(--ink);
+  padding: 12px 14px;
+  font-size: 15px;
+  line-height: 1.65;
+  box-shadow: 0 1px 2px rgb(var(--portal-glow) / .025) inset;
+}
+body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) :is(.creator-page,.settings-page) :is(input,select,textarea):focus-visible {
+  outline-offset: 3px;
+  border-color: var(--signal);
+}
+body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) :is(.creator-page,.settings-page) :is(input,select,textarea):user-invalid { border-color: var(--danger); }
+body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) :is(.creator-page,.settings-page) .field-grid {
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 22px;
+}
+body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) :is(.creator-page,.settings-page) .notice {
+  padding: 15px 18px;
+  border-radius: 9px;
+  font-size: 13px;
+  line-height: 1.85;
+  overflow-wrap: anywhere;
+}
+
+/* A calm writing surface, followed by the actual editable chapters. */
+body:is([data-page="create"],[data-page="edit"]) .creator-page .editor { max-width: none; min-width: 0; }
+body:is([data-page="create"],[data-page="edit"]) .creator-seed-panel {
+  position: relative;
+  padding: 33px 35px 27px;
+  border: 1px solid var(--form-border);
+  border-radius: 14px;
+  background: radial-gradient(ellipse at 100% 0%,var(--signal-soft),transparent 56%),var(--form-surface);
+  box-shadow: var(--form-shadow);
+}
+body:is([data-page="create"],[data-page="edit"]) .creator-seed-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 34px;
+  right: 34px;
+  height: 1px;
+  background: var(--portal-spectrum);
+  opacity: .75;
+  pointer-events: none;
+}
+body:is([data-page="create"],[data-page="edit"]) .creator-seed-label { color: var(--signal); font-size: 12px; letter-spacing: .12em; }
+body:is([data-page="create"],[data-page="edit"]) .creator-seed-label::before {
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--signal);
+  border-radius: 0;
+  background: transparent;
+  transform: rotate(45deg);
+}
+body:is([data-page="create"],[data-page="edit"]) .product-app .creator-seed-panel textarea {
+  min-height: 176px!important;
+  padding: 5px 0!important;
+  color: var(--ink);
+  font: 400 22px/1.95 var(--font-display)!important;
+  letter-spacing: .025em;
+}
+body:is([data-page="create"],[data-page="edit"]) .creator-seed-panel:focus-within {
+  border-color: var(--signal);
+  box-shadow: 0 0 0 3px var(--signal-soft),var(--form-shadow);
+}
+body:is([data-page="create"],[data-page="edit"]) .creator-seed-help { margin-top: 18px; font-size: 13px; line-height: 1.85; }
+body:is([data-page="create"],[data-page="edit"]) .creator-seed-actions { gap: 10px; margin-top: 25px; }
+body:is([data-page="create"],[data-page="edit"]) .creator-seed-actions .primary { min-width: 156px; }
+body:is([data-page="create"],[data-page="edit"]) .creator-seed-panel #creation-model-status { margin-top: 19px; padding-top: 16px; border-top: 1px solid var(--line); }
+body:is([data-page="create"],[data-page="edit"]) .creator-page details#world-details { margin-top: 30px; border-radius: 0; border-color: var(--line); }
+body:is([data-page="create"],[data-page="edit"]) .creator-page #world-details>summary {
+  justify-content: space-between;
+  min-height: 68px;
+  padding: 19px 0;
+  color: var(--ink);
+  font: 500 16px/1.6 var(--font-ui);
+}
+body:is([data-page="create"],[data-page="edit"]) .creator-page #world-details>summary::after { margin-left: auto; font-size: 23px; font-weight: 300; }
+body:is([data-page="create"],[data-page="edit"]) .creator-editor-help { max-width: 580px; margin-bottom: 21px; font-size: 13px; }
+body:is([data-page="create"],[data-page="edit"]) .creator-draft-tools { gap: 12px; margin: 21px 0 32px; }
+body:is([data-page="create"],[data-page="edit"]) .creator-page #world-details>.details-content { counter-reset: form-chapter; }
+body:is([data-page="create"],[data-page="edit"]) .creator-chapter {
+  counter-increment: form-chapter;
+  display: grid;
+  grid-template-columns: 120px minmax(0,1fr);
+  gap: 28px;
+  padding: 34px 0;
+  border-color: var(--line);
+}
+body:is([data-page="create"],[data-page="edit"]) .creator-chapter>header::before {
+  content: counter(form-chapter,decimal-leading-zero);
+  display: block;
+  margin-bottom: 10px;
+  color: var(--signal);
+  font: 11px/1.5 var(--font-brand);
+  letter-spacing: .12em;
+}
+body:is([data-page="create"],[data-page="edit"]) .creator-chapter h2 { margin: 0; color: var(--ink); font: 500 25px/1.5 var(--font-display); }
+body:is([data-page="create"],[data-page="edit"]) .creator-chapter>.stack { min-width: 0; gap: 24px; }
+body:is([data-page="create"],[data-page="edit"]) .product-app .creator-page .field textarea { min-height: 128px; line-height: 1.9; }
+body:is([data-page="create"],[data-page="edit"]) .product-app .creator-page .field textarea[name="opening"] { min-height: 200px; font-family: var(--font-display); font-size: 17px; }
+body:is([data-page="create"],[data-page="edit"]) .creator-extra { padding: 0; border-color: var(--line)!important; }
+body:is([data-page="create"],[data-page="edit"]) .creator-extra>summary { min-height: 66px; padding: 19px 0; font: 500 14px/1.75 var(--font-ui); }
+body:is([data-page="create"],[data-page="edit"]) .creator-extra>summary small { color: var(--muted); font-weight: 400; }
+body:is([data-page="create"],[data-page="edit"]) .creator-extra>.details-content { padding-top: 5px; padding-bottom: 26px; }
+body:is([data-page="create"],[data-page="edit"]) .creator-page .character-editor { margin: 0 0 19px; padding: 25px; border-color: var(--form-border); border-radius: 11px; background: var(--form-wash); }
+body:is([data-page="create"],[data-page="edit"]) .character-editor>.row { margin-bottom: 20px; }
+body:is([data-page="create"],[data-page="edit"]) .character-editor h3 { margin: 0; font: 500 19px/1.6 var(--font-display); }
+body:is([data-page="create"],[data-page="edit"]) .creator-page .editor-bar {
+  bottom: 18px;
+  gap: 20px;
+  margin-top: 28px;
+  padding: 17px 20px;
+  border-color: var(--form-border);
+  border-radius: 11px;
+  background: var(--form-surface);
+  box-shadow: 0 8px 32px -20px var(--portal-depth);
+}
+body:is([data-page="create"],[data-page="edit"]) .creator-page .editor-bar .small { font-size: 12px; line-height: 1.7; }
+body:is([data-page="create"],[data-page="edit"]) .creator-page .editor-bar>.row { gap: 10px; }
+
+/* A stable preference index, with aligned controls and a real reading specimen. */
+body[data-page="settings"] .settings-page>.page-heading { align-items: baseline; gap: 20px; }
+body[data-page="settings"] .settings-autosave { color: var(--muted); font-size: 12px; line-height: 1.7; text-align: right; }
+body[data-page="settings"] .settings-autosave::before { width: 5px; height: 5px; flex: none; background: var(--signal); }
+body[data-page="settings"] .settings-page .settings-layout {
+  display: grid;
+  grid-template-columns: 186px minmax(0,1fr);
+  align-items: start;
+  gap: 42px;
+  padding-top: 0;
+  border-top: 0;
+}
+body[data-page="settings"] .settings-layout>div { min-width: 0; }
+body[data-page="settings"] .settings-sidebar { top: 28px; gap: 7px; padding-top: 4px; }
+body[data-page="settings"] .settings-sidebar button {
+  position: relative;
+  min-height: 48px;
+  padding: 12px 13px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+body[data-page="settings"] .settings-sidebar button>span { flex: none; width: 20px; }
+body[data-page="settings"] .settings-sidebar button[aria-pressed="true"] { border-color: var(--form-border); background: var(--form-surface); color: var(--ink); box-shadow: var(--form-shadow); }
+body[data-page="settings"] .settings-sidebar button[aria-pressed="true"]::after { top: 12px; bottom: 12px; left: -1px; width: 2px; border-radius: 1px; background: linear-gradient(var(--portal-violet),var(--portal-cyan)); }
+body[data-page="settings"] .settings-page .settings-block { margin: 0; padding: 30px 32px 32px; border-color: var(--form-border); border-radius: 13px; background: var(--form-surface); box-shadow: var(--form-shadow); }
+body[data-page="settings"] .settings-section-heading { padding-bottom: 21px; border-bottom: 1px solid var(--line); }
+body[data-page="settings"] .settings-section-heading h2 { margin: 0; font: 500 26px/1.55 var(--font-display); letter-spacing: -.025em; }
+body[data-page="settings"] .settings-section-heading p { margin: 10px 0 0; font-size: 13px; line-height: 1.85; }
+body[data-page="settings"] .settings-block>.field-grid { margin-top: 25px; row-gap: 25px; }
+body[data-page="settings"] .setting-row { display: grid; grid-template-columns: minmax(95px,1fr) minmax(0,250px); align-items: center; gap: 22px; min-height: 79px; padding: 17px 0; }
+body[data-page="settings"] .setting-row>label { min-width: 0; color: var(--ink); font-size: 14px; line-height: 1.7; }
+body[data-page="settings"] .setting-row>label small { margin-top: 5px; color: var(--muted); font-size: 12px; font-weight: 400; line-height: 1.75; }
+body[data-page="settings"] .setting-row>select { width: 100%; max-width: none; }
+body[data-page="settings"] .settings-page .setting-range { width: 100%; max-width: none; gap: 14px; }
+body[data-page="settings"] .settings-page .setting-range input[type="range"] { height: 44px; min-height: 44px; margin: 0; }
+body[data-page="settings"] .settings-page .setting-range output { width: 53px; min-width: 53px; color: var(--ink); font: 12px/1.7 var(--font-brand); font-variant-numeric: tabular-nums; }
+body[data-page="settings"] .setting-row:has(>input.setting-switch) { grid-template-columns: minmax(0,1fr) 48px; }
+body[data-page="settings"] .setting-row:has(>input.setting-switch)>label { display: flex; flex-direction: column; justify-content: center; min-height: 44px; cursor: pointer; }
+body[data-page="settings"] .product-app .reading-sample { margin-top: 28px; padding: 29px 30px 32px; border-color: var(--form-border); border-radius: 10px; background: var(--form-wash); box-shadow: none; }
+body[data-page="settings"] .reading-sample .preview-label { margin-bottom: 18px; color: var(--signal); font-size: 11px; letter-spacing: .12em; }
+body[data-page="settings"] .settings-extra { margin-top: 25px; padding-top: 0; border-color: var(--line)!important; }
+body[data-page="settings"] :is(.settings-extra,.settings-developer)>summary { min-height: 60px; padding: 17px 0; color: var(--ink); font: 500 13px/1.8 var(--font-ui); }
+body[data-page="settings"] :is(.settings-extra,.settings-developer)>p { color: var(--muted); font-size: 13px; line-height: 1.9; overflow-wrap: anywhere; }
+body[data-page="settings"] .settings-page .code-note { margin-block: 18px; padding: 18px; border-radius: 8px; border-color: var(--form-border); background: var(--form-wash); font-size: 12px; line-height: 1.9; }
+body[data-page="settings"] :is(.settings-service-row,.settings-data-row) { gap: 22px; padding: 25px 0; }
+body[data-page="settings"] :is(.settings-service-row,.settings-data-row)>div { min-width: 0; }
+body[data-page="settings"] .settings-data-row h3 { margin-bottom: 7px; color: var(--ink); font-size: 14px; }
+body[data-page="settings"] .settings-data-row p { max-width: 390px; overflow-wrap: anywhere; }
+body[data-page="settings"] .model-connection-line { align-items: baseline; }
+body[data-page="settings"] .model-connection-line .connection-dot { flex: none; }
+body[data-page="settings"] .model-connection-line strong { line-height: 1.8; overflow-wrap: anywhere; }
+body[data-page="settings"] .model-status .small { overflow-wrap: anywhere; }
+body[data-page="settings"] .settings-developer { margin-top: 26px; border-top: 1px solid var(--line); }
+
+body[data-theme="dark"]:is([data-page="create"],[data-page="edit"],[data-page="settings"]) :is(.creator-page,.settings-page) {
+  --form-surface: color-mix(in srgb,var(--paper) 97%,var(--portal-violet));
+  --form-wash: color-mix(in srgb,var(--paper) 60%,var(--bg));
+  --form-shadow: 0 1px 0 #e2d2ff08 inset,0 18px 40px -30px #0008;
+}
+
+@media(max-width:1000px) {
+  body[data-page="settings"] .settings-page .settings-layout { grid-template-columns: 166px minmax(0,1fr); gap: 26px; }
+  body[data-page="settings"] .settings-page .settings-block { padding: 25px; }
+  body[data-page="settings"] .setting-row { grid-template-columns: minmax(80px,1fr) minmax(0,210px); gap: 18px; }
+}
+@media(max-width:800px) {
+  body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) .workspace-main>:is(.creator-page,.settings-page) { padding-top: 36px; padding-bottom: 48px; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-chapter { grid-template-columns: 96px minmax(0,1fr); gap: 22px; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-page .editor-bar { bottom: calc(88px + env(safe-area-inset-bottom,0px)); }
+  body[data-page="settings"] .settings-page .settings-layout { grid-template-columns: minmax(0,1fr); gap: 25px; }
+  body[data-page="settings"] .settings-sidebar { position: static; display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; margin: 0; padding: 0; }
+  body[data-page="settings"] .settings-sidebar button { justify-content: center; gap: 8px; padding: 11px 8px; font-size: 12px; }
+}
+@media(max-width:600px) {
+  body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) .workspace-main>:is(.creator-page,.settings-page) { padding: 29px 20px 38px; }
+  body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) :is(.creator-page,.settings-page) .page-heading { margin-bottom: 27px; padding-bottom: 22px; }
+  body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) .product-app :is(.creator-page,.settings-page) h1 { font-size: 32px; line-height: 1.5; }
+  body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) :is(.creator-page,.settings-page) .field-grid { grid-template-columns: minmax(0,1fr); gap: 21px; }
+  body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) .product-app :is(.creator-page,.settings-page) :is(.field input,.field select,.field textarea,.setting-row select) { font-size: 16px; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-seed-panel { padding: 24px 23px; border-radius: 12px; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-seed-panel::before { left: 23px; right: 23px; }
+  body:is([data-page="create"],[data-page="edit"]) .product-app .creator-seed-panel textarea { min-height: 174px!important; font-size: 19px!important; line-height: 1.9!important; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-seed-actions { justify-content: stretch; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-seed-actions>.btn { flex: 1; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-seed-help { font-size: 12px; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-draft-tools { gap: 10px; margin-bottom: 26px; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-import-row { margin-left: 0; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-chapter { grid-template-columns: minmax(0,1fr); gap: 22px; padding: 28px 0; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-chapter>header { display: flex; align-items: baseline; gap: 13px; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-chapter>header::before { margin: 0; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-chapter h2 { font-size: 23px; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-page .character-editor { padding: 20px; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-extra>summary { flex-wrap: wrap; column-gap: 10px; row-gap: 2px; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-page .editor-bar { position: static; flex-wrap: wrap; gap: 14px; padding: 18px; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-page .editor-bar>.small { width: 100%; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-page .editor-bar>.row { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); width: 100%; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-page .editor-bar .btn { width: 100%; gap: 7px; padding: 11px 8px; }
+  body[data-page="settings"] .settings-page>.page-heading { flex-wrap: wrap; gap: 8px 20px; }
+  body[data-page="settings"] .settings-autosave { font-size: 11px; }
+  body[data-page="settings"] .settings-sidebar { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+  body[data-page="settings"] .settings-sidebar button { justify-content: flex-start; padding: 12px; font-size: 13px; }
+  body[data-page="settings"] .settings-page .settings-block { padding: 24px 21px; border-radius: 11px; }
+  body[data-page="settings"] .settings-section-heading { padding-bottom: 18px; }
+  body[data-page="settings"] .settings-section-heading h2 { font-size: 24px; }
+  body[data-page="settings"] .setting-row { grid-template-columns: minmax(0,1fr); gap: 10px; padding: 19px 0; }
+  body[data-page="settings"] .setting-row>label { font-size: 13px; }
+  body[data-page="settings"] .settings-page .setting-range { gap: 15px; }
+  body[data-page="settings"] .product-app .reading-sample { padding: 23px 21px 25px; margin-top: 24px; }
+  body[data-page="settings"] :is(.settings-service-row,.settings-data-row) { align-items: flex-start; flex-direction: column; gap: 15px; padding: 23px 0; }
+  body[data-page="settings"] :is(.settings-service-row,.settings-data-row)>.btn { align-self: flex-start; max-width: 100%; }
+}
+@media(max-width:360px) {
+  body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) .workspace-main>:is(.creator-page,.settings-page) { padding-inline: 16px; }
+  body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) .product-app :is(.creator-page,.settings-page) h1 { font-size: 29px; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-seed-panel { padding: 21px 19px; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-page .character-editor { padding: 17px; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-page .editor-bar { padding: 15px; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-page .editor-bar>.row { grid-template-columns: minmax(0,1fr); }
+  body[data-page="settings"] .settings-page .settings-block { padding: 22px 18px; }
+  body[data-page="settings"] .settings-sidebar button { padding: 11px 9px; gap: 7px; font-size: 12px; }
+  body[data-page="settings"] .settings-sidebar button .ui-icon { width: 17px; height: 17px; }
+  body[data-page="settings"] .product-app .reading-sample { padding: 20px 17px; }
+  body[data-page="settings"] .settings-autosave { margin-left: 0; text-align: left; }
+}
+@media(forced-colors:active) {
+  body:is([data-page="create"],[data-page="edit"],[data-page="settings"]) :is(.creator-page,.settings-page) { --form-border: CanvasText; --form-surface: Canvas; --form-wash: Canvas; --form-shadow: none; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-seed-panel { background: Canvas; }
+  body:is([data-page="create"],[data-page="edit"]) .creator-seed-panel::before { display: none; }
+  body[data-page="settings"] .settings-sidebar button[aria-pressed="true"] { border-color: Highlight; color: Highlight; }
+}

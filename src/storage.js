@@ -1,12 +1,14 @@
 import {validateArchive} from './core.js';
 export const STORAGE_KEY='cijian:archive:v1';
-export const defaultSettings={theme:'light',fontSize:18,lineHeight:1.95,width:720,reducedMotion:false,sendEnter:false,showSuggestions:true,perspective:'第二人称',length:'适中',pace:'从容',style:'细腻克制'};
+export const defaultSettings={theme:'light',fontSize:18,lineHeight:1.95,width:720,reducedMotion:false,sendEnter:false,showSuggestions:true,perspective:'第二人称',length:'适中'};
 export class LocalRepository {
   constructor(storage){this.storage=storage;this.lastLoadedRaw=null;this.hasLoaded=false;this.readFailed=false;this.presets=[];}
   decode(raw,presets){
     if(raw===null)return {schemaVersion:1,worlds:structuredClone(presets),sessions:[],settings:{...defaultSettings},worldDraft:null,telemetry:[]};
     let data;try{data=validateArchive(JSON.parse(raw));}catch(e){throw new Error('本机存档读取失败，原始数据未被覆盖。请先导出备份再处理。'+e.message);}
     data.settings={...defaultSettings,...data.settings};data.telemetry??=[];
+    // Writing style belongs to the world; retire overrides from older archives.
+    for(const preferences of [data.settings,...data.sessions.map(session=>session.preferences)]){delete preferences.style;delete preferences.pace;}
     // Early prototype backups did not freeze the opening on each branch.
     for(const session of data.sessions)for(const branch of session.branches)branch.opening??=data.worlds.find(w=>`${w.id}@${w.version}`===branch.worldKey)?.opening||'';
     return data;

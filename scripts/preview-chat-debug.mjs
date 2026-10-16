@@ -1,0 +1,22 @@
+// Isolated chat/panel regression fixture. Never reads or changes player ledgers.
+import {mkdtemp,readFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {createServer} from '../server.mjs';
+import {createSession} from '../src/core.js';
+import {BranchLedger} from '../src/server-branch-ledger.mjs';
+import {DynamicInteractions} from '../src/server-dynamic.mjs';
+import {defaultSettings,STORAGE_KEY} from '../src/storage.js';
+const world={id:'chat-debug',version:1,title:'对话与面板回归检查',location:'避雨处',identity:'旅人',characters:[],rules:[],opening:'你有12份干粮，尚未分配。你、阿青和老陈都在场。'};
+const session=createSession(world,{},'real'),branch=session.branches[0];
+const directory=await mkdtemp(join(tmpdir(),'chat-debug-')),owner='isolated-chat-debug-owner-1234567890',ledger=new BranchLedger(directory);
+const interactive={type:'interactive',title:'分配试算',description:'仅试算，未分发。',height:280,html:'<label>试算数量<input id="quantity" type="range" min="0" max="12" value="0"></label><p id="remaining"></p><button id="draft">写入草稿</button>',css:'',script:'const quantity=document.getElementById("quantity"),remaining=document.getElementById("remaining");quantity.value=ui.state.quantity??0;function update(){remaining.textContent="剩余 "+(12-Number(quantity.value))+" 份";ui.setState({quantity:Number(quantity.value)});}quantity.oninput=update;document.getElementById("draft").onclick=()=>ui.draft("我想分配 "+quantity.value+" 份干粮。");update();'};
+const definition={schemaVersion:1,id:'allocation',revision:1,title:'干粮试算',summary:'先调整数量，再写入草稿。',fields:[],steps:[],view:[interactive],actions:[]};
+const model=async(_c,kind,ctx)=>({value:kind==='prepare'?definition:kind==='input'?{kind:'clarify',message:'请说明给谁、几份。'}:{approved:true},metrics:{kind,durationMs:0}});
+await ledger.register(owner,{session,worlds:[world]});
+await new DynamicInteractions(ledger,{}, {model}).prepare(owner,{sessionId:session.id,branchId:branch.id,baseVersion:0},new AbortController().signal);
+const data=await ledger.load(owner,session.id),archive={schemaVersion:1,worlds:data.worlds,sessions:[data.session],settings:{...defaultSettings},telemetry:[]};
+const server=createServer({ledgerDirectory:directory,env:{MODEL_API_KEY:'fixture',MODEL_NAME:'fixture',MODEL_BASE_URL:'http://localhost:1'},dynamicModel:model,narrate:async body=>({requestId:body.requestId,baseVersion:body.state.version,prose:'阿青点点头，等你说明打算。',events:[]})});
+const handler=server.listeners('request')[0];server.removeAllListeners('request');
+server.on('request',(req,res)=>{if(req.url!=='/__fixture')return handler(req,res);res.writeHead(200,{'content-type':'text/html; charset=utf-8'});res.end(`<!doctype html><meta charset="utf-8"><script>if(!localStorage.getItem(${JSON.stringify(STORAGE_KEY)})){localStorage.setItem(${JSON.stringify(STORAGE_KEY)},${JSON.stringify(JSON.stringify(archive)).replaceAll('<','\\u003c')});localStorage.setItem('fangtang:owner:v1',${JSON.stringify(owner)});}location.replace('/#/story/${session.id}');</script>`);});
+server.listen(0,'127.0.0.1',()=>console.log('http://127.0.0.1:'+server.address().port+'/__fixture'));

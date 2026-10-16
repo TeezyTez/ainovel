@@ -10,7 +10,7 @@ const world={id:'clinic',version:1,title:'雨夜',opening:'护士问你有没有
 function fixture(){const session=createSession(world,{},'real'),branch=getBranch(session);return {session,body:{requestId:'story-test',world,state:branch.initialState,player:session.player,preferences:session.preferences,input:'没有',memory:[],recent:[],branchId:branch.id}};}
 const config={available:true,narrativeEngine:'story',contextBudget:24000,outputBudget:2400,timeoutMs:1000};
 const prose='护士把纱布推回柜台里。“那就好。”她望向门口，压低了声音。';
-function record(){return {compatible:true,reason:'',record:{events:[],eventEvidence:[],suggestions:[],ended:false,experience:null,game:null,narrativeDelta:{focus:'诊所里的片刻交谈',beat:{kind:'rest',summary:'护士回应了你的回答。',methodId:'free'},threads:[],opportunities:[]}}};}
+function record(){return {record:{events:[],eventEvidence:[],suggestions:[],ended:false,experience:null,game:null,narrativeDelta:{focus:'诊所里的片刻交谈',beat:{kind:'rest',summary:'护士回应了你的回答。',methodId:'free'},threads:[],opportunities:[]}}};}
 async function run(responses=[{prose},record()],body=fixture().body){const calls=[];const result=await generateNarrative(body,config,new AbortController().signal,{requestJSON:async(c,system,content,signal,options)=>{calls.push({c,system,data:JSON.parse(content),signal,options});return structuredClone(responses[calls.length-1]);}});return {calls,result};}
 
 test('default engine separates prose from bookkeeping, leaves a quiet response intact and replays normally',async()=>{
@@ -21,6 +21,26 @@ test('default engine separates prose from bookkeeping, leaves a quiet response i
  assert.equal(calls[1].data.fixedProse,prose);assert.equal(result.prose,prose);assert.equal(result.ended,false);assert.equal(JSON.stringify(f.body),before);
  commitTurn(f.session,world,'没有',result);validateArchive({schemaVersion:1,worlds:[world],sessions:[f.session]});
 });
+
+test('story writing receives the world tone and ignores obsolete session style and pace',async()=>{
+ const {body}=fixture();body.world=structuredClone(body.world);
+ body.world.narrative={style:'干脆、冷峻的生存悬疑',pace:'险情急促，脱险后才有喘息',perspective:'第二人称',length:'适中'};
+ body.preferences={...body.preferences,style:'细腻克制',pace:'从容',length:'简短'};
+ const before=JSON.stringify(body),{calls}=await run(undefined,body);
+ assert.deepEqual(calls[0].data.background.narrative,body.world.narrative);
+ assert.equal(calls[0].data.preferences.length,'简短');
+ assert.equal(Object.hasOwn(calls[0].data.preferences,'style'),false);
+ assert.equal(Object.hasOwn(calls[0].data.preferences,'pace'),false);
+ assert.equal(JSON.stringify(body),before);
+});
+
+test('a legacy world without narrative settings receives no universal tone fallback',async()=>{
+ const {body}=fixture();body.preferences={...body.preferences,style:'细腻克制',pace:'从容'};
+ const {calls}=await run(undefined,body),context=calls[0].data;
+ assert.equal(context.background.narrative,undefined);
+ assert.equal(JSON.stringify(context).includes('细腻克制'),false);
+ assert.equal(JSON.stringify(context).includes('从容'),false);
+});
 test('progress reports only real stage transitions and keeps unvalidated prose private',async()=>{
  const order=[],bad=record();bad.record.events=[{type:'fact',entity:null,value:'医生到了',visibility:'player'}];bad.record.eventEvidence=[{index:0,quote:'医生到了'}];
  const replies=[{prose},bad,record()];let count=0;
@@ -28,7 +48,7 @@ test('progress reports only real stage transitions and keeps unvalidated prose p
   onProgress:(...args)=>{assert.equal(args.length,1);order.push(args[0]);},
   requestJSON:async()=>{order.push('request');return structuredClone(replies[count++]);}
  });
- assert.deepEqual(order,['writing','request','checking','request','request']);assert.equal(result.prose,prose);assert.equal(count,3);
+ assert.deepEqual(order,['writing','request','recording','request','request']);assert.equal(result.prose,prose);assert.equal(count,3);
 });
 test('reader history excludes old technical schemas and distinguishes background names from read prose',()=>{
  const b=fixture().body;b.recent=[{input:'看一眼',prose:'门还关着。',state:{flags:{private:'STATE_ONLY'}},operation:{huge:'OPERATION_ONLY'}}];
@@ -66,6 +86,62 @@ test('record repair keeps literal entity names and cannot turn a paraphrased lab
  assert.match(calls[2].data.validationIssue,/quote必须包含其name/);assert.equal(result.game.entities[0].name,'插销');assert.equal(result.prose,authored);
  await assert.rejects(run([{prose:authored},bad,bad]),e=>e.code==='INVALID_MODEL_RESULT');
 });
+
+test('one record repair receives all missing identity evidence across experience and game together',async()=>{
+ const authored='门内的人望向通道里的人。她举起灯。他靠住墙。',bad=record();
+ bad.record.experience={clock:null,objects:[{id:'person:visitor',kind:'person',name:'通道里的人',nameKnown:false,summary:'靠在墙边',status:'靠墙',certainty:'confirmed',fields:[],relatedIds:[],quote:'他靠住墙。'}],stop:null,folded:[]};
+ bad.record.game={entities:[{id:'person:keeper',kind:'actor',name:'门内的人',detail:'举起灯',status:'举灯',value:null,max:null,unit:'',quote:'她举起灯。'}],surfaces:[],spatial:null,journeys:null};
+ const fixed=structuredClone(bad);fixed.record.experience.objects[0].quote=authored;fixed.record.game.entities[0].quote=authored;
+ const {calls,result}=await run([{prose:authored},bad,fixed]);
+ const repair=calls[2].data;
+ assert.match(repair.validationIssue,/\$\.experience\.objects\[0\]\.quote/);
+ assert.match(repair.validationIssue,/\$\.game\.entities\[0\]\.quote/);
+ assert.deepEqual(repair.validationIssues.map(x=>({path:x.path,name:x.name})),[
+  {path:'$.experience.objects[0].quote',name:'通道里的人'},
+  {path:'$.game.entities[0].quote',name:'门内的人'}
+ ]);
+ assert.equal(repair.fixedProse,authored);assert.equal(calls.length,3);assert.equal(result.prose,authored);
+ assert.equal(result.experience.objects[0].name,'通道里的人');assert.equal(result.game.entities[0].name,'门内的人');
+ const objectSchema=calls[1].options.schema.properties.record.properties.experience.anyOf[0].properties.objects.items.properties;
+ assert.match(objectSchema.quote.description,/name/);assert.match(objectSchema.nameKnown.description,/false/);
+ await assert.rejects(run([{prose:authored},bad,bad]),e=>e.code==='INVALID_MODEL_RESULT');
+});
+
+test('identity evidence repair never accepts a made-up quote or a backstage identity',async()=>{
+ const authored='门内的人举起灯。',bad=record();
+ bad.record.experience={clock:null,objects:[{id:'person:nurse',kind:'person',name:'林岚',nameKnown:false,summary:'举灯',status:'在场',certainty:'confirmed',fields:[],relatedIds:[],quote:'林岚举起灯。'}],stop:null,folded:[]};
+ await assert.rejects(run([{prose:authored},bad,bad]),e=>e.code==='INVALID_MODEL_RESULT');
+});
+
+test('identity citation repair changes only rejected quotes even if the model rewrites valid records',async()=>{
+ const authored='门内的人举起灯。她望向通道里的人。他靠住墙。',bad=record();
+ const person={id:'person:visitor',kind:'person',name:'通道里的人',nameKnown:false,summary:'靠在墙边',status:'靠墙',certainty:'confirmed',fields:[],relatedIds:[],quote:'他靠住墙。'};
+ bad.record.experience={clock:null,objects:[person],stop:null,folded:[]};
+ bad.record.game={entities:[{id:'place:door',kind:'place',name:'门',detail:'门边',status:'未知',value:null,max:null,unit:'',quote:'门内的人举起灯。'}],surfaces:[],spatial:null,journeys:null};
+ const repair=structuredClone(bad);repair.record.experience.objects[0].quote=authored;
+ repair.record.experience.objects[0].name='他';
+ repair.record.game.entities[0].name='医院后门';
+ repair.record.events=[{type:'fact',entity:null,value:'有人已经离开',visibility:'player'}];
+ repair.record.narrativeDelta.focus='不应采用的重写';
+ const {result}=await run([{prose:authored},bad,repair]);
+ assert.equal(result.experience.objects[0].name,person.name);
+ assert.equal(result.experience.objects[0].quote,authored);
+ assert.equal(result.game.entities[0].name,'门');assert.deepEqual(result.events,[]);
+ assert.equal(result.narrative.focus,bad.record.narrativeDelta.focus);
+ const counterfeit=structuredClone(repair);counterfeit.record.experience.objects[0].id='person:other';
+ await assert.rejects(run([{prose:authored},bad,counterfeit]),e=>e.code==='INVALID_MODEL_RESULT');
+});
+
+test('citation repair can also repair a separate invalid record instead of retaining a hidden validation failure',async()=>{
+ const authored='门内的人举起灯。她望向你。',bad=record();
+ bad.record.experience={clock:null,objects:[{id:'person:keeper',kind:'person',name:'门内的人',nameKnown:false,summary:'举灯',status:'在场',certainty:'confirmed',fields:[],relatedIds:[],quote:'她望向你。'}],stop:null,folded:[]};
+ bad.record.game={entities:[{id:'place:door',kind:'place',name:'门',detail:'门边',status:'未知',value:null,max:null,unit:'',quote:'门上有金锁。'}],surfaces:[],spatial:null,journeys:null};
+ const fixed=structuredClone(bad);fixed.record.experience.objects[0].quote=authored;fixed.record.game.entities[0].quote=authored;
+ const {result,calls}=await run([{prose:authored},bad,fixed]);
+ assert.equal(calls.length,3);assert.equal(result.game.entities[0].quote,authored);
+ const stillBad=structuredClone(fixed);stillBad.record.game.entities[0].quote='门上有金锁。';
+ await assert.rejects(run([{prose:authored},bad,stillBad]),e=>e.code==='INVALID_MODEL_RESULT');
+});
 test('geography still rejects display names as endpoint identifiers instead of silently accepting a broken map',async()=>{
  const authored='桥头的铁栏门关着，通往岗亭的小路到此为止。',bad=record();
  bad.record.game={entities:[{id:'place:gate',kind:'place',name:'桥头的铁栏门',detail:'小路到此为止。',status:'关闭',value:null,max:null,unit:'',quote:authored}],surfaces:[],spatial:{sites:[],relations:[{id:'path:gate',from:'渡口候船室',to:'place:gate',kind:'route',bearing:null,distanceMeters:null,passage:'unknown',bidirectional:true,label:'小路',quote:authored}]},journeys:null};
@@ -79,10 +155,24 @@ test('record repair cannot overwrite authored prose or invent evidence, and neve
  await assert.rejects(run([{prose},bad,bad]),e=>e.code==='INVALID_MODEL_RESULT');
  const overwrite=record();overwrite.record.prose='被记录器改写的正文';await assert.rejects(run([{prose},overwrite,overwrite]),e=>e.code==='INVALID_MODEL_RESULT');
 });
-test('semantic inconsistency fails without committing or treating style as an error',async()=>{
- const f=fixture(),before=JSON.stringify(f.session);
- await assert.rejects(run([{prose},{compatible:false,reason:'未授权动作',record:null}],f.body),e=>e.code==='INCONSISTENT_STORY');assert.equal(JSON.stringify(f.session),before);
- const {calls,result}=await run([{prose:'她没有替你作答。'},record()]);assert.equal(calls.length,2);assert.equal(result.prose,'她没有替你作答。');
+test('natural continuation commits generated prose with bookkeeping alone and no semantic approval contract',async()=>{
+ const f=fixture(),branch=getBranch(f.session);
+ f.body.input='让当前场景自然继续。';
+ f.body.state.location='楼梯平台';
+ f.body.state.facts=['医院后门从里面锁着。','后门已打开一道窄缝。','通道里的人开始沿墙靠近。'];
+ const authored='通道里的人走到医院后门前，门内的人将手电照向他的伤口。你站在楼梯平台上，听见雨声从窄缝里传进来。';
+ const extracted=record();
+ extracted.record.events=[{type:'fact',entity:null,value:'通道里的人已经走到医院后门前。',visibility:'player'}];
+ extracted.record.eventEvidence=[{index:0,quote:'通道里的人走到医院后门前，门内的人将手电照向他的伤口。'}];
+ const {calls,result}=await run([{prose:authored},extracted,extracted],f.body);
+ assert.equal(calls.length,2);assert.equal(result.prose,authored);
+ assert.deepEqual(calls[1].options.schema.required,['record']);
+ assert.deepEqual(Object.keys(calls[1].options.schema.properties),['record']);
+ assert.equal(calls[1].options.schema.properties.record.type,'object');
+ commitTurn(f.session,world,f.body.input,result);
+ assert.equal(branch.turns.length,1);assert.equal(branch.turns[0].prose,authored);
+ assert.ok(branch.turns[0].state.facts.includes('通道里的人已经走到医院后门前。'));
+ validateArchive({schemaVersion:1,worlds:[world],sessions:[f.session]});
 });
 test('cancellation during extraction returns no proposal and no additional call',async()=>{
  const c=new AbortController();let calls=0;

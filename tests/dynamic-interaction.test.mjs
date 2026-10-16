@@ -28,6 +28,83 @@ test('finite decimal rules preserve continuous inputs without binary rounding or
 test('changing the visible interface does not remove approved world rules from free-input execution',async t=>{const f=await service(t),original=f.svc.model;f.svc.model=async(config,kind,context,signal)=>kind==='prepare'?{value:{...f.definition,id:'comparison',actions:[]},metrics:{kind,durationMs:0}}:original(config,kind,context,signal);await f.svc.prepare('owner',{...f.scope,intent:'只比较'},f.signal);const result=await f.svc.input('owner',{...f.scope,input:'现在买2瓶',requestId:'outside-buttons'},f.signal);assert.ok(result.operationId);assert.deepEqual(result.authoritativeBranch.turns[0].state.game.entities.map(e=>e.value),[4,3,2]);});
 test('client-imported contracts cannot bypass server approval',async t=>{const f=await service(t),data=await f.ledger.load('owner',f.session.id);delete data.dynamicApprovals;await f.ledger.save('owner',data);await assert.rejects(f.svc.execute('owner',f.request,f.signal),/审核/);assert.equal((await f.ledger.load('owner',f.session.id)).session.branches[0].turns.length,0);});
 
+test('receipt narration uses one creative model call and cannot change the committed transaction',async t=>{
+ const f=await service(t),result=await f.svc.execute('owner',f.request,f.signal),before=structuredClone(result.authoritativeBranch.turns[0]);
+ f.calls.length=0;
+ const body={...f.scope,operationId:result.operationId},response=await f.svc.narrate('owner',body,f.signal),turn=response.authoritativeBranch.turns[0];
+ assert.deepEqual(f.calls.map(c=>c.kind),['narrate']);
+ assert.equal(turn.narration.status,'complete');assert.equal(turn.prose,'商人收好钱，把两瓶药水交到你手里。');
+ for(const key of ['state','events','operation','requestId'])assert.deepEqual(turn[key],before[key],key);
+ await f.svc.narrate('owner',body,f.signal);assert.deepEqual(f.calls.map(c=>c.kind),['narrate']);
+});
+
+test('receipt narration uses the stored world tone and retires legacy session writing overrides',async t=>{
+ const f=await service(t),result=await f.svc.execute('owner',f.request,f.signal),data=await f.ledger.load('owner',f.session.id);
+ data.worlds[0].narrative={style:'冷峻幽默',pace:'危机急促，脱险后喘息',secret:'未公开的结局'};
+ data.session.preferences={perspective:'第一人称',length:'简短',participation:'act',boundaries:'不写恋爱',availableMinutes:'10',style:'细腻克制',pace:'从容'};
+ await f.ledger.save('owner',data);
+ await f.svc.narrate('owner',{...f.scope,operationId:result.operationId},f.signal);
+ const sent=f.calls.find(call=>call.kind==='narrate').context;
+ assert.deepEqual(sent.preferences,{perspective:'第一人称',length:'简短',participation:'act',boundaries:'不写恋爱',availableMinutes:'10'});
+ assert.deepEqual(sent.world,{narrative:{style:'冷峻幽默',pace:'危机急促，脱险后喘息'}});
+ assert.equal(JSON.stringify(sent).includes('未公开的结局'),false);
+});
+
+test('receipt narration does not invent a shared tone for legacy worlds',async t=>{
+ const f=await service(t),result=await f.svc.execute('owner',f.request,f.signal),data=await f.ledger.load('owner',f.session.id);
+ data.session.preferences={perspective:'第二人称',length:'适中',style:'细腻克制',pace:'从容'};
+ await f.ledger.save('owner',data);
+ await f.svc.narrate('owner',{...f.scope,operationId:result.operationId},f.signal);
+ const sent=f.calls.find(call=>call.kind==='narrate').context;
+ assert.deepEqual(sent.preferences,{perspective:'第二人称',length:'适中'});
+ assert.equal(sent.world?.narrative,undefined);
+});
+
+test('invalid or cancelled receipt prose still preserves the saved result',async t=>{
+ for(const kind of ['invalid','cancelled']){
+  const f=await service(t),result=await f.svc.execute('owner',f.request,f.signal),before=structuredClone(result.authoritativeBranch.turns[0]),controller=new AbortController(),calls=[];
+  f.svc.model=async(_config,phase)=>{calls.push(phase);if(kind==='cancelled')controller.abort();return {value:{text:kind==='invalid'?'':'不应发布'},metrics:{kind:phase,durationMs:0}};};
+  const response=await f.svc.narrate('owner',{...f.scope,operationId:result.operationId},controller.signal),turn=response.authoritativeBranch.turns[0];
+  assert.deepEqual(calls,['narrate']);assert.equal(turn.narration.status,'failed');assert.equal(turn.prose,before.prose);assert.deepEqual(turn.state,before.state);
+ }
+});
+
+test('changing only a view reuses current rule verification while changed rules still need review',async t=>{
+ for(const kind of ['view','cost','field','step','catalog','unapproved','expired','polished','legacy']){
+  const f=await service(t),candidate=structuredClone(f.definition),calls=[];
+  candidate.id='revised-offer';candidate.view=[{type:'text',text:'新的报价布局'}];
+  if(kind==='cost')candidate.actions[0].effects[0].value=-1;
+  if(kind==='field')candidate.fields[0].validate=op('lte',ref('params','qty'),2);
+  if(kind==='step')candidate.steps[1].validate=op('lte',ref('params','qty'),2);
+  if(['catalog','unapproved','expired','polished','legacy'].includes(kind)){
+   const data=await f.ledger.load('owner',f.session.id);
+   if(kind==='unapproved')data.dynamicApprovals={};
+   else if(kind==='expired')commitTurn(data.session,world,'等一会',{requestId:'wait',baseVersion:0,prose:'商人仍在柜台前。',events:[]},f.branch.id);
+   else if(kind==='polished')data.session.branches[0].opening+='商人补充：先前的报价暂不生效。';
+   else if(kind==='legacy')delete data.dynamicRuleSources;
+   else data.session.branches[0].dynamic=null;
+   await f.ledger.save('owner',data);
+  }
+  f.svc.model=async(_config,phase)=>{calls.push(phase);return {value:phase==='prepare'?candidate:{approved:true},metrics:{kind:phase,durationMs:0}};};
+  const result=await f.svc.prepare('owner',{...f.scope,baseVersion:kind==='expired'?1:0,intent:'调整布局'},f.signal);
+  assert.equal(result.authoritativeBranch.dynamic.definition?.id,'revised-offer',kind);
+  assert.deepEqual(calls,['view','catalog'].includes(kind)?['prepare']:['prepare','judge'],kind);
+ }
+});
+
+test('same-version source changes invalidate rule cache, keep and direct execution',async t=>{
+ const f=await service(t),data=await f.ledger.load('owner',f.session.id);
+ data.session.branches[0].opening+='商人补充：先前报价暂不生效。';await f.ledger.save('owner',data);
+ await assert.rejects(f.svc.execute('owner',f.request,f.signal),/规则审核|依据/);
+ let available;
+ f.svc.model=async(_config,phase,ctx)=>{available=ctx.availableContracts;return {value:{kind:'unrelated'},metrics:{kind:phase,durationMs:0}};};
+ await f.svc.input('owner',{...f.scope,requestId:'old-offer',input:'我买两瓶'},f.signal);assert.deepEqual(available,[]);
+ const contexts=[];f.svc.model=async(_config,phase,ctx)=>{contexts.push(structuredClone(ctx));return {value:{decision:'keep'},metrics:{kind:phase,durationMs:0}};};
+ const response=await f.svc.prepare('owner',f.scope,f.signal);
+ assert.equal(contexts.length,2);assert.equal(contexts[0].pending,null);
+ assert.equal(response.authoritativeBranch.dynamic.definition,null);assert.equal(response.authoritativeBranch.turns.length,0);
+});
+
 test('display-only views never add model routing to ordinary input, including old catalog entries',async t=>{
  const f=await service(t),data=await f.ledger.load('owner',f.session.id),b=data.session.branches[0];
  delete b.initialState.game;

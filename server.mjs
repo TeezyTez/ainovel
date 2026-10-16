@@ -1,4 +1,5 @@
 import {DynamicInteractions} from './src/server-dynamic.mjs';
+import {artifactShell,artifactPolicy} from './src/interactive-artifact.js';
 import http from 'node:http';
 import { readFile, realpath, stat } from 'node:fs/promises';
 import { dirname, resolve, relative, isAbsolute, extname } from 'node:path';
@@ -8,13 +9,15 @@ import { ApiError, modelConfig, modelStatus, validateRequest, generate } from '.
 import { validateAssistRequest, assist } from './src/server-workflows.mjs';
 import { generateNarrative } from './src/server-narrative.mjs';
 import {BranchLedger} from './src/server-branch-ledger.mjs';
+import {ArtifactService} from './src/server-artifact-service.mjs';
+import {ArtifactError} from './src/artifacts/protocol.mjs';
 
 const ROOT=dirname(fileURLToPath(import.meta.url));
 function json(res,status,value) {if(!res.destroyed&&!res.writableEnded){if(res.generationStream){res.end(JSON.stringify(status>=400?{type:'error',...value}:{type:'result',value})+'\n');return;}res.writeHead(status,{'content-type':'application/json; charset=utf-8','cache-control':'no-store'});res.end(JSON.stringify(value));}}
 function generationProgress(req,res){
  if(!req.headers.accept?.includes('application/x-ndjson'))return ()=>{};
  res.generationStream=true;res.writeHead(200,{'content-type':'application/x-ndjson; charset=utf-8','cache-control':'no-store','x-accel-buffering':'no'});res.flushHeaders();
- return stage=>{if(!res.destroyed&&!res.writableEnded&&['preparing','writing','checking','saving'].includes(stage))res.write(JSON.stringify({type:'progress',stage})+'\n');};
+ return stage=>{if(!res.destroyed&&!res.writableEnded&&['preparing','writing','recording','checking','saving'].includes(stage))res.write(JSON.stringify({type:'progress',stage})+'\n');};
 }
 function checkOrigin(req,server) {
   const host=req.headers.host||'';
@@ -36,15 +39,42 @@ function canonical(value) {
   return value;
 }
 
-export function createServer({env=process.env,root=ROOT,cacheLimit=100,cacheTtlMs=300000,narrate=generateNarrative,worldAssist=assist,dynamicModel,ledgerDirectory=resolve(root,'.data','branches')}={}) {
+export function createServer({env=process.env,root=ROOT,cacheLimit=100,cacheTtlMs=300000,narrate=generateNarrative,worldAssist=assist,dynamicModel,artifactVerify,ledgerDirectory=resolve(root,'.data','branches'),artifactDirectory=resolve(ledgerDirectory,'artifacts')}={}) {
   const config=modelConfig(env),cache=new Map(),ledger=new BranchLedger(ledgerDirectory),dynamic=new DynamicInteractions(ledger,config,dynamicModel?{model:dynamicModel}:{});
+  const artifacts=new ArtifactService({ledger,dynamic,directory:artifactDirectory,verify:artifactVerify});
   const server=http.createServer(async(req,res)=>{
     res.setHeader('x-content-type-options','nosniff');res.setHeader('referrer-policy','no-referrer');
     res.setHeader('content-security-policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
     try {
       checkOrigin(req,server);
       const url=new URL(req.url,`http://${req.headers.host}`);
-      if(url.pathname==='/api/config'&&req.method==='GET')return json(res,200,await modelStatus(config));
+      if(url.pathname==='/interaction-frame'&&req.method==='GET'){
+        const token=url.searchParams.get('token')||'';
+        if(!/^[A-Za-z0-9_-]{16,80}$/.test(token))return json(res,400,{error:'交互图实例无效。'});
+        res.setHeader('content-security-policy',artifactPolicy(token)+"; sandbox allow-scripts; frame-ancestors 'self'");
+        res.writeHead(200,{'content-type':'text/html; charset=utf-8','cache-control':'no-store'});
+        res.end(artifactShell(token));return;
+      }
+      if(url.pathname==='/api/config'&&req.method==='GET')return json(res,200,{...await modelStatus(config),generativeUIEnabled:env.GENERATIVE_UI_ENABLED==='true'});
+      if(url.pathname.startsWith('/api/artifacts/')&&req.method==='POST'){
+        const owner=ledger.owner(req),action=url.pathname.slice('/api/artifacts/'.length),body=await readBody(req,action==='import'?10*1024*1024:262144);
+        if(!body||typeof body!=='object'||Array.isArray(body))throw new ApiError(400,'INVALID_REQUEST','作品请求格式无效。');
+        if(action==='prepare'){const job=await artifacts.start(owner,body);return json(res,202,{jobId:job.id,requestId:job.requestId});}
+        if(action==='events'||action==='cancel'){
+          const job=artifacts.jobs.get(body.jobId,artifacts.key(owner,body));if(!job)throw new ApiError(404,'JOB_NOT_FOUND','整理任务已过期，请恢复当前版本。');
+          if(action==='cancel')return json(res,200,{cancelled:job.cancel(),committing:job.committing||job.committed});
+          const after=body.afterSequence??0;if(!Number.isSafeInteger(after)||after<0)throw new ApiError(400,'INVALID_SEQUENCE','事件序号无效。');
+          res.writeHead(200,{'content-type':'text/event-stream; charset=utf-8','cache-control':'no-store','x-accel-buffering':'no'});res.flushHeaders();
+          let sending=Promise.resolve();
+          const unsubscribe=job.subscribe(event=>{sending=sending.then(async()=>{let outgoing=event;if(event.type==='result'&&event.value?.refresh){const current=await artifacts.read(owner,body);outgoing={...event,value:{...event.value,...current,committedRevision:event.value.artifact?.head??null}};}if(!res.destroyed&&!res.writableEnded)res.write(`id: ${outgoing.sequence}\nevent: artifact\ndata: ${JSON.stringify(outgoing)}\n\n`);}).catch(()=>{if(!res.destroyed)res.destroy();});},{afterSequence:after});
+          const heartbeat=setInterval(()=>{if(!res.destroyed&&!res.writableEnded)res.write(': keepalive\n\n');},10000);heartbeat.unref();
+          const release=()=>{clearInterval(heartbeat);unsubscribe();};res.once('close',release);
+          const finish=()=>sending.finally(()=>{release();if(!res.writableEnded)res.end();});job.done.then(finish,finish);return;
+        }
+        const methods={read:'read',history:'read',state:'saveState',restore:'restore',bundle:'bundle',export:'export',import:'import'};
+        if(Object.hasOwn(methods,action)){const controller=new AbortController();res.once('close',()=>controller.abort());return json(res,200,await artifacts[methods[action]](owner,body,controller.signal));}
+        throw new ApiError(405,'METHOD_NOT_ALLOWED','不支持这个作品接口。');
+      }
       if(url.pathname==='/api/world/start'&&req.method==='POST'){
         const owner=ledger.owner(req),raw=await readBody(req),body=validateAssistRequest({...raw,kind:'world'}),controller=new AbortController();res.once('close',()=>controller.abort());
         if(!config.available)throw new ApiError(503,'MODEL_UNAVAILABLE','尚未配置真实模型，开局未改变。');
@@ -101,17 +131,18 @@ export function createServer({env=process.env,root=ROOT,cacheLimit=100,cacheTtlM
       const artwork=/^\/assets\/worlds\/cinema-(?:hero|harbor|mountain|books|tea)\.jpg$/.test(path);
       const font=/^\/assets\/fonts\/[a-zA-Z0-9_-]+\.woff2$/.test(path);
       const vendor=/^\/vendor\/three\.(?:module|core)\.js$/.test(path);
-      if(!(/^\/(?:index\.html|favicon\.svg)$/.test(path)||/^\/src\/[a-zA-Z0-9_-]+\.(?:js|css)$/.test(path)||artwork||font||vendor))return json(res,404,{error:'页面不存在。'});
+      const workbench=/^\/dist\/workbench\/workbench\.(?:js|css)$/.test(path);
+      if(!(/^\/(?:index\.html|favicon\.svg)$/.test(path)||/^\/src\/[a-zA-Z0-9_-]+\.(?:js|css)$/.test(path)||artwork||font||vendor||workbench))return json(res,404,{error:'页面不存在。'});
       try {
         const base=await realpath(root),file=await realpath(resolve(base,vendor?'node_modules/three/build/'+path.slice('/vendor/'.length):'.'+path)),rel=relative(base,file);
         if(rel.startsWith('..')||isAbsolute(rel)||(await stat(file)).size>2097152)return json(res,404,{error:'页面不存在。'});
         const bytes=await readFile(file),type={'.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.jpg':'image/jpeg','.woff2':'font/woff2'}[extname(file)];
         res.writeHead(200,{'content-type':artwork||font?type:`${type}; charset=utf-8`,'cache-control':'no-cache'});res.end(req.method==='HEAD'?undefined:bytes);
       } catch {json(res,404,{error:'页面不存在。'});}
-    } catch(error) {if(env.MODEL_DIAGNOSTICS==='1'&&error.diagnostic){const {stage,rule,path,reason}=error.diagnostic;console.warn(JSON.stringify({code:error.code,stage,rule,path,reason}));}json(res,error instanceof ApiError?error.status:500,{code:error instanceof ApiError?error.code:'SERVER_ERROR',error:error instanceof ApiError?error.message:'服务暂时不可用，原故事没有改变。'});}
+    } catch(error) {if(env.MODEL_DIAGNOSTICS==='1'&&error.diagnostic){const {stage,rule,path,reason}=error.diagnostic;console.warn(JSON.stringify({code:error.code,stage,rule,path,reason}));}const known=error instanceof ApiError||error instanceof ArtifactError;json(res,known?error.status:500,{code:known?error.code:'SERVER_ERROR',error:known?error.message:'服务暂时不可用，原故事没有改变。'});}
   });
   server.requestTimeout=15000;server.headersTimeout=10000;
-  server.on('close',()=>{for(const entry of cache.values())entry.controller.abort();cache.clear();});
+  server.on('close',()=>{for(const entry of cache.values())entry.controller.abort();cache.clear();artifacts.close();});
   return server;
 }
 

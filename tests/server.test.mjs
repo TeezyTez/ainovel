@@ -26,8 +26,15 @@ function env(url, extra={}) {return {MODEL_API_KEY:'server-only-test-secret',MOD
 
 test('without a key config is honest and generation returns 503',async t=>{
   const url=await app(t);
-  assert.deepEqual(await (await fetch(url+'/api/config')).json(),{available:false,provider:'OpenAI-compatible',model:''});
+  assert.deepEqual(await (await fetch(url+'/api/config')).json(),{available:false,provider:'OpenAI-compatible',model:'',generativeUIEnabled:false});
   assert.equal((await post(url,payload())).status,503);
+});
+
+test('generative UI migration is publicly disabled by default and requires an explicit true setting',async t=>{
+  for(const [setting,enabled] of [[undefined,false],['false',false],['1',false],['enabled',false],['true',true]]){
+    const url=await app(t,{env:setting===undefined?{}:{GENERATIVE_UI_ENABLED:setting}});
+    const config=await (await fetch(url+'/api/config')).json();assert.equal(config.generativeUIEnabled,enabled);assert.equal(typeof config.generativeUIEnabled,'boolean');
+  }
 });
 
 test('arbitrary natural language reaches the upstream as data; response is a validated proposal',async t=>{

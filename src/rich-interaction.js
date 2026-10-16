@@ -1,5 +1,6 @@
-// These views describe data and drawings only. They never contain markup or actions.
-export const RICH_VIEW_TYPES=Object.freeze(['table','chart','diagram','cards','timeline','illustration']);
+import {validateInteractiveView} from './interactive-artifact.js';
+import {validateReactArtifact} from './react-artifact.js';
+export const RICH_VIEW_TYPES=Object.freeze(['table','chart','diagram','cards','timeline','illustration','interactive','react']);
 const common=['type','title','caption','when'];
 const properties={
   table:['columns','rows'],chart:['items','unit'],diagram:['nodes','edges','layout'],
@@ -15,6 +16,8 @@ const color=value=>typeof value==='string'&&(/^(ink|muted|accent|soft|paper|none
 
 export function validateRichView(node,{check,verify}){
   if(!RICH_VIEW_TYPES.includes(node?.type))return false;
+  if(node.type==='react'){validateReactArtifact(node);if(node.when!==undefined)verify(node.when);if(node.caption!==undefined)check(typeof node.caption==='string'&&node.caption.length<=2000,'React交互图注记无效。');return true;}
+  if(node.type==='interactive'){validateInteractiveView(node);if(node.when!==undefined)verify(node.when);if(node.caption!==undefined)check(typeof node.caption==='string'&&node.caption.length<=2000,'交互图注记无效。');return true;}
   const record=(value,keys)=>check(value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).every(key=>keys.includes(key)),'丰富视图含不支持的属性。');
   const text=(value,required=false,max=2000)=>check(typeof value==='string'&&value.length<=max&&(!required||value.trim().length>0),'丰富视图文字无效或过长。');
   const optionalText=(value,key,max=2000)=>{if(value[key]!==undefined)text(value[key],false,max);};

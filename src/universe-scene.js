@@ -58,7 +58,7 @@ const fragment=`
   float illumination=abs(dot(normal,normalize(vec3(-.45,.8,1.2))));
   float depthReveal=smoothstep(.015,.29,d);
   float lattice=max(radial*.33,rings*.74)*mix(.16,1.,depthReveal);
-  vec3 pearl=.59+.24*cos(a+d*2.5+uTime*.045+vec3(.25,2.2,4.2));
+  vec3 pearl=.59+.30*cos(a+d*2.5+uTime*.045+vec3(.25,2.2,4.2));
   vec3 base=mix(vec3(.025,.028,.044),vec3(.44,.45,.54),pow(d,.85));
   base=mix(base,pearl,.24*depthReveal);
   vec3 silver=mix(vec3(.32,.36,.44),vec3(.84,.88,.91),illumination*.56+grazing*.44);
@@ -70,7 +70,7 @@ const fragment=`
   float throatRim=exp(-pow((d-.07)*34.,2.));
   vec3 color=mix(base,line,lattice*.90)+pearl*flow*.48+spectral*folds*.025+pearl*throatRim*.025;
   float outer=1.-smoothstep(.70,1.,d);
-  float alpha=(.025+pow(1.-d,2.)*.22+lattice*mix(.52,.63,uLight)+grazing*.035*depthReveal+flow*.32+folds*.012)*outer;
+  float alpha=(.032+pow(1.-d,2.)*.24+lattice*mix(.72,.84,uLight)+grazing*.05*depthReveal+flow*.32+folds*.012)*outer;
   color=mix(color,color*.66,uLight*.6);
   gl_FragColor=vec4(color,alpha);
   #include <colorspace_fragment>

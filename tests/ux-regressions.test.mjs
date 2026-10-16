@@ -1,3 +1,4 @@
+import {resetReadingAppearance} from '../src/reader-comfort.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createExperienceControls} from '../src/experience-controls.js';
@@ -8,19 +9,14 @@ import {createSession,getBranch} from '../src/core.js';
 import {PRESET_WORLDS} from '../src/worlds.js';
 import {defaultSettings} from '../src/storage.js';
 
-test('restore appearance edits the form only; closing without Apply preserves preferences',()=>{
-  const saved={...defaultSettings,fontSize:24,theme:'dark'},db={settings:saved};
-  const fields=Object.fromEntries(Object.entries(saved).map(([name,value])=>[name,{value,type:typeof value==='boolean'?'checkbox':'number',checked:value}]));
-  const form={elements:{namedItem:name=>fields[name]}};
-  const prior=globalThis.document;globalThis.document={querySelector:selector=>selector==='#reader-settings-form'?form:null};
-  let writes=0;
-  try{
-    const controls=createExperienceControls({sessionNow:()=>({}),getDB:()=>db,save:()=>writes++});
-    assert.equal(controls.handle('reset-reading',{}),true);
-    assert.equal(fields.fontSize.value,defaultSettings.fontSize);
-    assert.equal(fields.lineHeight.value,defaultSettings.lineHeight);
-    assert.equal(saved.fontSize,24);assert.equal(saved.theme,'dark');assert.equal(writes,0);
-  }finally{globalThis.document=prior;}
+test('restoring appearance uses paper defaults and preserves story and input preferences',()=>{
+  const saved={...defaultSettings,fontSize:24,theme:'dark',readingTheme:'night',sendEnter:true,readingMode:'paged',style:'细腻'};
+  const restored=resetReadingAppearance(saved);
+  assert.equal(restored.fontSize,defaultSettings.fontSize);
+  assert.equal(restored.lineHeight,defaultSettings.lineHeight);
+  assert.equal(restored.readingTheme,'paper');assert.equal(restored.theme,'light');
+  assert.equal(restored.sendEnter,true);assert.equal(restored.readingMode,'paged');assert.equal(restored.style,'细腻');
+  assert.equal(saved.fontSize,24);
 });
 
 test('drafting from a known object preserves existing user input and remains unsent',()=>{

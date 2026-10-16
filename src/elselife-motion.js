@@ -24,7 +24,7 @@ function copyAppearance(source,clone,view){
 }
 
 /** Visual effects only: rendering and navigation remain synchronous and caller-owned. */
-export function createEditorialMotion({root=globalThis.document,reduced}={}){
+export function createEditorialMotion({root=globalThis.document,reduced,enabled=()=>true}={}){
   const document=root?.ownerDocument||root,view=document?.defaultView;
   const motionPreference=view?.matchMedia?.('(prefers-reduced-motion: reduce)');
   const prefersReduced=reduced||(()=>Boolean(document?.body?.classList.contains('reduce-motion')||motionPreference?.matches));
@@ -45,7 +45,7 @@ export function createEditorialMotion({root=globalThis.document,reduced}={}){
     record.overlay.remove();
   }
 
-  function allowed(){return !destroyed&&root&&document?.body&&!document.hidden&&!prefersReduced();}
+  function allowed(){return enabled()&&!destroyed&&root&&document?.body&&!document.hidden&&!prefersReduced();}
 
   function clearEffects(){clearEntrance();clearPortal();}
   function preferenceChanged(){if(!allowed())clearEffects();}

@@ -4,6 +4,7 @@ import { mkdtemp, writeFile, unlink, rmdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { modelConfig, modelStatus, generate } from '../src/server-model.mjs';
+import {runCodex} from '../src/server-codex.mjs';
 
 async function fixture(t,behavior) {
   const dir=await mkdtemp(join(tmpdir(),'cijian-cli-test-')),path=join(dir,'cli.cjs');
@@ -32,9 +33,36 @@ test('Codex invalid output and CLI errors remain safe failures',async t=>{
     await assert.rejects(generate(body,config,new AbortController().signal),e=>e.status===502&&!e.message.includes('private'));
   }
 });
+test('Codex permission failures identify the runtime problem without exposing CLI diagnostics',async t=>{
+  const config=await fixture(t,`console.error('Error: failed to initialize in-process app-server client: 拒绝访问。 (os error 5) private-token secret-path');process.exit(1);`);
+  await assert.rejects(generate(body,config,new AbortController().signal),error=>{
+    assert.equal(error.code,'CODEX_PERMISSION_DENIED');
+    assert.equal(error.status,503);
+    assert.match(error.message,/正常用户/);
+    assert.doesNotMatch(error.message,/private-token|secret-path/);
+    return true;
+  });
+});
+test('Codex executable and process failures are distinct from malformed model output',async t=>{
+  const config=await fixture(t,`console.error('private runtime diagnostic');process.exit(1);`);
+  await assert.rejects(generate(body,config,new AbortController().signal),error=>error.code==='CODEX_EXECUTION_FAILED'&&!error.message.includes('private'));
+  config.cliPath=join(config.authHome,'missing-cli.exe');
+  await assert.rejects(generate(body,config,new AbortController().signal),error=>error.code==='CODEX_UNAVAILABLE'&&!error.message.includes(config.authHome));
+  const malformed=await fixture(t,`console.log('not JSON');`);
+  await assert.rejects(generate(body,malformed,new AbortController().signal),error=>error.code==='INVALID_MODEL_RESULT');
+});
 test('Codex timeout and cancellation terminate the CLI without a proposal',async t=>{
   const config=await fixture(t,'setInterval(()=>{},1000);');config.timeoutMs=100;
   await assert.rejects(generate(body,config,new AbortController().signal),e=>e.code==='TIMEOUT');
   config.timeoutMs=5000;const abort=new AbortController();const pending=generate(body,config,abort.signal);setTimeout(()=>abort.abort(),100);
   await assert.rejects(pending,e=>e.code==='CANCELLED');
+});
+test('Codex reasoning effort accepts only low, medium, and high',async t=>{
+  const config=await fixture(t,`const option=args.find(x=>x.startsWith('model_reasoning_effort='));console.log(JSON.stringify({type:'item.completed',item:{type:'agent_message',text:JSON.stringify({effort:option})}}));`);
+  const schema={type:'object',properties:{effort:{type:'string'}},required:['effort']};
+  for(const [requested,expected] of [[undefined,'low'],['medium','medium'],['high','high'],['xhigh','low']]){
+    config.reasoningEffort=requested;
+    const result=await runCodex(config,'system','input',new AbortController().signal,{schema});
+    assert.equal(result.effort,`model_reasoning_effort="${expected}"`);
+  }
 });

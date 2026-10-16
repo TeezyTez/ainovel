@@ -94,4 +94,4 @@ export function applyDynamic(state,before,operation){
   for(const change of receipt.changes){const e=state.game.entities.find(e=>e.id===change.entityId);e[change.kind==='delta'?'value':'status']=change.after;e.sourceVersion=state.version;}
   return state;
 }
-export const DYNAMIC_PROMPT_VERSION='elselife-dynamic-6';
+export const DYNAMIC_PROMPT_VERSION='elselife-dynamic-7';

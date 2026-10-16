@@ -11,6 +11,14 @@ const object={id:'person:lin',kind:'person',name:'林舟',summary:'坐在柜台�
 const branch={id:'b1',name:'原来的故事',opening:'雨落在窗外。',draft:'我想再问一句。',turns:[{id:'t1',input:'向林舟问好。',prose:'林舟抬起头。\n\n林舟说：“雨很快就停。”',state:{version:1,location:'钟表铺'},experience:{clock:{label:'午后',elapsed:'一小会儿'},folded:[{title:'等待雨停',summary:'一阵雨',quote:'雨落在窗外。'}]}}]};
 const args={session:{title:'雨天',player:{name:'小叶'},preferences:{},mode:'real'},world:{title:'钟表铺',secret:'幕后秘密禁止出现在UI',characters:[{id:'hidden',secret:'远处隐藏的人'}]},branch,state:branch.turns[0].state,situation:{clock:{label:'午后'},summary:'你在钟表铺。',objects:[object]},settings:{showSuggestions:true}};
 
+test('reader offers a compact action toggle and validates saved reading themes',()=>{
+  const html=readerView({...args,settings:{readingTheme:'sage'}});
+  assert.match(html,/data-reading-theme="sage"/);
+  assert.match(html,/aria-controls="reading-action-body"/);
+  assert.match(html,/data-action="toggle-composer"/);
+  assert.doesNotMatch(readerView({...args,settings:{readingTheme:'<script>'}}),/data-reading-theme="<script>"/);
+});
+
 test('continue is visible beside the draft and leaves unsent writing intact',()=>{
   const before=JSON.stringify(branch),html=readerView(args);
   const composer=html.slice(html.indexOf('<section data-reader-live="composer"'));
@@ -153,11 +161,12 @@ test('a pending response shows submitted writing separately from the editable ne
   assert.equal((html.match(/data-action="cancel-generation"/g)||[]).length,1);
 });
 
-test('pending status reports the actual stage and header reference tools remain named on narrow screens',()=>{
-  for(const [stage,label] of Object.entries({preparing:'正在理解这一步',writing:'正在续写',checking:'正在核对情节',saving:'正在保存'})){
+test('waiting uses a story visual without exposing internal stages or a fabricated progress estimate',()=>{
+  for(const stage of ['preparing','writing','recording','checking','saving']){
     const html=readerView({...args,busy:true,pending:{input:'打开信。',status:'waiting',stage}});
-    assert.match(html,new RegExp(`role="status">[\\s\\S]*?${label}`));
-    assert.doesNotMatch(html,/\d+%|预计.*秒/);
+    assert.match(html,/class="story-waiting/);
+    assert.match(html,/故事正在继续/);
+    assert.doesNotMatch(html,/\d+%|预计.*秒|正在理解这一步|正在续写|正在记录进展|正在保存|正式提交|查询原请求|我来接手/);
     assert.match(html,/data-action="reader-inspect" data-kind="all" aria-label="查阅故事资料"/);
     assert.match(html,/data-action="history" aria-label="回顾故事经历"/);
   }

@@ -38,3 +38,21 @@ test('legacy pending input remains readable only in its own branch and is remove
  client.journal({sessionId:'other',branchId:'main',requestId:'new'});assert.deepEqual(client.journal(undefined,pending),pending);
  client.journal(null,pending);assert.equal(client.journal(undefined,pending),null);assert.equal(client.journal(undefined,{sessionId:'other',branchId:'main'}).requestId,'new');
 });
+
+test('cancelling a branch read aborts its network request and prevents a late response',async()=>{
+ const controller=new AbortController(),storage={getItem:()=> 'test-owner',setItem(){}};
+ const client=new BranchClient(storage,async(_path,{signal})=>new Promise((resolve,reject)=>{
+   signal?.addEventListener('abort',()=>reject(signal.reason),{once:true});
+ }));
+ const read=client.read({id:'s',activeBranch:'b'},undefined,controller.signal);
+ controller.abort();
+ let failure;read.catch(error=>{failure=error;});await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(failure?.name,'AbortError');
+});
+
+test('confirmed branch installation preserves recovered text independently from the current draft',()=>{
+ const local={id:'b',worldKey:'w@1',initialState:{version:0},turns:[],draft:'新草稿',recoveredSubmission:{requestId:'old',baseVersion:0,input:'之前未执行的输入'}};
+ const confirmed={id:'b',worldKey:'w@1',initialState:{version:0},turns:[],draft:''};
+ const merged=mergeConfirmedBranch(local,confirmed);
+ assert.equal(merged.draft,'新草稿');assert.deepEqual(merged.recoveredSubmission,local.recoveredSubmission);
+});

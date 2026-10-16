@@ -255,3 +255,11 @@ test('a hidden document does not prepare or start a route transition',()=>{
   assert.equal(f.overlays.length,0);assert.equal(f.animations.length,0);
   f.motion.destroy();
 });
+
+
+test('disabled destination does not animate page entrance or portal transfer',()=>{
+  const f=fixture({activePortal:true});f.motion.destroy();
+  const motion=createEditorialMotion({root:f.document,enabled:()=>false});
+  motion.prepareRoute();motion.settleRoute({changed:true});
+  assert.equal(f.animations.length,0);assert.equal(f.overlays.length,0);motion.destroy();
+});

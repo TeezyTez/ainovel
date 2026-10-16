@@ -1,3 +1,4 @@
+import {focusActionInput} from './reader-comfort.js';
 import {createWorldField} from './world-field.js';
 import {productShell} from './product-shell.js';
 import {createDynamicControls} from './dynamic-ui.js';
@@ -17,6 +18,7 @@ import {refreshStartOptions} from './start-options.js';
 import {readerInputCommand} from './reader-input.js';
 import {readerSnapshot} from './reader-snapshot.js';
 import {BranchClient,mergeConfirmedBranch,mergeConfirmedBranches} from './branch-client.js';
+import {ArtifactClient} from './artifact-client.js';
 import {createInteractionControls} from './interaction-controls.js';
 import {localCommand} from './local-commands.js';
 import {resolveGameAction,gameActionForInput} from './game-state.js';
@@ -41,10 +43,10 @@ import {LocalRepository,defaultSettings,STORAGE_KEY} from './storage.js';
 import {DemoProvider,RealProvider} from './providers.js';
 
 const $=s=>document.querySelector(s), app=$('#app'), dialog=$('#dialog');
-const editorialMotion=createEditorialMotion({root:app});
-const worldField=createWorldField({root:app});
-const interfaceMotion=createInterfaceMotion({root:app});
-const controlMotion=createControlMotion({root:document});
+const editorialMotion=createEditorialMotion({root:app,enabled:()=>currentRoute().path===''});
+const worldField=createWorldField({root:app,enabled:()=>currentRoute().path===''});
+const interfaceMotion=createInterfaceMotion({root:app,enabled:()=>currentRoute().path===''});
+const controlMotion=createControlMotion({root:document,enabled:()=>currentRoute().path===''});
 const universeMotion=createUniverseMotion({root:app});
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const paragraphs=s=>String(s||'').split(/\n\s*\n/).filter(Boolean).map(p=>`<p>${esc(p).replaceAll('\n','<br>')}</p>`).join('');
@@ -58,9 +60,11 @@ const area=(label,name,value='',extra='')=>`<label class="field">${label}<textar
 const select=(label,name,values,value)=>`<label class="field">${label}<select name="${name}">${option(values,value)}</select></label>`;
 let repository;try{repository=new LocalRepository(window.localStorage);}catch{repository=new LocalRepository({getItem:()=>null,setItem:()=>{throw new Error('storage blocked');}});}
 const branchClient=new BranchClient(repository.storage);
-let recovering=false,quickError='',lastSubmission=null;
+const artifactClient=new ArtifactClient(branchClient);
+let recovering=false,recoveryJob=null,quickError='',lastSubmission=null;
 let assistantJob=null,intentMode='auto',gameRecall=null;
 let db,loadError='',saveError='',pending=null,readerError='',readerNotice='',focusMode=false,archiveTab=false,editor=null,editorDirty=false,saveTimer,toastTimer,routeStarted=performance.now(),lastRoute='',modelConfig={available:false},modelChecked=false;
+const generativeUIEnabled=()=>modelConfig.generativeUIEnabled===true;
 let discoveryOrder=0,readingPage=null,readingSince=Date.now(),restShown=false,lastReadTick=Date.now(),readingElapsed=0,recentDraft=null,retryRequest=null,discoveryOptions={query:'',tag:'',excludeTag:'',onlyFavorites:false},libraryOptions={query:'',category:'active',group:'',sort:'updated'};
 const anonymousId=uid();
 try{db=repository.load(PRESET_WORLDS);}catch(e){loadError=e.message;db={schemaVersion:1,worlds:clone(PRESET_WORLDS),sessions:[],settings:{...defaultSettings},telemetry:[]};}
@@ -79,16 +83,59 @@ const latestWorld=id=>db.worlds.filter(w=>w.id===id).sort((a,b)=>b.version-a.ver
 const sessionWorld=s=>findWorld(getBranch(s).worldKey);
 const experience=createExperienceControls({sessionNow,getBranch,sessionWorld,getDB:()=>db,save,openDialog,toast,sendTurn,render,refresh:refreshReaderLive,showQuery:showGameRecall,busy:()=>!!(pending||assistantJob||recovering),applySettings,requestAssistance,confirmAction,cancelRequest,forkBranch,download,openRewrite:rewritePanel,showTurn(node){if(db.settings.readingMode==='paged'){readingPage=node?getBranch(sessionNow()).turns.findIndex(t=>t.id===node)+1:0;render(true);}}});
 const travel=createTravelControls({session:sessionNow,branch:()=>getBranch(sessionNow()),state:()=>currentState(sessionNow()),world:()=>sessionWorld(sessionNow()),situation:()=>publicSituation(getBranch(sessionNow()),sessionWorld(sessionNow())),open:openDialog,save,toast,send:(input,gameAction)=>sendTurn('game-action',{input,gameAction}),busy:()=>!!(pending||assistantJob||recovering),close:()=>dialog.close(),settings:()=>db.settings});
-const interaction=createInteractionControls({session:sessionNow,branch:getBranch,world:sessionWorld,settings:()=>db.settings,save,toast,refresh:refreshReaderLive,source:node=>experience.handle('source-jump',{dataset:{node}}),draft:text=>{const b=getBranch(sessionNow());b.draft=b.draft?b.draft+'\n'+text:text;save();refreshReaderLive();$('#action-input')?.focus();}});
-const dynamic=createDynamicControls({uiContext:()=>({viewport:innerWidth<600?'narrow':'wide',readingMode:db.settings.readingMode||'continuous',editing:!!sessionNow()&&!!getBranch(sessionNow()).draft,readingHistorical:!!sessionNow()&&db.settings.readingMode==='paged'&&readingPage!==null&&readingPage<getBranch(sessionNow()).turns.length}),storage:repository.storage,active:()=>{const session=sessionNow();return session?{session,branch:getBranch(session),state:currentState(session)}:{};},ready:()=>!(pending||assistantJob||recovering),ensure:ensureLedger,request:(path,body,signal)=>branchClient.request(path,body,signal),install:installConfirmed,save,refresh:refreshReaderLive,toast,draft:text=>{const b=getBranch(sessionNow()),field=$('#action-input');b.draft=appendInteractionDraft(field?.value??b.draft,text);if(field){field.value=b.draft;field.dispatchEvent(new Event('input',{bubbles:true}));field.focus({preventScroll:true});}save();},send:(input,dynamicAttempt)=>sendTurn('dynamic-attempt',{input,dynamicAttempt})});
+const interaction=createInteractionControls({session:sessionNow,branch:getBranch,world:sessionWorld,settings:()=>db.settings,save,toast,refresh:refreshReaderLive,source:node=>experience.handle('source-jump',{dataset:{node}}),draft:text=>{const b=getBranch(sessionNow());b.draft=b.draft?b.draft+'\n'+text:text;save();refreshReaderLive();focusActionInput();}});
+const dynamic=createDynamicControls({get artifact(){return generativeUIEnabled()?artifactClient:undefined;},get workbench(){return generativeUIEnabled();},download,uiContext:()=>({viewport:innerWidth<600?'narrow':'wide',readingMode:db.settings.readingMode||'continuous',editing:!!sessionNow()&&!!getBranch(sessionNow()).draft,readingHistorical:!!sessionNow()&&db.settings.readingMode==='paged'&&readingPage!==null&&readingPage<getBranch(sessionNow()).turns.length}),storage:repository.storage,active:()=>{const session=sessionNow();return session?{session,branch:getBranch(session),state:currentState(session)}:{};},ready:()=>modelChecked&&!(pending||assistantJob||recovering),ensure:ensureLedger,request:(path,body,signal)=>branchClient.request(path,body,signal),install:installConfirmed,save,refresh:refreshReaderLive,toast,draft:text=>{const b=getBranch(sessionNow()),field=$('#action-input');b.draft=appendInteractionDraft(field?.value??b.draft,text);if(field){field.value=b.draft;field.dispatchEvent(new Event('input',{bubbles:true}));focusActionInput();}save();},send:(input,dynamicAttempt)=>sendTurn('dynamic-attempt',{input,dynamicAttempt})});
 function mergeWorlds(worlds=[]){for(const world of worlds){const index=db.worlds.findIndex(w=>worldKey(w)===worldKey(world));if(index<0)db.worlds.push(world);else db.worlds[index]={...world,characters:[...new Map([...db.worlds[index].characters,...world.characters].map(c=>[c.id,c])).values()]};}}
 function installConfirmed(s,confirmed,world){const b=s.branches.find(b=>b.id===confirmed.id);if(!b)throw new Error('恢复结果的分支不存在。');const editingField=$('#action-input');if(editingField&&sessionNow()?.id===s.id&&s.activeBranch===b.id)b.draft=editingField.value;Object.assign(b,mergeConfirmedBranch(b,confirmed));if(world)mergeWorlds([world]);s.updatedAt=Date.now();}
-async function ensureLedger(s,signal){const branchId=s.activeBranch,keys=new Set(s.branches.map(b=>b.worldKey));const registered=await branchClient.register(s,db.worlds.filter(w=>keys.has(worldKey(w))),signal);if(signal?.aborted||s.activeBranch!==branchId||sessionNow()?.id!==s.id)return;if(registered){const b=getBranch(s),remote=registered.session.branches.find(x=>x.id===b.id);const changed=remote.turns.length!==b.turns.length||remote.turns.at(-1)?.prose!==b.turns.at(-1)?.prose;installConfirmed(s,remote,registered.worlds.find(w=>worldKey(w)===b.worldKey));if(changed){save();throw new Error('已恢复服务端确认的进展。草稿保留，请按当前情况重新发送。');}}}
-async function recoverStory(quiet=false){const s=sessionNow();if(!s||s.mode!=='real'||pending||assistantJob||recovering)return;const recoveringBranch=s.activeBranch;recovering=true;try{const scope={sessionId:s.id,branchId:s.activeBranch},journal=branchClient.journal(undefined,scope),matching=!!journal;if(matching&&journal.body){retryRequest={sid:s.id,bid:s.activeBranch,body:{...journal.body,state:clone(currentState(s))}};lastSubmission={sid:s.id,bid:s.activeBranch,input:journal.body.input,status:'error',error:'上次续写尚未完成，已保留你的输入。'};refreshReaderLive();}const result=await branchClient.read(s,matching?journal.requestId:undefined);if(sessionNow()?.id!==s.id||s.activeBranch!==recoveringBranch)return;const b=getBranch(s),changed=result.branch.turns.length!==b.turns.length||result.branch.turns.at(-1)?.prose!==b.turns.at(-1)?.prose;if(changed)installConfirmed(s,result.branch,result.world);if(result.receipt){branchClient.journal(null,scope);retryRequest=null;lastSubmission=null;readerError='';readerNotice='已恢复上次确认的结果，没有重复执行。';}else if(matching&&journal.body){retryRequest={sid:s.id,bid:b.id,body:{...journal.body,state:clone(currentState(s))}};readerError='上次续写尚未完成，已保留你的输入。';lastSubmission={sid:s.id,bid:b.id,input:journal.body.input,status:'error',error:readerError};}if(changed||result.receipt){save();render(true);}else if(matching)refreshReaderLive();else if(!quiet)toast('已与本机服务核对，故事停在当前进度。');}catch(error){if(!quiet||!['BRANCH_NOT_REGISTERED','OWNER_REQUIRED'].includes(error.code))toast(error.message);}finally{recovering=false;if(sessionNow()?.id===s.id)refreshReaderLive();}}
+function storyPreferences(preferences={}){return Object.fromEntries(Object.entries(preferences).filter(([key])=>!['style','pace'].includes(key)));}
+async function ensureLedger(s,signal){const branchId=s.activeBranch,keys=new Set(s.branches.map(b=>b.worldKey));const registered=await branchClient.register({...s,preferences:storyPreferences(s.preferences)},db.worlds.filter(w=>keys.has(worldKey(w))),signal);if(signal?.aborted||s.activeBranch!==branchId||sessionNow()?.id!==s.id)return;if(registered){const b=getBranch(s),remote=registered.session.branches.find(x=>x.id===b.id);const changed=remote.turns.length!==b.turns.length||remote.turns.at(-1)?.prose!==b.turns.at(-1)?.prose;installConfirmed(s,remote,registered.worlds.find(w=>worldKey(w)===b.worldKey));if(changed){save();throw new Error('已恢复服务端确认的进展。草稿保留，请按当前情况重新发送。');}}}
+async function recoverStory(quiet=false){
+  const s=sessionNow();if(!s||s.mode!=='real'||pending||assistantJob)return;
+  if(recoveryJob){if(recoveryJob.sid===s.id&&recoveryJob.bid===s.activeBranch)return;cancelRecovery();}
+  const job={sid:s.id,bid:s.activeBranch,controller:new AbortController()};recoveryJob=job;recovering=true;
+  try{
+    const scope={sessionId:s.id,branchId:job.bid},journal=branchClient.journal(undefined,scope),matching=!!journal;
+    if(matching&&journal.body){
+      retryRequest={sid:s.id,bid:job.bid,body:{...journal.body,state:clone(currentState(s))}};
+      lastSubmission={sid:s.id,bid:job.bid,input:journal.body.input,status:'error',error:'上次续写尚未完成，已保留你的输入。'};
+    }
+    refreshReaderLive();
+    const result=await branchClient.read(s,matching?journal.requestId:undefined,job.controller.signal);
+    if(recoveryJob!==job||job.controller.signal.aborted||sessionNow()?.id!==s.id||s.activeBranch!==job.bid)return;
+    const b=getBranch(s),changed=result.branch.turns.length!==b.turns.length||result.branch.turns.at(-1)?.prose!==b.turns.at(-1)?.prose;
+    if(changed)installConfirmed(s,result.branch,result.world);
+    if(result.receipt){
+      branchClient.journal(null,scope);retryRequest=null;lastSubmission=null;readerError='';readerNotice='已恢复上次确认的结果，没有重复执行。';
+    }else if(matching&&journal.body){
+      const confirmedVersion=result.branch.turns.at(-1)?.state.version??result.branch.initialState.version;
+      if(Number.isSafeInteger(journal.body.baseVersion)&&confirmedVersion>journal.body.baseVersion){
+        // The server has advanced without committing this request. Keep its text
+        // separately so a newer draft never becomes an accidental compound action.
+        const live=$('#action-input');if(live)b.draft=live.value;
+        b.recoveredSubmission={requestId:journal.requestId,baseVersion:journal.body.baseVersion,input:journal.body.input};
+        if(!b.draft.trim()){b.draft=journal.body.input;if(live)live.value=b.draft;}
+        if(!save())return;
+        branchClient.journal(null,scope);retryRequest=null;lastSubmission=null;readerError='';
+        readerNotice='故事进度已更新，旧请求已过期且未执行。请核对草稿后重新发送。已保留的原输入：'+journal.body.input;
+      }else{
+        retryRequest={sid:s.id,bid:b.id,body:{...journal.body,state:clone(currentState(s))}};
+        readerError='上次续写尚未完成，已保留你的输入。';lastSubmission={sid:s.id,bid:b.id,input:journal.body.input,status:'error',error:readerError};
+      }
+    }else if(typeof b.recoveredSubmission?.input==='string'){
+      readerNotice=(b.recoveredSubmission.rejectionReason?'此前一次回应未写入故事：'+b.recoveredSubmission.rejectionReason+' 当时的原输入已独立保留，当前草稿可以编辑后发送。原输入：':'之前过期的请求未执行，原输入仍已保留；当前草稿可以编辑后发送。原输入：')+b.recoveredSubmission.input;
+    }
+    if(changed||result.receipt){save();render(true);}else if(!matching&&!quiet)toast('已与本机服务核对，故事停在当前进度。');
+  }catch(error){
+    if(recoveryJob===job&&!job.controller.signal.aborted&&sessionNow()?.id===s.id&&s.activeBranch===job.bid&&(!quiet||!['BRANCH_NOT_REGISTERED','OWNER_REQUIRED'].includes(error.code)))toast(error.message);
+  }finally{
+    if(recoveryJob===job){recoveryJob=null;recovering=false;refreshReaderLive();}
+  }
+}
+function cancelRecovery(){const job=recoveryJob;if(!job)return;recoveryJob=null;recovering=false;job.controller.abort();}
 async function editConfirmed(kind,{text,proposal,reason,rules,name}={}){const s=sessionNow(),b=getBranch(s),last=b.turns.at(-1);await ensureLedger(s);const result=await branchClient.request('/api/branch/edit',{sessionId:s.id,branchId:b.id,baseVersion:currentState(s).version,turnId:last?.id||null,expectedProse:last?.prose||'',requestId:uid(),kind,text,proposal,reason,rules,name});result.session.branches=mergeConfirmedBranches(s.branches,result.session.branches);Object.assign(s,{...result.session,preferences:s.preferences,saves:s.saves,title:s.title,archived:s.archived,...(s.conclusion?{conclusion:s.conclusion}:{}),...(s.personal?{personal:s.personal}:{})});mergeWorlds(result.worlds);save();render(true);}
 function allLatest(){return [...new Set(db.worlds.map(w=>w.id))].map(latestWorld);}
 function navigate(path){readingProgress.flush();location.hash=path;}
-function cancelRequest(notify=false){dynamic.cancel();if(pending){lastSubmission={sid:pending.sid,bid:pending.bid,input:pending.input,startedAt:pending.startedAt,status:'stopped'};pending.controller.abort();pending=null;if(notify){readerNotice='已停止。下一条草稿已保留。';toast(readerNotice);}}}
+function cancelRequest(notify=false){cancelRecovery();dynamic.cancel();if(pending){lastSubmission={sid:pending.sid,bid:pending.bid,input:pending.input,startedAt:pending.startedAt,status:'stopped'};pending.controller.abort();pending=null;if(notify){readerNotice='已停止。下一条草稿已保留。';toast(readerNotice);}}}
 const dialogNavigation=createDialogNavigation(dialog,{escape:esc,returnFallback:()=>$('.reader-tools-trigger')});
 function openDialog(title,content,onSubmit,options){dialogNavigation.open(title,content,onSubmit,options);}
 function confirmAction(title,message,action,label='确认'){openDialog(title,`<p>${esc(message)}</p><div class="dialog-footer">${button('取消','close-dialog')}${button(esc(label),'confirm','primary')}</div>`);dialog.querySelector('[data-action=confirm]').onclick=()=>{dialog.close();action();};}
@@ -101,7 +148,7 @@ function download(name,content,type='text/plain'){
 }
 
 function shell(content,active='worlds'){return productShell(content,{active,sessions:db.sessions,theme:db.settings.theme});}
-function worldCard(w,index){return `<a class="world-card" href="#/world/${w.id}"><div class="world-index"><span>${String(index+1).padStart(2,'0')} / ${w.custom?'你的设想':'一段可能的人生'}</span><span>↗</span></div><h3>${esc(w.title)}</h3><div class="tags">${(w.tags||[]).map(tag).join('')}</div><p class="description">${esc(w.tagline||w.description)}</p><footer><span>${esc(w.pace||'从容阅读').split(' · ')[0]} · ${w.custom?'私有世界':'约 8 个片刻'}</span><span>走进这个世界 →</span></footer></a>`;}
+function worldCard(w,index){return `<a class="world-card" href="#/world/${w.id}"><div class="world-index"><span>${String(index+1).padStart(2,'0')} / ${w.custom?'你的设想':'一段可能的人生'}</span><span>↗</span></div><h3>${esc(w.title)}</h3><div class="tags">${(w.tags||[]).map(tag).join('')}</div><p class="description">${esc(w.tagline||w.description)}</p><footer><span>${esc(w.pace||'自由阅读').split(' · ')[0]} · ${w.custom?'私有世界':'约 8 个片刻'}</span><span>走进这个世界 →</span></footer></a>`;}
 function home(){return shell(discoveryView({worlds:allLatest(),sessions:db.sessions,getExperience,available:modelConfig.available,favorites:db.settings.favoriteWorlds||[],excluded:db.settings.excludedWorlds||[],orderSeed:discoveryOrder,...discoveryOptions}));}
 async function quickStart(seed){
  if(!seed.trim()){toast('先写下一个故事想法。');document.querySelector('#world-form [name=seed],#quick-seed')?.focus();return;}if(!modelConfig.available||assistantJob||pending)return;quickError='';
@@ -110,11 +157,11 @@ async function quickStart(seed){
  }catch(error){if(assistantJob!==job)return;assistantJob=null;if(error.name!=='AbortError')quickError=error.message+'。想法已保留，可以再次尝试。';render(true);}
 }
 function worldDetail(id){const w=latestWorld(id);if(!w)return notFound('这个世界还不存在','请返回入口，选择另一段经历。');return shell(detailView({world:w,experience:getExperience(w),settings:db.settings,available:modelConfig.available,modelChecked,provider:modelConfig.provider,sessions:db.sessions}));}
-function newDraft(){return {id:'world-'+uid(),version:1,title:'',seed:'',description:'',tagline:'',era:'',rules:[''],characters:[],location:'',identity:'',goal:'',opening:'',tags:['自建世界'],pace:'从容阅读',custom:true,narrative:{perspective:'第二人称',length:'适中',style:'细腻克制',pace:'从容'},originalVersion:0};}
+function newDraft(){return {id:'world-'+uid(),version:1,title:'',seed:'',description:'',tagline:'',era:'',rules:[''],characters:[],location:'',identity:'',goal:'',opening:'',tags:['自建世界'],custom:true,narrative:{perspective:'第二人称',length:'适中'},originalVersion:0};}
 function getEditor(id){if(editor&&editor.editId===(id||''))return editor;if(id){const w=latestWorld(id);if(!w)return null;if(db.worldDraft?.editId===id)return editor=clone(db.worldDraft);editor={...clone(w),originalVersion:w.version,editId:id,custom:!!w.custom};}else editor=db.worldDraft&&!db.worldDraft.editId?clone(db.worldDraft):{...newDraft(),seed:db.settings.quickSeed||'',editId:''};return editor;}
 function characterFields(c,i){return `<div class="character-editor"><div class="row between"><h3>人物 ${i+1}</h3>${button('移除','remove-character','compact',`data-index="${i}"`)}</div><div class="field-grid">${input('姓名',`char-${i}-name`,c.name,'required maxlength="100"')}${input('身份',`char-${i}-role`,c.role,'maxlength="200"')}</div><div class="stack" style="margin-top:15px">${area('公开介绍 / 外在表现',`char-${i}-public`,c.public,'maxlength="3000"')}${input('人物自己的目标',`char-${i}-goal`,c.goal,'maxlength="500"')}${input('关系与重要经历',`char-${i}-history`,c.history||'','maxlength="1000"')}${area('幕后秘密 · 仅作者可见',`char-${i}-secret`,c.secret,'maxlength="3000"')}</div></div>`;}
 function createView(id){const w=getEditor(id);if(!w)return notFound('找不到这个世界','请返回入口。');return shell(creatorView({world:w,id,available:modelConfig.available,busy:['world','quick-world'].includes(assistantJob?.kind),characterFields,error:quickError}),'create');}
-function collectEditor(){const form=$('#world-form');if(!form||!editor)return;const data=new FormData(form);for(const key of ['seed','title','description','era','identity','location','goal','opening'])editor[key]=String(data.get(key)||'');editor.rules=String(data.get('rules')||'').split('\n').map(x=>x.trim()).filter(Boolean);editor.tagline=editor.description.slice(0,100);editor.narrative=Object.fromEntries(['perspective','length','style','pace'].map(k=>[k,String(data.get(k)||'')]));editor.characters.forEach((c,i)=>{for(const key of ['name','role','public','goal','history','secret'])c[key]=String(data.get(`char-${i}-${key}`)||'');});db.worldDraft=clone(editor);editorDirty=true;}
+function collectEditor(){const form=$('#world-form');if(!form||!editor)return;const data=new FormData(form);for(const key of ['seed','title','description','era','identity','location','goal','opening'])editor[key]=String(data.get(key)||'');editor.rules=String(data.get('rules')||'').split('\n').map(x=>x.trim()).filter(Boolean);editor.tagline=editor.description.slice(0,100);editor.narrative={...editor.narrative,...Object.fromEntries(['perspective','length'].map(k=>[k,String(data.get(k)||'')]))};editor.characters.forEach((c,i)=>{for(const key of ['name','role','public','goal','history','secret'])c[key]=String(data.get(`char-${i}-${key}`)||'');});db.worldDraft=clone(editor);editorDirty=true;}
 function persistEditor(){collectEditor();scheduleSave();}
 function publishWorld(){collectEditor();try{const w=clone(editor);w.title=w.title.trim();w.version=(latestWorld(w.id)?.version||0)+1;w.rules=w.rules.length?w.rules:['人物拥有自己的生活与选择。'];delete w.editId;delete w.originalVersion;delete w.additions;w.demoCompatible=false;validateWorld(w);const draft=db.worldDraft;db.worlds.push(w);db.worldDraft=null;if(!save()){db.worlds.pop();db.worldDraft=draft;return;}editor=null;editorDirty=false;record('world_created');toast('世界已保存。');navigate('/world/'+w.id);}catch(e){toast(e.message);}}
 
@@ -133,12 +180,12 @@ const readingProgress=createReadingProgress({capture:({branch,y})=>{
   branch.readingPosition=y;experience.persistAnchor(branch);
   clearTimeout(saveTimer);saveTimer=setTimeout(()=>save(true),300);
 }});
-function render(keepScroll=false){universeMotion.unmount();interfaceMotion.mount();controlMotion.mount();readingProgress.flush();const restorePageFocus=hasPageContentFocus();const journeyFocus=keepScroll?document.activeElement?.closest?.("[data-story-id]")?.dataset.storyId:null;rememberContextCards();const y=scrollY,{path,id}=currentRoute();applySettings();document.body.classList.toggle('focus-mode',focusMode&&path==='story');if(loadError){app.innerHTML=notFound('本机存档暂时无法读取',loadError)+`<div style="text-align:center;padding:20px">${button('下载原始数据备份','export-raw')}${button('导入有效存档以恢复','recover-import')}</div>`;return;}try{app.innerHTML=path==='world'?worldDetail(id):path==='create'?createView():path==='edit'?createView(id):path==='stories'?stories():path==='story'?reader():path==='settings'?settings():path===''?home():notFound('这一页没有找到','请通过导航返回世界或已有故事。');}catch(e){console.error(e);app.innerHTML=notFound('这一页暂时无法打开','数据没有被删除。请返回我的世界或从设置导出备份。');}refreshModelUI();updateSaveLabels();document.title=(path==='story'&&sessionNow()?sessionNow().title+' · ':'')+'elselife · 人生复本';restoreContextCards();bindForms();refreshDossier();worldField.mount();universeMotion.mount();if(restorePageFocus)focusPageContent();if(journeyFocus){const next=app.querySelector('[data-story-id="'+CSS.escape(journeyFocus)+'"] .library-more>summary')||app.querySelector('.library-category-nav input:checked');next?.focus({preventScroll:true});}if(keepScroll)requestAnimationFrame(()=>scrollTo({top:y,behavior:'instant'}));}
+function render(keepScroll=false){universeMotion.unmount();interfaceMotion.mount();controlMotion.mount();readingProgress.flush();const restorePageFocus=hasPageContentFocus();const journeyFocus=keepScroll?document.activeElement?.closest?.("[data-story-id]")?.dataset.storyId:null;rememberContextCards();const y=scrollY,{path,id}=currentRoute();document.body.dataset.page=path||'home';applySettings();document.body.classList.toggle('focus-mode',focusMode&&path==='story');if(loadError){app.innerHTML=notFound('本机存档暂时无法读取',loadError)+`<div style="text-align:center;padding:20px">${button('下载原始数据备份','export-raw')}${button('导入有效存档以恢复','recover-import')}</div>`;return;}try{app.innerHTML=path==='world'?worldDetail(id):path==='create'?createView():path==='edit'?createView(id):path==='stories'?stories():path==='story'?reader():path==='settings'?settings():path===''?home():notFound('这一页没有找到','请通过导航返回世界或已有故事。');}catch(e){console.error(e);app.innerHTML=notFound('这一页暂时无法打开','数据没有被删除。请返回我的世界或从设置导出备份。');}refreshModelUI();updateSaveLabels();document.title=(path==='story'&&sessionNow()?sessionNow().title+' · ':'')+'elselife · 人生复本';restoreContextCards();bindForms();refreshDossier();worldField.mount();universeMotion.mount();if(restorePageFocus)focusPageContent();if(journeyFocus){const next=app.querySelector('[data-story-id="'+CSS.escape(journeyFocus)+'"] .library-more>summary')||app.querySelector('.library-category-nav input:checked');next?.focus({preventScroll:true});}if(keepScroll)requestAnimationFrame(()=>scrollTo({top:y,behavior:'instant'}));}
 let composerObserver,librarySearchTimer;
 const historicalRichBindings=new WeakSet();
 function bindHistoricalRich(){for(const root of document.querySelectorAll('[data-historical-rich]')){if(historicalRichBindings.has(root))continue;historicalRichBindings.add(root);bindRichControls(root,{ready:()=>false,toast});}}
 function observeComposer(){composerObserver?.disconnect();const composer=$('.reading-composer-wrap');if(!composer)return;composerObserver=new ResizeObserver(()=>{document.documentElement.style.setProperty('--composer-height',composer.getBoundingClientRect().height+'px');});composerObserver.observe(composer);}
-function bindForms(){dynamic.bind();bindHistoricalRich();observeComposer();requestAnimationFrame(()=>centerMaps());interaction.bind();if(currentRoute().path==='story'&&sessionNow())experience.bind();for(const [selector,options] of [['#discovery-form',discoveryOptions],['#library-form',libraryOptions]]){const f=$(selector);if(f)f.onsubmit=e=>{e.preventDefault();const d=new FormData(f);for(const key of Object.keys(options))options[key]=key==='onlyFavorites'?d.has(key):String(d.get(key)||'');const focused=document.activeElement,name=focused?.name,selection=focused?.type==='search'?[focused.selectionStart,focused.selectionEnd]:null;render(true);if(name){const next=document.querySelector(selector)?.querySelector('[name="'+CSS.escape(name)+'"]:checked,[name="'+CSS.escape(name)+'"]');next?.focus({preventScroll:true});if(selection&&next?.setSelectionRange)next.setSelectionRange(...selection);}};if(f)f.onchange=e=>{if(e.target.matches('select,input[type=checkbox],input[type=radio]'))f.requestSubmit();};if(f&&selector==='#library-form'){f.oninput=e=>{if(e.target.name!=='query')return;clearTimeout(librarySearchTimer);if(e.isComposing)return;librarySearchTimer=setTimeout(()=>{if(f.isConnected)f.requestSubmit();},240);};f.addEventListener('compositionstart',()=>clearTimeout(librarySearchTimer));f.addEventListener('compositionend',e=>f.oninput(e));f.addEventListener('search',()=>{if(f.isConnected)f.requestSubmit();});}}const start=$('#start-form');if(start)start.onsubmit=e=>{e.preventDefault();if(!modelChecked){toast('正在检查连接，请稍候。');return;}const d=new FormData(start),w=latestWorld(start.dataset.world),s=createSession(w,{name:String(d.get('name')||'旅人').trim()||'旅人',identity:String(d.get('identity')||w.identity).trim()||w.identity,goal:String(d.get('goal')||'')},String(d.get('mode')));s.preferences={...s.preferences,...w.narrative,...Object.fromEntries(['perspective','length','pace','style'].map(k=>[k,db.settings[k]])),participation:String(d.get('participation')||'observe'),boundaries:String(d.get('boundaries')||''),perspective:String(d.get('perspective')),length:String(d.get('length'))};db.sessions.push(s);if(!save()){db.sessions.pop();return;}record('story_started');navigate('/story/'+s.id);};const wf=$('#world-form');if(wf){wf.onsubmit=e=>{e.preventDefault();publishWorld();};wf.oninput=persistEditor;}const af=$('#action-form');if(af){af.onsubmit=e=>{e.preventDefault();sendTurn();};const field=$('#action-input');field.oninput=()=>{const s=sessionNow();if(!s)return;getBranch(s).draft=field.value;const send=af.querySelector('[type=submit]');if(send)send.disabled=af.dataset.storyBlocked==='true'||!!(pending||assistantJob||recovering)||!field.value.trim();field.style.height='auto';field.style.height=Math.min(field.scrollHeight,160)+'px';scheduleSave();};field.style.height='auto';field.style.height=Math.min(field.scrollHeight,160)+'px';field.onkeydown=e=>{if(shouldSend(e,db.settings.sendEnter)){e.preventDefault();sendTurn();}};}}
+function bindForms(){dynamic.bind();bindHistoricalRich();observeComposer();requestAnimationFrame(()=>centerMaps());interaction.bind();if(currentRoute().path==='story'&&sessionNow())experience.bind();for(const [selector,options] of [['#discovery-form',discoveryOptions],['#library-form',libraryOptions]]){const f=$(selector);if(f)f.onsubmit=e=>{e.preventDefault();const d=new FormData(f);for(const key of Object.keys(options))options[key]=key==='onlyFavorites'?d.has(key):String(d.get(key)||'');const focused=document.activeElement,name=focused?.name,selection=focused?.type==='search'?[focused.selectionStart,focused.selectionEnd]:null;render(true);if(name){const next=document.querySelector(selector)?.querySelector('[name="'+CSS.escape(name)+'"]:checked,[name="'+CSS.escape(name)+'"]');next?.focus({preventScroll:true});if(selection&&next?.setSelectionRange)next.setSelectionRange(...selection);}};if(f)f.onchange=e=>{if(e.target.matches('select,input[type=checkbox],input[type=radio]'))f.requestSubmit();};if(f&&selector==='#library-form'){f.oninput=e=>{if(e.target.name!=='query')return;clearTimeout(librarySearchTimer);if(e.isComposing)return;librarySearchTimer=setTimeout(()=>{if(f.isConnected)f.requestSubmit();},240);};f.addEventListener('compositionstart',()=>clearTimeout(librarySearchTimer));f.addEventListener('compositionend',e=>f.oninput(e));f.addEventListener('search',()=>{if(f.isConnected)f.requestSubmit();});}}const start=$('#start-form');if(start)start.onsubmit=e=>{e.preventDefault();if(!modelChecked){toast('正在检查连接，请稍候。');return;}const d=new FormData(start),w=latestWorld(start.dataset.world),s=createSession(w,{name:String(d.get('name')||'旅人').trim()||'旅人',identity:String(d.get('identity')||w.identity).trim()||w.identity,goal:String(d.get('goal')||'')},String(d.get('mode')));s.preferences={...s.preferences,participation:String(d.get('participation')||'observe'),boundaries:String(d.get('boundaries')||''),perspective:String(d.get('perspective')),length:String(d.get('length'))};db.sessions.push(s);if(!save()){db.sessions.pop();return;}record('story_started');navigate('/story/'+s.id);};const wf=$('#world-form');if(wf){wf.onsubmit=e=>{e.preventDefault();publishWorld();};wf.oninput=persistEditor;}const af=$('#action-form');if(af){af.onsubmit=e=>{e.preventDefault();sendTurn();};const field=$('#action-input');field.oninput=()=>{const s=sessionNow();if(!s)return;getBranch(s).draft=field.value;const send=af.querySelector('[type=submit]');if(send)send.disabled=af.dataset.storyBlocked==='true'||!!(pending||assistantJob||recovering)||!field.value.trim();field.style.height='auto';field.style.height=Math.min(field.scrollHeight,160)+'px';scheduleSave();};field.style.height='auto';field.style.height=Math.min(field.scrollHeight,160)+'px';field.onkeydown=e=>{if(shouldSend(e,db.settings.sendEnter)){e.preventDefault();sendTurn();}};}}
 
 // Patch only live controls and append completed turns, keeping native selection and
 // existing paragraph nodes intact while the model is working.
@@ -146,6 +193,8 @@ function refreshReaderPending(){
   const s=sessionNow();if(currentRoute().path!=='story'||!s)return;
   const b=getBranch(s),host=$('[data-reader-live="pending"]');if(!host)return;
   const record=[pending,lastSubmission].find(item=>item?.sid===s.id&&item?.bid===b.id)||null;
+  // Internal stage events must not restart the scene animation or steal stop-button focus.
+  if(record&&!readerError&&!record.error&&!['error','stopped'].includes(record.status)&&host.querySelector?.('.reading-pending.is-waiting .story-waiting'))return;
   host.innerHTML=pendingRecord(record,readerError,!!(pending||assistantJob||recovering),{readOnly:demoReadOnly(s,sessionWorld(s))});
 }
 function refreshReaderLive(){
@@ -158,9 +207,9 @@ function refreshReaderLive(){
   if(!host){render(true);return;}if(db.settings.readingMode==='paged'){for(const fresh of source.querySelectorAll('[data-reader-turns]>.turn')){const old=host.querySelector('.turn');if(old?.id!==fresh.id){host.replaceChildren(fresh.cloneNode(true));}}}
   for(const turn of source.querySelectorAll('[data-reader-turns]>.turn'))if(db.settings.readingMode!=='paged'&&!document.getElementById(turn.id))host.append(turn.cloneNode(true));
   for(const fresh of source.querySelectorAll('[data-reader-turns]>.turn')){const old=document.getElementById(fresh.id);if(old&&getBranch(sessionNow()).turns.find(t=>'turn-'+t.id===fresh.id)?.operation&&old.innerHTML!==fresh.innerHTML)old.replaceWith(fresh.cloneNode(true));}
-  for(const fresh of source.querySelectorAll('[data-reader-live]')){const old=document.querySelector('[data-reader-live="'+fresh.dataset.readerLive+'"]');if(old)old.replaceWith(fresh.cloneNode(true));}
+  for(const fresh of source.querySelectorAll('[data-reader-live]')){if(fresh.dataset.readerLive==='dynamic')continue;const old=document.querySelector('[data-reader-live="'+fresh.dataset.readerLive+'"]');if(old)old.replaceWith(fresh.cloneNode(true));}
   for(const fresh of source.querySelectorAll('[data-history-interaction]')){const old=document.querySelector('[data-history-interaction="'+CSS.escape(fresh.dataset.historyInteraction)+'"]');if(old&&!old.firstElementChild&&fresh.firstElementChild)old.replaceWith(fresh.cloneNode(true));}
-  restoreContextCards();bindForms();updateSaveLabels();
+  dynamic.refresh();restoreContextCards();bindForms();updateSaveLabels();
   travel.invalidate();
   experience.invalidate();refreshDossier();
   const next=$('#action-input');if(inputState&&next){next.value=getBranch(sessionNow()).draft||'';if(inputState.focused){next.focus({preventScroll:true});next.setSelectionRange(inputState.start,inputState.end);}}
@@ -169,6 +218,7 @@ async function sendTurn(actionId,options={}){
   const s=sessionNow();if(!s||pending||assistantJob||recovering)return;if(dynamic.busy()){toast('正在完成这次行动，输入已保留。');return;}const b=getBranch(s),w=sessionWorld(s),field=$('#action-input');if(field)b.draft=field.value;
   const inputText=options.input??(actionId==='continue'?'让当前场景自然继续。':b.draft.trim());
   if(!inputText&&actionId!=='retry'){toast('写下你想做的事，或输入“继续”。');return;}
+  if(s.mode==='real'&&!modelChecked){toast('正在读取功能配置，请稍候再发送。草稿已保留。');return;}
   dynamic.cancelPrepare();
   const command=!actionId&&!options.input?readerInputCommand(inputText):null;
   if(command){
@@ -183,20 +233,24 @@ async function sendTurn(actionId,options={}){
       b.draft='';field.value='';if(save()&&command.action==='save')toast('这个片刻已保存。');refreshReaderLive();return;
     }
   }
-  const richRequest=!actionId&&s.mode==='real'?richInteractionRequest(inputText):null;
-  if(richRequest){
-    const result=await dynamic.prepare(true,richRequest.intent);
+  const richRequest=!actionId&&s.mode==='real'?richInteractionRequest(inputText,{hasArtifact:dynamic.hasPresentation()}):null;
+  const query=!actionId?gameQuery(inputText):null;
+  if(query){b.draft='';if(field)field.value='';interaction.hide();save();showGameRecall(query);return;}
+  if(!actionId&&interaction.run(inputText)){gameRecall=null;b.draft='';const live=$('#action-input');if(live)live.value='';save();refreshReaderLive();return;}
+  const local=!actionId?localCommand(inputText):null;if(local){if(local.action)experience.handle(local.action,{});else{db.settings[local.setting]=local.delta?Number(db.settings[local.setting]||18)+local.delta:local.value;applySettings();save();render(true);toast('已调整界面，故事没有变化。');}return;}
+  if(!actionId&&s.mode==='real'&&(generativeUIEnabled()||richRequest)){
+    const result=generativeUIEnabled()?await dynamic.route(richRequest?.intent??inputText):await dynamic.prepare(true,richRequest.intent);
+    if(!result||result.error)return;
+    if(['mixed','clarify'].includes(result.intentDecision?.kind)){toast(result.intentDecision.message||'请说明这次是调整界面，还是进行故事行动。');return;}
+    if(result.intentDecision?.kind!=='story'){
     if(result?.authoritativeBranch?.dynamic&&!result.authoritativeBranch.dynamic.reason&&sessionNow()?.id===s.id&&s.activeBranch===b.id){
       if(b.draft.trim()===inputText){b.draft='';const live=$('#action-input');if(live)live.value='';}
       interaction.hide();gameRecall=null;save();refreshReaderLive();
       if(!result.authoritativeBranch.dynamic.definition)toast(result.authoritativeBranch.dynamic.decisionReason||'此刻没有需要额外整理的信息。');
     }
     return;
+    }
   }
-  const query=!actionId?gameQuery(inputText):null;
-  if(query){b.draft='';if(field)field.value='';interaction.hide();save();showGameRecall(query);return;}
-  if(!actionId&&interaction.run(inputText)){gameRecall=null;b.draft='';const live=$('#action-input');if(live)live.value='';save();refreshReaderLive();return;}
-  const local=!actionId?localCommand(inputText):null;if(local){if(local.action)experience.handle(local.action,{});else{db.settings[local.setting]=local.delta?Number(db.settings[local.setting]||18)+local.delta:local.value;applySettings();save();render(true);toast('已调整界面，故事没有变化。');}return;}
   const kind=options.input||actionId==='continue'||actionId==='retry'?'action':detectIntent(inputText);
   if(kind==='rewrite'){rewritePanel();return;}if(kind!=='action'){requestAssistance(kind,inputText);return;}
   if(s.archived){confirmAction('这段故事已封存','恢复后才能继续生成，已有正文始终可以阅读。',()=>{s.archived=false;save();render(true);},'恢复这段故事');return;}if(b.archived){toast('这条分支已封存，请先在分支面板恢复。');return;}if(b.turns.at(-1)?.ended&&actionId!=='epilogue'){toast('这一段已告一段落，可以保存、导出，或从历史节点另试一种可能。');return;}
@@ -205,8 +259,9 @@ async function sendTurn(actionId,options={}){
   if(repository.hasExternalChange()){conflictPanel();return;}if(!save())return;
   let body;try{
     if(!actionId&&!options.gameAction&&s.mode==='real')options={...options,gameAction:gameActionForInput(currentState(s),inputText,b.id)};
+    // Preserve stored retry preferences so old request fingerprints still match receipts.
     if(actionId==='retry'){if(!retryRequest||retryRequest.sid!==s.id||retryRequest.bid!==b.id||retryRequest.body.state.version!==currentState(s).version)throw new Error('这次请求已经过期，请重新发送。');body=clone(retryRequest.body);}
-    else{const selection=interaction.selection();const refs=experience.references().map(ref=>{validateReference(b,ref);return {...ref,sourceText:ref.turnId?b.turns.find(t=>t.id===ref.turnId).prose:b.opening};});body={requestId:uid(),world:w,worldKey:b.worldKey,branchId:b.id,baseVersion:currentState(s).version,state:clone(currentState(s)),player:s.player,preferences:s.preferences,...selectContext(b,inputText),narrative:narrativeForBranch(b),input:inputText,actionId,...(selection?{selection}:{}),...(options.control?{control:{...options.control,worldKey:b.worldKey,branchId:b.id,baseVersion:currentState(s).version}}:{}),...(refs.length?{references:refs}:{}),...(options.dynamicAttempt?{dynamicAttempt:options.dynamicAttempt}:{}),...(options.gameAction?{gameAction:options.gameAction}:{})};}
+    else{const selection=interaction.selection();const refs=experience.references().map(ref=>{validateReference(b,ref);return {...ref,sourceText:ref.turnId?b.turns.find(t=>t.id===ref.turnId).prose:b.opening};});body={requestId:uid(),world:w,worldKey:b.worldKey,branchId:b.id,baseVersion:currentState(s).version,state:clone(currentState(s)),player:s.player,preferences:storyPreferences(s.preferences),...selectContext(b,inputText),narrative:narrativeForBranch(b),input:inputText,actionId,...(selection?{selection}:{}),...(options.control?{control:{...options.control,worldKey:b.worldKey,branchId:b.id,baseVersion:currentState(s).version}}:{}),...(refs.length?{references:refs}:{}),...(options.dynamicAttempt?{dynamicAttempt:options.dynamicAttempt}:{}),...(options.gameAction?{gameAction:options.gameAction}:{})};}
   }catch(e){toast(e.message);return;}
   const controller=new AbortController(),requestId=body.requestId,bid=b.id;
   const scoped={sessionId:s.id,...Object.fromEntries(['requestId','branchId','baseVersion','input','preferences','control','gameAction','dynamicAttempt','references','selection'].filter(k=>body[k]!==undefined).map(k=>[k,body[k]]))};
@@ -223,21 +278,44 @@ async function sendTurn(actionId,options={}){
     const used=JSON.stringify(body.references?.map(({sourceText,...r})=>r)||[]);if(JSON.stringify(ensurePersonal(b).draftReferences)===used)experience.clearReferences();
     if(b.turns.length===1)record('first_valid_turn');if(b.turns.length===3)record('third_valid_turn');save();refreshReaderLive();if(proposal.operationId)queueMicrotask(()=>dynamic.narrate(proposal.operationId));
     requestAnimationFrame(()=>{if(nearBottom&&db.settings.readingMode!=='paged'&&!window.getSelection()?.toString())$('#reader-bottom')?.scrollIntoView({block:'end',behavior:db.settings.reducedMotion?'instant':'smooth'});else $('#new-content')?.classList.remove('hidden');});
-  }catch(e){if(pending?.requestId!==requestId)return;lastSubmission={sid:s.id,bid,input:body.input,startedAt:pending.startedAt,status:e.name==='AbortError'?'stopped':'error',error:e.name==='AbortError'?'':e.message};pending=null;if(e.name==='AbortError')readerNotice='已取消。输入草稿和旧故事已保留。';else{readerError=e.message;record('generation_failed');}refreshReaderLive();}
+  }catch(e){if(pending?.requestId!==requestId)return;
+    // These failures occur before commit. Preserve their input before retiring
+    // the journal, while uncertain network failures keep the original identity.
+    if(['INVALID_MODEL_RESULT','INCONSISTENT_STORY','CONTEXT_TOO_LARGE'].includes(e.code)){
+      const live=$('#action-input');if(live)b.draft=live.value;
+      b.recoveredSubmission={requestId,baseVersion:body.baseVersion,input:body.input,rejectionReason:e.message};
+      if(!b.draft.trim()){b.draft=body.input;if(live)live.value=b.draft;}
+      if(save()){
+        branchClient.journal(null,{sessionId:s.id,branchId:bid});
+        pending=null;retryRequest=null;lastSubmission=null;readerError='';
+        readerNotice='这次回应未写入故事：'+e.message+' 原输入已独立保留，请核对草稿后重新发送。原输入：'+body.input;
+        record('generation_failed');refreshReaderLive();return;
+      }
+    }
+    // A clarification confirms that no action was executed. Let the reader edit
+    // the request instead of trapping them in an identical, unanswerable retry.
+    if(e.code==='CLARIFY_ACTION'){
+      branchClient.journal(null,{sessionId:s.id,branchId:bid});
+      pending=null;retryRequest=null;lastSubmission=null;readerError='';readerNotice=e.message;
+      const live=$('#action-input');if(!b.draft.trim()){b.draft=body.input;if(live)live.value=b.draft;}
+      save();refreshReaderLive();return;
+    }
+    lastSubmission={sid:s.id,bid,input:body.input,startedAt:pending.startedAt,status:e.name==='AbortError'?'stopped':'error',error:e.name==='AbortError'?'':e.message};pending=null;if(e.name==='AbortError')readerNotice='已取消。输入草稿和旧故事已保留。';else{readerError=e.message;record('generation_failed');}refreshReaderLive();}
 }
 function conflictPanel(){if(!repository.hasExternalChange()){openDialog('本机保存失败','<p>'+esc(saveError||'浏览器暂时不能保存数据。')+'</p><p class="small muted">请先导出当前记录，避免关闭页面后丢失进度。</p><div class="row">'+button('导出当前记录','conflict-export')+button('重试保存','retry-save')+'</div>');return;}openDialog('另一标签页有新进展', '<p>当前页面的故事和草稿仍保留在内存里。先导出这份资料，再选择如何接续。不会用旧页面覆盖另一个标签页。</p><div class="stack">'+button('导出当前页面备份','conflict-export')+button('比较两个版本','conflict-compare')+button('保留为副本并接续最新存档','conflict-merge')+button('放弃本页未保存内容，载入最新','conflict-reload')+'</div>');}
 function infoPanel(){const s=sessionNow(),w=sessionWorld(s),st=currentState(s);openDialog('人物与见闻',`<div class="eyebrow">只展示你已经知道的事情</div><section style="margin-top:24px"><h3 class="serif">此刻</h3><p class="small muted">${esc(st.location)} · ${esc(st.time)}</p></section><h3 class="serif" style="margin:24px 0 18px">人物</h3>${w.characters.length?w.characters.map(c=>`<article class="info-person"><h3>${esc(c.name)} <span class="small muted">${esc(c.role)}</span></h3><p>${esc(c.public)}</p><p class="relation">${esc(st.relations[c.id]||'尚待相识')}</p></article>`).join(''):'<p class="small muted">这个世界尚未设定人物。</p>'}<h3 class="serif" style="margin-top:24px">已知事实</h3>${st.facts.length?`<ul class="fact-list">${st.facts.map(f=>`<li>${esc(f)}</li>`).join('')}</ul>`:'<p class="small muted">故事刚刚开始，还没有确认的新事实。</p>'}${st.inventory.length?`<h3 class="serif" style="margin-top:24px">随身之物</h3><ul class="fact-list">${st.inventory.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`:''}<h3 class="serif" style="margin-top:24px">重要事件</h3><ul class="fact-list">${getBranch(s).turns.flatMap((t,i)=>t.events.filter(e=>e.visibility==='player'&&e.type!=='flag').map(e=>`<li><span class="small muted">片刻 ${i+1}</span> · ${esc(e.value)}</li>`)).slice(-10).join('')||'<li>尚未留下事件。</li>'}</ul>`);}
 function branchesPanel(){const s=sessionNow();openDialog('分支与存档',`<div class="row between"><p class="small muted">切换分支，继续不同的经历。</p>${button('保存此刻','named-save','compact')}</div>${s.branches.map(b=>`<div class="branch-row"><div class="row between"><h3>${esc(b.name)} ${b.id===s.activeBranch?'<span class="tag pill">当前</span>':''}</h3>${b.id!==s.activeBranch?button('切换','switch-branch','compact',`data-id="${b.id}"`):''}${button(b.archived?'恢复分支':'封存分支','archive-branch','compact',`data-id="${b.id}"`)}</div><p>${b.turns.length} 个片刻 · 世界 V${b.worldKey.split('@').at(-1)}${b.parentBranch?' · 从另一条分支生长':''}</p></div>`).join('')}<h3 class="serif" style="margin-top:25px">命名存档</h3>${s.saves.map(save=>`<div class="branch-row"><div class="row between"><span>${esc(save.name)}</span>${button('从此刻继续','restore-save','compact',`data-id="${save.id}"`)}</div><p>${date(save.createdAt)} · 恢复时新建分支，保留当前进度</p></div>`).join('')||'<p class="small muted">还没有保存的节点。</p>'}`);}
 function toolsPanel(){const s=sessionNow(),empty=!getBranch(s).turns.length;openDialog('故事选项','<div class="tool-grid">'+button('显示设置','reader-settings')+button('参与方式','play-participation')+button('分支与存档','branches')+button('书签与笔记','notes')+button('搜索与回顾','history')+button('导出正文','export-story')+button('帮助','help')+'</div><details class="tool-group"><summary>剧情与行动</summary><div class="stack">'+button('先问问 AI','ask-assistant')+button('推进时间','time-control')+button('今天先到这里','finish-experience')+button('复用上次表达','reuse-input','',empty?'disabled':'')+button('恢复复用前草稿','undo-reuse','',recentDraft?.sid===s.id&&recentDraft?.bid===s.activeBranch?'':'disabled')+button('指出错误','repair-turn','',empty?'disabled':'')+button('换种写法','polish-turn','',empty?'disabled':'')+button('撤销最近一次润色','undo-polish','',getBranch(s).turns.at(-1)?.revisions?.length?'':'disabled')+button('让这段故事合理收束','finish-story','',s.mode==='demo'?'disabled':'')+button('重新生成','regenerate','',empty?'disabled':'')+'</div></details><details class="tool-group"><summary>世界与更多记录</summary><div class="stack">'+button('对照经历与变化','compare-experience')+button('查看公开设定','ask-world')+button('改写世界设定','rewrite')+button('导出本机记录','export-session')+button('作者视图 · 可能剧透','author-view')+'</div></details>');}
 
-function narrationPanel(){const s=sessionNow();openDialog('调整后续叙述',`<form><p class="small muted">只影响接下来的模型生成；预设演示正文固定。不会推进时间或重写历史。</p><div class="field-grid">${select('视角','perspective',['第二人称','第一人称','第三人称'],s.preferences.perspective)}${select('篇幅','length',['简短','适中','舒展'],s.preferences.length)}${select('节奏','pace',['从容','适中','紧凑'],s.preferences.pace)}${input('文风','style',s.preferences.style,'maxlength="200"')}</div><div class="dialog-footer"><button class="btn primary" type="submit">应用到后续</button></div></form>`,data=>{s.preferences={...s.preferences,...Object.fromEntries(data)};save();dialog.close();toast('叙述偏好已更新，故事时间没有前进。');});}
+function narrationPanel(){const s=sessionNow();openDialog('调整后续叙述',`<form><p class="small muted">只影响接下来的模型生成；预设演示正文固定。不会推进时间或重写历史。</p><div class="field-grid">${select('视角','perspective',['第二人称','第一人称','第三人称'],s.preferences.perspective)}${select('篇幅','length',['简短','适中','舒展'],s.preferences.length)}</div><div class="dialog-footer"><button class="btn primary" type="submit">应用到后续</button></div></form>`,data=>{s.preferences={...s.preferences,...Object.fromEntries(['perspective','length'].map(key=>[key,String(data.get(key)||'')]))};save();dialog.close();toast('叙述偏好已更新，故事时间没有前进。');});}
 function rewritePanel(){const s=sessionNow(),w=sessionWorld(s),latest=latestWorld(w.id);openDialog('作者改写',`<form><div class="notice">改写只在新分支上生效。原分支、原世界版本和已经发生的历史全部保留。新规则约束后续生成，不自动改变人物意志或抹除旧事件。</div>${latest.version>w.version?`<div style="margin:20px 0">${button('通过新分支应用 V'+latest.version+' 世界','apply-version','',`data-version="${latest.version}"`)}<p class="small muted">将保留当前状态，使用该版本的规则与人物资料继续，已经发生的开场保持原文。</p></div>`:''}<div class="stack" style="margin-top:20px">${input('新分支名称','name','作者改写','required maxlength="100"')}${area('修改基本规则 · 每行一条','rules',w.rules.join('\n'),'required maxlength="8000"')}</div><div class="dialog-footer"><button class="btn primary" type="submit">确认并建立新分支</button></div></form>`,async data=>{if(s.privateLedger){try{await editConfirmed('rewrite',{rules:String(data.get('rules')).split('\n').filter(x=>x.trim()),name:String(data.get('name'))});dialog.close();toast('新规则已在独立分支生效，原历史保留。');}catch(e){toast(e.message);}return;}cancelRequest();const nw={...clone(w),demoCompatible:false,version:latestWorld(w.id).version+1,rules:String(data.get('rules')).split('\n').filter(x=>x.trim())};db.worlds.push(nw);forkBranch(s,getBranch(s).turns.at(-1)?.id||null,String(data.get('name')),nw);record('branch_created');save();dialog.close();render();toast('改写已应用到新分支，原故事仍可恢复。');});}
 function exportSession(s){const keys=new Set(s.branches.map(b=>b.worldKey));download(s.title+'-本机记录.json',JSON.stringify({schemaVersion:1,worlds:db.worlds.filter(w=>keys.has(worldKey(w))),sessions:[s]},null,2),'application/json');}
 function importDialog(recover=false){openDialog('导入记录',`<p class="small muted">选择人生复本导出的 JSON 文件（最大 10 MB）。故事作为副本导入；文件中的阅读偏好和创作草稿会替换当前设置。</p><label class="field">选择 JSON 存档<input type="file" id="import-file" accept=".json,application/json"></label><p id="import-result" class="small" role="alert" style="margin-top:16px"></p>`);$('#import-file').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>10*1024*1024)throw new Error('文件超过 10 MB 限制，请选择较小的存档。');const incoming=validateArchive(JSON.parse(await file.text()));const next=mergeArchive(db,incoming);if(recover)repository.recover(next);else repository.save(next);db=next;editor=null;editorDirty=false;loadError='';saveError='';dialog.close();toast(`已导入 ${incoming.sessions.length} 段故事，原有数据保留。`);navigate('/stories');render();}catch(error){$('#import-result').textContent='导入未完成：'+(error instanceof SyntaxError?'这不是有效的 JSON 文件。':error.message)+' 原有数据未改变。';}};}
 
 function refreshModelUI(){
   const path=currentRoute().path;
-  if(path==='create'||path==='edit'){
+  if(path==='story'){refreshReaderLive();}
+  else if(path==='create'||path==='edit'){
     for(const action of ['generate-world','quick-world']){
       const control=$(`[data-action=${action}]`);
       if(control)control.disabled=!modelConfig.available||!!assistantJob;
@@ -300,7 +378,7 @@ async function requestAssistance(kind,inputText){
   else {
     const base=kind==='repair'?(b.turns.at(-2)?.state||b.initialState):currentState(s);
     const history=kind==='repair'?{...b,turns:b.turns.slice(0,-1)}:b;
-    payload={...payload,world:sessionWorld(s),state:clone(base),player:s.player,preferences:s.preferences,branchId:b.id,...(selected?{selection:selected}:{}),...selectContext(history,inputText),...(last?{target:{id:last.id,input:last.input,prose:last.prose,events:last.events,suggestions:last.suggestions,ended:last.ended}}:{})};
+    payload={...payload,world:sessionWorld(s),state:clone(base),player:s.player,preferences:storyPreferences(s.preferences),branchId:b.id,...(selected?{selection:selected}:{}),...selectContext(history,inputText),...(last?{target:{id:last.id,input:last.input,prose:last.prose,events:last.events,suggestions:last.suggestions,ended:last.ended}}:{})};
     openDialog('正在整理这次回应',`<p role="status">${kind==='repair'?'正在对照已有记录检查错误':'正在生成供你审阅的内容'}，故事尚未改变。</p><div class="dialog-footer">${button('取消并保留原内容','cancel-assist')}</div>`);
   }
   try {
@@ -328,7 +406,7 @@ async function requestAssistance(kind,inputText){
         if(kind==='phrase'||kind==='ask'){b.draft=kind==='phrase'?result.text:inputText;intentMode='auto';}
         if(kind==='polish'){if(s.mode==='real')await editConfirmed('polish',{text:result.text});else applyPolish(s,last.id,result.text,version);}
         if(hasProposal){if(s.mode==='real')await editConfirmed('repair',{proposal:result.proposal,reason:inputText});else applyRepair(s,sessionWorld(s),result.proposal,inputText,b.id,version);}
-        record(kind+'_applied');save();dialog.close();render(true);if(kind==='phrase'||kind==='ask')$('#action-input')?.focus();
+        record(kind+'_applied');save();dialog.close();render(true);if(kind==='phrase'||kind==='ask')focusActionInput();
       }catch(error){toast(error.message);}
     };
   } catch(error){
@@ -415,7 +493,7 @@ document.addEventListener('click',e=>{for(const menu of document.querySelectorAl
     try{const receipt=resolveGameAction(currentState(s),ref,{branchId:b.id});dialog.close();sendTurn('game-action',{input:receipt.input,gameAction:ref});}
     catch(error){toast(error.message);refreshReaderLive();}return;
   }
-  if(action==='reader-example'){const b=getBranch(s);if(!b.draft)b.draft='我想先听听他们怎么说。';else toast('已有草稿为你保留；示例：我想先听听他们怎么说。');db.settings.readerGuideDismissed=true;save();render(true);$('#action-input')?.focus();return;}
+  if(action==='reader-example'){const b=getBranch(s);if(!b.draft)b.draft='我想先听听他们怎么说。';else toast('已有草稿为你保留；示例：我想先听听他们怎么说。');db.settings.readerGuideDismissed=true;save();render(true);focusActionInput();return;}
   if(action==='dismiss-reader-guide'){db.settings.readerGuideDismissed=true;save();render(true);return;}
   if(action==='surprise-world'){const choices=[...document.querySelectorAll('.discovery-card h3 a')];if(choices.length)location.hash=choices[Math.floor(Math.random()*choices.length)].hash;else toast('暂无匹配开局，可以更改筛选。');return;}
   if(action==='shuffle-worlds'){discoveryOrder++;render(true);return;}
@@ -426,8 +504,8 @@ document.addEventListener('click',e=>{for(const menu of document.querySelectorAl
   if(action==='reading-prev'||action==='reading-next'){readingProgress.flush();readingPage=Number(target.dataset.page);render();focusPageContent();$('#main')?.scrollIntoView({behavior:'instant'});return;}
   if(action==='exclude-world'||action==='restore-excluded'){const set=new Set(db.settings.excludedWorlds||[]);action==='exclude-world'?set.add(target.dataset.id):set.delete(target.dataset.id);db.settings.excludedWorlds=[...set];save();render(true);return;}
   if(['batch-archive','batch-trash','batch-restore'].includes(action)){const ids=[...document.querySelectorAll('input[name=select-story]:checked')].map(el=>el.value);if(!ids.length){toast('先选择要整理的故事。');return;}confirmAction('批量整理 '+ids.length+' 段故事','所有分支保留，回收箱中的故事可以恢复。',()=>{db.sessions=db.sessions.map(x=>!ids.includes(x.id)?x:action==='batch-trash'?trashStory(x):action==='batch-restore'?updateStoryMetadata(restoreStory(x),{archived:false}):updateStoryMetadata(x,{archived:true}));save();render(true);},'应用');return;}
-  if(action==='reuse-input'){const b=getBranch(s);if(!b.turns.length)return;recentDraft={sid:s.id,bid:b.id,text:b.draft};b.draft=b.turns.at(-1).input||'';save();dialog.close();render(true);$('#action-input')?.focus({preventScroll:true});return;}
-  if(action==='undo-reuse'){const b=getBranch(s);if(recentDraft?.sid!==s.id||recentDraft?.bid!==b.id)return;b.draft=recentDraft.text;recentDraft=null;save();dialog.close();render(true);$('#action-input')?.focus({preventScroll:true});return;}
+  if(action==='reuse-input'){const b=getBranch(s);if(!b.turns.length)return;recentDraft={sid:s.id,bid:b.id,text:b.draft};b.draft=b.turns.at(-1).input||'';save();dialog.close();render(true);focusActionInput();return;}
+  if(action==='undo-reuse'){const b=getBranch(s);if(recentDraft?.sid!==s.id||recentDraft?.bid!==b.id)return;b.draft=recentDraft.text;recentDraft=null;save();dialog.close();render(true);focusActionInput();return;}
   if(action==='import-world-text'){worldImportPanel();return;}
   if(action==='retry-turn'||action==='retry-generation'){sendTurn('retry');return;}
   if(action==='storage-conflict'){conflictPanel();return;}
@@ -440,7 +518,7 @@ document.addEventListener('click',e=>{for(const menu of document.querySelectorAl
   if(action==='dialog-back'){if(assistantJob&&!['world','quick-world'].includes(assistantJob.kind))cancelAssist();dialogNavigation.back();return;}
   if(action==='close-dialog'){cancelAssist();dialog.close();return;}
   if(action==='confirm')return;
-  if(action==='suggest'){let actions=s.mode==='demo'?demoActions(sessionWorld(s),currentState(s)):getBranch(s).turns.at(-1)?.suggestions||[];const choice=actions.find(a=>a.id===target.dataset.id);if(choice){const field=$('#action-input');field.value=choice.text;field.dispatchEvent(new Event('input'));field.focus();}return;}
+  if(action==='suggest'){let actions=s.mode==='demo'?demoActions(sessionWorld(s),currentState(s)):getBranch(s).turns.at(-1)?.suggestions||[];const choice=actions.find(a=>a.id===target.dataset.id);if(choice){const field=$('#action-input');field.value=choice.text;field.dispatchEvent(new Event('input'));focusActionInput();}return;}
   if(action==='continue'){dialog.close();sendTurn('continue');return;}
   if(action==='cancel-generation'){cancelAssist();cancelRequest(true);refreshReaderLive();return;}
   if(action==='new-content'){if(db.settings.readingMode==='paged'){readingPage=getBranch(s).turns.length;render();}$('#reader-bottom').scrollIntoView({block:'end'});target.classList.add('hidden');return;}

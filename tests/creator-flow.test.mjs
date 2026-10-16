@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
 import {detailView,creatorView} from '../src/experience-views.js';
 
 const world={id:'fog-harbor',title:'雾港来信',identity:'电报员',opening:'一封迟来的信。',rules:[],characters:[],tags:[]};
@@ -33,4 +35,20 @@ test('quick generation explains its result and keeps editable seed when a job fa
  assert.match(html,/role="alert">连接暂时中断/);
  assert.match(html,/id="creator-seed-help"/);
  assert.match(html,/name="seed"[^>]*aria-describedby="creator-seed-help"/);
+});
+
+test('editing world details preserves generated narrative metadata that is absent from the form',()=>{
+ const source=readFileSync(new URL('../src/app.js',import.meta.url),'utf8');
+ const from=source.indexOf('function collectEditor('),to=source.indexOf('function persistEditor(',from);
+ assert.ok(from>=0&&to>from);
+ const narrative={perspective:'第二人称',length:'适中',style:'冷峻幽默',pace:'紧张与停顿交错',motifs:['钟声']};
+ const editor={...world,narrative:structuredClone(narrative),characters:[]};
+ const form=new Map([['title','改过名称的雾港'],['perspective','第三人称'],['length','舒展'],['description','仍是同一个世界。']]);
+ const context=vm.createContext({editor,db:{},editorDirty:false,$:()=>form,FormData:class{constructor(data){return data;}},clone:structuredClone});
+ vm.runInContext(source.slice(from,to),context);
+ context.collectEditor();
+ assert.deepEqual(structuredClone(editor.narrative),{...narrative,perspective:'第三人称',length:'舒展'});
+ assert.deepEqual(context.db.worldDraft.narrative,structuredClone(editor.narrative));
+ assert.equal(editor.title,'改过名称的雾港');
+ assert.equal(context.editorDirty,true);
 });

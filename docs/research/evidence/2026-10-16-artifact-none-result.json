@@ -1,0 +1,20 @@
+{
+  "observedAt": "2026-10-16T03:59:22.045Z",
+  "scope": "Real Node preparation worker with synthetic state; no Flutter runtime or end-to-end claim.",
+  "requestedDecision": "none",
+  "definitionIsNull": true,
+  "sourceGameSurfaceCount": 0,
+  "authoritativeSurfaceCount": 1,
+  "outputDecision": null,
+  "payloadKeys": [
+    "schemaVersion",
+    "scope",
+    "sourceGame",
+    "definition",
+    "definitionDigest",
+    "state",
+    "reason",
+    "capabilities"
+  ],
+  "interpretation": "The worker retains authoritative game surfaces but does not carry an explicit none presentation decision. Frontend display consequences require separate source/runtime evidence."
+}

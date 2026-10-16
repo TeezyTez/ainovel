@@ -1,0 +1,95 @@
+/* Reading themes are independent of decorative interface materials. */
+.reading-experience[data-reading-theme], [data-theme-swatch=paper] {
+  --reading-page: #f5f0e5; --reading-ink: #39362f; --reading-muted: #746b5c;
+  --reading-rule: #d9d0bf; --reading-soft: #eae2d2; --reading-accent: #705739;
+  --reading-selection: #dbcbac;
+}
+.reading-experience[data-reading-theme=white], [data-theme-swatch=white] {
+  --reading-page: #f5f5f2; --reading-ink: #343635; --reading-muted: #666a67;
+  --reading-rule: #d6d9d5; --reading-soft: #e6e8e4; --reading-accent: #465e51;
+  --reading-selection: #cddbd1;
+}
+.reading-experience[data-reading-theme=sage], [data-theme-swatch=sage] {
+  --reading-page: #e6eddf; --reading-ink: #30392f; --reading-muted: #5f6b59;
+  --reading-rule: #c7d2be; --reading-soft: #d6e1cf; --reading-accent: #415c39;
+  --reading-selection: #bdcfb2;
+}
+.reading-experience[data-reading-theme=night], [data-theme-swatch=night] {
+  --reading-page: #252420; --reading-ink: #d7d0c1; --reading-muted: #aaa294;
+  --reading-rule: #454137; --reading-soft: #343128; --reading-accent: #cbb38e;
+  --reading-selection: #59503d;
+}
+body .reading-experience[data-reading-theme] .reading-paper.reader {
+  --bg: var(--reading-page); --paper: var(--reading-page); --ink: var(--reading-ink);
+  --muted: var(--reading-muted); --line: var(--reading-rule); --soft: var(--reading-soft);
+  --reader-rule: var(--reading-rule); --reader-glass: var(--reading-page); --reader-tint: var(--reading-soft);
+  color: var(--ink); background: var(--paper);
+}
+body .reading-experience[data-reading-theme] .reading-paper ::selection {
+  background: var(--reading-selection); color: var(--reading-ink);
+}
+.reading-composer-wrap #reading-action-body[hidden] { display: none; }
+.reading-composer-wrap[data-expanded=false] { padding-top: 14px; }
+.reading-composer-wrap[data-expanded=false] .reading-composer { padding: 7px 12px; border-radius: 16px; }
+.reading-composer-wrap .reading-composer-actions { gap: 8px; margin: 0; padding: 0; border: 0; }
+.reading-composer-wrap[data-expanded=true] .reading-composer-actions { padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--line); }
+.reader-compose-toggle { margin-right: auto; min-height: 44px; padding: 8px 12px; background: transparent; color: var(--ink); border: 0; border-radius: 8px; font: 14px/1.5 var(--sans); cursor: pointer; }
+.reader-compose-toggle:hover { background: var(--soft); }
+.reading-composer-wrap[data-expanded=true] .reader-dock-stop { display: none; }
+.reader-dock-stop { min-height: 44px; padding: 8px 12px; border: 1px solid var(--accent); border-radius: 8px; color: var(--accent); background: var(--paper); }
+.reading-composer-actions:has(.reader-dock-stop) .reading-continue { display: none; }
+.reading-composer-wrap[data-expanded=false] [data-draft-references],
+.reading-composer-wrap[data-expanded=false] .reading-reference-note,
+.reading-composer-wrap[data-expanded=false] [data-reader-live=context-selection] { display: none; }
+.reading-composer #reading-action-body { max-height: min(50dvh, 420px); overflow-y: auto; overscroll-behavior: contain; }
+.reader-action-hint { margin: 0 0 8px; font-size: 11px; color: var(--muted); }
+.reader-settings-note { margin: 0 0 24px; color: var(--muted); font-size: 13px; }
+#reader-settings-form>.dialog-footer { bottom: 0; padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+.reader-type-preview { margin: 0 0 24px; padding: 16px 18px; border: 1px solid var(--reading-rule); border-radius: 8px; background: var(--reading-page); color: var(--reading-ink); font: var(--reading-size,18px)/var(--reading-leading,1.95) var(--reading-font,var(--serif)); overflow-wrap: anywhere; }
+.reader-theme-options, .reader-spacing-options { border: 0; padding: 0; margin: 0 0 24px; min-width: 0; }
+.reader-theme-options legend, .reader-spacing-options legend { margin-bottom: 12px; font-size: 14px; }
+.reader-theme-options { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 10px; }
+.reader-theme-choice { display: flex; position: relative; flex-direction: column; align-items: center; padding: 13px 4px 10px; gap: 6px; background: var(--reading-page); color: var(--reading-ink); border: 2px solid transparent; border-radius: 10px; cursor: pointer; }
+.reader-theme-choice:has(:checked) { border-color: var(--reading-accent); box-shadow: 0 0 0 2px var(--paper),0 0 0 3px var(--reading-accent); }
+.reader-theme-choice:focus-within { outline: 2px solid var(--signal); outline-offset: 4px; }
+.reader-theme-choice input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.reader-theme-choice span { font: 26px/1.5 var(--serif); }
+.reader-theme-choice strong { font-size: 12px; font-weight: 500; }
+.reader-size-control { display: grid; grid-template-columns: auto 44px minmax(40px,1fr) 44px 24px; gap: 10px; align-items: center; margin-bottom: 24px; }
+.reader-size-control input { width: 100%; min-width: 0; accent-color: var(--accent); }
+.reader-size-control button, .reader-spacing-options button { min-height: 44px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink); cursor: pointer; }
+.reader-spacing-options button { width: calc((100% - 20px)/3); padding: 8px; }
+.reader-spacing-options button+button { margin-left: 6px; }
+.reader-spacing-options button[aria-pressed=true] { background: var(--soft); border-color: var(--accent); color: var(--accent); }
+@media(max-width:760px) {
+  .reader-size-control { grid-template-columns: 44px minmax(60px,1fr) 44px 24px; gap: 8px; }
+  .reader-size-control>span { grid-column: 1/-1; }
+  .reader-theme-options { gap: 7px; }
+}
+@media(forced-colors:active) {
+  body .reading-experience[data-reading-theme] { --reading-page:Canvas; --reading-ink:CanvasText; --reading-muted:CanvasText; --reading-rule:ButtonBorder; --reading-soft:Canvas; --reading-accent:LinkText; --reading-selection:Highlight; }
+  body .reading-experience[data-reading-theme] .reading-paper ::selection { color: HighlightText; }
+  .reader-theme-choice { border: 1px solid ButtonBorder; }
+  .reader-theme-choice:has(:checked) { outline: 2px solid Highlight; }
+}
+
+/* Preserve the original reading chrome, type hierarchy and shared materials.
+   Limit the comfort palette to the document; stop decorative motion elsewhere. */
+body:not([data-page=home]) :is(button,a.btn,a.reading-back,summary,dialog,.ui-icon),
+body:not([data-page=home]) :is(button,a.btn,a.reading-back,summary)::before,
+body:not([data-page=home]) :is(button,a.btn,a.reading-back,summary)::after {
+  animation: none !important; transition: none !important;
+}
+body:not([data-page=home]) :is(.control-lens,.control-ripple,.portal-transfer) { display: none !important; }
+body:not([data-page=home]) dialog::backdrop { backdrop-filter: none; }
+body[data-page=story] .reading-header { backdrop-filter: none; }
+body[data-page=story] .reading-paper.reader { background-image: none; box-shadow: none; }
+body[data-page=story] :is(.reading-composer,.reader-quick-tools) { box-shadow: none; }
+body[data-page=story] .reading-composer:focus-within { box-shadow: none; }
+body[data-page=story] .reading-pending-dot,
+body[data-page=story] .reading-generation::before,
+body[data-page=story] .reader-quick-tools:popover-open,
+body[data-page=story] .turn-tools[open] .reading-actions { animation: none; }
+body[data-page=story] .reading-chapter .reading-kicker::before { box-shadow: none; }
+body[data-page=story] .reading-experience :is(.reading-back,.reading-header-tool,.reading-appearance,.reader-tools-trigger,.reading-send,.reading-continue):active:not(:disabled),
+body[data-page=story] .reading-composer .reading-continue:hover:not(:disabled)::after { transform: none; }
