@@ -8,6 +8,26 @@ import 'reader_artifact_surface.dart';
 import 'reader_export.dart';
 import 'reader_panels.dart';
 
+// JSONB may return object keys in another order. Compare JSON values rather
+// than their serialization so an acknowledged write actually ends the flush.
+bool _sameJsonValue(dynamic left, dynamic right) {
+  if (left is Map && right is Map) {
+    return left.length == right.length &&
+        left.keys.every(
+          (key) =>
+              right.containsKey(key) && _sameJsonValue(left[key], right[key]),
+        );
+  }
+  if (left is List && right is List) {
+    if (left.length != right.length) return false;
+    for (var index = 0; index < left.length; index++) {
+      if (!_sameJsonValue(left[index], right[index])) return false;
+    }
+    return true;
+  }
+  return left == right;
+}
+
 class ReaderPreparedWorkbench extends StatefulWidget {
   const ReaderPreparedWorkbench({
     super.key,
@@ -96,7 +116,7 @@ class _ReaderPreparedWorkbenchState extends State<ReaderPreparedWorkbench> {
     if (r.writable &&
         localState != null &&
         localRevision == r.artifact?.revisionId &&
-        jsonEncode(localState) != jsonEncode(r.artifact!.state)) {
+        !_sameJsonValue(localState, r.artifact!.state)) {
       debounce?.cancel();
       debounce = Timer(const Duration(milliseconds: 500), () {
         if (mounted && r.writable) unawaited(run(flushState));
@@ -139,7 +159,7 @@ class _ReaderPreparedWorkbenchState extends State<ReaderPreparedWorkbench> {
       final state = localState;
       if (state == null || localRevision != r.artifact?.revisionId) return;
       if (!r.writable) throw StateError('参数保留在本机；请先恢复作品请求再保存。');
-      if (jsonEncode(state) == jsonEncode(r.artifact!.state)) return;
+      if (_sameJsonValue(state, r.artifact!.state)) return;
       await r.saveState(state);
       if (r.pending != null) throw StateError('参数尚未确认保存。请恢复作品请求。');
       if (identical(state, localState)) {

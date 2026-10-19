@@ -13,6 +13,112 @@ import '../support/experience_fixture.dart';
 import 'reader_artifact_repository_test.dart' show response;
 
 void main() {
+  testWidgets('JSONB键顺序变化不重复保存，数组顺序变化仍保存', (tester) async {
+    // Transport fixture reproduces PostgreSQL JSONB's object-key reordering;
+    // it does not assess generated content or narrative quality.
+    dynamic reordered(dynamic value) {
+      if (value is Map) {
+        return {
+          for (final entry in value.entries.toList().reversed)
+            entry.key: reordered(entry.value),
+        };
+      }
+      if (value is List) return value.map(reordered).toList();
+      return value;
+    }
+
+    final journal = MemoryJournal();
+    var writes = 0, allowedWrites = 1;
+    Json state = {};
+    final repo = ReaderArtifactRepository(
+      client: PortalServiceClient(
+        () => 'https://api.invalid',
+        client: MockClient((request) async {
+          if (request.method == 'POST') {
+            writes++;
+            // Bound a regression so a broken flush loop fails, not hangs.
+            if (writes > allowedWrites) {
+              return http.Response('Unexpected repeated state write', 503);
+            }
+            state = object(
+              reordered(object(jsonDecode(request.body))['state']),
+            );
+          }
+          return http.Response(
+            jsonEncode(response(state: state, stateRevision: writes)),
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }),
+      ),
+      journal: journal,
+      scope: 'jsonb-state',
+      experienceId: 'story',
+      branchId: 'branch',
+      revision: 3,
+      isCurrent: () => true,
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ReaderPreparedWorkbench(
+            repository: repo,
+            embedded: true,
+            onAttempt: (_) async {},
+            onDraft: (_) {},
+            onEvidence: () {},
+          ),
+        ),
+      ),
+    );
+    addTearDown(() => tester.pumpWidget(const SizedBox()));
+    await tester.pumpAndSettle();
+    ReaderArtifactSurface surface() =>
+        tester.widget(find.byType(ReaderArtifactSurface));
+    final edited = <String, dynamic>{
+      'dynamic': {
+        'params': {'sort': 'pages', 'direction': 'asc'},
+        'step': 0,
+      },
+      'artifacts': {
+        'selection': [
+          {'id': 'tide', 'price': 20},
+          {'id': 'lamp', 'price': 25},
+        ],
+      },
+    };
+    surface().onMessage('advanced-state', edited);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pumpAndSettle();
+    expect(
+      writes,
+      1,
+      reason: 'A semantically identical JSONB reply must end the flush',
+    );
+    expect(repo.pending, isNull);
+    expect((await journal.read('jsonb-state'))['artifact_ui'], isNull);
+
+    // Renderer initialization may echo the same value in another key order.
+    surface().onMessage('advanced-state', reordered(edited));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+    expect(writes, 1);
+
+    allowedWrites = 2;
+    final changed = object(jsonDecode(jsonEncode(edited)));
+    changed['artifacts']['selection'] =
+        (changed['artifacts']['selection'] as List).reversed.toList();
+    surface().onMessage('advanced-state', changed);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pumpAndSettle();
+    expect(writes, 2);
+    expect(state['artifacts']['selection'][0]['id'], 'lamp');
+    expect(repo.pending, isNull);
+  });
+
   for (final embedded in [true, false]) {
     for (final versionCount in [1, 2]) {
       testWidgets('显示内容而非作品版本管理 embedded=$embedded versions=$versionCount', (
