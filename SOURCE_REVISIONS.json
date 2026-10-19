@@ -1,0 +1,23 @@
+{
+  "format": 1,
+  "kind": "product-only-development-source",
+  "created_date": "2026-10-15",
+  "source_revisions": {
+    "sundries": "01cab81e8a5639dd8e269dc45ea0e3f5c5becfa6",
+    "algorithms": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+    "backend": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+    "frontend": "523c0804da66c16e1834823afd064b64bfe2d1a4"
+  },
+  "experience_contract": {
+    "revision": "685758b9009c647f0b6b0da2dbe1769ea6964a71",
+    "sha256": "af4d178596cffc470f408b0924f04f93d104ca8047539c0d6a219bd3c6667121",
+    "path": "contracts/experience/v1/contract.json"
+  },
+  "runtime_proto": {
+    "revision": "060671c11d0cd67260f68352d05348accb2f0622",
+    "sha256": "4a7f66d6e1f5be0fe974388aaff6a275014761cfd23a01bd20ef5c99c2587646",
+    "path": "contracts/algorithm/v1/runtime.proto"
+  },
+  "scope": "product functionality only; local single-workspace adapter; no accounts, commerce or production operations",
+  "production_release": false
+}

@@ -1,11 +1,35 @@
+# Local build and dependency caches
+.dart_tool/
+.flutter-plugins*
+build/
+target/
+/backend/bin/
+node_modules/
+__pycache__/
+.venv/
+# Local environment and runtime data, never source
 .env
 .env.*
 !.env.example
 .codex/
+.agents/
 .aws/
-node_modules/
-test-results/
-*.log
 .data/
-dist/
-*.tsbuildinfo
+.cache/
+.validation/
+.migration-backup/
+test-results/
+coverage/
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sql.gz
+*.backup
+*.log
+*.dump
+*.pem
+*.key
+
+# Ephemeral Codex CLI request/schema files
+.codex-model-tmp/

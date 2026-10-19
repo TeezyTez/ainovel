@@ -1,2 +1,0 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {localCommand} from '../src/local-commands.js';
-test('explicit presentation requests route locally but fictional speech remains action',()=>{assert.deepEqual(localCommand('请把字号调大一点。'),{setting:'fontSize',delta:2});assert.deepEqual(localCommand('打开历史'),{action:'history'});assert.equal(localCommand('我对她说：把字写大一点。'),null);assert.equal(localCommand('我去查看物品'),null);});

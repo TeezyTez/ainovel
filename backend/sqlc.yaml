@@ -1,0 +1,41 @@
+version: "2"
+sql:
+  - engine: postgresql
+    schema: schema/migrations
+    queries: internal/sqlc/queries
+    gen:
+      go:
+        package: pgq
+        out: internal/sqlc/pgq
+        sql_package: database/sql
+        emit_json_tags: false
+        emit_pointers_for_null_types: true
+        omit_unused_structs: true
+        overrides:
+          - db_type: uuid
+            go_type: string
+          - db_type: inet
+            go_type: string
+          - db_type: cidr
+            go_type: string
+          - db_type: interval
+            go_type:
+              import: time
+              type: Duration
+          - db_type: pg_catalog.interval
+            go_type:
+              import: time
+              type: Duration
+          - db_type: jsonb
+            go_type:
+              import: encoding/json
+              type: RawMessage
+          - db_type: jsonb
+            nullable: true
+            go_type:
+              type: byte
+              slice: true
+          - db_type: json
+            go_type:
+              import: encoding/json
+              type: RawMessage

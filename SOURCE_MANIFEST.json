@@ -1,0 +1,1692 @@
+{
+  "format": 1,
+  "purpose": "ElseLife product-only development source export; no authentication, subscription, billing, admin or old task implementation",
+  "created_utc": "2026-10-15T06:36:23.026451+00:00",
+  "files": {
+    ".gitignore": {
+      "sha256": "b0cf4298d6d068f7489fc35377999df091f639886434311cbcfc87d8177d231e",
+      "bytes": 210,
+      "status": "export-only"
+    },
+    "AGENTS.md": {
+      "sha256": "3165722d6c21dc353a004109b09d94d9b22e6804a433321065c9cd38a3016b86",
+      "bytes": 1548,
+      "status": "export-only"
+    },
+    "Makefile": {
+      "sha256": "74842ee5dfac66238852f6ddf9eaa6af9b249b93a3708e4df443a88c2c2d057f",
+      "bytes": 923,
+      "status": "export-only"
+    },
+    "README.md": {
+      "sha256": "3fc6a232c0dc87a55631ae60a84ec612212eca3afb78f684bbcaca8d13bd0cb5",
+      "bytes": 4673,
+      "status": "export-only"
+    },
+    "SOURCE_REVISIONS.json": {
+      "sha256": "eba92c6617fc557d04f82beba6b29ac1a161d0c90e612ae771ff28eea5af080b",
+      "bytes": 961,
+      "status": "export-only"
+    },
+    "algorithms/.experience-revision": {
+      "sha256": "0063fb5a0df8e4daf37acc4de3c0b134a5136190e672f98f92df6f1b7a6e7a73",
+      "bytes": 41,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": ".experience-revision",
+        "sha256": "0063fb5a0df8e4daf37acc4de3c0b134a5136190e672f98f92df6f1b7a6e7a73"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/.experience-sha256": {
+      "sha256": "e3fe0746dc167175ece3438e11d24648af35e0bc2c890a98a51eed32c1cf51ab",
+      "bytes": 65,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": ".experience-sha256",
+        "sha256": "e3fe0746dc167175ece3438e11d24648af35e0bc2c890a98a51eed32c1cf51ab"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/.sundries-revision": {
+      "sha256": "a1a7b3a09a4f18782192788fc46dac892d795835d3013d4eddb07da728024f1b",
+      "bytes": 41,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": ".sundries-revision",
+        "sha256": "a1a7b3a09a4f18782192788fc46dac892d795835d3013d4eddb07da728024f1b"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/.sundries-sha256": {
+      "sha256": "f69371de7692bb53f70d2b286164f534405c3671b3b51c13c872896b5321c36e",
+      "bytes": 65,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": ".sundries-sha256",
+        "sha256": "f69371de7692bb53f70d2b286164f534405c3671b3b51c13c872896b5321c36e"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/CAPACITY.md": {
+      "sha256": "e2cdd8f20b3dc821e0d4f239ac2309a18b6b8f812f0d1713b59801d8863916fc",
+      "bytes": 3635,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "CAPACITY.md",
+        "sha256": "e2cdd8f20b3dc821e0d4f239ac2309a18b6b8f812f0d1713b59801d8863916fc"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/Cargo.lock": {
+      "sha256": "f6746e90e9e0b3c86e5fb5503a7c5fc40b66bfd023b8b9daa900a80ff1333b6f",
+      "bytes": 33241,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "Cargo.lock",
+        "sha256": "86fea9ed33b4de0ad7ffeecbcf9dfd6a269a47ccf8eacaa3ed4c1616c3c4c2ba"
+      },
+      "status": "adapted"
+    },
+    "algorithms/Cargo.toml": {
+      "sha256": "07435fcd50f058273e6e8cf8335f303bbd86374bc4bbe250142cc7452f250ba7",
+      "bytes": 1013,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "Cargo.toml",
+        "sha256": "cc4dee7558013adc7c57ac39352d8c224ac98c0ac5b04d80d589e12c3c5718f4"
+      },
+      "status": "adapted"
+    },
+    "algorithms/README.md": {
+      "sha256": "0fe696dd2a0bcd816b7e52cfa0d83af0941cb880b78f4c95a9f508c928656e64",
+      "bytes": 2823,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "README.md",
+        "sha256": "d23b9763dd29f742dc9332696b8187f5764720f78dbc61c96714dcc828f8846d"
+      },
+      "status": "adapted"
+    },
+    "algorithms/build.rs": {
+      "sha256": "c7f736504cb3d6fd0c55f95b36b903a0650da94989f4aaf2b9008e940d6169d2",
+      "bytes": 3342,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "build.rs",
+        "sha256": "47160d2e052324c22b6ac8f67ffb8f57ac399bc8bd8f4a1b362a72259c25901f"
+      },
+      "status": "adapted"
+    },
+    "algorithms/contract_input.rs": {
+      "sha256": "5f54c3c1aad2bdec94990ffe13a7f3c595b601c7cf0f5b4c19340840d5927e49",
+      "bytes": 1972,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "contract_input.rs",
+        "sha256": "e4f241cc2526b579d50cbf3592ef620f83a30142f08035fa92815053448a63fd"
+      },
+      "status": "adapted"
+    },
+    "algorithms/contracts/algorithm/v1/runtime.proto": {
+      "sha256": "4a7f66d6e1f5be0fe974388aaff6a275014761cfd23a01bd20ef5c99c2587646",
+      "bytes": 48676,
+      "status": "export-only"
+    },
+    "algorithms/contracts/experience/v1/contract.json": {
+      "sha256": "af4d178596cffc470f408b0924f04f93d104ca8047539c0d6a219bd3c6667121",
+      "bytes": 27794,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "contracts/experience/v1/contract.json",
+        "sha256": "af4d178596cffc470f408b0924f04f93d104ca8047539c0d6a219bd3c6667121"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/src/bin/algorithm-runtime-probe.rs": {
+      "sha256": "fc6109c87591cf32fa97b26d1b3b5def1a0a468331b071c87e3efcef033f1e71",
+      "bytes": 22712,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "src/bin/algorithm-runtime-probe.rs",
+        "sha256": "fc6109c87591cf32fa97b26d1b3b5def1a0a468331b071c87e3efcef033f1e71"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/src/bin/algorithm-runtime.rs": {
+      "sha256": "871e094e56758447649dba2c665a2025fa5fbbeaccac5313c3f3d80021260b7a",
+      "bytes": 14563,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "src/bin/algorithm-runtime.rs",
+        "sha256": "871e094e56758447649dba2c665a2025fa5fbbeaccac5313c3f3d80021260b7a"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/src/capacity.rs": {
+      "sha256": "616604feab3f23e6b2e41d21c6087b1f2593c06c3ba77b51a9265c2fb89786b8",
+      "bytes": 4519,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "src/capacity.rs",
+        "sha256": "616604feab3f23e6b2e41d21c6087b1f2593c06c3ba77b51a9265c2fb89786b8"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/src/capacity_profile.rs": {
+      "sha256": "33658e1a950db870b179d9ac2b8108e3c782a7950e4642e10f38f9e382a159ae",
+      "bytes": 5546,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "src/capacity_profile.rs",
+        "sha256": "33658e1a950db870b179d9ac2b8108e3c782a7950e4642e10f38f9e382a159ae"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/src/capacity_profile_generated.rs": {
+      "sha256": "76907972ddb8ea1c0ee569f8849e787cd656d0ebf588ac8fd6896aa72425cb20",
+      "bytes": 2171,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "src/capacity_profile_generated.rs",
+        "sha256": "76907972ddb8ea1c0ee569f8849e787cd656d0ebf588ac8fd6896aa72425cb20"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/src/experience.rs": {
+      "sha256": "3512f931773340aa2b24186d0104327572b05f78f80c03b9bc564e72cd817e68",
+      "bytes": 27832,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "src/experience.rs",
+        "sha256": "3512f931773340aa2b24186d0104327572b05f78f80c03b9bc564e72cd817e68"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/src/experience_channel.rs": {
+      "sha256": "21a638b3888b40d945a307d7755c6108b3e4274a74c04aa9d85c4e79196f7b88",
+      "bytes": 16250,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "src/experience_channel.rs",
+        "sha256": "21a638b3888b40d945a307d7755c6108b3e4274a74c04aa9d85c4e79196f7b88"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/src/experience_recall.rs": {
+      "sha256": "0a6a036f0b5bae040b42abadf3d9adfa30284c371c82b0bf8ea6c58a3f743fda",
+      "bytes": 25784,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "src/experience_recall.rs",
+        "sha256": "0a6a036f0b5bae040b42abadf3d9adfa30284c371c82b0bf8ea6c58a3f743fda"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/src/lib.rs": {
+      "sha256": "1d549bce191afd6591bffe56730dd7f6f43ca27e77e287148c99507338ade159",
+      "bytes": 353,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "src/lib.rs",
+        "sha256": "aa6d33c3a4a8d2e8b243bae219a53c5e92e7c4b4c296d908da97019d47c0ece2"
+      },
+      "status": "adapted"
+    },
+    "algorithms/tests/contract_input.rs": {
+      "sha256": "f7ca28ad16fb890cbea64afccff20b4ea230723c60ad2e4fb9565a267465675d",
+      "bytes": 1424,
+      "status": "export-only"
+    },
+    "algorithms/tests/experience_model_failure_wire.rs": {
+      "sha256": "886f52fa93f705cd7706d1e010668d983192ae8c08044622f48da8bcff917116",
+      "bytes": 7384,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "tests/experience_model_failure_wire.rs",
+        "sha256": "886f52fa93f705cd7706d1e010668d983192ae8c08044622f48da8bcff917116"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/tests/experience_no_channel.rs": {
+      "sha256": "78a3ba6273cdb25bcdfe52c24ad649d464b1936fb3f8a311e5124191367a6481",
+      "bytes": 560,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "tests/experience_no_channel.rs",
+        "sha256": "78a3ba6273cdb25bcdfe52c24ad649d464b1936fb3f8a311e5124191367a6481"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/tests/experience_recall.rs": {
+      "sha256": "be358b3f7eaf025ba3bf1d13fc29c1ec47488f123658b7ee91bee3664011a298",
+      "bytes": 14452,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "tests/experience_recall.rs",
+        "sha256": "be358b3f7eaf025ba3bf1d13fc29c1ec47488f123658b7ee91bee3664011a298"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/tests/experience_runtime_wire.rs": {
+      "sha256": "6fc55a46e23cdf6fbb3ae51123a07198e7f6af2d9a9a1d346831412f29b1c9dc",
+      "bytes": 3901,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "tests/experience_runtime_wire.rs",
+        "sha256": "6fc55a46e23cdf6fbb3ae51123a07198e7f6af2d9a9a1d346831412f29b1c9dc"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/tests/experience_semantics.rs": {
+      "sha256": "e16c19388a659804ac6ad2a7b7aad2db361247012897087957951e21d68ebe1a",
+      "bytes": 20252,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "tests/experience_semantics.rs",
+        "sha256": "e16c19388a659804ac6ad2a7b7aad2db361247012897087957951e21d68ebe1a"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/tests/fixtures/experience-candidate.json": {
+      "sha256": "fdfb5702cc3e79c6882de431cae0fbbf06301f2bb3eb405a07908f146a02ae52",
+      "bytes": 782,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "tests/fixtures/experience-candidate.json",
+        "sha256": "fdfb5702cc3e79c6882de431cae0fbbf06301f2bb3eb405a07908f146a02ae52"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/tests/fixtures/experience-context.json": {
+      "sha256": "3ae3a12d133d4ce6b39bdaf1583d7191a8d8da7db970f72771694afbf4d73b0c",
+      "bytes": 653,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "tests/fixtures/experience-context.json",
+        "sha256": "3ae3a12d133d4ce6b39bdaf1583d7191a8d8da7db970f72771694afbf4d73b0c"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/tests/fixtures/experience-disclosure.json": {
+      "sha256": "c779ef7abb40a63bfa67959486ba66fffedcd32b071081cc09da71e1334dc2f2",
+      "bytes": 584,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "tests/fixtures/experience-disclosure.json",
+        "sha256": "c779ef7abb40a63bfa67959486ba66fffedcd32b071081cc09da71e1334dc2f2"
+      },
+      "status": "unchanged"
+    },
+    "algorithms/tests/fixtures/experience-hidden-suffix.json": {
+      "sha256": "be44f68b6cd7e278ccda6a4ace0578e2aab01ec9063f0e0979cbc27249a71146",
+      "bytes": 1417,
+      "origin": {
+        "repository": "algorithms",
+        "revision": "6d32d4cbc1fea759531179d3f3e0e949ae4cca58",
+        "path": "tests/fixtures/experience-hidden-suffix.json",
+        "sha256": "be44f68b6cd7e278ccda6a4ace0578e2aab01ec9063f0e0979cbc27249a71146"
+      },
+      "status": "unchanged"
+    },
+    "backend/README.md": {
+      "sha256": "36d5dde12cb68b4a938dc3fb0a4db321719eb25171bcdd49bf9c85e37ac3ef09",
+      "bytes": 5584,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "README.md",
+        "sha256": "db5f848f1f66a6b934b887e7eb0bfbbd5ff7d83d380ca14dd4aa369e147cdbc8"
+      },
+      "status": "adapted"
+    },
+    "backend/SOURCE_FILES.json": {
+      "sha256": "d9a164b83bb43ad8d4a04c747b3ff92ec8eb3a10a928ee6a4faacf37eb693580",
+      "bytes": 28713,
+      "status": "export-only"
+    },
+    "backend/cmd/product-dev/main.go": {
+      "sha256": "06dcfbbd89f3a15f74aac570e7a1b0d6b6003c22875bbc40157f222c2be45826",
+      "bytes": 5841,
+      "status": "export-only"
+    },
+    "backend/go.mod": {
+      "sha256": "3107aae09572b374da30de7765976d2b0e5dd2ae0255386e181386398caa5987",
+      "bytes": 657,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "go.mod",
+        "sha256": "049be7defc1fdbe6f37bbf19b9948bb8dadd62065564b2b9ff29270340ac41a0"
+      },
+      "status": "adapted"
+    },
+    "backend/go.sum": {
+      "sha256": "21be117df96b2bbca558b70ae071f0da4088d6a9ed679d978c8bf086812d6ea1",
+      "bytes": 5795,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "go.sum",
+        "sha256": "ac7ef1db4c4c2fc8426b91a1a95299276653ca1986ab10465794a41d20a0658f"
+      },
+      "status": "adapted"
+    },
+    "backend/internal/algorithm/channel/audit.go": {
+      "sha256": "3264eecd0863d3784086d2bd72670bb64b92b326b6bbe323b3335a12abfe4533",
+      "bytes": 1371,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/algorithm/channel/audit.go",
+        "sha256": "3264eecd0863d3784086d2bd72670bb64b92b326b6bbe323b3335a12abfe4533"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/algorithm/channel/authorizer.go": {
+      "sha256": "0128f8e8d5444fa3f50e34f08234063ad2af5d17c66cffe41f2a407c5f34f3b8",
+      "bytes": 1356,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/algorithm/channel/authorizer.go",
+        "sha256": "0128f8e8d5444fa3f50e34f08234063ad2af5d17c66cffe41f2a407c5f34f3b8"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/algorithm/channel/channel_test.go": {
+      "sha256": "c96f13d9dd149b1903b87172761bf9f90119f094ff779f1351757185cdce6de8",
+      "bytes": 13408,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/algorithm/channel/channel_test.go",
+        "sha256": "c96f13d9dd149b1903b87172761bf9f90119f094ff779f1351757185cdce6de8"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/algorithm/channel/client.go": {
+      "sha256": "b990df9c95360bf6ee824cd715e3470c48e9ce578ac60ea81064b9f31c89e2b0",
+      "bytes": 4582,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/algorithm/channel/client.go",
+        "sha256": "b990df9c95360bf6ee824cd715e3470c48e9ce578ac60ea81064b9f31c89e2b0"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/algorithm/channel/doc.go": {
+      "sha256": "bbe818da1ffcd17b472085fd9c2151fa72279145e37bdff8661664c60d2063b9",
+      "bytes": 1004,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/algorithm/channel/doc.go",
+        "sha256": "bbe818da1ffcd17b472085fd9c2151fa72279145e37bdff8661664c60d2063b9"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/algorithm/channel/errors.go": {
+      "sha256": "9a09628db66374b5983b9953f24c8ab887caa1b6f2bfc97f5344353fb16bdfda",
+      "bytes": 2174,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/algorithm/channel/errors.go",
+        "sha256": "9a09628db66374b5983b9953f24c8ab887caa1b6f2bfc97f5344353fb16bdfda"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/algorithm/channel/frames.go": {
+      "sha256": "cb6bbf1b4c21dacfbb00c8b69911fc4cf327aebfc63871ff8fba64474428f68d",
+      "bytes": 3387,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/algorithm/channel/frames.go",
+        "sha256": "cb6bbf1b4c21dacfbb00c8b69911fc4cf327aebfc63871ff8fba64474428f68d"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/algorithm/channel/link.go": {
+      "sha256": "d98c748cdfec3680bea4385463cfd26b5bfe63de55516aeccc640219de54b47b",
+      "bytes": 12822,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/algorithm/channel/link.go",
+        "sha256": "d98c748cdfec3680bea4385463cfd26b5bfe63de55516aeccc640219de54b47b"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/algorithm/channel/link_test.go": {
+      "sha256": "b2781136c27c7d285cd006854965778140e738a2077ae7a00df190e7d73143f7",
+      "bytes": 11222,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/algorithm/channel/link_test.go",
+        "sha256": "b2781136c27c7d285cd006854965778140e738a2077ae7a00df190e7d73143f7"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/algorithm/channel/send_scope_test.go": {
+      "sha256": "c8fb380cfc3851a5ab112184e76e55d42512c08eda4a6389138f498b81eb48d3",
+      "bytes": 2463,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/algorithm/channel/send_scope_test.go",
+        "sha256": "c8fb380cfc3851a5ab112184e76e55d42512c08eda4a6389138f498b81eb48d3"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/algorithm/channel/server.go": {
+      "sha256": "8db59bfa3eab82ab9c3f4bea6bb3c97e9cbc7e9ac1f0b42139ccb714549148d0",
+      "bytes": 7912,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/algorithm/channel/server.go",
+        "sha256": "8db59bfa3eab82ab9c3f4bea6bb3c97e9cbc7e9ac1f0b42139ccb714549148d0"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/algorithm/channel/service.go": {
+      "sha256": "7e0947c303611f56afa20a4af5428664cae59ba29a6c90cb489dfceaa7b9ca3e",
+      "bytes": 4032,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/algorithm/channel/service.go",
+        "sha256": "7e0947c303611f56afa20a4af5428664cae59ba29a6c90cb489dfceaa7b9ca3e"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/algorithm/channel/transport.go": {
+      "sha256": "2a29f33415cde2eb1da10127e6f4dc61dd34b7d6f45c5e6050778fed5fa12787",
+      "bytes": 5231,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/algorithm/channel/transport.go",
+        "sha256": "2a29f33415cde2eb1da10127e6f4dc61dd34b7d6f45c5e6050778fed5fa12787"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/algorithm/channel/transport_test.go": {
+      "sha256": "9f25311530082a8b4e6555e872b3936ef4d0f0febc7a265347d2b739ba0cb5be",
+      "bytes": 7484,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/algorithm/channel/transport_test.go",
+        "sha256": "9f25311530082a8b4e6555e872b3936ef4d0f0febc7a265347d2b739ba0cb5be"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/algorithm/channel/validate.go": {
+      "sha256": "e869e8e90c61971cc4e51fa64f9832240d5f8edbcf73ab29680491e196064cf8",
+      "bytes": 3921,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/algorithm/channel/validate.go",
+        "sha256": "e869e8e90c61971cc4e51fa64f9832240d5f8edbcf73ab29680491e196064cf8"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/algorithm/channel/validate_test.go": {
+      "sha256": "2e6114d24593b06ab608e83c30fe6d3222076196f44d7c80afb6b867a1a44a55",
+      "bytes": 5003,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/algorithm/channel/validate_test.go",
+        "sha256": "2e6114d24593b06ab608e83c30fe6d3222076196f44d7c80afb6b867a1a44a55"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/capability/model/cancellation_test.go": {
+      "sha256": "853d0fa8f403d7bd4485112364caed7e440b13839247b1df5a0c2f3b6eb5e1df",
+      "bytes": 1511,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/capability/model/cancellation_test.go",
+        "sha256": "853d0fa8f403d7bd4485112364caed7e440b13839247b1df5a0c2f3b6eb5e1df"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/capability/model/capacity.go": {
+      "sha256": "a6f721dd7d5908a0f6c21e2fe03e9cc04675d04df366b45e93536a3ab2a6112b",
+      "bytes": 277,
+      "status": "export-only"
+    },
+    "backend/internal/capability/model/context_budget.go": {
+      "sha256": "d1a35a13f415936e1472f706dbc7107f8b8c6e21305112f081c3681b0dbb866d",
+      "bytes": 1210,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/capability/model/context_budget.go",
+        "sha256": "d1a35a13f415936e1472f706dbc7107f8b8c6e21305112f081c3681b0dbb866d"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/capability/model/model.go": {
+      "sha256": "e485ba6391391495819b9aad44d40087e81d1cea4c68873fc42f1259a87ab5ae",
+      "bytes": 17390,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/capability/model/model.go",
+        "sha256": "e485ba6391391495819b9aad44d40087e81d1cea4c68873fc42f1259a87ab5ae"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/capability/model/model_test.go": {
+      "sha256": "5202efca7063f8d632118949d82287e12f74254a9b0a18aff69db1af82f08e69",
+      "bytes": 11347,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/capability/model/model_test.go",
+        "sha256": "5202efca7063f8d632118949d82287e12f74254a9b0a18aff69db1af82f08e69"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/capability/model/output_budget_test.go": {
+      "sha256": "ee94216a831f27be21e539c0a38666f9a9fd7ec07a3a00b4a1f3c5459687f42c",
+      "bytes": 2047,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/capability/model/output_budget_test.go",
+        "sha256": "ee94216a831f27be21e539c0a38666f9a9fd7ec07a3a00b4a1f3c5459687f42c"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/capability/model/provider_attempt.go": {
+      "sha256": "424c2522db068d4f79914dc35556d968bc5b3bf18e593280cbfcce1a67b06881",
+      "bytes": 4248,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/capability/model/provider_attempt.go",
+        "sha256": "87657f9776e0cff07c4edbe21f1b6719870cc296ba577a3528a07feefdc9111a"
+      },
+      "status": "adapted"
+    },
+    "backend/internal/capability/model/response_format_test.go": {
+      "sha256": "7ce97b2bb16fdcbcdf8514e8d288321623c4570dd495b4e9455b0d8340aa2a0e",
+      "bytes": 4381,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/capability/model/response_format_test.go",
+        "sha256": "7ce97b2bb16fdcbcdf8514e8d288321623c4570dd495b4e9455b0d8340aa2a0e"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/contract/generated/algorithm/v1/runtime.pb.go": {
+      "sha256": "b9c3e04dd62d9222ad2fe8f63076409f9f7e0f8feddd1e6d93be7d5179158f90",
+      "bytes": 247805,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/contract/generated/algorithm/v1/runtime.pb.go",
+        "sha256": "b9c3e04dd62d9222ad2fe8f63076409f9f7e0f8feddd1e6d93be7d5179158f90"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/contract/source/algorithm/v1/runtime.proto": {
+      "sha256": "4a7f66d6e1f5be0fe974388aaff6a275014761cfd23a01bd20ef5c99c2587646",
+      "bytes": 48676,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/contract/source/algorithm/v1/runtime.proto",
+        "sha256": "4a7f66d6e1f5be0fe974388aaff6a275014761cfd23a01bd20ef5c99c2587646"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/contract/source/experience/v1/contract.go": {
+      "sha256": "efecbe270236e6c32c686a8999b146cf1f4630aa3bf6f385221ebd6cd7c8bf93",
+      "bytes": 377,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/contract/source/experience/v1/contract.go",
+        "sha256": "efecbe270236e6c32c686a8999b146cf1f4630aa3bf6f385221ebd6cd7c8bf93"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/contract/source/experience/v1/contract.json": {
+      "sha256": "af4d178596cffc470f408b0924f04f93d104ca8047539c0d6a219bd3c6667121",
+      "bytes": 27794,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/contract/source/experience/v1/contract.json",
+        "sha256": "af4d178596cffc470f408b0924f04f93d104ca8047539c0d6a219bd3c6667121"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/actual_retrieval_integration_test.go": {
+      "sha256": "ff95762b04a119e4affbc70cd871116670007a7ac1a8f41acbb24e78b36416b0",
+      "bytes": 6927,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/actual_retrieval_integration_test.go",
+        "sha256": "ff95762b04a119e4affbc70cd871116670007a7ac1a8f41acbb24e78b36416b0"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/actual_rust_integration_test.go": {
+      "sha256": "77ff3f7dfed890f7913d3b3a6936329e02b6f8edd5e62e1b964f2f4c93ab9869",
+      "bytes": 5597,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/actual_rust_integration_test.go",
+        "sha256": "77ff3f7dfed890f7913d3b3a6936329e02b6f8edd5e62e1b964f2f4c93ab9869"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/algorithm.go": {
+      "sha256": "4c8571138c645ae398fc46343a34d8bc1e39d9c1ef1fec8989a2726d915186e7",
+      "bytes": 12265,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/algorithm.go",
+        "sha256": "4c8571138c645ae398fc46343a34d8bc1e39d9c1ef1fec8989a2726d915186e7"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/authority_integration_test.go": {
+      "sha256": "d4e52af4a3c4a18017f5fcebe27b0a7c8c63f24eab643392f95e47ec08a41538",
+      "bytes": 13322,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/authority_integration_test.go",
+        "sha256": "378daa6e6ce5a13afcb79832806f04611b586263ff7bb4854a8a35b64456e54d"
+      },
+      "status": "adapted"
+    },
+    "backend/internal/experience/branches.go": {
+      "sha256": "f3adad15b837a858cd18e167793b8d37be3935ccb0b246e74e29a074045e0624",
+      "bytes": 4608,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/branches.go",
+        "sha256": "f3adad15b837a858cd18e167793b8d37be3935ccb0b246e74e29a074045e0624"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/capacity_visibility_test.go": {
+      "sha256": "26e322b7d33b94975b15cfcd8c276fb1ae162a03336c58e4aa9426db720c1410",
+      "bytes": 4015,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/capacity_visibility_test.go",
+        "sha256": "26e322b7d33b94975b15cfcd8c276fb1ae162a03336c58e4aa9426db720c1410"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/context.go": {
+      "sha256": "7bb6e2b1505a66f269dfaac8bdd667508942693b7b22f0de78fb6096ac7f29c6",
+      "bytes": 1275,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/context.go",
+        "sha256": "7bb6e2b1505a66f269dfaac8bdd667508942693b7b22f0de78fb6096ac7f29c6"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/context_test.go": {
+      "sha256": "8dac0c8eb642c3d948be94a49e78b4dafc57ee413bb195d6ae50cc86a5824799",
+      "bytes": 1575,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/context_test.go",
+        "sha256": "8dac0c8eb642c3d948be94a49e78b4dafc57ee413bb195d6ae50cc86a5824799"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/contract.go": {
+      "sha256": "666ccda79fe623b530507a76f168b169d21c178264a687b5f3cf2534ccc5b065",
+      "bytes": 1717,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/contract.go",
+        "sha256": "666ccda79fe623b530507a76f168b169d21c178264a687b5f3cf2534ccc5b065"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/contract_algorithm_test.go": {
+      "sha256": "c36e36e4127cc4acaaea3b85e4d33cbe58c1b8dd6cf62ef927898690abf95cac",
+      "bytes": 7948,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/contract_algorithm_test.go",
+        "sha256": "c36e36e4127cc4acaaea3b85e4d33cbe58c1b8dd6cf62ef927898690abf95cac"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/devhttp/boundary.go": {
+      "sha256": "913d80bca41f7b0f3367938d22693456e379cefc5e6a2ec0eadc106ec6c4bd86",
+      "bytes": 2972,
+      "status": "export-only"
+    },
+    "backend/internal/experience/devhttp/boundary_test.go": {
+      "sha256": "8a241399969ff0c16f415d851b6f294e9ae4c744e1c48596e2dd1a94012a3cd6",
+      "bytes": 3058,
+      "status": "export-only"
+    },
+    "backend/internal/experience/devhttp/product_integration_test.go": {
+      "sha256": "d829dac0d8a37e2831d6b1a29e3c0644dad77660fd672fff16efa96e507c53dc",
+      "bytes": 2334,
+      "status": "export-only"
+    },
+    "backend/internal/experience/devhttp/routes.go": {
+      "sha256": "459b08d01ea3fe2b4b58148d7bafd891d377333b971fe3304b5d48d232fa3bad",
+      "bytes": 7176,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/worldhttp/routes.go",
+        "sha256": "f786af13c9cd4251c132f7b047a7236c0eb7951f4b6af4474bbaabb1afa5dc61"
+      },
+      "status": "adapted"
+    },
+    "backend/internal/experience/feedback.go": {
+      "sha256": "1e5801cbf46cd9d295d556fba6141a4bf3724c2c8d97ba74dbe0dce60647ba3a",
+      "bytes": 4995,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/feedback.go",
+        "sha256": "1e5801cbf46cd9d295d556fba6141a4bf3724c2c8d97ba74dbe0dce60647ba3a"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/generation_view.go": {
+      "sha256": "ba910ee74f69a7e5b11683cdcf1d7344367de10f526b121fa2cc3ea65681916f",
+      "bytes": 5558,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/generation_view.go",
+        "sha256": "ba910ee74f69a7e5b11683cdcf1d7344367de10f526b121fa2cc3ea65681916f"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/generation_view_test.go": {
+      "sha256": "5aa60f25ea137e594a54fc6307b8bfeae3a9283117e193ba3e2426a5868de099",
+      "bytes": 5102,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/generation_view_test.go",
+        "sha256": "5aa60f25ea137e594a54fc6307b8bfeae3a9283117e193ba3e2426a5868de099"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/history_integration_test.go": {
+      "sha256": "30a47910eb9757a161f087411d02b7b86a9282bf19abf052a1ba0c34fd192e15",
+      "bytes": 1540,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/history_integration_test.go",
+        "sha256": "30a47910eb9757a161f087411d02b7b86a9282bf19abf052a1ba0c34fd192e15"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/newtests_feedback_test.go": {
+      "sha256": "8188c02fa399c50ea4bee9aeb01243b859b52018698e73f452117addfa584af7",
+      "bytes": 5137,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/newtests_feedback_test.go",
+        "sha256": "8188c02fa399c50ea4bee9aeb01243b859b52018698e73f452117addfa584af7"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/newtests_preferences_integration_test.go": {
+      "sha256": "c952fc61477b337d1a7c443301597097e8d3825d27d572ecf2a988327eff1512",
+      "bytes": 8484,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/newtests_preferences_integration_test.go",
+        "sha256": "c952fc61477b337d1a7c443301597097e8d3825d27d572ecf2a988327eff1512"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/preferences.go": {
+      "sha256": "af29346d0d53eefda3250afcec0625c3f7bd66c2b5bfd1c0c791d90aaac26a47",
+      "bytes": 3729,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/preferences.go",
+        "sha256": "af29346d0d53eefda3250afcec0625c3f7bd66c2b5bfd1c0c791d90aaac26a47"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/read_types.go": {
+      "sha256": "5d65014eeaa4aae954da69e62b26a003487234008678f7ebbedfb91f7d89df0d",
+      "bytes": 2523,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/read_types.go",
+        "sha256": "5d65014eeaa4aae954da69e62b26a003487234008678f7ebbedfb91f7d89df0d"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/service.go": {
+      "sha256": "f6190db3d9c5472c754859cf442a7ec4a17163486ac3446501a30165a2d698d3",
+      "bytes": 19153,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/service.go",
+        "sha256": "f6190db3d9c5472c754859cf442a7ec4a17163486ac3446501a30165a2d698d3"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/source_reader.go": {
+      "sha256": "71af1953b5c843521106173292dee34301d450fafbcbd4b1a1d0deeffdeb5aec",
+      "bytes": 11583,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/source_reader.go",
+        "sha256": "71af1953b5c843521106173292dee34301d450fafbcbd4b1a1d0deeffdeb5aec"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/source_reader_integration_test.go": {
+      "sha256": "f9152d6df95d8cdf7c1bf03315e233a6cb74df07f6af5e5dd9c2a4a8a3bd756f",
+      "bytes": 9094,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/source_reader_integration_test.go",
+        "sha256": "f9152d6df95d8cdf7c1bf03315e233a6cb74df07f6af5e5dd9c2a4a8a3bd756f"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/transport_termination_test.go": {
+      "sha256": "c83177e5abc7975051ecf2db6fdf1224b28ca418e114607ec7af1b6c82d52e79",
+      "bytes": 6865,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/transport_termination_test.go",
+        "sha256": "c83177e5abc7975051ecf2db6fdf1224b28ca418e114607ec7af1b6c82d52e79"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/types.go": {
+      "sha256": "f3bdb65885e86abd7fa74744cf5d7a744700d3524efb4023ec658305e9079b4c",
+      "bytes": 16912,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/types.go",
+        "sha256": "f3bdb65885e86abd7fa74744cf5d7a744700d3524efb4023ec658305e9079b4c"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/experience/v2_boundary_test.go": {
+      "sha256": "ad3e35d3de37d8c93dbec4fc5c955c6b39ebf2bd68431d6900783bb1bc484ce3",
+      "bytes": 2320,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/experience/v2_boundary_test.go",
+        "sha256": "ad3e35d3de37d8c93dbec4fc5c955c6b39ebf2bd68431d6900783bb1bc484ce3"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/operations/pgtool/command.go": {
+      "sha256": "98e3996f84f4ccabf94e85214c04516cce86f9f8703d83026b84b4c792d2c123",
+      "bytes": 4514,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/operations/pgtool/command.go",
+        "sha256": "98e3996f84f4ccabf94e85214c04516cce86f9f8703d83026b84b4c792d2c123"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/operations/pgtool/command_test.go": {
+      "sha256": "e784f3e1d2c6056596b247dac9a2a6b4ac2d8aeb0cd8e187aa24c5aae2e83313",
+      "bytes": 2025,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/operations/pgtool/command_test.go",
+        "sha256": "e784f3e1d2c6056596b247dac9a2a6b4ac2d8aeb0cd8e187aa24c5aae2e83313"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/operations/pgtool/version.go": {
+      "sha256": "a7d8a4b7adc08dd093ebac26d7accc977a6d7decf1be74d7a8b975f708126fc2",
+      "bytes": 607,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/operations/pgtool/version.go",
+        "sha256": "a7d8a4b7adc08dd093ebac26d7accc977a6d7decf1be74d7a8b975f708126fc2"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/operations/pgtool/version_test.go": {
+      "sha256": "0d48b6f99c192bfab1d4cce9287c63617d096228a026e1f46beee61d345a3087",
+      "bytes": 720,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/operations/pgtool/version_test.go",
+        "sha256": "0d48b6f99c192bfab1d4cce9287c63617d096228a026e1f46beee61d345a3087"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/platform/database/database.go": {
+      "sha256": "fed2c077f14480e4cab7ca0eb2845423296851d1136c4b810fa79a6b7cada262",
+      "bytes": 1197,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/platform/database/database.go",
+        "sha256": "2e3d17f3782919d11e3473b8857d383847204210faa3037558a0400bc84c282d"
+      },
+      "status": "adapted"
+    },
+    "backend/internal/platform/database/recovery_gate.go": {
+      "sha256": "275536ddb7047fdd7971df0de7147197c7119feacc063c2a632d7f05551055cb",
+      "bytes": 3774,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/platform/database/recovery_gate.go",
+        "sha256": "275536ddb7047fdd7971df0de7147197c7119feacc063c2a632d7f05551055cb"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/platform/pgerr/pgerr.go": {
+      "sha256": "26d8db82007543de98a4513759e8df934c92df461817273777878feb7b22ad31",
+      "bytes": 2575,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/platform/pgerr/pgerr.go",
+        "sha256": "26d8db82007543de98a4513759e8df934c92df461817273777878feb7b22ad31"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/platform/pgerr/pgerr_test.go": {
+      "sha256": "9c86ecb8e9da4a3fef2a915ac5558e18c39370511a2fff3ed988f03d82999883",
+      "bytes": 2906,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/platform/pgerr/pgerr_test.go",
+        "sha256": "9c86ecb8e9da4a3fef2a915ac5558e18c39370511a2fff3ed988f03d82999883"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/platform/testpostgres/doc.go": {
+      "sha256": "9628354cab157e1d620825c6e14ed8fffa15424d4fd47c9631b250fbdda296f4",
+      "bytes": 543,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/platform/testpostgres/doc.go",
+        "sha256": "9628354cab157e1d620825c6e14ed8fffa15424d4fd47c9631b250fbdda296f4"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/platform/testpostgres/harness.go": {
+      "sha256": "59560cc6d21feb1b52789ef6e0b0dd839fdaa02c8e012e4d2d1ee7c3699c41da",
+      "bytes": 12022,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/platform/testpostgres/harness.go",
+        "sha256": "59560cc6d21feb1b52789ef6e0b0dd839fdaa02c8e012e4d2d1ee7c3699c41da"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/platform/testpostgres/harness_test.go": {
+      "sha256": "b6459cf9d8779f735adde4d87ca71e44234330a4b6bb31c790d125bb1a77ff59",
+      "bytes": 5446,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/platform/testpostgres/harness_test.go",
+        "sha256": "b6459cf9d8779f735adde4d87ca71e44234330a4b6bb31c790d125bb1a77ff59"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/platform/testpostgres/locale_test.go": {
+      "sha256": "a498298258eaf3315d9b9ead69091344f12c1820712625087fa56d2dbc7f8e58",
+      "bytes": 554,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/platform/testpostgres/locale_test.go",
+        "sha256": "a498298258eaf3315d9b9ead69091344f12c1820712625087fa56d2dbc7f8e58"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/sqlc/pgq/db.go": {
+      "sha256": "e77567997648fcc6dc815accd9a886020e097a798f79c825a103648e8c7f9deb",
+      "bytes": 596,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/sqlc/pgq/db.go",
+        "sha256": "e77567997648fcc6dc815accd9a886020e097a798f79c825a103648e8c7f9deb"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/sqlc/pgq/experience.sql.go": {
+      "sha256": "f12513454b1ff362327028585e60b14ed02ae6457fc9ddb550bea41988e171ef",
+      "bytes": 22472,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/sqlc/pgq/experience.sql.go",
+        "sha256": "f12513454b1ff362327028585e60b14ed02ae6457fc9ddb550bea41988e171ef"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/sqlc/pgq/experience_retrieval.sql.go": {
+      "sha256": "111a22aa8b449f5a14724e720799461f75fd541bde3a5e41e695e1144f3882e0",
+      "bytes": 5352,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/sqlc/pgq/experience_retrieval.sql.go",
+        "sha256": "111a22aa8b449f5a14724e720799461f75fd541bde3a5e41e695e1144f3882e0"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/sqlc/pgq/models.go": {
+      "sha256": "77b3a6c4508fe766769033302d0f81df68966b88d7fd8566068adbe730b9b446",
+      "bytes": 2069,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/sqlc/pgq/models.go",
+        "sha256": "13e376ee9e785749cdc8079772e3e9555b685d19d1fa841a2d6bce0a27b076e0"
+      },
+      "status": "adapted"
+    },
+    "backend/internal/sqlc/pgq/recovery_gate.sql.go": {
+      "sha256": "3bd2b0b609b0eb8fd0172c94c4d1b5342ca69c111be72f5b737d8aee334f1fe6",
+      "bytes": 1879,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/sqlc/pgq/recovery_gate.sql.go",
+        "sha256": "3bd2b0b609b0eb8fd0172c94c4d1b5342ca69c111be72f5b737d8aee334f1fe6"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/sqlc/queries/experience.sql": {
+      "sha256": "a6779c9ee41d7e934d54080726d6856cb4721ad9e13bf739ac0fe0ed8213fdbf",
+      "bytes": 4935,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/sqlc/queries/experience.sql",
+        "sha256": "a6779c9ee41d7e934d54080726d6856cb4721ad9e13bf739ac0fe0ed8213fdbf"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/sqlc/queries/experience_retrieval.sql": {
+      "sha256": "9bd5050512262d76c4ca193c896da936ecec72ac5797e6850cd0ef7c67152e3d",
+      "bytes": 971,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/sqlc/queries/experience_retrieval.sql",
+        "sha256": "9bd5050512262d76c4ca193c896da936ecec72ac5797e6850cd0ef7c67152e3d"
+      },
+      "status": "unchanged"
+    },
+    "backend/internal/sqlc/queries/recovery_gate.sql": {
+      "sha256": "0b4c70d2310e93e173ebb158d9e8009f9820daead25d3ce436a701e358e6b776",
+      "bytes": 565,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "internal/sqlc/queries/recovery_gate.sql",
+        "sha256": "0b4c70d2310e93e173ebb158d9e8009f9820daead25d3ce436a701e358e6b776"
+      },
+      "status": "unchanged"
+    },
+    "backend/modules.lock": {
+      "sha256": "3e021c9fa58c958e65ca2e81ae2d8f446fdd6edb2b1157e7b03dee0e198dbc36",
+      "bytes": 203,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "modules.lock",
+        "sha256": "3cb939f8a82cf5b92e2d1e3909e610bda1c7165e4caece46c4fa3a50d27d766d"
+      },
+      "status": "adapted"
+    },
+    "backend/schema/migrations/00068_recovery_gate.sql": {
+      "sha256": "51db6d4a6c6133adfc7f3aad8c1c0ddc44c5c81b793f62c96296d1b62f4597f5",
+      "bytes": 870,
+      "status": "export-only"
+    },
+    "backend/schema/migrations/00106_recovery_gate_sqlstate.sql": {
+      "sha256": "bc4102d4ca6ff04628177c4b8b7179d8154fd37af17c3a839f9ee167b2235cc3",
+      "bytes": 744,
+      "status": "export-only"
+    },
+    "backend/schema/migrations/00155_experience.sql": {
+      "sha256": "63624687962ebc48f13a4e8da64ab65636028ee8e6d9501383c6edc8e666cc5b",
+      "bytes": 3067,
+      "status": "export-only"
+    },
+    "backend/schema/migrations/00156_experience_retrieval.sql": {
+      "sha256": "b133c0ca0cca452cb0cbe0e10e97287ef00f528a4a6651c672c36c50267c50a0",
+      "bytes": 1093,
+      "status": "export-only"
+    },
+    "backend/schema/schema.go": {
+      "sha256": "cc028865e09f296afdeb903ac75c1c06dd2ae1b1a535baeb9abee52da159c4e2",
+      "bytes": 381,
+      "status": "export-only"
+    },
+    "backend/schema/schema.sql": {
+      "sha256": "edd69a81b4442f6b21d8fad07015def7d4566ba4f9494803206168cbdfe35b9a",
+      "bytes": 5860,
+      "status": "export-only"
+    },
+    "backend/scripts/source-manifest.py": {
+      "sha256": "d42528ee7a329ac8ad6982fe01664ee4a277030afeb3329106b9c80cfc89dd0f",
+      "bytes": 1847,
+      "status": "export-only"
+    },
+    "backend/sqlc.yaml": {
+      "sha256": "56e6065336335287aeee018f32cc7d16312c4cdba55ed1c0fea3b9161a439622",
+      "bytes": 1079,
+      "origin": {
+        "repository": "backend",
+        "revision": "e564b101f8e8bd60a7bf661b70e0188b079c8fc6",
+        "path": "sqlc.yaml",
+        "sha256": "550891e378b4771a5d3546a6840cabea309ef2627bd182da9bdbf3b43e8a2e47"
+      },
+      "status": "adapted"
+    },
+    "contracts/algorithm/v1/runtime.proto": {
+      "sha256": "4a7f66d6e1f5be0fe974388aaff6a275014761cfd23a01bd20ef5c99c2587646",
+      "bytes": 48676,
+      "origin": {
+        "repository": "sundries",
+        "revision": "01cab81e8a5639dd8e269dc45ea0e3f5c5becfa6",
+        "path": "contracts/algorithm/v1/runtime.proto",
+        "sha256": "4a7f66d6e1f5be0fe974388aaff6a275014761cfd23a01bd20ef5c99c2587646"
+      },
+      "status": "unchanged"
+    },
+    "contracts/experience/v1/contract.json": {
+      "sha256": "af4d178596cffc470f408b0924f04f93d104ca8047539c0d6a219bd3c6667121",
+      "bytes": 27794,
+      "origin": {
+        "repository": "sundries",
+        "revision": "01cab81e8a5639dd8e269dc45ea0e3f5c5becfa6",
+        "path": "contracts/experience/v1/contract.json",
+        "sha256": "af4d178596cffc470f408b0924f04f93d104ca8047539c0d6a219bd3c6667121"
+      },
+      "status": "unchanged"
+    },
+    "frontend/README.md": {
+      "sha256": "991b9b40fe462aa5cc0b7ee4982cb69ebc671546a7a9963331ff64241cd14d7b",
+      "bytes": 2521,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "README.md",
+        "sha256": "ed06c950a6cda4edb310bb9376185d822c9e8438d274403b9ff747ef3ff69774"
+      },
+      "status": "adapted"
+    },
+    "frontend/analysis_options.yaml": {
+      "sha256": "9023ab263bcddd4110f941c6872163e7db9d8ad8201d6db5eaf335bf34474eca",
+      "bytes": 1518,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "analysis_options.yaml",
+        "sha256": "9023ab263bcddd4110f941c6872163e7db9d8ad8201d6db5eaf335bf34474eca"
+      },
+      "status": "unchanged"
+    },
+    "frontend/assets/fonts/NotoSansSC-Regular.otf": {
+      "sha256": "faa6c9df652116dde789d351359f3d7e5d2285a2b2a1f04a2d7244df706d5ea9",
+      "bytes": 8331336,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "assets/fonts/NotoSansSC-Regular.otf",
+        "sha256": "faa6c9df652116dde789d351359f3d7e5d2285a2b2a1f04a2d7244df706d5ea9"
+      },
+      "status": "unchanged"
+    },
+    "frontend/assets/fonts/NotoSansSC_LICENSE.txt": {
+      "sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2",
+      "bytes": 4301,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "assets/fonts/NotoSansSC_LICENSE.txt",
+        "sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2"
+      },
+      "status": "unchanged"
+    },
+    "frontend/assets/fonts/Roboto-Regular.ttf": {
+      "sha256": "79e851404657dac2106b3d22ad256d47824a9a5765458edb72c9102a45816d95",
+      "bytes": 171676,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "assets/fonts/Roboto-Regular.ttf",
+        "sha256": "79e851404657dac2106b3d22ad256d47824a9a5765458edb72c9102a45816d95"
+      },
+      "status": "unchanged"
+    },
+    "frontend/assets/fonts/Roboto_LICENSE.txt": {
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "bytes": 11358,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "assets/fonts/Roboto_LICENSE.txt",
+        "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+      },
+      "status": "unchanged"
+    },
+    "frontend/contracts/experience/v1/contract.json": {
+      "sha256": "af4d178596cffc470f408b0924f04f93d104ca8047539c0d6a219bd3c6667121",
+      "bytes": 27794,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "contracts/experience/v1/contract.json",
+        "sha256": "af4d178596cffc470f408b0924f04f93d104ca8047539c0d6a219bd3c6667121"
+      },
+      "status": "unchanged"
+    },
+    "frontend/lib/data/store/local_store_factory.dart": {
+      "sha256": "319709616526a59c7fe40f29c942f549016b11db4659b49eaa84bbe449a042df",
+      "bytes": 836,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "lib/data/store/local_store_factory.dart",
+        "sha256": "c55cb2d4eac3aff67d16a883846c1bf6c623b0429ecc089c0a2e4dd966902075"
+      },
+      "status": "adapted"
+    },
+    "frontend/lib/data/store/store_platform_io.dart": {
+      "sha256": "2810acdc4e56705cfcba7dbe6df445b5e0d9dbf76ecb223cfb7dd98eca8547f9",
+      "bytes": 649,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "lib/data/store/store_platform_io.dart",
+        "sha256": "2810acdc4e56705cfcba7dbe6df445b5e0d9dbf76ecb223cfb7dd98eca8547f9"
+      },
+      "status": "unchanged"
+    },
+    "frontend/lib/data/store/store_platform_web.dart": {
+      "sha256": "c1f8cfd260661dcedd1a2da9a51de2c6b664e6a91f5f3cb886517b76ca92ce09",
+      "bytes": 417,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "lib/data/store/store_platform_web.dart",
+        "sha256": "c1f8cfd260661dcedd1a2da9a51de2c6b664e6a91f5f3cb886517b76ca92ce09"
+      },
+      "status": "unchanged"
+    },
+    "frontend/lib/experience/experience_client.dart": {
+      "sha256": "6055187c48e46a7c7e467ed13b87d0130ac493f1d93e5ae9a2d7fd7841cbfbaa",
+      "bytes": 5391,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "lib/experience/experience_client.dart",
+        "sha256": "d49ea432c94477b6e4c3de9c7833aacfbb716dc9429a6aaa91089ef011a7e518"
+      },
+      "status": "adapted"
+    },
+    "frontend/lib/experience/experience_controller.dart": {
+      "sha256": "4b3921dd7309bdf437fdfaae1b0d99c250350cdd8c530277593bf85b59f50091",
+      "bytes": 20654,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "lib/experience/experience_controller.dart",
+        "sha256": "0c6f32458e82096fdebd37fb557a7d14a9175c711855133d663253aeb4e60342"
+      },
+      "status": "adapted"
+    },
+    "frontend/lib/experience/experience_edit_dialog.dart": {
+      "sha256": "d73a185282733c0085a9cd083ee09527d6d87f33535628bfc850e2ddec53d15b",
+      "bytes": 2517,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "lib/experience/experience_edit_dialog.dart",
+        "sha256": "d73a185282733c0085a9cd083ee09527d6d87f33535628bfc850e2ddec53d15b"
+      },
+      "status": "unchanged"
+    },
+    "frontend/lib/experience/experience_failure_copy.dart": {
+      "sha256": "79031c8c2920ffd55b1f16ece6e04f225a932737e72b054d54bf5a1501b8b7a5",
+      "bytes": 750,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "lib/experience/experience_failure_copy.dart",
+        "sha256": "3ac1bd03c8066cea5620ffdba5635966a3e8d5e4ee34902ef8a84ea9dad8a528"
+      },
+      "status": "adapted"
+    },
+    "frontend/lib/experience/experience_feedback_panel.dart": {
+      "sha256": "643a08da372fda43e1cdf52a4b5db478fcdbaf492577397e121aa4ea00723902",
+      "bytes": 8208,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "lib/experience/experience_feedback_panel.dart",
+        "sha256": "d02482e6883a595f7b87e86083aa984e6ad0d06b439ed0d23bf9614787648afd"
+      },
+      "status": "adapted"
+    },
+    "frontend/lib/experience/experience_journal.dart": {
+      "sha256": "9fb27457177888b1912f03aa9b5204fc0d6899048b09678d833e61cba61559a5",
+      "bytes": 1522,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "lib/experience/experience_journal.dart",
+        "sha256": "5bb84b04237280353aeb5ec9c0dbc46ddca3cf2263b81128efbcc1eef3bd9b33"
+      },
+      "status": "adapted"
+    },
+    "frontend/lib/experience/experience_models.dart": {
+      "sha256": "f31b0be960df1f1636e209ac3e32e0dbf9ac606c32a039906b116336907ba4cd",
+      "bytes": 4734,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "lib/experience/experience_models.dart",
+        "sha256": "f31b0be960df1f1636e209ac3e32e0dbf9ac606c32a039906b116336907ba4cd"
+      },
+      "status": "unchanged"
+    },
+    "frontend/lib/experience/experience_preferences_screen.dart": {
+      "sha256": "ae52b4aa9bcc18865d542ee071b33239ea4fc46cee46cac6dd90cba806d8a2e7",
+      "bytes": 12291,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "lib/experience/experience_preferences_screen.dart",
+        "sha256": "aacc2500f7f8aff76ed5ccd54b8a3ccc82097251e6906ff5dd4552280e204159"
+      },
+      "status": "adapted"
+    },
+    "frontend/lib/experience/experience_screen.dart": {
+      "sha256": "ef1bdbe9308b5101eb819de01a13c21fe33f89c4477ae1702eaf71b7c4011684",
+      "bytes": 32468,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "lib/experience/experience_screen.dart",
+        "sha256": "21238d5f4d5195c3ed4406a3acda2546d00516a91b70595df1541ccd4aa4a104"
+      },
+      "status": "adapted"
+    },
+    "frontend/lib/experience/workspace_session.dart": {
+      "sha256": "0552c850974fea2a5a64e4ecca5a6fa2869c9dec3b8227fc2277d77b3a412238",
+      "bytes": 2479,
+      "status": "export-only"
+    },
+    "frontend/lib/main.dart": {
+      "sha256": "a0c30c3e5f29e47ab90d4186d242b5b39664dad89d2dffde4471159f462e5023",
+      "bytes": 2687,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "lib/main.dart",
+        "sha256": "19363edbc0b45eb621f3be6e91906eddc9c4095f3faf508cbd12c72fda141d78"
+      },
+      "status": "adapted"
+    },
+    "frontend/lib/ui/motion/elselife_animated_surface.dart": {
+      "sha256": "4fa2a91d8485305d3c7d4ddf30b04f4adc712868e0e7841b74a9a89d9440be60",
+      "bytes": 3927,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "lib/ui/motion/elselife_animated_surface.dart",
+        "sha256": "4fa2a91d8485305d3c7d4ddf30b04f4adc712868e0e7841b74a9a89d9440be60"
+      },
+      "status": "unchanged"
+    },
+    "frontend/lib/ui/motion/elselife_route_motion.dart": {
+      "sha256": "67be738759c7fcd60508132536d3be537af5ea7e9ce564bdbd1ffe821a5e41a8",
+      "bytes": 4319,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "lib/ui/motion/elselife_route_motion.dart",
+        "sha256": "67be738759c7fcd60508132536d3be537af5ea7e9ce564bdbd1ffe821a5e41a8"
+      },
+      "status": "unchanged"
+    },
+    "frontend/lib/ui/theme/elselife_theme.dart": {
+      "sha256": "9edf289eef92fb42189b149e1d172f9833ea9e538455599fab91fd5298c6fab8",
+      "bytes": 35236,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "lib/ui/theme/elselife_theme.dart",
+        "sha256": "9edf289eef92fb42189b149e1d172f9833ea9e538455599fab91fd5298c6fab8"
+      },
+      "status": "unchanged"
+    },
+    "frontend/pubspec.lock": {
+      "sha256": "76de4bf2cddfa70fb0dcd2b3d85b9de312525abcdfcefcc05ddd4b6f3640dfd9",
+      "bytes": 14099,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "pubspec.lock",
+        "sha256": "367e893a5ed1d9dc5df6dc97eef8507cd0132b888eb52c8361309498cc7bbec0"
+      },
+      "status": "adapted"
+    },
+    "frontend/pubspec.yaml": {
+      "sha256": "b1f8945d53834315c4944e2e795bccce86f928ea9dff9cc3a30cf47977f664a1",
+      "bytes": 763,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "pubspec.yaml",
+        "sha256": "804359368fe37337b398d4d474b20418b0274a0dfdf6b20c52af6df32e322fd4"
+      },
+      "status": "adapted"
+    },
+    "frontend/test/experience/experience_controller_test.dart": {
+      "sha256": "227614a9c3f7837a5b6b4ee227bc87331dda274a5c3962593255a2869b20a5ed",
+      "bytes": 10597,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "test/experience/experience_controller_test.dart",
+        "sha256": "6467c3f6855a14fb8f3a2d55b0eb03927752236e336f62e52d2046fa140c22c7"
+      },
+      "status": "adapted"
+    },
+    "frontend/test/experience/experience_json_client_test.dart": {
+      "sha256": "5fd25634ca84fadb4c2335a58405099aeaf5f6cdf4711b8a288cda061a2cef91",
+      "bytes": 5557,
+      "status": "export-only"
+    },
+    "frontend/test/experience/experience_widget_test.dart": {
+      "sha256": "7603b05c23b1eea8c1aa12861799086d940a9c43e8e3d1b7ef4d8cf3459f99c3",
+      "bytes": 22011,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "test/experience/experience_widget_test.dart",
+        "sha256": "1c40efd3aaaa7b3b8c37f04b6e7a50c07765549e5db64e1291c999a85e4e1644"
+      },
+      "status": "adapted"
+    },
+    "frontend/test/experience/workspace_session_test.dart": {
+      "sha256": "22d56c30db25a249276fef95abf4dbfb015c93df06d3509197382426f6f93087",
+      "bytes": 1181,
+      "status": "export-only"
+    },
+    "frontend/test/support/elselife_test_app.dart": {
+      "sha256": "913b8ee028ad85eae8db9d001b6e664b3f37497a6120e3db2188efdd92bfc232",
+      "bytes": 1503,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "test/support/elselife_test_app.dart",
+        "sha256": "ca737eaa28936cd16a6e7b79cdf1dc4b21451a5b640092ba1a38b46a892648d0"
+      },
+      "status": "adapted"
+    },
+    "frontend/test/support/experience_fixture.dart": {
+      "sha256": "8b248e8e4e988b96fa55c699346c38eb7e066fd3ba6f8ede85433fe2e320fab4",
+      "bytes": 7350,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "test/support/experience_fixture.dart",
+        "sha256": "c13589f445d24c2391d00cc21b60d99ae39f9821d2e15561e0d7d090e4d62a45"
+      },
+      "status": "adapted"
+    },
+    "frontend/web/index.html": {
+      "sha256": "f479d094a08e7b0105bb83e20da379cd914a592a8e84850f9e177b30cea5c397",
+      "bytes": 375,
+      "origin": {
+        "repository": "frontend",
+        "revision": "523c0804da66c16e1834823afd064b64bfe2d1a4",
+        "path": "web/index.html",
+        "sha256": "4efbe4bfc2489a72e51728f1b9b1f3c38eb8633f2a6fa2fe5e888f5fefbda148"
+      },
+      "status": "adapted"
+    },
+    "notes/algorithms-extraction.md": {
+      "sha256": "9c865792b0902a528b85684908483c11d5b3b65a98b695cd73497e515bf459f5",
+      "bytes": 10633,
+      "status": "export-only"
+    },
+    "notes/backend-extraction.md": {
+      "sha256": "765d79fef25e74dd493760e62e4e978c15507d3d868dda6036b937ad135b5576",
+      "bytes": 10328,
+      "status": "export-only"
+    },
+    "notes/frontend-extraction.md": {
+      "sha256": "6da244742d3983f2cbc9d0c3d8b9ee020b53f8c323ac64742233d422fb395e5c",
+      "bytes": 6138,
+      "status": "export-only"
+    },
+    "requirements-dev.txt": {
+      "sha256": "df2604408b06b77306a51496c3df0e21b0d6e77784f6f75a0588ae541fefc861",
+      "bytes": 87,
+      "status": "export-only"
+    },
+    "tests/test_experience_boundary.py": {
+      "sha256": "0f77a554493036f400f259d9f9feba0828a2e42339c84d14b1dd3a6b6b2dbf3c",
+      "bytes": 6391,
+      "origin": {
+        "repository": "sundries",
+        "revision": "01cab81e8a5639dd8e269dc45ea0e3f5c5becfa6",
+        "path": "tests/test_experience_boundary.py",
+        "sha256": "0f77a554493036f400f259d9f9feba0828a2e42339c84d14b1dd3a6b6b2dbf3c"
+      },
+      "status": "unchanged"
+    },
+    "tools/verify_source.py": {
+      "sha256": "3255b05dbc053bb0e51873ba6de71643ca8bbb6e90ee0b9dd4a780bf5f81972a",
+      "bytes": 3260,
+      "status": "export-only"
+    },
+    "验证记录.md": {
+      "sha256": "4fb3432cfec09d6669e6691f0b66a8ac25a170067637904e73126715ee9cff8c",
+      "bytes": 4974,
+      "status": "export-only"
+    }
+  },
+  "excluded": [
+    "Git history",
+    "secrets and private configuration",
+    "runtime/user data",
+    "build outputs",
+    "SDKs and dependency caches",
+    "account/authentication/billing/admin/legacy-task implementations",
+    "production installation and bootstrap"
+  ],
+  "source_revisions_file": "SOURCE_REVISIONS.json",
+  "integrity_scope": "SOURCE_MANIFEST.json itself is not recursively hashed. Archive SHA256 binds the final manifest and all files."
+}

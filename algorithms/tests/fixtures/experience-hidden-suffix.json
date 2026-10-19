@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "experience_id": "exp_fixture_hidden",
+  "branch_id": "branch_main",
+  "revision": 3,
+  "mode": "read",
+  "input": "",
+  "seed": "雨夜的书店",
+  "state": {
+    "story_time": "雨夜，敲门声响起前",
+    "facts": [{"id": "fixed_secret", "kind": "secret", "text": "修书人每周五来取留在店里的旧书。", "subject_id": "", "known": false, "source_revision": 1, "known_by": ["npc_restorer"]}],
+    "entities": [{"id": "npc_restorer", "kind": "character", "name": "修书人", "description": "穿着沾有纸屑的灰外套。", "known": false, "related_ids": ["fixed_secret", "thread_old_book"]}],
+    "threads": [{"id": "thread_old_book", "text": "修书人会来取旧书。", "known": false, "related_fact_ids": ["fixed_secret"]}]
+  },
+  "preferences": [],
+  "history": [
+    {"revision": 2, "mode": "read", "input": "", "text": "雨势缓下来，柜台后的人把灯调亮。"},
+    {"revision": 3, "mode": "read", "input": "", "text": "门上的铃轻轻摆动，玻璃外仍是一片黑。"}
+  ],
+  "history_complete": false,
+  "state_coverage": {"policy":"full.v1","recent_from_revision":0,"total":{"facts":1,"entities":1,"threads":1},"omitted":{"facts":0,"entities":0,"threads":0},"complete":true,"source_handle":"fixture_hidden_operation","audience":"author"},
+  "recalls": [],
+  "read_budget": {"max_reads":3,"max_reply_bytes":16384,"max_total_reply_bytes":32768}
+}

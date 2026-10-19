@@ -1,0 +1,2 @@
+# Only needed for canonical schema tests; not a runtime dependency.
+jsonschema==4.10.3

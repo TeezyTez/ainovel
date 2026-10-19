@@ -1,0 +1,3238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elselife.invalid/contracts/experience/v1",
+  "title": "ElseLife experience boundary v1",
+  "description": "Canonical Go/Rust experience JSON. No task completion or credential fields. All IDs in candidate are provisional domain keys; backend owns formal revision and history.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/context"
+    },
+    {
+      "$ref": "#/$defs/candidate"
+    },
+    {
+      "$ref": "#/$defs/read_request"
+    },
+    {
+      "$ref": "#/$defs/read_reply"
+    },
+    {
+      "$ref": "#/$defs/read_failure"
+    },
+    {
+      "$ref": "#/$defs/generation_result"
+    }
+  ],
+  "$defs": {
+    "fact": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "fact",
+            "rule",
+            "secret",
+            "statement",
+            "belief"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subject_id": {
+          "type": "string"
+        },
+        "known": {
+          "type": "boolean",
+          "description": "Disclosed to the reader in this branch at this revision; not cross-branch human memory or character knowledge."
+        },
+        "source_revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "known_by": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true,
+          "description": "Entities who know this fact in the story. Independent from reader disclosure."
+        },
+        "reader": {
+          "$ref": "#/$defs/reader_record"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "text",
+        "subject_id",
+        "known",
+        "source_revision",
+        "known_by"
+      ]
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "known": {
+          "type": "boolean"
+        },
+        "related_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "name",
+        "description",
+        "known",
+        "related_ids"
+      ]
+    },
+    "thread": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "known": {
+          "type": "boolean"
+        },
+        "related_fact_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "resolved_at_revision": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "default": null,
+          "description": "Go-written formal revision at which this stable thread identity was resolved. Null (or omitted in an old stored body) means still open. New candidate threads must have null; only resolve_thread_ids can cause Go to stamp the next formal revision. Resolution preserves the object/identity and existing relationships; its ID cannot be rebound to a new topic."
+        }
+      },
+      "required": [
+        "id",
+        "text",
+        "known",
+        "related_fact_ids"
+      ]
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "story_time": {
+          "type": "string"
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fact"
+          }
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entity"
+          }
+        },
+        "threads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/thread"
+          }
+        },
+        "gameplay": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/gameplay_state"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "story_time",
+        "facts",
+        "entities",
+        "threads"
+      ]
+    },
+    "preference": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dimension": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "explicit",
+            "inferred"
+          ]
+        },
+        "evidence": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dimension",
+        "value",
+        "source",
+        "evidence"
+      ]
+    },
+    "page": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "begin",
+            "act",
+            "read",
+            "ask"
+          ]
+        },
+        "input": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "revision",
+        "mode",
+        "input",
+        "text"
+      ]
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "const": 2,
+          "description": "Boundary format version. v2 adds state_coverage and read_request; a v1 consumer must reject v2 payloads rather than read an incomplete state as complete."
+        },
+        "experience_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "branch_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "begin",
+            "act",
+            "read",
+            "ask"
+          ]
+        },
+        "input": {
+          "type": "string"
+        },
+        "seed": {
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/state",
+          "description": "Generation-visible state materialized by the backend under state_coverage. This is NOT authority: the backend applies candidates with its full pinned authority state, and an object omitted here still binds later prose."
+        },
+        "preferences": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/preference"
+          }
+        },
+        "history": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/page"
+          }
+        },
+        "history_complete": {
+          "type": "boolean",
+          "description": "Whether all formal pages 1..revision are present. If false, history is a contiguous full-text latest-page suffix ending at revision. Full formal history stays stored and read-addressable. Omitted pages are not undetermined world state. This dimension is independent of state_coverage."
+        },
+        "state_coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Server-computed honesty object about the materialized generation state. It describes EXACT current-authority membership, never model confidence, never rank, never archival retirement. omitted=0 with complete=true is the only complete case. A deferred object is still current authority: not false, not undetermined, not free to recreate.",
+          "properties": {
+            "policy": {
+              "type": "string",
+              "enum": [
+                "full.v1",
+                "rules-secrets-open-recent-closure.v1"
+              ],
+              "description": "Go owns this named deterministic materialization policy. Policy+recent_from_revision are frozen for one accepted operation, not stored world truth; changing policy in a later software revision never rewrites snapshots."
+            },
+            "recent_from_revision": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Lowest revision whose newly introduced facts/entities are mandatory roots under the named policy; 0 for full.v1."
+            },
+            "total": {
+              "$ref": "#/$defs/state_counts",
+              "description": "Full pinned current-authority object counts for the audience of this context."
+            },
+            "omitted": {
+              "$ref": "#/$defs/state_counts",
+              "description": "Counts of current-authority objects whose bodies were deferred from this generation input. included + omitted = total."
+            },
+            "omitted_reader_known": {
+              "$ref": "#/$defs/state_counts"
+            },
+            "complete": {
+              "type": "boolean",
+              "description": "True iff included set equals full pinned current authority (bodies and relations). Must be false whenever any omitted count is nonzero."
+            },
+            "source_handle": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Opaque backend-issued read authority bound to authenticated account + experience + branch + base revision + operation fence. Read authority, not narrative data; never accepted from the model."
+            },
+            "audience": {
+              "type": "string",
+              "enum": [
+                "author",
+                "reader"
+              ],
+              "description": "Go chooses author for story generation and reader for ask. Reader counts/objects/handles are scoped to facts already revealed at the frozen base revision; never leaked author cardinalities."
+            }
+          },
+          "required": [
+            "policy",
+            "recent_from_revision",
+            "total",
+            "omitted",
+            "complete",
+            "source_handle",
+            "audience"
+          ]
+        },
+        "recalls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/read_reply"
+          },
+          "description": "Backend-issued raw read replies within this frozen operation, zero initially. Historical bodies retain snapshot coordinates, never merge blindly into current state. Readers/ask only receive reader-projected replies."
+        },
+        "read_budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_reads": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "max_reply_bytes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "max_total_reply_bytes": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "max_reads",
+            "max_reply_bytes",
+            "max_total_reply_bytes"
+          ],
+          "description": "Go-declared finite within-operation read budget; read_budget never authorizes extra model calls (those are separately bounded by RuntimeFacts.remaining_model_calls). 0 reads disables retrieval. Exhaustion terminates this attempt rather than silently freeing deferred authority."
+        },
+        "gameplay_action": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/gameplay_action"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "version",
+        "experience_id",
+        "branch_id",
+        "revision",
+        "mode",
+        "input",
+        "seed",
+        "state",
+        "preferences",
+        "history",
+        "history_complete",
+        "state_coverage",
+        "recalls",
+        "read_budget"
+      ]
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "passage": {
+          "type": "string",
+          "minLength": 1
+        },
+        "story_time": {
+          "type": "string"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "continues",
+            "awaits_player",
+            "ending"
+          ]
+        },
+        "suggestions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "new_facts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fact"
+          }
+        },
+        "new_entities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entity"
+          }
+        },
+        "new_threads": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/thread"
+              },
+              {
+                "properties": {
+                  "resolved_at_revision": {
+                    "type": "null"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "reveal_fact_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "resolve_thread_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "knowledge_changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "subject_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "fact_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "subject_id",
+              "fact_id"
+            ]
+          }
+        },
+        "reveal_entity_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "reveal_thread_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "gameplay_update": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/gameplay_update"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "title",
+        "passage",
+        "story_time",
+        "outcome",
+        "suggestions",
+        "new_facts",
+        "new_entities",
+        "new_threads",
+        "reveal_fact_ids",
+        "resolve_thread_ids",
+        "knowledge_changes",
+        "reveal_entity_ids",
+        "reveal_thread_ids"
+      ]
+    },
+    "state_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "facts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "entities": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "threads": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "facts",
+        "entities",
+        "threads"
+      ]
+    },
+    "read_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "fact",
+            "entity",
+            "thread"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "at_revision": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ]
+    },
+    "read_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Read-only retrieval inside the SAME accepted operation, issued by the generator when its bounded input cannot satisfy the task. Never a story page, never a revision advance, never a candidate. Backend authorizes, pins, matches literally and returns raw committed source.",
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_handle": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Must echo the handle from the generation state_coverage; a model cannot mint read authority."
+        },
+        "selector": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "const": "objects"
+                },
+                "objects": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "$ref": "#/$defs/read_target"
+                  }
+                },
+                "cursor": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "objects"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "const": "names"
+                },
+                "type": {
+                  "const": "entity",
+                  "description": "Only entities have a name in this domain schema; facts/threads use literal text selectors."
+                },
+                "names": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "at_revision": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "cursor": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "type",
+                "names"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "const": "pages"
+                },
+                "from_revision": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "to_revision": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "cursor": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "from_revision",
+                "to_revision"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "const": "enumerate"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "fact",
+                    "entity",
+                    "thread"
+                  ]
+                },
+                "fact_kind": {
+                  "type": "string",
+                  "enum": [
+                    "fact",
+                    "rule",
+                    "secret",
+                    "statement",
+                    "belief"
+                  ]
+                },
+                "terms": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "match": {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "any"
+                  ]
+                },
+                "from_source_revision": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "to_source_revision": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "cursor": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "kind",
+                "type"
+              ],
+              "allOf": [
+                {
+                  "if": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "fact_kind"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "from_source_revision"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "to_source_revision"
+                        ]
+                      }
+                    ]
+                  },
+                  "then": {
+                    "properties": {
+                      "type": {
+                        "const": "fact"
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "terms"
+                    ]
+                  },
+                  "then": {
+                    "required": [
+                      "match"
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "description": "Closed literal selectors. Names only target entity.name; facts/threads have text and use enumerate. Terms match text for facts/threads and name+description for entities, with case-sensitive Unicode literal all/any semantics (not similarity). Ambiguity enumerates every exact match in stable typed-ID order with query-computed complete/cursor; never an arbitrary best pick."
+        },
+        "max_reply_bytes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "request_id",
+        "source_handle",
+        "selector",
+        "max_reply_bytes"
+      ]
+    },
+    "read_object": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "fact",
+            "entity",
+            "thread"
+          ]
+        },
+        "as_of_revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "body": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/fact"
+            },
+            {
+              "$ref": "#/$defs/entity"
+            },
+            {
+              "$ref": "#/$defs/thread"
+            }
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "as_of_revision",
+        "body"
+      ],
+      "description": "Typed object from the exact returned snapshot. Author reads preserve raw fields and text. Reader reads FIRST apply deterministic reader projection P at that snapshot (known objects; hidden subject/known_by/related_ids/related_fact_ids filtered), THEN preserve visible text verbatim. Permission filtering of relation metadata is explicit, not a claim that all author fields are returned verbatim. type must agree with body; historical bodies never blindly replace current state; identity uses (type,id,as_of_revision), not ID alone."
+    },
+    "read_reply": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_handle": {
+          "type": "string",
+          "minLength": 1
+        },
+        "experience_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "branch_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "base_revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "audience": {
+          "type": "string",
+          "enum": [
+            "author",
+            "reader"
+          ]
+        },
+        "objects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/read_object"
+          }
+        },
+        "pages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/page"
+          }
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "next_cursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "receipt": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "query_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "body_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "query_sha256",
+            "body_sha256"
+          ],
+          "description": "Trace hash recipe: UTF-8 compact JSON tree, all object keys sorted by UTF-8 lexical order, integers exact (no float roundtrip), non-ASCII strings raw except Go-compatible escapes for < > & U+2028 U+2029 plus JSON controls. query_sha256 hashes full ReadRequest including selector cursor/budget/ID/handle. body_sha256 hashes full ReadReply WITHOUT receipt. Hashes prove byte consistency, never authorization or semantic use."
+        }
+      },
+      "required": [
+        "request_id",
+        "source_handle",
+        "experience_id",
+        "branch_id",
+        "base_revision",
+        "audience",
+        "objects",
+        "pages",
+        "complete",
+        "next_cursor",
+        "receipt"
+      ],
+      "description": "Backend-issued result of one exact read predicate at a frozen account/experience/branch/base/fence. complete describes enumeration of THIS literal predicate, NOT importance or semantic understanding. Missing results are not creative blanks. Reader counts and existence are projected. receipt hashes are trace-integrity evidence, not authorization or proof of semantic use. Source authority comes from the authenticated channel and frozen operation, not from the hashes."
+    },
+    "read_failure": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "error_code": {
+          "type": "string",
+          "enum": [
+            "recall_budget_exhausted",
+            "recall_item_capacity",
+            "recall_scope_mismatch",
+            "recall_revision_unavailable",
+            "recall_query_incomplete"
+          ]
+        }
+      },
+      "required": [
+        "request_id",
+        "error_code"
+      ],
+      "description": "Sanitized result.experience_read failure. It has no raw object/name or account data. Scope mismatch or unavailable revision terminates the generation operation, not a hidden fallback to legacy strategy. Capacity/budget failures do not authorize guessed replacement facts."
+    },
+    "generation_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/candidate"
+            },
+            {
+              "$ref": "#/$defs/read_request"
+            }
+          ]
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "description": "Model structured-output wrapper. Root remains an object for structured-output APIs; only a candidate OR a read request is allowed within result. Read replies/coverage are never model outputs. The final decision.experience wire payload remains a bare canonical Candidate."
+    },
+    "reader_field": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_.-]+$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "kind": {
+          "enum": [
+            "text",
+            "number",
+            "select",
+            "checkbox"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "maxLength": 4000
+        },
+        "options": {
+          "type": "array",
+          "maxItems": 30,
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "required": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "kind"
+      ]
+    },
+    "reader_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Evidence-only structured attachment on an immutable formal fact. All values must be established by this fact; no inferred coordinates, holdings, quantities or permissions. Does not authorize local state changes.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "location",
+            "route",
+            "metric",
+            "schedule",
+            "item",
+            "action",
+            "artifact"
+          ]
+        },
+        "entity_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "target_id": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "value": {
+          "type": "string",
+          "maxLength": 4000
+        },
+        "unit": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "status": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "bearing": {
+          "enum": [
+            "",
+            "N",
+            "NE",
+            "E",
+            "SE",
+            "S",
+            "SW",
+            "W",
+            "NW"
+          ]
+        },
+        "distance_meters": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "passage": {
+          "enum": [
+            "",
+            "open",
+            "blocked",
+            "unknown"
+          ]
+        },
+        "due_at": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "input": {
+          "type": "string",
+          "maxLength": 8000
+        },
+        "columns": {
+          "type": "array",
+          "maxItems": 12,
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "rows": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "type": "string",
+              "maxLength": 4000
+            }
+          }
+        },
+        "fields": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/reader_field"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "entity_id",
+        "label"
+      ]
+    },
+    "game_update": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "entities": {
+          "type": "array",
+          "maxItems": 12,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$",
+                "maxLength": 2000
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "meter",
+                  "item",
+                  "place",
+                  "clue",
+                  "objective",
+                  "actor"
+                ],
+                "maxLength": 2000
+              },
+              "name": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "detail": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "status": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "value": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": -1000000000000,
+                "maximum": 1000000000000
+              },
+              "max": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": -1000000000000,
+                "maximum": 1000000000000
+              },
+              "unit": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "quote": {
+                "type": "string",
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "name",
+              "detail",
+              "status",
+              "value",
+              "max",
+              "unit",
+              "quote"
+            ]
+          }
+        },
+        "surfaces": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$",
+                "maxLength": 2000
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "status",
+                  "map",
+                  "inventory",
+                  "clues",
+                  "objectives",
+                  "interaction",
+                  "timeline",
+                  "people",
+                  "comparison"
+                ],
+                "maxLength": 2000
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "entityIds": {
+                "type": "array",
+                "maxItems": 24,
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$",
+                  "maxLength": 2000
+                }
+              },
+              "links": {
+                "type": "array",
+                "maxItems": 24,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "from": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$",
+                      "maxLength": 2000
+                    },
+                    "to": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$",
+                      "maxLength": 2000
+                    },
+                    "label": {
+                      "type": "string",
+                      "maxLength": 2000
+                    }
+                  },
+                  "required": [
+                    "from",
+                    "to",
+                    "label"
+                  ]
+                }
+              },
+              "actions": {
+                "type": "array",
+                "maxItems": 6,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$",
+                      "maxLength": 2000
+                    },
+                    "label": {
+                      "type": "string",
+                      "maxLength": 2000
+                    },
+                    "input": {
+                      "type": "string",
+                      "maxLength": 2000
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "attempt",
+                        "apply"
+                      ],
+                      "maxLength": 2000
+                    },
+                    "effects": {
+                      "type": "array",
+                      "maxItems": 12,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "entityId": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$",
+                            "maxLength": 2000
+                          },
+                          "delta": {
+                            "type": "number",
+                            "minimum": -1000000000000,
+                            "maximum": 1000000000000
+                          },
+                          "status": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "entityId",
+                          "delta",
+                          "status"
+                        ]
+                      }
+                    },
+                    "destination": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "disabledReason": {
+                      "type": "string",
+                      "maxLength": 2000
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "label",
+                    "input",
+                    "mode",
+                    "effects",
+                    "destination",
+                    "disabledReason"
+                  ]
+                }
+              },
+              "quote": {
+                "type": "string",
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "title",
+              "description",
+              "entityIds",
+              "links",
+              "actions",
+              "quote"
+            ]
+          }
+        },
+        "spatial": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "sites": {
+              "type": "array",
+              "maxItems": 16,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "terrain": {
+                    "type": "string",
+                    "enum": [
+                      "landmark",
+                      "building",
+                      "room",
+                      "region",
+                      "water",
+                      "forest",
+                      "mountain"
+                    ],
+                    "maxLength": 2000
+                  },
+                  "parentId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "quote": {
+                    "type": "string",
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "id",
+                  "terrain",
+                  "parentId",
+                  "quote"
+                ]
+              }
+            },
+            "relations": {
+              "type": "array",
+              "maxItems": 24,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "from": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "to": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "kind": {
+                    "enum": [
+                      "relative",
+                      "route"
+                    ],
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "bearing": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "N",
+                      "NE",
+                      "E",
+                      "SE",
+                      "S",
+                      "SW",
+                      "W",
+                      "NW",
+                      null
+                    ]
+                  },
+                  "distanceMeters": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "exclusiveMinimum": 0,
+                    "maximum": 100000000,
+                    "minimum": -1000000000000
+                  },
+                  "passage": {
+                    "type": "string",
+                    "enum": [
+                      "open",
+                      "blocked",
+                      "unknown"
+                    ],
+                    "maxLength": 2000
+                  },
+                  "bidirectional": {
+                    "type": "boolean"
+                  },
+                  "label": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "quote": {
+                    "type": "string",
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "id",
+                  "from",
+                  "to",
+                  "kind",
+                  "bearing",
+                  "distanceMeters",
+                  "passage",
+                  "bidirectional",
+                  "label",
+                  "quote"
+                ]
+              }
+            }
+          },
+          "required": [
+            "sites",
+            "relations"
+          ]
+        },
+        "journeys": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "routes": {
+              "type": "array",
+              "maxItems": 6,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "from": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "to": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "label": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "detail": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "via": {
+                    "type": "array",
+                    "maxItems": 8,
+                    "items": {
+                      "type": "string",
+                      "maxLength": 2000
+                    }
+                  },
+                  "minutesMin": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 525600
+                  },
+                  "minutesMax": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 525600
+                  },
+                  "costs": {
+                    "type": "array",
+                    "maxItems": 4,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "entityId": {
+                          "type": "string",
+                          "maxLength": 2000
+                        },
+                        "amount": {
+                          "type": "number",
+                          "minimum": -1000000000000,
+                          "maximum": 1000000000000
+                        }
+                      },
+                      "required": [
+                        "entityId",
+                        "amount"
+                      ]
+                    }
+                  },
+                  "includesWaiting": {
+                    "type": "boolean"
+                  },
+                  "quote": {
+                    "type": "string",
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "id",
+                  "from",
+                  "to",
+                  "label",
+                  "detail",
+                  "via",
+                  "minutesMin",
+                  "minutesMax",
+                  "costs",
+                  "includesWaiting",
+                  "quote"
+                ]
+              }
+            },
+            "transit": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "routeId": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "locationId": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "completed": {
+                  "type": "boolean"
+                },
+                "elapsedMinutes": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 525600
+                },
+                "paidCosts": {
+                  "type": "array",
+                  "maxItems": 4,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "entityId": {
+                        "type": "string",
+                        "maxLength": 2000
+                      },
+                      "amount": {
+                        "type": "number",
+                        "minimum": -1000000000000,
+                        "maximum": 1000000000000
+                      }
+                    },
+                    "required": [
+                      "entityId",
+                      "amount"
+                    ]
+                  }
+                },
+                "quote": {
+                  "type": "string",
+                  "maxLength": 2000
+                }
+              },
+              "required": [
+                "routeId",
+                "locationId",
+                "completed",
+                "elapsedMinutes",
+                "paidCosts",
+                "quote"
+              ]
+            }
+          },
+          "required": [
+            "routes",
+            "transit"
+          ]
+        }
+      },
+      "required": [
+        "entities",
+        "surfaces",
+        "spatial",
+        "journeys"
+      ]
+    },
+    "game_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "entities": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$",
+                "maxLength": 2000
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "meter",
+                  "item",
+                  "place",
+                  "clue",
+                  "objective",
+                  "actor"
+                ],
+                "maxLength": 2000
+              },
+              "name": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "detail": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "status": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "value": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": -1000000000000,
+                "maximum": 1000000000000
+              },
+              "max": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": -1000000000000,
+                "maximum": 1000000000000
+              },
+              "unit": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "quote": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "sourceVersion": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "name",
+              "detail",
+              "status",
+              "value",
+              "max",
+              "unit",
+              "quote",
+              "sourceVersion"
+            ]
+          }
+        },
+        "surfaces": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$",
+                "maxLength": 2000
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "status",
+                  "map",
+                  "inventory",
+                  "clues",
+                  "objectives",
+                  "interaction",
+                  "timeline",
+                  "people",
+                  "comparison"
+                ],
+                "maxLength": 2000
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "entityIds": {
+                "type": "array",
+                "maxItems": 24,
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$",
+                  "maxLength": 2000
+                }
+              },
+              "links": {
+                "type": "array",
+                "maxItems": 24,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "from": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$",
+                      "maxLength": 2000
+                    },
+                    "to": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$",
+                      "maxLength": 2000
+                    },
+                    "label": {
+                      "type": "string",
+                      "maxLength": 2000
+                    }
+                  },
+                  "required": [
+                    "from",
+                    "to",
+                    "label"
+                  ]
+                }
+              },
+              "actions": {
+                "type": "array",
+                "maxItems": 6,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$",
+                      "maxLength": 2000
+                    },
+                    "label": {
+                      "type": "string",
+                      "maxLength": 2000
+                    },
+                    "input": {
+                      "type": "string",
+                      "maxLength": 2000
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "attempt",
+                        "apply"
+                      ],
+                      "maxLength": 2000
+                    },
+                    "effects": {
+                      "type": "array",
+                      "maxItems": 12,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "entityId": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$",
+                            "maxLength": 2000
+                          },
+                          "delta": {
+                            "type": "number",
+                            "minimum": -1000000000000,
+                            "maximum": 1000000000000
+                          },
+                          "status": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "entityId",
+                          "delta",
+                          "status"
+                        ]
+                      }
+                    },
+                    "destination": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "disabledReason": {
+                      "type": "string",
+                      "maxLength": 2000
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "label",
+                    "input",
+                    "mode",
+                    "effects",
+                    "destination",
+                    "disabledReason"
+                  ]
+                }
+              },
+              "quote": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "title",
+              "description",
+              "entityIds",
+              "links",
+              "actions",
+              "quote",
+              "version"
+            ]
+          }
+        },
+        "spatial": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "sites": {
+              "type": "array",
+              "maxItems": 200,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "terrain": {
+                    "type": "string",
+                    "enum": [
+                      "landmark",
+                      "building",
+                      "room",
+                      "region",
+                      "water",
+                      "forest",
+                      "mountain"
+                    ],
+                    "maxLength": 2000
+                  },
+                  "parentId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "quote": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "sourceVersion": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "id",
+                  "terrain",
+                  "parentId",
+                  "quote",
+                  "sourceVersion"
+                ]
+              }
+            },
+            "relations": {
+              "type": "array",
+              "maxItems": 500,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "from": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "to": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "kind": {
+                    "enum": [
+                      "relative",
+                      "route"
+                    ],
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "bearing": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "N",
+                      "NE",
+                      "E",
+                      "SE",
+                      "S",
+                      "SW",
+                      "W",
+                      "NW",
+                      null
+                    ]
+                  },
+                  "distanceMeters": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "exclusiveMinimum": 0,
+                    "maximum": 100000000,
+                    "minimum": -1000000000000
+                  },
+                  "passage": {
+                    "type": "string",
+                    "enum": [
+                      "open",
+                      "blocked",
+                      "unknown"
+                    ],
+                    "maxLength": 2000
+                  },
+                  "bidirectional": {
+                    "type": "boolean"
+                  },
+                  "label": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "quote": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "sourceVersion": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "id",
+                  "from",
+                  "to",
+                  "kind",
+                  "bearing",
+                  "distanceMeters",
+                  "passage",
+                  "bidirectional",
+                  "label",
+                  "quote",
+                  "sourceVersion"
+                ]
+              }
+            },
+            "schemaVersion": {
+              "type": "integer",
+              "const": 1
+            }
+          },
+          "required": [
+            "sites",
+            "relations",
+            "schemaVersion"
+          ]
+        },
+        "journeys": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "routes": {
+              "type": "array",
+              "maxItems": 100,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "from": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "to": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "label": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "detail": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "via": {
+                    "type": "array",
+                    "maxItems": 8,
+                    "items": {
+                      "type": "string",
+                      "maxLength": 2000
+                    }
+                  },
+                  "minutesMin": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 525600
+                  },
+                  "minutesMax": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 525600
+                  },
+                  "costs": {
+                    "type": "array",
+                    "maxItems": 4,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "entityId": {
+                          "type": "string",
+                          "maxLength": 2000
+                        },
+                        "amount": {
+                          "type": "number",
+                          "minimum": -1000000000000,
+                          "maximum": 1000000000000
+                        }
+                      },
+                      "required": [
+                        "entityId",
+                        "amount"
+                      ]
+                    }
+                  },
+                  "includesWaiting": {
+                    "type": "boolean"
+                  },
+                  "quote": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "sourceVersion": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "basis": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "clock": {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      "conditions": {
+                        "type": "string",
+                        "maxLength": 40000
+                      }
+                    },
+                    "required": [
+                      "clock",
+                      "conditions"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "from",
+                  "to",
+                  "label",
+                  "detail",
+                  "via",
+                  "minutesMin",
+                  "minutesMax",
+                  "costs",
+                  "includesWaiting",
+                  "quote",
+                  "sourceVersion",
+                  "basis"
+                ]
+              }
+            },
+            "transit": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "routeId": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "locationId": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "completed": {
+                  "type": "boolean"
+                },
+                "elapsedMinutes": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 525600
+                },
+                "paidCosts": {
+                  "type": "array",
+                  "maxItems": 4,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "entityId": {
+                        "type": "string",
+                        "maxLength": 2000
+                      },
+                      "amount": {
+                        "type": "number",
+                        "minimum": -1000000000000,
+                        "maximum": 1000000000000
+                      }
+                    },
+                    "required": [
+                      "entityId",
+                      "amount"
+                    ]
+                  }
+                },
+                "quote": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "sourceVersion": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "routeId",
+                "locationId",
+                "completed",
+                "elapsedMinutes",
+                "paidCosts",
+                "quote",
+                "sourceVersion"
+              ]
+            },
+            "schemaVersion": {
+              "type": "integer",
+              "const": 1
+            }
+          },
+          "required": [
+            "routes",
+            "transit",
+            "schemaVersion"
+          ]
+        },
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "entities",
+        "surfaces"
+      ]
+    },
+    "experience_update": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clock": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "minLength": 1
+                },
+                "elapsed": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "precision": {
+                  "type": "string",
+                  "enum": [
+                    "unknown",
+                    "approximate",
+                    "exact"
+                  ]
+                },
+                "quote": {
+                  "type": "string",
+                  "maxLength": 2000,
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "label",
+                "elapsed",
+                "precision",
+                "quote"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "objects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "person",
+                  "item",
+                  "agreement",
+                  "clue",
+                  "location",
+                  "resource",
+                  "event",
+                  "fact"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              "summary": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "status": {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              "certainty": {
+                "type": "string",
+                "enum": [
+                  "confirmed",
+                  "reported",
+                  "inferred",
+                  "unknown"
+                ]
+              },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "enum": [
+                        "owner",
+                        "custodian",
+                        "location",
+                        "occurredAt",
+                        "learnedAt",
+                        "scheduledAt",
+                        "actualAt",
+                        "deadline",
+                        "condition",
+                        "amount",
+                        "unit",
+                        "source",
+                        "relationship",
+                        "role",
+                        "age",
+                        "stage",
+                        "duration",
+                        "route",
+                        "availability",
+                        "purpose",
+                        "participants",
+                        "outcome"
+                      ]
+                    },
+                    "label": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "minLength": 1
+                    },
+                    "value": {
+                      "type": "string",
+                      "maxLength": 2000
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "label",
+                    "value"
+                  ]
+                },
+                "maxItems": 24
+              },
+              "relatedIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+                },
+                "maxItems": 20
+              },
+              "quote": {
+                "type": "string",
+                "maxLength": 2000,
+                "minLength": 1
+              },
+              "nameKnown": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "name",
+              "summary",
+              "status",
+              "certainty",
+              "fields",
+              "relatedIds",
+              "quote"
+            ]
+          },
+          "maxItems": 40
+        },
+        "stop": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "type": "string",
+                  "maxLength": 1000,
+                  "minLength": 1
+                },
+                "quote": {
+                  "type": "string",
+                  "maxLength": 2000,
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "reason",
+                "quote"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "folded": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              "summary": {
+                "type": "string",
+                "maxLength": 2000,
+                "minLength": 1
+              },
+              "quote": {
+                "type": "string",
+                "maxLength": 2000,
+                "minLength": 1
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "summary",
+              "quote"
+            ]
+          },
+          "maxItems": 12
+        }
+      },
+      "required": [
+        "clock",
+        "objects",
+        "stop",
+        "folded"
+      ]
+    },
+    "experience_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "clock": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "minLength": 1
+                },
+                "elapsed": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "precision": {
+                  "type": "string",
+                  "enum": [
+                    "unknown",
+                    "approximate",
+                    "exact"
+                  ]
+                },
+                "quote": {
+                  "type": "string",
+                  "maxLength": 2000,
+                  "minLength": 1
+                },
+                "sourceVersion": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "label",
+                "elapsed",
+                "precision",
+                "quote",
+                "sourceVersion"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "objects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "person",
+                  "item",
+                  "agreement",
+                  "clue",
+                  "location",
+                  "resource",
+                  "event",
+                  "fact"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              "summary": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "status": {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              "certainty": {
+                "type": "string",
+                "enum": [
+                  "confirmed",
+                  "reported",
+                  "inferred",
+                  "unknown"
+                ]
+              },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "enum": [
+                        "owner",
+                        "custodian",
+                        "location",
+                        "occurredAt",
+                        "learnedAt",
+                        "scheduledAt",
+                        "actualAt",
+                        "deadline",
+                        "condition",
+                        "amount",
+                        "unit",
+                        "source",
+                        "relationship",
+                        "role",
+                        "age",
+                        "stage",
+                        "duration",
+                        "route",
+                        "availability",
+                        "purpose",
+                        "participants",
+                        "outcome"
+                      ]
+                    },
+                    "label": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "minLength": 1
+                    },
+                    "value": {
+                      "type": "string",
+                      "maxLength": 2000
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "label",
+                    "value"
+                  ]
+                },
+                "maxItems": 24
+              },
+              "relatedIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+                },
+                "maxItems": 20
+              },
+              "quote": {
+                "type": "string",
+                "maxLength": 2000,
+                "minLength": 1
+              },
+              "nameKnown": {
+                "type": "boolean"
+              },
+              "sourceVersion": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "name",
+              "summary",
+              "status",
+              "certainty",
+              "fields",
+              "relatedIds",
+              "quote",
+              "sourceVersion"
+            ]
+          },
+          "maxItems": 2000
+        },
+        "stop": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "reason": {
+                  "type": "string",
+                  "maxLength": 1000,
+                  "minLength": 1
+                },
+                "quote": {
+                  "type": "string",
+                  "maxLength": 2000,
+                  "minLength": 1
+                },
+                "sourceVersion": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "reason",
+                "quote",
+                "sourceVersion"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "folded": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              "summary": {
+                "type": "string",
+                "maxLength": 2000,
+                "minLength": 1
+              },
+              "quote": {
+                "type": "string",
+                "maxLength": 2000,
+                "minLength": 1
+              },
+              "sourceVersion": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "summary",
+              "quote",
+              "sourceVersion"
+            ]
+          },
+          "maxItems": 12
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "clock",
+        "objects",
+        "stop",
+        "folded"
+      ]
+    },
+    "gameplay_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "game": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/game_snapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "location": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "inventory": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "maxItems": 2000
+        },
+        "experience": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/experience_snapshot"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "game",
+        "location",
+        "inventory",
+        "experience"
+      ]
+    },
+    "gameplay_update": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "game": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/game_update"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "experience": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/experience_update"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "location",
+                  "item-add",
+                  "item-remove"
+                ]
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 2000,
+                "minLength": 1
+              },
+              "entityId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "quote": {
+                "type": "string",
+                "maxLength": 2000,
+                "minLength": 1
+              }
+            },
+            "required": [
+              "type",
+              "value",
+              "entityId",
+              "quote"
+            ]
+          },
+          "maxItems": 64
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "game",
+        "experience",
+        "events"
+      ]
+    },
+    "gameplay_action": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "dynamic",
+            "game",
+            "journey"
+          ]
+        },
+        "action_id": {
+          "type": "string",
+          "maxLength": 200,
+          "minLength": 1
+        },
+        "result": {
+          "type": "string",
+          "maxLength": 4000
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "entity_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "delta",
+                  "status"
+                ]
+              },
+              "before": {
+                "type": [
+                  "number",
+                  "string",
+                  "null"
+                ],
+                "minimum": -1000000000000,
+                "maximum": 1000000000000,
+                "maxLength": 2000
+              },
+              "after": {
+                "type": [
+                  "number",
+                  "string",
+                  "null"
+                ],
+                "minimum": -1000000000000,
+                "maximum": 1000000000000,
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "entity_id",
+              "kind",
+              "before",
+              "after"
+            ]
+          },
+          "maxItems": 32
+        },
+        "destination": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 2000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "journey": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "from": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "to": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "label": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "detail": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "via": {
+                  "type": "array",
+                  "maxItems": 8,
+                  "items": {
+                    "type": "string",
+                    "maxLength": 2000
+                  }
+                },
+                "minutesMin": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 525600
+                },
+                "minutesMax": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 525600
+                },
+                "costs": {
+                  "type": "array",
+                  "maxItems": 4,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "entityId": {
+                        "type": "string",
+                        "maxLength": 2000
+                      },
+                      "amount": {
+                        "type": "number",
+                        "minimum": -1000000000000,
+                        "maximum": 1000000000000
+                      }
+                    },
+                    "required": [
+                      "entityId",
+                      "amount"
+                    ]
+                  }
+                },
+                "includesWaiting": {
+                  "type": "boolean"
+                },
+                "quote": {
+                  "type": "string",
+                  "maxLength": 2000
+                },
+                "sourceVersion": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "basis": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "clock": {
+                      "type": "string",
+                      "maxLength": 200
+                    },
+                    "conditions": {
+                      "type": "string",
+                      "maxLength": 40000
+                    }
+                  },
+                  "required": [
+                    "clock",
+                    "conditions"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "from",
+                "to",
+                "label",
+                "detail",
+                "via",
+                "minutesMin",
+                "minutesMax",
+                "costs",
+                "includesWaiting",
+                "quote",
+                "sourceVersion",
+                "basis"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "base_revision": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "kind",
+        "action_id",
+        "result",
+        "changes",
+        "destination",
+        "journey",
+        "base_revision"
+      ]
+    }
+  }
+}

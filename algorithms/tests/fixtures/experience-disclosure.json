@@ -1,0 +1,15 @@
+{
+  "title": "门铃",
+  "passage": "门铃终于响了。穿灰外套的人擦去肩头的雨，伸手指向柜台上的旧书。\n\n“周五了，我来取书。”他笑着说。店主把书递过去，介绍说这是替邻里修书的人。",
+  "story_time": "雨夜，修书人进店时",
+  "outcome": "continues",
+  "suggestions": [],
+  "new_facts": [],
+  "new_entities": [],
+  "new_threads": [],
+  "reveal_fact_ids": ["fixed_secret"],
+  "reveal_entity_ids": ["npc_restorer"],
+  "reveal_thread_ids": ["thread_old_book"],
+  "resolve_thread_ids": [],
+  "knowledge_changes": []
+}

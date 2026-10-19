@@ -1,0 +1,62 @@
+name: elselife_frontend
+description: ElseLife 本地工作区产品源码（开发版）。
+publish_to: none
+version: 1.0.0+1
+environment:
+  sdk: ^3.12.2
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  http: ^1.2.2
+  web: ^1.1.1
+  cupertino_icons: ^1.0.8
+  sembast: ^3.8.9+1
+  sembast_web: ^2.4.5+1
+  path_provider: ^2.1.6
+  path: ^1.9.1
+  uuid: ^4.6.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+    - family: NotoSansSC
+      fonts:
+        - asset: assets/fonts/NotoSansSC-400.ttf
+          weight: 400
+        - asset: assets/fonts/NotoSansSC-500.ttf
+          weight: 500
+        - asset: assets/fonts/NotoSansSC-600.ttf
+          weight: 600
+    - family: NotoSerifSC
+      fonts:
+        - asset: assets/fonts/NotoSerifSC-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/NotoSerifSC-500.ttf
+          weight: 500
+        - asset: assets/fonts/NotoSerifSC-600.ttf
+          weight: 600
+    - family: SpaceGrotesk
+      fonts:
+        - asset: assets/fonts/SpaceGrotesk-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/SpaceGrotesk-500.ttf
+          weight: 500
+        - asset: assets/fonts/SpaceGrotesk-600.ttf
+          weight: 600
+  assets:
+    - assets/worlds/
+    - assets/portal_scene/
+    - assets/reader_artifact/
+    - assets/fonts/Roboto_LICENSE.txt
+    - assets/fonts/NotoSansSC_LICENSE.txt
+
+    - assets/fonts/NotoSerifSC_LICENSE.txt
+    - assets/fonts/SpaceGrotesk_LICENSE.txt

@@ -1,0 +1,26 @@
+@font-face{font-family:NotoSansSC;src:url(../fonts/NotoSansSC-Regular.otf)}
+@font-face{font-family:NotoSerifSC;src:url(../fonts/NotoSerifSC-Regular.ttf)}
+:root{--sans:NotoSansSC,system-ui,sans-serif;--serif:NotoSerifSC,serif}
+html{scroll-behavior:auto}body{background:transparent;padding:0 4px}.artifact-workbench{margin:0;padding-top:0;border-top:0}.artifact-workbench-content{overflow:visible}#reader-artifact-notice{font:12px/1.7 var(--sans);color:var(--muted);margin:12px 0}.field{display:flex;flex-direction:column;gap:6px}.field input,.field select{background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:10px;min-height:44px}.reader-evidence{margin:8px 0;font-size:12px;color:var(--muted)}
+
+[data-historical-rich]{margin:22px 0 12px}[data-historical-rich] .dynamic-interaction{margin:0}.reading-history-annotation{margin:12px 0;color:var(--muted);font:12px/1.8 var(--sans)}
+
+/* Product chrome; content, graph geometry and authored artwork remain intact. */
+:root{--bg:#f7f6f3;--paper:#fffefb;--ink:#2c2934;--muted:#706977;--line:#e5e0e7;--soft:#efebf2;--signal:#69517e;--accent:#69517e;--action:#37313f;--action-hover:#51405f;--subtle:#f4f1f5;--surface-subtle:#f4f1f5;--ui-ease:cubic-bezier(.22,1,.36,1)}
+body[data-theme=dark]{--bg:#121116;--paper:#1c1b22;--ink:#efedf4;--muted:#b1aabb;--line:#37323f;--soft:#28242f;--signal:#cbb8e8;--accent:#cbb8e8;--action:#e4daed;--action-hover:#efe7f5;--subtle:#24202b;--surface-subtle:#24202b}
+button,.btn,summary,input,select,textarea{transition:background-color 160ms var(--ui-ease),border-color 160ms var(--ui-ease),box-shadow 160ms var(--ui-ease),color 160ms var(--ui-ease),transform 160ms var(--ui-ease)}
+button,.btn{border-radius:10px;cursor:pointer}
+button:disabled,.btn[aria-disabled=true]{cursor:default;transform:none;box-shadow:none;opacity:.55}
+button:focus-visible,.btn:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--signal);outline-offset:3px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--signal);box-shadow:0 0 0 3px color-mix(in srgb,var(--signal) 13%,transparent)}
+.field input,.field select{border-radius:10px}
+.artifact-workbench,.dynamic-interaction,.game-recall{border-radius:16px}
+summary{border-radius:8px;cursor:pointer}
+@media(hover:hover) and (pointer:fine){
+  button:not(:disabled):hover,.btn:not([aria-disabled=true]):hover{border-color:color-mix(in srgb,var(--signal) 45%,var(--line));box-shadow:0 4px 12px -7px color-mix(in srgb,var(--ink) 35%,transparent)}
+  button:not(:disabled):active,.btn:not([aria-disabled=true]):active{transform:translateY(1px);box-shadow:none}
+  summary:hover{background:color-mix(in srgb,var(--signal) 6%,transparent)}
+}
+::selection{background:color-mix(in srgb,var(--signal) 20%,transparent)}
+@media(prefers-reduced-motion:reduce){button,.btn,summary,input,select,textarea{transition:none!important;transform:none!important}}
+body.reduce-motion button,body.reduce-motion .btn,body.reduce-motion summary,body.reduce-motion input,body.reduce-motion select,body.reduce-motion textarea{transition:none!important;transform:none!important}

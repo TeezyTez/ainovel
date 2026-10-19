@@ -1,0 +1,3 @@
+# No local/private modules are required by this extraction.
+# go.mod + go.sum pin the retained public dependency graph.
+# No replace directives, .modsrc, content submodule, or external go.work required.

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ElseLife 人生复本：探索世界，创造角色，在故事中经历另一种人生。">
+  <meta name="theme-color" content="#f7f6f3">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>elselife · 人生复本</title>
+  <style>
+    html,body{margin:0;background:#f7f6f3;color:#2c2934}
+    #opening{position:fixed;inset:0;display:grid;place-content:center;justify-items:center;gap:22px;pointer-events:none;font:14px/1.6 system-ui,sans-serif}
+    #opening img{width:44px;height:44px}
+    #opening strong{font-size:27px;font-weight:500;letter-spacing:-1px}
+    #opening small{font-size:12px;color:#706977;letter-spacing:3px}
+    .loading-track{height:2px;width:96px;border-radius:2px;overflow:hidden;background:#e5e0e7}
+    .loading-track:after{content:'';display:block;width:44%;height:100%;background:#69517e;animation:arrive 1.4s ease-in-out infinite}
+    @keyframes arrive{0%{transform:translateX(-110%)}100%{transform:translateX(330%)}}
+    @media(prefers-color-scheme:dark){html,body{background:#121116;color:#efedf4}#opening small{color:#b1aabb}.loading-track{background:#37323f}.loading-track:after{background:#cbb8e8}}
+    @media(prefers-reduced-motion:reduce){.loading-track:after{animation:none;width:100%}}
+  </style>
+</head>
+<body>
+  <div id="opening" role="status" aria-label="正在打开 ElseLife">
+    <img src="favicon.svg" alt=""><strong>elselife</strong><small>世界之外，另有人生。</small>
+    <div class="loading-track" aria-hidden="true"></div>
+  </div>
+  <script>window.addEventListener('flutter-first-frame',()=>document.getElementById('opening')?.remove(),{once:true});</script>
+  <script src="flutter_bootstrap.js?channel=local-release" async></script>
+</body>
+</html>

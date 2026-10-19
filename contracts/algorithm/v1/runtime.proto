@@ -1,0 +1,973 @@
+// 文件职责：后端 ↔ 算法端唯一双向运行时通道的机器可读合同。
+// 主要依赖：proto3；Go 侧由 backend Ticket 2 生成，Rust 侧由 algorithms 仓生成。
+// 调用边界：生产必须 mTLS；本机 plaintext 必须显式配置，不得默认开启。
+// 状态边界：算法端拥有 AI 执行（prompt、schema、何时 reverse Generate、选哪个 catalog 模型）；不拥有权威 ID、状态机、业务终态或长期 Credential。
+// 安全边界：Envelope.payload 不携带长期 Credential；错误原因不得回显 Provider 原文。
+
+syntax = "proto3";
+
+package telos.algorithm.v1;
+
+// 后端消费路径：Go 生成代码落在 backend/internal/contract/generated/algorithm/v1。
+option go_package = "telos/backend/internal/contract/generated/algorithm/v1;algorithmv1";
+
+// RuntimeChannel 是后端与算法端之间唯一的双向流通道。
+service RuntimeChannel {
+  rpc Connect(stream Envelope) returns (stream Envelope);
+}
+
+// Envelope 是通道传输帧。业务追踪轴始终是 (conversation_id, turn_id, event_seq)；
+// frame_id 仅用于投递幂等/关联，不替代业务 Event 坐标。
+message Envelope {
+  string protocol_version = 1;      // 当前固定 "v0.2"，不兼容时拒绝并审计。
+  string frame_id = 2;              // 投递幂等/关联 ID，非业务 ID。
+  string correlation_frame_id = 3;  // 关联的请求 frame_id；decision/event 必填。
+  string conversation_id = 4;       // 后端权威对话 ID（只读上下文）。
+  int64 turn_id = 5;                // 后端权威 Turn 序号（只读上下文）。
+  int64 event_seq = 6;              // 后端权威 Event 序号（只读上下文）。
+  string type = 7;                  // request.route / decision.route / ...（见下映射）。
+  string content_type = 8;          // payload 的消息类型全限定名，如 telos.algorithm.v1.RouteDecision。
+  bytes payload = 9;                // 按 type 序列化的消息。
+  int64 sent_at = 10;               // Unix 毫秒时间戳。
+  RuntimeFacts facts = 11;          // 本帧产品事实。禁止密钥、端点、长期 Credential。
+}
+
+// type 与 payload 消息的固定映射：
+//   request.route       -> RouteRequest
+//   decision.route      -> RouteDecision
+//   request.goal        -> GoalRequest
+//   decision.goal       -> GoalDecision
+//   request.taskgraph   -> TaskGraphRequest
+//   decision.taskgraph  -> TaskGraphDecision
+//   request.verify      -> VerifyRequest
+//   decision.verification -> VerificationDecision
+//   request.direct      -> RouteRequest（与 route 同载荷；kind 由算法判定）
+//   decision.direct     -> DirectDecision
+//   request.model       -> ModelCallRequest（算法→后端 reverse Generate）
+//   result.model        -> ModelCallResult
+//   request.context_read -> ContextReadRequest（算法→后端。账号只从本帧 conversation_id 解析）
+//   result.context_read -> ContextReadResult
+//   event.execution     -> ExecutionEvent
+//   result.frame        -> FrameFailure（单个请求帧的失败。不走流状态，所以不连累同一条流上的其它会话）
+// RouteRequest.history / GoalRequest.history / TaskGraphRequest.history 是同一有界窗口，不是新的 Envelope type。
+// DIRECT 正文在本协议：request.direct → decision.direct（DirectDecision.text）。
+// 算法经 reverse request.model 生成；worker 只把 text 写入 conversation_items。无 DirectResponse。
+// 未知 type、错误方向、超长 payload、未授权 Conversation 或版本不兼容必须拒绝并审计。
+// proposal.progress / receipt.commit / control.directive / control.observe 的字段号已在文末冻结。
+// 它们不在 v0.2 放行表里。本版收到或发出这些 type，都按未知 type 拒绝。
+
+// ---- 路由（backend → algorithm 请求，algorithm → backend 决策） ----
+
+// ConversationRole 是有界历史条目的说话人角色。
+// 合法值只有 USER 与 ASSISTANT。UNSPECIFIED 非法，消费者必须拒绝并审计。
+// 本契约不承载 SYSTEM / TOOL / 其它角色；出现即视为合同违约。
+enum ConversationRole {
+  CONVERSATION_ROLE_UNSPECIFIED = 0;
+  CONVERSATION_ROLE_USER = 1;
+  CONVERSATION_ROLE_ASSISTANT = 2;
+}
+
+// ConversationMessage 是有界历史中的一条已完成消息。
+// source_turn_id 是该消息所属的后端权威 Turn，必须 > 0，且必须严格小于当前 RouteRequest.turn_id。
+// role 必须是 USER 或 ASSISTANT。
+// content 是该条消息的 UTF-8 正文；不得携带长期 Credential 或 Provider 原文密钥。
+message ConversationMessage {
+  int64 source_turn_id = 1;
+  ConversationRole role = 2;
+  string content = 3;
+}
+
+// ConversationHistory 是同一 Conversation 内、当前 Turn 之前的有界已完成消息窗口。
+//
+// 兼容：本消息与 RouteRequest.history 均为新增可选字段（proto3 缺省 = 未设置）。
+// 未设置或空窗口均合法，表示本请求不携带历史；旧消费者忽略未知字段即可继续解析。
+// protocol_version / Envelope.type 映射不因本扩展而变更；request.route 仍只映射 RouteRequest。
+//
+// 当前输入只允许出现在 RouteRequest.input_ref，history 不得再放入当前 Turn 的用户输入，
+// 也不得出现 source_turn_id == RouteRequest.turn_id 的条目。
+//
+// 校验（发送方必须满足，接收方 fail-closed）：
+//   - context_format_version 当前合法值只有 1；未知版本必须拒绝并审计。
+//   - messages 按 (source_turn_id ASC, 同一 Turn 内 USER 先于 ASSISTANT) 排序。
+//   - 同一 source_turn_id 至多一条 USER 与一条 ASSISTANT。
+//   - included_turn_count 必须等于 messages 中不同 source_turn_id 的数量。
+//   - included_utf8_byte_count 必须等于所有 messages[].content 的 UTF-8 字节总和（不是 protobuf 序列化大小）。
+//   - max_turn_limit / max_utf8_byte_limit 是发送方声明的窗口上限；0 表示未声明该项上限。
+//   - 对应上限 > 0 时，included_* 不得超过该上限。
+//   - 因上限丢弃更早消息时 truncated 必须为 true；完整先验窗口（含空）为 false。
+//   - truncated=true 时窗口仍必须满足上述计数与上限；不得用截断当借口发送非法角色或当前 Turn。
+message ConversationHistory {
+  int32 context_format_version = 1;
+  bool truncated = 2;
+  int32 included_turn_count = 3;
+  int32 included_utf8_byte_count = 4;
+  int32 max_turn_limit = 5;
+  int32 max_utf8_byte_limit = 6;
+  repeated ConversationMessage messages = 7;
+}
+
+message RouteRequest {
+  string conversation_id = 1;  // 只读上下文。
+  int64 turn_id = 2;           // 只读上下文。
+  string input_ref = 3;        // 当前 Turn 输入：Blob/对象引用或短文本摘要，不传大正文。不得复制进 history。
+  string client_context = 4;   // 可选客户端上下文（长度受限）。
+  ConversationHistory history = 5; // 可选有界历史；缺省兼容旧请求。字段号 1–4 冻结，不得改号。
+  string inference_json = 6 [deprecated = true]; // Internal compiler input only; v0.2 network ingress MUST be empty.
+  TurnControl turn = 7; // 只用于 request.direct：路由阶段已核对的本轮理解（要问的那一个问题、要关的问题）。
+  repeated IntentLedger open_intents = 8; // 本会话最近 ≤4 个未关闭 Intent（只带责任，不带认知文档），供言语行为指向。
+  repeated IntentLedger prior_ledgers = 9; // open_intents 中 version≥2 的上一版义务。没有上一版的不放。空表示没观察到改口前正文，不是「义务全部新增」。
+}
+
+enum RouteKind {
+  ROUTE_KIND_UNSPECIFIED = 0;
+  ROUTE_KIND_DIRECT = 1;
+  ROUTE_KIND_AGENTIC = 2;
+  ROUTE_KIND_COMPLEX = 3;
+}
+
+// 算法端只给路由裁决，不创建 Run/Goal。
+message RouteDecision {
+  RouteKind route = 1;
+  string reason = 2;
+  TurnControl turn = 3; // 本轮理解：核对过的言语行为、要关的问题、要不要问、带范围的假设、长期要求。
+}
+
+// ---- 目标（Goal Proposal） ----
+
+message GoalRequest {
+  string conversation_id = 1;
+  int64 turn_id = 2;
+  string objective_hint = 3;  // 用户输入摘要/引用。不得复制进 history。
+  ConversationHistory history = 4; // 与 RouteRequest.history 同一窗口、同一校验。缺省兼容旧请求。字段号 1–3 冻结。
+  string inference_json = 5 [deprecated = true]; // Internal compiler input only; forbidden on network ingress.
+  repeated IntentLedger open_intents = 6; // 本会话最近 ≤4 个未关闭 Intent 及其账本，供归属判断。空=没有。见「认知账本」。
+  TurnControl turn = 7; // 路由阶段核对过的本轮理解：带范围的假设要进账本，不再重新猜。
+}
+
+// 算法端只给出目标建议；后端生成权威 goal_id 并裁决状态。
+message GoalDecision {
+  string proposal_id = 1;               // 临时 ID，后端接受后替换为 goal_...。
+  string objective = 2;                 // 目标描述。
+  repeated string success_criteria = 3; // 可验证的成功标准。
+  repeated string constraints = 4;      // 约束。
+  int64 wait_until_unix_ms = 10; // 算法提议到期 Unix ms。0=无。Backend 写入 due_at 后按该时刻唤醒。
+  string also = 11; // 同一句里的另一件请求。空=没有。必须是用户原话里的一段，不能是模型另写的目标。
+  LedgerProposal ledger = 12; // 本 Goal 绑定的 Intent 账本提议。空=旧对端（后端按成功标准拆 Intent）。
+}
+
+// ---- TaskGraph（DAG Proposal） ----
+
+message TaskGraphRequest {
+  string conversation_id = 1;
+  int64 turn_id = 2;
+  string goal_id = 3;                   // 后端权威 Goal ID（只读上下文，供规划引用）。
+  string objective = 4;
+  repeated string success_criteria = 5;
+  repeated string constraints = 6;
+  ConversationHistory history = 7; // 与 RouteRequest.history 同一窗口。缺省兼容旧请求。字段号 1–6 冻结。
+  string inference_json = 8 [deprecated = true]; // Internal compiler input only; forbidden on network ingress.
+  string execution_context_json = 9; // Backend-owned execution snapshot for recovery planning.
+  IntentLedger ledger = 10; // Goal 绑定 Intent 的只读账本视图。REPLAN 时是本次验证提议后的责任。
+}
+
+enum RetryClass {
+  RETRY_CLASS_UNSPECIFIED = 0;
+  RETRY_CLASS_TRANSIENT = 1;      // 无副作用瞬时失败，可重试。
+  RETRY_CLASS_DETERMINISTIC = 2;  // 确定性输入错误，不重试。
+  RETRY_CLASS_UNCERTAIN = 3;      // 不确定且不可证明幂等，进入 WAITING/审批。
+}
+
+message RetryPolicy {
+  int32 max_attempts = 1;  // 默认 3，必须 >=1。
+  RetryClass retry_class = 2;
+}
+
+message TaskNode {
+  string node_id = 1;        // 临时节点 ID，后端接受后替换为 tsk_...。
+  string capability = 2;     // 当前可执行白名单：search.web / web.fetch / browser.navigate / browser.extract / code.execute / file.read / file.write。
+  // web.fetch：服务端只读抓取一个公网 HTTP/HTTPS 页面的正文，params 必须且只能有 url（绝对 http/https，不得带用户信息）。
+  // 由后端既有受限 fetch 执行：每次连接和重定向都做 SSRF 校验，响应体、重定向次数、超时沿用其既有上限；
+  // 仅依赖 JS 渲染或非文本内容明确失败，不回退浏览器、不伪造正文。不改 browser.navigate/browser.extract 的语义。
+  // 只有成功读取、并由后端私有 source receipt 登记的页面正文（observed、projection known 的 web 根）才能支持网页内容；
+  // search.web 结果只用于导航（找到哪些页面、下一步读哪个 url），其 projection 恒为 unknown，不能证明页面内容。
+  string instruction = 3;    // 该节点的指令摘要。
+  string input_ref = 4;      // 对象引用，不内联大正文。
+  map<string, string> params = 5;
+  RetryPolicy retry_policy = 6;
+}
+
+message TaskEdge {
+  string from_node_id = 1;   // 临时 ID。
+  string to_node_id = 2;     // 临时 ID。
+}
+
+// 算法端只给出 DAG 建议；节点/边临时 ID 由后端在接受时替换为权威 ID。
+message TaskGraphDecision {
+  string proposal_id = 1;
+  int64 version = 2;             // 建议版本，后端以权威版本号覆盖。
+  repeated TaskNode nodes = 3;
+  repeated TaskEdge edges = 4;
+}
+
+// ---- 验证（Verification Proposal） ----
+
+message EvidenceRef {
+  string evidence_id = 1;  // 后端权威 Evidence ID（只读）。
+  string sha256 = 2;
+  string media_type = 3;
+}
+
+message VerifyRequest {
+  string conversation_id = 1;
+  int64 turn_id = 2;
+  string run_id = 3;       // 只读上下文。
+  string task_id = 4;      // 只读上下文。
+  repeated EvidenceRef evidence = 5;
+  string inference_json = 6 [deprecated = true]; // Internal compiler input only; forbidden on network ingress.
+  string execution_context_json = 7; // Required bounded snapshot: objective, criteria, tasks, jobs, all evidence and artifact previews.
+  VerificationRecord record = 8; // 空记录不改变 PASS。有 content_digest 时必须对上本帧证据。
+  CognitionCarriers cognition = 9; // 空着不改变 PASS。某一块有内容时，内核必须接受。
+  IntentLedger ledger = 10; // Goal 绑定 Intent 的当前账本。空=旧对端，判定不看责任。
+}
+
+enum VerificationOutcome {
+  VERIFICATION_OUTCOME_UNSPECIFIED = 0;
+  VERIFICATION_OUTCOME_PASS = 1;
+  VERIFICATION_OUTCOME_FAIL = 2;
+  VERIFICATION_OUTCOME_RETRY = 3;
+  VERIFICATION_OUTCOME_REPLAN = 4;
+}
+
+// 算法端只给验证裁决；后端据此走合法状态迁移并决定业务终态。
+message VerificationDecision {
+  VerificationOutcome outcome = 1;
+  string reason = 2;
+  string retry_task_id = 3; // Existing authoritative task ID; required for RETRY, empty otherwise.
+  LedgerProposal ledger = 4;            // 本轮验证后的账本提议。后端在接受裁决的同一事务里提交。
+  ResolutionAssessment assessment = 5;  // 交付与解决分开的本轮评估。后端据此写用户可见正文。
+  // 回答正文（可选，附加字段）。只由算法基于本帧 VerifyRequest.evidence 与 execution_context_json 里已有的有界 preview 生成；
+  // 网页等证据内容是不可信输入，正文不赋予任何授权。后端不得用 reason、工具状态或前端拼接文本冒充本字段。
+  // 两字段皆空在线上合法（兼容旧端），但空值从不证明 grounding。需要基于本次证据回答的链路收到空值时，后端必须明确报告
+  // 缺少回答能力或回答失败，不得静默只写 assessment 并宣称完成；只有既有的非回答场景才保留只写 assessment。
+  // 新算法端在本帧已有可用证据、却没产出合法正文与引用时，走既有 FrameFailure，不得用 reason 或空字段代替。
+  // 涉及网页内容的回答必须基于本帧实际读取的页面正文证据（如 web.fetch），不得只凭 search.web 的结果摘要作答。
+  // 只做过搜索的图在既有门禁下不能 PASS：照常给 REPLAN，由新图读取页面后再验证作答。搜索无结果或没读到页面时，
+  // 不得 PASS 作答，也不得为凑引用编造证据；后端按既有非回答路径明确报告。
+  // FAIL/RETRY/REPLAN 照常给出，两字段为空；不得为了附带正文把它们改成 PASS。
+  // 非空时：outcome 必须是 PASS；去掉首尾空白后不得为空；UTF-8 字节数不超过 capacity_profile_v1 的 model_output_max_bytes
+  // （与 DirectDecision.text 同一载波硬顶），超限是明确失败，不截断；answer_evidence 必须非空。
+  string answer_text = 6;
+  // answer_text 引用的证据。每项的 evidence_id、sha256、media_type 必须与本帧 VerifyRequest.evidence 中的某一项逐字相同
+  // （即本次 run 的后端权威证据），同一 evidence_id 不得重复，条数不超过 capacity_profile_v1 的 evidence_items（legacy 与 bounded 同值）。
+  // answer_text 为空时本字段必须为空。任一条不满足：整份裁决按非法决策拒收，不得丢掉坏引用后照写正文。
+  repeated EvidenceRef answer_evidence = 7;
+}
+
+// FrameFailure 是算法对单个请求帧的失败答复，type = result.frame。
+// 它替代「把这一帧的失败变成整条流的 gRPC 状态」：一条流承载多个会话，流状态会让无关会话一起断线重连。
+// code 是 FrameFailureCode，不是自由字符串。reason 是同码的短说明。两者都不得回显 Provider 原文、密钥或提示词。
+// 可重试：DEADLINE、CAPACITY、UNAVAILABLE、INTERNAL、CANCELLED。
+// 终态：INVALID_CONTEXT、PRECONDITION、UNSUPPORTED_TYPE、TOO_LARGE、GRAPH_NONE。
+// UNSPECIFIED 不是合法答复。
+enum FrameFailureCode {
+  FRAME_FAILURE_CODE_UNSPECIFIED = 0;
+  FRAME_FAILURE_CODE_DEADLINE = 1;
+  FRAME_FAILURE_CODE_CAPACITY = 2;
+  FRAME_FAILURE_CODE_UNAVAILABLE = 3;
+  FRAME_FAILURE_CODE_INTERNAL = 4;
+  FRAME_FAILURE_CODE_CANCELLED = 5;
+  FRAME_FAILURE_CODE_INVALID_CONTEXT = 6;
+  FRAME_FAILURE_CODE_PRECONDITION = 7;
+  FRAME_FAILURE_CODE_UNSUPPORTED_TYPE = 8;
+  FRAME_FAILURE_CODE_TOO_LARGE = 9;
+  FRAME_FAILURE_CODE_GRAPH_NONE = 10;
+}
+
+message FrameFailure {
+  FrameFailureCode code = 1;
+  string reason = 2;
+}
+
+// v0.2 reverse Model.Generate carrier, on the SAME Connect stream.
+// No provider/configuration/credential fields; backend executes exact messages/schema.
+
+// MemoryFact 是本帧算法可读的已活跃用户记忆（产品事实）。id 由 backend 签发 mem_。
+message MemoryFact {
+  string id = 1;
+  string kind = 2;     // preference|constraint|project|person|procedure|claim|habit|role|decision_pattern|risk_preference|interaction_preference
+  string body = 3;
+  int32 salience = 4;  // 0-100
+  string scope = 5; // project|account, authorized by backend.
+  string project_id = 6;
+  int64 version = 7;
+  string source_conversation_id = 8;
+  int64 source_turn_id = 9;
+}
+
+// MemoryProposal 是算法对本轮的记忆提议。backend 只落 candidate，永不自动 promoted。
+message MemoryProposal {
+  string kind = 1;
+  string body = 2;
+  string source = 3; // user_assert|algorithm_extract|tool_result
+}
+// Intent 是尚未真正解决的一件事。不是 Goal，不是 RouteKind，不是 Event。
+// Writer=backend 账本。算法只读 RuntimeFacts.intent_id，不得签发 int_。
+// Goal.done 不得写 Intent.resolved。空 status 非法。
+message Intent {
+  string id = 1;                 // int_
+  string account_id = 2;
+  string conversation_id = 3;    // 可空字符串：Intent 可跨会话
+  string parent_intent_id = 4;
+  string status = 5;             // open|waiting_event|waiting_user|waiting_time|blocked|resolved|abandoned
+  string problem_statement = 6;  // 可修订
+  string reframe_reason = 7;     // 空=未提议改方向。改价值目标须同意面，算法不能偷偷换目的。
+}
+
+// ---- 本轮理解（INT-01 言语行为 / INT-08 澄清价值 / INT-10 停止撤回 / INT-11 长期工作方式） ----
+//
+// 模型提出，算法核对，后端照目标落库。改变状态的言语行为（确认完成、撤回、长期要求）必须带本轮用户原话里
+// 连续出现的一段（≥2 字）；疑问句不能确认任何事；引号里的材料是引用，不是用户的行为。
+// 只在「误读代价高或不可逆、会改变重要动作、又没有可逆的低成本试探」时问用户，用一句自然语言问，不出选项按钮。
+
+message SpeechAct {
+  string act = 1;    // request|question|confirm_done|withdraw|revise|correction|preference|quote|chat
+  string mood = 2;   // declarative|interrogative|imperative
+  string quote = 3;  // 本轮用户原话里的一段；chat 可空
+  string target = 4; // confirm_done/withdraw/revise：本帧给出的 Intent id；preference：project|account
+}
+
+message ClarifyPlan {
+  string ambiguity_id = 1;
+  repeated string readings = 2; // 要区分的解读，至少两个
+  string reason = 3;            // irreversible|costly
+}
+
+message TurnControl {
+  repeated SpeechAct acts = 1;             // 核对通过的言语行为
+  repeated string resolve_intents = 2;     // 用户确认已经完成的问题
+  repeated string abandon_intents = 3;     // 用户撤回的问题；撤回后不再自治推进
+  ClarifyPlan clarify = 4;                 // 本轮只问这一个问题；空=不问
+  repeated string assumptions = 5;         // 不问而带范围继续的假设，进账本
+  repeated SpeechAct preferences = 6;      // 用户原话里的长期要求（作用域写在 target）
+  repeated string refused = 7;             // 被拒的提议及原因，留痕不执行
+}
+
+// ---- 认知账本（一个 Intent 一本账；跨仓说明见 sundries docs/认知账本.md） ----
+//
+// 账本 = 责任（obligations，后端按结构校验并持久）+ 算法自有的认知文档（cognition_json，后端只核对
+// 大小与 JSON 合法，不解释）。后端是唯一持久写者：intent_ledgers 按 version CAS，同一
+// (intent_id, frame_id) 只提交一次。算法只提议：GoalDecision.ledger / VerificationDecision.ledger。
+// 结构不变量（后端拒绝，算法预先自检）：
+//   - 基版本里的每个责任 id 都在新提议里；text/origin/anchor 登记后不可改，要改就 REPLACED。
+//   - EXPLICIT 的 anchor_quote 是 anchor_turn_id 那条用户消息正文的子串。
+//   - WITHDRAWN/REPLACED 只在 goal 阶段合法：status_turn_id=本轮，status_quote 是本轮用户正文子串。
+//   - SATISFIED 的 evidence_ids 非空且都属于本账号。WITHDRAWN/REPLACED 是终态；DEFERRED 必须写 status_reason。
+//   - Legacy 每本账 ≤64 项、未关闭（OPEN/DEFERRED）≤16；text ≤1000 字节；quote ≤500 字节；cognition_json ≤131072 字节。
+//     仅同 frame/subrequest、contract digest 与 budget digest 匹配的 accepted capacity proof 可启用 vNext 容量；缺失/未知保持 Legacy。
+//     容量协商不改 Ledger.version、来源资格或权限；完整载波、模型/context/frame 的硬预算仍分别核验。
+
+enum ObligationOrigin {
+  OBLIGATION_ORIGIN_UNSPECIFIED = 0;
+  OBLIGATION_ORIGIN_EXPLICIT = 1; // 有用户原话锚点。
+  OBLIGATION_ORIGIN_INFERRED = 2; // 算法推断的责任；没有原话锚点，不能冒充用户说过。
+}
+
+enum ObligationStatus {
+  OBLIGATION_STATUS_UNSPECIFIED = 0;
+  OBLIGATION_STATUS_OPEN = 1;
+  OBLIGATION_STATUS_SATISFIED = 2; // 必须带 evidence_ids。可以重开回 OPEN（写 status_reason）。
+  OBLIGATION_STATUS_WITHDRAWN = 3; // 用户撤回。终态。
+  OBLIGATION_STATUS_REPLACED = 4;  // 用户改口，replaced_by 指向替代责任。终态。
+  OBLIGATION_STATUS_DEFERRED = 5;  // 延后不是取消，status_reason 必填。
+}
+
+message Obligation {
+  string id = 1;                    // ^ob[1-9][0-9]{0,2}$。账本内局部编号，不是业务 ID。
+  string text = 2;                  // 可检验的责任陈述。
+  ObligationOrigin origin = 3;
+  int64 anchor_turn_id = 4;         // EXPLICIT 必填。
+  string anchor_quote = 5;          // EXPLICIT 必填。
+  ObligationStatus status = 6;
+  repeated string evidence_ids = 7; // SATISFIED 必填。
+  int64 status_turn_id = 8;         // WITHDRAWN/REPLACED 必填。
+  string status_quote = 9;          // WITHDRAWN/REPLACED 必填。
+  string status_reason = 10;        // DEFERRED 与重开必填；其它状态可选短说明。
+  repeated string replaced_by = 11; // REPLACED 必填：本账本里的其它责任 id。
+  uint32 revision = 12;             // 引入它的契约修订号，≥1。
+}
+
+// IntentLedger 是请求侧（后端→算法）的账本视图。version=0 表示该 Intent 还没有账本。
+message IntentLedger {
+  string intent_id = 1;
+  uint64 version = 2;
+  string status = 3;            // account_intents.status，只读。
+  string problem_statement = 4; // account_intents.problem_statement，只读。
+  repeated Obligation obligations = 5;
+  string cognition_json = 6;
+  int64 updated_at_unix = 7;
+}
+
+// LedgerProposal 是决策侧（算法→后端）的账本提议。intent_id 为空只在 GoalDecision 合法：请后端为本 Goal 新开 Intent。
+// 非空时必须是本帧给出的 Intent。base_version 必须等于后端当前版本，否则整段阶段重算。
+message LedgerProposal {
+  string intent_id = 1;
+  uint64 base_version = 2;
+  repeated Obligation obligations = 3;
+  string cognition_json = 4;
+}
+
+enum DeliveryState {
+  DELIVERY_STATE_UNSPECIFIED = 0;
+  DELIVERY_STATE_NONE = 1;     // 没有可用成果。
+  DELIVERY_STATE_PARTIAL = 2;  // 有责任已满足，但没有可交付成果。
+  DELIVERY_STATE_STAGE = 3;    // 阶段交付：有可用成果，且已完成与未完成可区分。
+  DELIVERY_STATE_COMPLETE = 4; // 约定责任全部满足。
+}
+
+enum ResolutionState {
+  RESOLUTION_STATE_UNSPECIFIED = 0;
+  RESOLUTION_STATE_NOT_ASSESSED = 1;
+  RESOLUTION_STATE_UNRESOLVED = 2;
+  RESOLUTION_STATE_CONDITIONAL = 3;       // 责任满足，但有残余风险。
+  RESOLUTION_STATE_RESOLVED_IN_SCOPE = 4; // 约定范围内已解决。Intent 是否关闭仍由用户确认或显式放弃决定。
+}
+
+enum VerdictKind {
+  VERDICT_KIND_UNSPECIFIED = 0;
+  VERDICT_KIND_SATISFIED = 1;
+  VERDICT_KIND_NOT_SATISFIED = 2;
+  VERDICT_KIND_UNDETERMINED = 3;
+}
+
+message ObligationVerdict {
+  string obligation_id = 1;
+  VerdictKind verdict = 2;
+  repeated string evidence_ids = 3;
+  string reason = 4;
+  bool reused = 5; // 沿用此前仍有效的检验记录，本帧没有重新判断。
+}
+
+// ResolutionAssessment 是本轮的解决评估提议，不是事实。≤8 条残余风险、≤4 条后续提议，每条 ≤500 字节。
+// follow_ups 是需要用户授权的后续观察提议，不是已授权义务。
+message ResolutionAssessment {
+  DeliveryState delivery = 1;
+  ResolutionState resolution = 2;
+  repeated ObligationVerdict verdicts = 3;
+  repeated string residual_risks = 4;
+  repeated string follow_ups = 5;
+  repeated string assumptions = 6; // 这件事带着做下来的范围假设：交付时说出来，用户随时可以纠正。
+  // Reuse eligibility only, not a verdict, source observation or authority grant.
+  repeated DomainQualification domain_qualifications = 7;
+  // Unknown/absent feature version requires reinspection; never implies reuse.
+  uint32 domain_qualification_version = 8;
+}
+
+// Read-only eligibility and inspection targets, never an authority grant.
+// UNKNOWN_RECHECK means evidence must be rechecked; it does not satisfy an obligation.
+enum DomainQualificationState {
+  DOMAIN_QUALIFICATION_STATE_UNSPECIFIED = 0;
+  DOMAIN_QUALIFICATION_STATE_UNKNOWN_RECHECK = 1;
+}
+message DomainInspectionRef {
+  enum Kind {
+    KIND_UNSPECIFIED = 0;
+    KIND_OBLIGATION = 1;
+    KIND_TASK = 2;
+    KIND_SOURCE = 3;
+    KIND_SUPPORT_NODE = 4;
+  }
+  Kind kind = 1;
+  string id = 2;
+  string version = 3;
+  string sha256 = 4;
+}
+message DomainQualification {
+  string obligation_id = 1;
+  DomainQualificationState state = 2;
+  repeated DomainInspectionRef recheck = 3;
+  repeated DomainInspectionRef inspect = 4;
+  string reason = 5;
+}
+
+message RuntimeFacts {
+  repeated string allowed_models = 1;
+  string default_model = 2;
+  uint32 remaining_model_calls = 3; // 盖章后 0=0。未盖章才可退化。
+  repeated MemoryFact memories = 4; // 活跃记忆，有界。算法只读。
+  string intent_id = 5;             // 空=本帧无耐久问题（DIRECT）。非空=当前 Goal 挂的 int_。
+  repeated string open_intent_ids = 6; // 本会话未关闭的问题。算法只读。
+  uint32 remaining_jumps = 7;          // 本轮模块跳数。CURRENT=系统 max_walks×max_visits_per_walk；套餐 Policy 是 TARGET。盖章后 0=0。不随 reverse Generate 递减。
+  ConversationSummary summary = 8;
+  uint32 context_token_limit = 9; // Backend-confirmed model context limit; zero means unknown.
+  uint32 output_token_reserve = 10;
+  bool byte_token_bound_verified = 11; // Only true for an operator-verified byte-fallback tokenizer.
+  SessionTicket ticket = 12; // 身份票，不是 PSK。key_id 为空表示本帧不带票。
+  // Backend-owned capacity offer. Only accepted proof matching this frame/subrequest,
+  // contract digest and budget digest enables vNext capacity; absent/unknown stays Legacy.
+  // Neither an offer nor accepted capacity proof grants permissions or source/reuse eligibility.
+  string capacity_profile_json = 13;
+  // Backend typed source modules plus control deadline/scoped metadata. Labels are
+  // provenance, never authority; empty is unobserved. Control-only metadata remains
+  // control (the root is not discarded), never fabricates an observed source module.
+  string source_context_json = 14;
+  // Reuse-qualification feature version, independent of capacity/source/op authority.
+  uint32 domain_qualification_version = 15;
+  // Backend-owned discovery candidates only; the private Reader grants actual access.
+  ContextResourceOffer context_resources = 16;
+}
+// VerificationRecord 只说明这份记录仍支持它声明覆盖的判断。不是万事无误证书。
+message VerificationRecord {
+  string target_ref = 1;
+  string content_digest = 2;
+  string environment_revision = 3;
+  string method_id = 4;
+  string method_version = 5;
+  repeated string checked_claims = 6;
+  repeated string failure_modes_covered = 7;
+  repeated string source_dependencies = 8;
+  int64 completed_at_unix = 9;
+  int64 fresh_until_unix = 10;
+  string validity_status = 11; // valid|stale|conflict。空表示发送方没有声明。
+}
+// CognitionCarriers 把依据、复用、补丁、探索和恢复放进验证帧。空消息不改变 PASS。
+message CognitionCarriers {
+  SupportFrame support = 1;
+  ReuseFrame reuse = 2;
+  PatchFrame patch = 3;
+  ExploreFrame explore = 4;
+  ResumeFrame resume = 5;
+}
+message SupportObservation {
+  string id = 1;
+  string source = 2; // 同一来源必须共用这个身份。空来源不是依据。
+}
+message SupportEdge {
+  string id = 1;
+  repeated string premises = 2;
+  string conclusion = 3;
+  string hypothesis = 4;
+}
+message SupportFrame {
+  string claim = 1;
+  repeated SupportObservation observations = 2;
+  repeated SupportEdge edges = 3;
+  repeated string falsified_hypotheses = 4;
+  repeated string invalidated = 5;
+}
+message ReusePair {
+  string key = 1;
+  string value = 2;
+}
+message ReuseSaved {
+  string target = 1;
+  string target_digest = 2;
+  repeated ReusePair dependencies = 3;
+  string environment = 4;
+  string method_id = 5;
+  string method_version = 6;
+  repeated string failure_modes = 7;
+  uint32 planned = 8; // 0 = 确定性采样。非 0 才是固定样本计划。
+  uint32 collected = 9;
+  string independence_key = 10;
+}
+message ReuseNow {
+  string target = 1;
+  string target_digest = 2;
+  repeated ReusePair dependencies = 3;
+  string environment = 4;
+  string method_id = 5;
+  string method_version = 6;
+  string failure_mode = 7;
+  bool undeclared_premise = 8;
+}
+message ReuseFrame {
+  ReuseSaved saved = 1;
+  ReuseNow now = 2;
+}
+message PatchObject {
+  string id = 1;
+  uint64 version = 2;
+  string kind = 3; // observation|claim|authority|other
+}
+message PatchRead {
+  string id = 1;
+  uint64 version = 2;
+}
+message PatchWrite {
+  string id = 1;
+  string kind = 2;
+  bool expected_version_set = 3;
+  uint64 expected_version = 4;
+  bool commutative = 5;
+}
+message PatchFrame {
+  uint64 epoch = 1;
+  uint64 version = 2;
+  repeated PatchObject objects = 3;
+  uint64 base_version = 4;
+  repeated PatchRead reads = 5;
+  repeated PatchWrite writes = 6;
+  bool claims_authority = 7;
+}
+message ExploreFrame {
+  uint64 budget_total = 1;
+  uint64 spent = 2;
+  uint32 spin_allowance = 3;
+  uint32 spins = 4;
+  string lineage = 5;
+  uint64 cost = 6;
+  int64 gain = 7;
+  bool reached_observation = 8;
+  bool claims_breakthrough = 9;
+  bool estimate_source_set = 10;
+  string estimate_source = 11;
+  repeated string seen = 12;
+  uint64 root_remaining = 13;
+}
+message ResumeEffect {
+  string id = 1;
+  string provider = 2; // known_occurred|known_absent|unreported
+  bool cancelled = 3;
+}
+message ResumeLate {
+  string observation = 1;
+  bool lease_expired = 2;
+}
+message ResumeFrame {
+  repeated string models = 1;
+  repeated ResumeEffect effects = 2;
+  repeated ResumeLate late = 3;
+}
+// SessionTicket 是本帧的密钥身份，不是密钥。8 字节 key_id 不能换成 PSK。
+message SessionTicket {
+  bytes key_id = 1;
+  string surface = 2; // user|admin|cs
+  int64 expires_at_unix = 3;
+  bool revoked = 4;
+}
+// Derived context is evidence, never authority. Backend validates source revisions.
+message ConversationSummary {
+  string body = 1;
+  int64 first_turn_id = 2;
+  int64 last_turn_id = 3;
+  int64 version = 4;
+  string source_digest = 5;
+}
+// request.summary / decision.summary share the durable planning checkpoint carrier.
+message SummaryRequest {
+  string conversation_id = 1;
+  int64 turn_id = 2;
+  string source_json = 3; // Backend-authorized completed turns, bounded to 128 KiB of text.
+}
+message SummaryDecision {
+  string body = 1; // JSON: user_constraints, algorithm_inferences, tool_observations; untrusted evidence.
+}
+message ModelMessage {
+  string role = 1;
+  string content = 2;
+  // Additive candidate: omitted/empty preserves the existing text-only message.
+  // Exact Reader-observed image references for the current final user message.
+  // Nonempty refs require an explicitly supported image input contract; an old
+  // peer must not silently drop them and report text-only success.
+  repeated ContextResourceRef image_refs = 3;
+}
+message ModelCallRequest {
+  repeated ModelMessage messages = 1;
+  string schema_json = 2; // Empty = free text. Non-empty = JSON schema the backend must honor.
+  uint32 max_output_bytes = 3;
+  string model = 4; // Catalog name. When facts.allowed_models is non-empty, must be a member.
+}
+message ModelCallResult {
+  string text = 1;
+  string error_code = 2; // Empty on success. Never provider text. Closed set: model_unavailable, model_failed, model_canceled, model_deadline_exceeded, model_not_allowed, empty_model_call, model_allow_list_missing, context_limit_unknown, context_budget_exceeded, credential_rejected, credential_quota, upstream_rejected, upstream_retryable.
+}
+// request.direct uses RouteRequest; decision.direct carries text, never authoritative IDs.
+message DirectDecision {
+  string text = 1;
+  repeated MemoryProposal memory_proposals = 2;
+  string problem_status = 3; // empty|resolved|abandoned。空=不改 Intent。Goal.done 不得写本字段。
+}
+
+// ---- 执行事件（backend → algorithm，仅通知进度，不赋予算法端裁决权） ----
+
+message ExecutionEvent {
+  string run_id = 1;       // 只读上下文。
+  string task_id = 2;
+  string job_id = 3;
+  string capability = 4;
+  string status = 5;       // started / succeeded / failed / expired / cancelled。
+  string error_class = 6;  // 失败时的分类，不回显 Provider 原文。
+  repeated EvidenceRef evidence = 7;
+}
+
+// 按需读取仍使用 protocol_version=v0.2。
+// 不认识这两个 type 的对端按既有规则拒绝未知 type。不要把未知 type 发给旧端并称作兼容。
+// 请求没有 account_id。后端只承认 Envelope.conversation_id 在库里的归属。
+// limit：0 用后端上限 32；大于 32 仍按 32。字节上限 16384。0 不是无限。
+// Legacy 同一父请求最多 4 次。page_cursor 必须为空；known_version 非 0 时不核验，返回 UNSUPPORTED_VERSION。
+// Legacy INTENT / PROFILE / ACTIVITY 不读取，返回 INVALID_ARGUMENT，reason=resource_not_served。不得用空 OK 假装没有记录。
+// 新字段缺省仍兼容 Legacy；未知 feature/resource 的旧端必须明确 unsupported/invalid，不能返回空 OK。
+// 新的 snapshot/chunk/reference 载波不自行启用 Reader、扩大预算或授权；A/W 仅传不透明 id，不传 raw path。
+enum ContextResource {
+  CONTEXT_RESOURCE_UNSPECIFIED = 0;
+  CONTEXT_RESOURCE_MEMORY = 1;
+  CONTEXT_RESOURCE_HISTORY = 2;
+  CONTEXT_RESOURCE_INTENT = 3;
+  CONTEXT_RESOURCE_PROFILE = 4;
+  CONTEXT_RESOURCE_ACTIVITY = 5;
+  CONTEXT_RESOURCE_ARTIFACT = 6;
+  CONTEXT_RESOURCE_WORKSPACE = 7;
+}
+message ContextResourceRef {
+  ContextResource resource = 1;
+  string id = 2; // Opaque Reader-owned ID; no raw path or model-declared authority.
+  // Empty means first actual observation; nonempty is exact sha256:<hash>.
+  string expected_source_version = 3;
+  // Additive candidate: absent preserves the original resource reference.
+  // If present, select a verified image member of the ARTIFACT ZIP identified
+  // by id; expected_source_version pins the container, not this member.
+  // This selector grants no access and is not a filesystem/URL path.
+  ZipMemberRef zip_member = 4;
+}
+message ZipMemberRef {
+  // Canonical Reader-verified relative member path within the pinned ZIP.
+  string path = 1;
+  // Lowercase 64-hex SHA-256 of uncompressed member bytes; not container SHA-256.
+  string sha256 = 2;
+}
+message ContextResourceOffer {
+  // Feature version 1; 0 is unsupported/UndefinedProof.
+  uint32 schema_version = 1;
+  // Discovery only; never body or account/project authority. A model reference
+  // cannot fake a grant: the private Reader rechecks the Backend-owned frozen scope.
+  repeated ContextResourceRef refs = 2;
+}
+enum ContextReadStatus {
+  CONTEXT_READ_STATUS_UNSPECIFIED = 0;
+  CONTEXT_READ_STATUS_OK = 1;
+  CONTEXT_READ_STATUS_NOT_FOUND = 2;
+  CONTEXT_READ_STATUS_FORBIDDEN = 3;
+  CONTEXT_READ_STATUS_PARTIAL = 4;
+  CONTEXT_READ_STATUS_READ_FAILED = 5;
+  CONTEXT_READ_STATUS_VERSION_CONFLICT = 6;
+  CONTEXT_READ_STATUS_CANCELLED = 7;
+  CONTEXT_READ_STATUS_DEADLINE_EXCEEDED = 8;
+  CONTEXT_READ_STATUS_BUDGET_EXHAUSTED = 9;
+  CONTEXT_READ_STATUS_INVALID_ARGUMENT = 10;
+  CONTEXT_READ_STATUS_UNSUPPORTED_VERSION = 11;
+}
+message ContextReadRequest {
+  ContextResource resource = 1;
+  string purpose = 2;
+  int32 limit = 3;
+  int64 deadline_unix_ms = 4;
+  int64 known_version = 5;
+  string page_cursor = 6;
+  // Candidate reference, not permission. Absence preserves the Legacy request.
+  ContextResourceRef reference = 7;
+}
+message ContextItem {
+  string id = 1;
+  string source = 2;
+  int64 version = 3;
+  string body = 4;
+  int64 as_of_unix_ms = 5;
+  // Chunk byte range in the logical UTF-8 body. All chunks retain one body hash,
+  // source/version/as_of and dependency set; offset is NOT a character index.
+  uint64 byte_offset = 6;
+  uint64 total_bytes = 7;
+  string body_sha256 = 8;
+  repeated string dependency_ids = 9;
+  // Actual source observation, not a model-declared identity or permission.
+  string source_version = 10;
+}
+message ContextReadResult {
+  ContextReadStatus status = 1;
+  repeated ContextItem items = 2;
+  int32 returned_count = 3;
+  int32 returned_bytes = 4;
+  bool truncated = 5;
+  string next_cursor = 6;
+  string reason = 7;
+  // Fixed source/time/scope read set, owned by the backend parent-read session.
+  // Partial results require a cursor in this snapshot; absent chunk proof on a
+  // partial legacy carrier is incomplete, never an empty/full success.
+  string snapshot_id = 8;
+}
+
+// ---- 提案、提交回执、可靠控制 ----
+//
+// 三组消息不是同一种消息，也不共用一个 cancelled 位。
+// ProgressProposal：算法提出的现实变化候选。不是事实，后端未提交前不得被当成当前理解。
+// CommitReceipt：后端证明某次提交已经走过合法写入。不是投递 ACK（那是 Envelope.correlation_frame_id），
+//   不是世界结局，也不是证据已经改变了某项判断。
+// ControlDirective / ControlObserve：可靠控制。不能像 ExecutionEvent 一样只作进度通知。
+//   算法只报告自己是否还在消费。外部副作用有没有取消、补偿有没有做完，只有后端能写。
+//
+// 字段号从这里冻结。v0.2 放行表不包含这四个 type，因此现在不能发送，也不能接收后照做：
+//   proposal.progress -> ProgressProposal  （算法 → 后端）
+//   receipt.commit    -> CommitReceipt     （后端 → 算法）
+//   control.directive -> ControlDirective  （后端 → 算法）
+//   control.observe   -> ControlObserve    （算法 → 后端）
+// 准入是以后的协议版本把这四个 type 写进放行表。把 protocol_version 改个名字不算准入。
+// 未准入时，这些 type 在尺寸检查之前就按未知 type 拒绝。下面的尺寸仍然是准入之后的硬上限。
+//
+// FrameFailureCode.CANCELLED 是可重试的帧失败，不推进 CancelPhase。
+// ContextReadStatus.CANCELLED 只表示这一次读取被取消，不是控制阶段。
+// MemoryProposal 仍是 v0.2 里随 DirectDecision 走的候选记忆，不是 ProgressProposal。
+//
+// 幂等正文：后端自己计算，不相信发送方附带的摘要。
+// ProgressProposal 的正文是 SHA-256：
+//   intent_id、run_id：各自 uint32 小端字节长度 + UTF-8；
+//   read_set：按 (kind, object_id, version) 排序后，逐项 kind 的枚举值 uint32 小端、version uint64 小端、object_id 长度前缀；
+//   body_format_version：uint32 小端；
+//   字段 6 到 12：按字段号顺序，各自 uint32 小端字节长度 + UTF-8。
+// 同一账号、同一 submission_id、同一正文：返回已经存在的 CommitReceipt，不再写。
+// 同一 submission_id、正文不同：拒绝，reason=IDEMPOTENCY_CONFLICT，不写。
+// 没有单独的查询帧。丢失回执时，重发同一份提案就是查询。这是本地提交的重放，不是再执行一次外部动作。
+//
+// ControlDirective 的身份是 control_id 加上 target 与 act。cancel_phase 不是身份。
+// 同一 control_id、同一 target、同一 act：phase 只允许按枚举值前进；相同或更小的 phase 是重复投递，不重置、不再执行。
+// 同一 control_id 但 target 或 act 不同：拒绝。
+// 同一个 (target.kind, target.id, act) 同时只许有一个未结束的 directive。后一次请求必须复用已有 control_id。
+// 取消未结束 = phase 还不是 COMPENSATION_COMPLETE。恢复与唤醒未结束 = 还没有被接受或拒绝。
+
+enum RevisionKind {
+  REVISION_KIND_UNSPECIFIED = 0;
+  REVISION_KIND_INTENT = 1;
+  REVISION_KIND_MEMORY = 2;
+  REVISION_KIND_PROGRESS = 3;
+}
+
+message ObjectRevision {
+  RevisionKind kind = 1;
+  string object_id = 2; // 权威 ID。空只允许表示「这条提案要创建的进度」，此时 version 必须是 0。
+  uint64 version = 3;   // 发送方读到的版本。object_id 非空时必须 > 0。
+}
+
+// 序列化后 ≤ 16384 字节。字段 6–12 各自 ≤ 4096 字节 UTF-8，合计 ≤ 12288。
+// read_set ≤ 32。submission_id 匹配 ^[A-Za-z0-9_-]{1,64}$。
+// body_format_version 当前只许 1。账号从 Envelope.conversation_id 解析，payload 里不放 account_id。
+message ProgressProposal {
+  string submission_id = 1;
+  string intent_id = 2; // 可空。算法不得签发 int_。
+  string run_id = 3;    // 可空。算法不得签发 run id。
+  repeated ObjectRevision read_set = 4;
+  uint32 body_format_version = 5;
+  string understanding = 6;
+  string confirmed_facts = 7; // 算法声称已确认的事实。不是用户确认事件。
+  string open_questions = 8;
+  string constraint_refs = 9;
+  string next_step = 10;
+  string wait_reason = 11;
+  string resume_condition = 12;
+}
+
+enum CommitDisposition {
+  COMMIT_DISPOSITION_UNSPECIFIED = 0;
+  COMMIT_DISPOSITION_COMMITTED = 1;
+  COMMIT_DISPOSITION_REJECTED = 2;
+  COMMIT_DISPOSITION_UNKNOWN = 3; // 发送方没拿到回执时的本地判断。恢复方式是重发同一提案，不是新开 submission_id。
+}
+
+enum CommitRejectReason {
+  COMMIT_REJECT_REASON_UNSPECIFIED = 0;
+  COMMIT_REJECT_REASON_VERSION_CONFLICT = 1;
+  COMMIT_REJECT_REASON_IDEMPOTENCY_CONFLICT = 2;
+  COMMIT_REJECT_REASON_CANCELLED = 3; // 提交事务开始时，目标上已有取消且 phase ≥ REQUESTED，因而没写。
+  COMMIT_REJECT_REASON_FORBIDDEN = 4;
+  COMMIT_REJECT_REASON_INVALID = 5;
+  COMMIT_REJECT_REASON_TOO_LARGE = 6;
+  COMMIT_REJECT_REASON_PARTIAL = 7; // 多项里有的已提交、有的没有。总 disposition 不得假装全部成功。
+}
+
+message CommitItem {
+  RevisionKind kind = 1;
+  string object_id = 2;
+  uint64 version = 3;
+  CommitDisposition disposition = 4;
+  CommitRejectReason reason = 5;
+}
+
+// 序列化后 ≤ 4096 字节。items ≤ 8。
+// correlation_frame_id 必须等于被回应的提案 frame_id。丢了这一帧也不撤销已经提交的记录。
+// 提交与回执落在同一个本地事务里：崩溃发生在提交前，重发会写一次；崩溃发生在提交后，重发只返回原回执。
+// 基准版本在这个事务里核对。read_set 里任一非空 object_id 的当前版本与提案 version 不相等，整单 VERSION_CONFLICT，不写。
+// 已经 COMMITTED 的进度，后来的取消不能把它删掉。若那次提交带了外部动作，取消阶段停在 SIDE_EFFECT_UNKNOWN，直到对账；补偿是新的提案，不是把旧回执改成失败。
+message CommitReceipt {
+  string submission_id = 1;
+  string authoritative_id = 2; // 没写出权威记录时为空。
+  uint64 committed_version = 3;
+  int64 saved_at_unix_ms = 4;
+  int64 committed_event_seq = 5; // 被提交事件的序号，不是本回执帧自己的 event_seq。
+  CommitDisposition disposition = 6;
+  CommitRejectReason reason = 7;
+  repeated CommitItem items = 8;
+}
+
+enum ControlTargetKind {
+  CONTROL_TARGET_KIND_UNSPECIFIED = 0;
+  CONTROL_TARGET_KIND_INTENT = 1;
+  CONTROL_TARGET_KIND_RUN = 2;
+  CONTROL_TARGET_KIND_READ = 3;     // 在途的按需读取或提案消费。id 用那一帧的 frame_id。
+  CONTROL_TARGET_KIND_PROPOSAL = 4; // id 用 submission_id。
+}
+
+message ControlTarget {
+  ControlTargetKind kind = 1;
+  string id = 2;
+  uint64 incarnation = 3; // 被控制对象的版本。0 非法。Resume 不能指向一个新的 run。
+}
+
+enum ControlAct {
+  CONTROL_ACT_UNSPECIFIED = 0;
+  CONTROL_ACT_CANCEL = 1;
+  CONTROL_ACT_RESUME = 2;
+  CONTROL_ACT_WAKE = 3;
+}
+
+// 数值顺序就是阶段前进的方向。不允许用一个 bool 代替。
+enum CancelPhase {
+  CANCEL_PHASE_UNSPECIFIED = 0;
+  CANCEL_PHASE_REQUESTED = 1;             // 已请求取消。调度可能还在跑。
+  CANCEL_PHASE_DISPATCH_STOPPED = 2;      // 本地不再继续派发。外部副作用未知。
+  CANCEL_PHASE_SIDE_EFFECT_UNKNOWN = 3;   // 知道外部动作可能已经发生，还不能宣称取消了它。
+  CANCEL_PHASE_SIDE_EFFECT_CANCELLED = 4; // 外部副作用已经取消。只有后端能写。
+  CANCEL_PHASE_COMPENSATION_COMPLETE = 5; // 补偿做完。只有后端能写。不等于副作用没发生过。
+}
+
+// 序列化后 ≤ 2048 字节。control_id 匹配 ^[A-Za-z0-9_-]{1,64}$，由后端签发。
+// act=CANCEL 时 cancel_phase 不得为 UNSPECIFIED。act 是 RESUME 或 WAKE 时，cancel_phase 必须是 UNSPECIFIED。
+// RESUME：target.kind=RUN，只接受 waiting → running。cancelled、failed、completed 都拒绝，不改状态。新的尝试是新的 run id，不是 Resume。
+// WAKE：target.kind=INTENT，只接受 waiting_user、waiting_event、waiting_time → open，并把 version 加一。
+//   不创建 Intent，不改 problem_statement。open、blocked、resolved、abandoned 都拒绝。
+// 通知只是加速。提交与执行点仍由后端检查同一阶段；算法没收到通知，也不许把已经请求取消的目标写进去。
+message ControlDirective {
+  string control_id = 1;
+  ControlTarget target = 2;
+  ControlAct act = 3;
+  CancelPhase cancel_phase = 4;
+}
+
+enum ControlObserveLocal {
+  CONTROL_OBSERVE_LOCAL_UNSPECIFIED = 0;
+  CONTROL_OBSERVE_LOCAL_STILL_IN_FLIGHT = 1;
+  CONTROL_OBSERVE_LOCAL_STOPPED_CONSUMING = 2; // 算法不再读取、不再推理。不是副作用已取消。
+}
+
+enum ControlObserveDisposition {
+  CONTROL_OBSERVE_DISPOSITION_UNSPECIFIED = 0;
+  CONTROL_OBSERVE_DISPOSITION_ACCEPTED = 1;
+  CONTROL_OBSERVE_DISPOSITION_REJECTED = 2; // 不认识这个 incarnation，或这个 act 不该由算法断言。后端不得把它当成补偿完成。
+}
+
+// 序列化后 ≤ 2048 字节。control_id 必须是被观察的 directive。
+// correlation_frame_id 必须等于该 directive 的 frame_id。
+// local 只允许从 STILL_IN_FLIGHT 进到 STOPPED_CONSUMING。反向的观察是旧投递，忽略。
+// 重复的同一 local 是空操作。算法不得观察出 SIDE_EFFECT_CANCELLED 或 COMPENSATION_COMPLETE；那两个阶段只存在于 ControlDirective。
+message ControlObserve {
+  string control_id = 1;
+  ControlTarget target = 2;
+  ControlObserveDisposition disposition = 3;
+  ControlObserveLocal local = 4;
+}

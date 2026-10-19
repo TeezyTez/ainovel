@@ -1,0 +1,10 @@
+/* Host spacing only; dynamic/game/travel components retain their source CSS. */
+.reader-advanced-dynamic,.reader-advanced-game,.reader-advanced-travel{min-width:0}
+.reader-advanced-game:has(.game-turn:empty){display:none}
+.reader-advanced-travel{margin:30px 0 0;padding-top:22px;border-top:1px solid var(--line)}
+.reader-advanced-travel>.small{margin:12px 0 0;color:var(--muted);line-height:1.7}
+.reader-advanced-inspect{margin:20px 0}
+.reader-advanced-inspect>[data-advanced-close-inspect]{margin-bottom:12px}
+.reader-advanced-notice{min-height:0;margin:10px 0;color:var(--accent);font:12px/1.7 var(--sans)}
+.reader-advanced-notice:empty{display:none}
+@media(max-width:767px){.reader-advanced-travel{margin-top:22px;padding-top:16px}}

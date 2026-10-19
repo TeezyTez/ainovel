@@ -1,0 +1,39 @@
+[package]
+name = "elselife-algorithms"
+version = "0.1.0"
+edition = "2021"
+description = "ElseLife experience narrative contracts and RuntimeChannel (product source export)"
+license = "UNLICENSED"
+publish = false
+
+[workspace]
+
+[lib]
+name = "elselife_algorithms"
+path = "src/lib.rs"
+
+[[bin]]
+name = "algorithm-runtime"
+path = "src/bin/algorithm-runtime.rs"
+
+[[bin]]
+name = "algorithm-runtime-probe"
+path = "src/bin/algorithm-runtime-probe.rs"
+
+[features]
+default = ["channel"]
+channel = ["dep:tonic", "dep:tokio", "dep:tokio-stream", "dep:tonic-build"]
+
+[dependencies]
+sha2 = "0.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tonic = { version = "0.12", optional = true, features = ["tls"] }
+prost = "0.13"
+tokio = { version = "1", optional = true, features = ["macros", "rt-multi-thread", "net", "fs", "signal", "sync", "time"] }
+tokio-stream = { version = "0.1", optional = true }
+
+[build-dependencies]
+sha2 = "0.10"
+tonic-build = { version = "0.12", optional = true }
+prost-build = "0.13"
