@@ -3,6 +3,7 @@ GO ?= go
 CARGO ?= cargo
 FLUTTER ?= flutter
 PYTHON ?= python3
+NODE ?= node
 API_BASE ?= http://127.0.0.1:18081
 
 .PHONY: test test-contract test-backend test-algorithms test-frontend build
@@ -19,6 +20,7 @@ test-algorithms:
 	cd algorithms && $(CARGO) test --locked
 
 test-frontend:
+	$(NODE) --test frontend/assets/portal_scene/*.test.mjs
 	cd frontend && $(FLUTTER) test --no-pub
 
 # First resolve dependencies with: (cd frontend && flutter pub get)

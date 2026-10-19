@@ -1,126 +1,150 @@
 import * as THREE from './three.module.js';
-import {createCollapseField} from './universe-collapse.js';
+import {worlds, sampleRoute, travelerAt} from './universe-paths.js?v=20261019-parallel';
 
-// Original parametric throat: a broad curved sheet falls into a displaced void.
-const vertex=`
- uniform float uTime; uniform vec2 uPointer; varying vec2 vUv; varying float vDepth;
- varying vec3 vViewPosition;
+// Four quiet spacetime slices, one connected journey and one possible detour.
+// Geometry is allocated at mount; frames update transforms and uniforms.
+const lineVertex = `
+ attribute float strength; varying float vStrength; varying float vAcross;
  void main(){
-  vUv=uv;float a=uv.x*6.283185;float d=uv.y;
-  float r=.20+2.65*pow(d,1.65);
-  r+=sin(a*3.+uTime*.20+d*2.)*.055*pow(d,1.5);
-  vec3 p=vec3(cos(a)*r,sin(a)*r,-1.9*pow(1.-d,1.18));
-  p.x+=.46*pow(1.-d,1.2);p.y+=.13*sin(d*3.+uTime*.13)*d;
-  p.z+=sin(a*2.+uTime*.17)*.12*d*d;
-  float attraction=exp(-length(p.xy-uPointer*2.)*1.8);
-  p.z+=attraction*.14*d;
-  vDepth=d;vec4 viewPosition=modelViewMatrix*vec4(p,1.);
-  vViewPosition=viewPosition.xyz;gl_Position=projectionMatrix*viewPosition;
+  vStrength=strength; vAcross=clamp((position.x+2.)/4.,0.,1.);
+  gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);
  }`;
-const fragment=`
- uniform float uTime;uniform float uLight;varying vec2 vUv;varying float vDepth;
- varying vec3 vViewPosition;
- float grid(float value){float w=max(fwidth(value),.005);return 1.-smoothstep(w*.12,w*.78,abs(fract(value-.5)-.5));}
- vec4 pointSeed(vec2 cell){
-  vec4 h=fract(vec4(cell.xy,cell.xy)*vec4(.1031,.1030,.0973,.1099));
-  h+=dot(h,h.wzxy+33.33);
-  return fract((h.xxyz+h.yzzw)*h.zywx);
- }
- float scatteredLight(vec2 point,float columns){
-  vec2 cell=floor(point);float glow=0.;
-  for(int row=-1;row<=1;row++)for(int column=-1;column<=1;column++){
-   vec2 neighbor=cell+vec2(float(column),float(row));
-   // Wrap only the seed so the two sides of the circular surface match.
-   vec4 seed=pointSeed(vec2(mod(neighbor.x,columns),neighbor.y));
-   vec2 delta=point-neighbor-(.12+.76*seed.xy);
-   float size=.075+.045*seed.w;
-   vec2 shape=delta/vec2(size*.8,size*1.3);
-   float breath=.80+.20*sin(uTime*(.12+seed.z*.06)+seed.w*6.283185);
-   float spot=exp(-2.*dot(shape,shape))*(1.-smoothstep(.27,.40,length(delta)));
-   glow+=spot*step(.58,seed.z)*(.68+.32*seed.w)*breath;
+const lineFragment = `
+ uniform float uLight; uniform float uOpacity;
+ varying float vStrength; varying float vAcross;
+ void main(){
+  vec3 violet=mix(vec3(.66,.60,.79),vec3(.43,.36,.56),uLight);
+  vec3 teal=mix(vec3(.49,.72,.72),vec3(.32,.53,.54),uLight);
+  gl_FragColor=vec4(mix(violet,teal,vAcross),vStrength*uOpacity);
+  #include <colorspace_fragment>
+ }`;
+
+export function createUniverseScene({canvas, stage}) {
+  let disposed = false;
+  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true, powerPreference:'low-power'});
+  renderer.setClearColor(0x000000, 0);
+  renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio || 1, 1.5));
+  const scene = new THREE.Scene(), sculpture = new THREE.Group();
+  const camera = new THREE.OrthographicCamera(-2.3, 2.3, 1.7, -1.7, .1, 30);
+  camera.position.z = 10;
+  scene.add(sculpture);
+  const geometries = [], materials = [], lineMaterials = [], portals = [];
+
+  function lines(points, strengths, opacity, segments = false) {
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(points.flat(), 3));
+    geometry.setAttribute('strength', new THREE.Float32BufferAttribute(strengths, 1));
+    const material = new THREE.ShaderMaterial({
+      uniforms:{uLight:{value:1}, uOpacity:{value:opacity}},
+      vertexShader:lineVertex, fragmentShader:lineFragment,
+      transparent:true, depthWrite:false,
+    });
+    const mesh = segments ? new THREE.LineSegments(geometry, material) : new THREE.Line(geometry, material);
+    geometries.push(geometry); materials.push(material); lineMaterials.push(material);
+    sculpture.add(mesh);
+    return mesh;
   }
-  return min(glow,1.);
- }
- void main(){
-  float d=vDepth,a=vUv.x*6.283185;
-  float spiral=vUv.x*88.+pow(1.-d,1.8)*7.+sin(a*2.+uTime*.16)*.12+uTime*.025;
-  float radial=grid(spiral);
-  // Positive time advances each fixed phase toward smaller depth: inward.
-  float rings=grid(d*36.+uTime*.40);
-  // Stable random positions drift inward; no per-frame randomness or flashing.
-  float columns=mix(12.,19.,uLight);
-  vec2 lightPoint=vec2(vUv.x*columns+pow(1.-d,1.8)*1.43,(d+uTime*.028)*mix(2.,2.4,uLight));
-  float flow=scatteredLight(lightPoint,columns)*smoothstep(mix(.09,.04,uLight),mix(.24,.18,uLight),d)*mix(.62,1.,uLight);
-  // Light grazes the curved weave; the inner turns gradually disappear in depth.
-  vec3 normal=normalize(cross(dFdx(vViewPosition),dFdy(vViewPosition)));
-  vec3 eye=normalize(-vViewPosition);
-  float grazing=pow(1.-abs(dot(normal,eye)),2.4);
-  float illumination=abs(dot(normal,normalize(vec3(-.45,.8,1.2))));
-  float depthReveal=smoothstep(.015,.29,d);
-  float lattice=max(radial*.33,rings*.74)*mix(.16,1.,depthReveal);
-  vec3 pearl=.59+.30*cos(a+d*2.5+uTime*.045+vec3(.25,2.2,4.2));
-  vec3 base=mix(vec3(.025,.028,.044),vec3(.44,.45,.54),pow(d,.85));
-  base=mix(base,pearl,.24*depthReveal);
-  vec3 silver=mix(vec3(.32,.36,.44),vec3(.84,.88,.91),illumination*.56+grazing*.44);
-  vec3 line=mix(silver,pearl,.78)*mix(.38,1.,depthReveal);
-  // A diffuse, uneven sheen avoids the silhouette of three rotating blades.
-  float folds=smoothstep(.52,.94,.5+.26*sin(a+d*4.+uTime*.025)+.24*sin(a*2.-d*5.-uTime*.018));
-  folds*=smoothstep(.12,.28,d)*(1.-smoothstep(.70,.94,d));
-  vec3 spectral=.63+.22*cos(a+vec3(.2,2.3,4.4));
-  float throatRim=exp(-pow((d-.07)*34.,2.));
-  vec3 color=mix(base,line,lattice*.90)+pearl*flow*.48+spectral*folds*.025+pearl*throatRim*.025;
-  float outer=1.-smoothstep(.70,1.,d);
-  float alpha=(.032+pow(1.-d,2.)*.24+lattice*mix(.72,.84,uLight)+grazing*.05*depthReveal+flow*.32+folds*.012)*outer;
-  color=mix(color,color*.66,uLight*.6);
-  gl_FragColor=vec4(color,alpha);
-  #include <colorspace_fragment>
- }`;
 
-const coreVertex=`
- varying vec2 vUv;
- void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
-const coreFragment=`
- uniform float uLight;varying vec2 vUv;
- void main(){
-  float radius=length(vUv-.5)*2.;
-  vec3 center=mix(vec3(.0015,.002,.003),vec3(.017,.016,.026),uLight);
-  vec3 edge=mix(vec3(.004,.005,.007),vec3(.036,.032,.05),uLight);
-  gl_FragColor=vec4(mix(center,edge,smoothstep(.1,1.,radius)),1.);
-  #include <colorspace_fragment>
- }`;
+  for (const center of worlds) {
+    // A lightly bowed sheet pinches inward around each small aperture.
+    const surface = (u, v) => {
+      const pinch = Math.exp(-(u * u + v * v) * 10);
+      const bend = .10 * pinch * v;
+      return [center[0] + u * .70 * (1 - .55 * pinch) + bend,
+        center[1] + v * (1 - .42 * pinch) + u * .35,
+        -.10 - u * .30 - .16 * pinch];
+    };
+    const grid = [], weights = [];
+    function contour(fixed, horizontal) {
+      for (let j = 0; j < 44; j++) {
+        const a = -1 + j / 22, b = -1 + (j + 1) / 22;
+        const uvA = horizontal ? [a * .5, fixed] : [fixed, a * .82];
+        const uvB = horizontal ? [b * .5, fixed] : [fixed, b * .82];
+        if (Math.hypot(...uvA) < .075 || Math.hypot(...uvB) < .075) continue;
+        grid.push(surface(...uvA), surface(...uvB));
+        const weight = .42 + .32 * Math.exp(-fixed * fixed * 5);
+        weights.push(weight, weight);
+      }
+    }
+    for (let i = -6; i <= 6; i++) contour(i * .12, true);
+    for (let i = -3; i <= 3; i++) contour(i * .14, false);
+    lines(grid, weights, .22, true);
+    const border = [[-.5,-.82],[.5,-.82],[.5,.82],[-.5,.82],[-.5,-.82]].map(uv => surface(...uv));
+    lines(border, border.map(() => 1), .30);
+    const centerVector = new THREE.Vector3(...center);
+    // Nested micro rims carry the wormhole cue without a large dark funnel.
+    for (let ring = 0; ring < 4; ring++) {
+      const radius = .045 + ring * .025, points = [];
+      for (let j = 0; j <= 64; j++) {
+        const a = j / 64 * Math.PI * 2;
+        points.push([center[0] + Math.cos(a) * radius * .63,
+          center[1] + Math.sin(a) * radius + Math.cos(a) * radius * .32, .02]);
+      }
+      const rim = lines(points, points.map(() => 1), .48 - ring * .09);
+      portals.push({material:rim.material, center:centerVector, base:.48 - ring * .09});
+    }
+  }
 
-export function createUniverseScene({canvas,stage}){
- let disposed=false;
- const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'low-power'});
- renderer.setClearColor(0x000000,0);renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio||1,1.5));
- const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(35,1,.1,30);
- camera.position.z=8.8;
- const geometry=new THREE.PlaneGeometry(1,1,220,85);
- const uniforms={uTime:{value:0},uLight:{value:0},uPointer:{value:new THREE.Vector2()}};
- const material=new THREE.ShaderMaterial({uniforms,vertexShader:vertex,fragmentShader:fragment,transparent:true,side:THREE.DoubleSide,depthWrite:false});
- const sheet=new THREE.Mesh(geometry,material);sheet.frustumCulled=false;
- const sculpture=new THREE.Group();sculpture.add(sheet);scene.add(sculpture);
- sculpture.scale.setScalar(.74);
- const voidGeometry=new THREE.CircleGeometry(.202,96),voidMaterial=new THREE.ShaderMaterial({uniforms,vertexShader:coreVertex,fragmentShader:coreFragment,side:THREE.DoubleSide});
- const core=new THREE.Mesh(voidGeometry,voidMaterial);core.position.set(.46,0,-1.905);sculpture.add(core);
- const collapse=createCollapseField(),throat=new THREE.Vector3();scene.add(collapse.mesh);
- function resize(){
-  const rect=canvas.parentElement.getBoundingClientRect(),bounds=stage.getBoundingClientRect(),width=Math.max(1,rect.width),height=Math.max(1,rect.height);
-  camera.aspect=width/height;camera.position.z=width/height<1.1?10.1:8.8;camera.updateProjectionMatrix();renderer.setSize(width,height,false);
-  collapse.resize(width,height,[(bounds.left-rect.left)/width*2-1,1-(bounds.bottom-rect.top)/height*2,(bounds.right-rect.left)/width*2-1,1-(bounds.top-rect.top)/height*2]);
- }
- function draw({time=0,x=0,y=0,progress=0}={}){
-  if(disposed)return;
-  const light=stage.ownerDocument.body.dataset.theme==='light';uniforms.uTime.value=time;uniforms.uLight.value=light?1:0;
-  uniforms.uPointer.value.set(x,-y);
-  sculpture.rotation.set(-.52+y*.08+Math.sin(time*.065)*.032,-.35+x*.11,-.32+Math.sin(time*.045)*.028+progress*.035);
-  sculpture.position.set(.36,Math.sin(time*.13)*.045,0);
-  sculpture.updateMatrixWorld(true);camera.updateMatrixWorld();
-  core.getWorldPosition(throat).project(camera);collapse.draw(time,throat,light);
-  renderer.render(scene,camera);
- }
- function dispose(){
-  if(disposed)return;disposed=true;geometry.dispose();material.dispose();voidGeometry.dispose();voidMaterial.dispose();collapse.dispose();renderer.dispose();renderer.forceContextLoss();
- }
- resize();return {draw,resize,dispose};
+  const thread = [], strengths = [], branch = [];
+  for (let i = 0; i <= 240; i++) {
+    const t = i / 240;
+    thread.push(sampleRoute(t));
+    strengths.push(Math.min(1, t / .15, (1 - t) / .15));
+    if (t >= .4 && t <= .6) branch.push(sampleRoute(t, true));
+  }
+  lines(thread, strengths, .70);
+  lines(branch, branch.map(() => 1), .33);
+
+  const beadGeometry = new THREE.SphereGeometry(.024, 12, 8);
+  geometries.push(beadGeometry);
+  const travelers = [
+    {offset:.12, branch:false},
+    {offset:.60, branch:true},
+  ].map(route => {
+    const material = new THREE.MeshBasicMaterial({color:0x8a7aa5, transparent:true, depthWrite:false});
+    materials.push(material);
+    const bead = new THREE.Mesh(beadGeometry, material);
+    sculpture.add(bead);
+    return {...route, bead};
+  });
+
+  function resize() {
+    if (disposed) return;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    const width = Math.max(1, rect.width), height = Math.max(1, rect.height);
+    const aspect = width / height, halfWidth = Math.max(2.28, 1.35 * aspect);
+    camera.left = -halfWidth; camera.right = halfWidth;
+    camera.top = halfWidth / aspect; camera.bottom = -camera.top;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height, false);
+  }
+
+  function draw({time = 0, x = 0, y = 0} = {}) {
+    if (disposed) return;
+    const light = stage.ownerDocument.body.dataset.theme === 'light';
+    for (const material of lineMaterials) material.uniforms.uLight.value = light ? 1 : 0;
+    // Small parallax keeps the sheets readable; no spinning or zooming.
+    sculpture.rotation.set(y * .018, x * .026, Math.sin(time * .12) * .006);
+    for (const traveler of travelers) {
+      const state = travelerAt(time, traveler.offset, traveler.branch);
+      traveler.bead.position.fromArray(state.position);
+      traveler.bead.material.opacity = state.opacity * .9;
+      traveler.bead.material.color.setHex(light ? 0x8a7aa5 : 0xc8bedb);
+    }
+    for (const portal of portals) {
+      const distance = Math.min(...travelers.map(({bead}) => bead.position.distanceTo(portal.center)));
+      portal.material.uniforms.uOpacity.value = portal.base + Math.exp(-distance * distance * 160) * .12;
+    }
+    renderer.render(scene, camera);
+  }
+
+  function dispose() {
+    if (disposed) return;
+    disposed = true;
+    for (const geometry of geometries) geometry.dispose();
+    for (const material of materials) material.dispose();
+    renderer.dispose(); renderer.forceContextLoss();
+  }
+  resize();
+  return {draw, resize, dispose};
 }
