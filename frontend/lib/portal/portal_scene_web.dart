@@ -5,7 +5,7 @@ import 'dart:html' as html;
 import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
 
-/// The decorative parallel-world sculpture is hosted in this element.
+/// Only the original decorative WebGL sculpture is hosted in this element.
 /// Navigation, catalog, preferences and all product controls remain Flutter.
 class PortalScene extends StatefulWidget {
   const PortalScene({
@@ -32,7 +32,7 @@ class _PortalSceneState extends State<PortalScene> {
     super.initState();
     _viewType = 'elselife-sculpture-${_serial++}';
     _frame = html.IFrameElement()
-      ..src = 'assets/assets/portal_scene/scene.html?v=20261019-parallel'
+      ..src = 'assets/assets/portal_scene/scene.html?v=20261019-restored'
       ..setAttribute('title', '')
       ..setAttribute('aria-hidden', 'true')
       ..tabIndex = -1
