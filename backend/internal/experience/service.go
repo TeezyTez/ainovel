@@ -8,6 +8,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"strings"
+	"sync"
 	"time"
 
 	"elselife/backend/internal/sqlc/pgq"
@@ -19,7 +21,11 @@ type Generator interface {
 
 // Service is the single authority; no task scheduler or automatic generation retry exists.
 type Service struct {
-    ProseFirst bool
+	NarrativeEngine bool
+	PrepareDispatch func(account, experience, branch string, revision int64)
+	preparationsMu  sync.Mutex
+	preparations    map[string]*preparationRun
+	ProseFirst      bool
 	Artifacts       *ArtifactRuntime
 	DB              *sql.DB
 	Generator       Generator
@@ -56,6 +62,9 @@ func digest(kind, path string, v any) string {
 func ns(v string) sql.NullString { return sql.NullString{String: v, Valid: v != ""} }
 func operation(o pgq.ExperienceOperation) Operation {
 	v := Operation{RequestID: o.RequestID, ExperienceID: o.ExperienceID, BranchID: o.BranchID, Status: o.Status, BaseRevision: o.BaseRevision}
+	if o.ProgressPhase != "" {
+		v.Progress = &NarrativeProgress{Seq: o.ProgressSeq, Phase: o.ProgressPhase}
+	}
 	if o.CommittedRevision.Valid {
 		v.CommittedRevision = &o.CommittedRevision.Int64
 	}
@@ -89,9 +98,12 @@ func requestLock(ctx context.Context, q *pgq.Queries, a, r string) error {
 	return q.ExperienceRequestLock(ctx, pgq.ExperienceRequestLockParams{AccountID: a, RequestID: r})
 }
 func prior(ctx context.Context, q *pgq.Queries, a, r, d string) (*pgq.ExperienceOperation, error) {
+	return priorWithLegacy(ctx, q, a, r, d, "")
+}
+func priorWithLegacy(ctx context.Context, q *pgq.Queries, a, r, d, legacy string) (*pgq.ExperienceOperation, error) {
 	o, err := q.ExperienceOperationGet(ctx, pgq.ExperienceOperationGetParams{AccountID: a, RequestID: r})
 	if err == nil {
-		if o.Digest != d {
+		if !requestDigestMatches(o.Digest, d, legacy) {
 			return nil, fail("request_id_conflict")
 		}
 		return &o, nil
@@ -123,11 +135,12 @@ func (s *Service) Create(ctx context.Context, a string, r CreateRequest) (View, 
 	var o pgq.ExperienceOperation
 	fresh := false
 	d := digest("create", "", r)
+	legacy := r.legacyDigest()
 	err := s.transaction(ctx, func(q *pgq.Queries) error {
 		if err := requestLock(ctx, q, a, r.RequestID); err != nil {
 			return err
 		}
-		p, err := prior(ctx, q, a, r.RequestID, d)
+		p, err := priorWithLegacy(ctx, q, a, r.RequestID, d, legacy)
 		if err != nil {
 			return err
 		}
@@ -164,7 +177,7 @@ func (s *Service) Create(ctx context.Context, a string, r CreateRequest) (View, 
 	return v, fresh, err
 }
 func (s *Service) Advance(ctx context.Context, a, e string, r AdvanceRequest) (Operation, bool, error) {
-	if !keyOK(r.RequestID) || !keyOK(r.BranchID) || r.ExpectedRevision < 0 || len(r.Input) > 32<<10 || !utf8String(r.Input) {
+	if !keyOK(r.RequestID) || !keyOK(r.BranchID) || r.ExpectedRevision < 0 || len(r.Input) > 32<<10 || !utf8String(r.Input) || len(r.ReadingRequest) > 4096 || !utf8String(r.ReadingRequest) {
 		return Operation{}, false, fail("invalid_input")
 	}
 	switch r.Mode {
@@ -178,6 +191,7 @@ func (s *Service) Advance(ctx context.Context, a, e string, r AdvanceRequest) (O
 	}
 	var o pgq.ExperienceOperation
 	fresh := false
+	joinedPreparation := false
 	d := digest("advance", e, r)
 	err := s.transaction(ctx, func(q *pgq.Queries) error {
 		if err := requestLock(ctx, q, a, r.RequestID); err != nil {
@@ -214,14 +228,45 @@ func (s *Service) Advance(ctx context.Context, a, e string, r AdvanceRequest) (O
 		if len(active) > 0 {
 			return fail("branch_busy")
 		}
+		prepared, err := s.claimablePreparation(ctx, q, a, e, b, r)
+		if err != nil {
+			return err
+		}
 		f, err := q.ExperienceBranchFence(ctx, pgq.ExperienceBranchFenceParams{AccountID: a, ExperienceID: e, ID: r.BranchID})
 		if err != nil {
 			return err
 		}
 		o, err = q.ExperienceOperationCreate(ctx, pgq.ExperienceOperationCreateParams{AccountID: a, RequestID: r.RequestID, ExperienceID: e, BranchID: r.BranchID, Digest: d, Mode: mode, Input: r.Input, BaseRevision: b.Revision, Fence: f, LeaseSeconds: s.lease()})
+		if err != nil {
+			return err
+		}
+		if r.ReadingRequest != "" {
+			if _, err = q.ExperienceReadingRequest(ctx, pgq.ExperienceReadingRequestParams{AccountID: a, RequestID: r.RequestID, ReadingRequest: r.ReadingRequest}); err != nil {
+				return err
+			}
+			o.ReadingRequest = r.ReadingRequest
+		}
+		if prepared != nil {
+			n, claimErr := q.ExperiencePreparationClaim(ctx, pgq.ExperiencePreparationClaimParams{AccountID: a, ID: prepared.ID, ClaimedRequestID: ns(r.RequestID)})
+			if claimErr != nil {
+				return claimErr
+			}
+			if n != 1 {
+				return fail("preparation_conflict")
+			}
+			joinedPreparation = prepared.Status == "preparing"
+		}
+		if s.NarrativeEngine {
+			if err = q.ExperiencePreparationInvalidateExceptClaim(ctx, pgq.ExperiencePreparationInvalidateExceptClaimParams{AccountID: a, ExperienceID: e, BranchID: r.BranchID, KeepRequestID: r.RequestID}); err != nil {
+				return err
+			}
+		}
 		fresh = err == nil
 		return err
 	})
+	if err == nil && fresh && !joinedPreparation {
+		s.cancelPreparation(a, e, r.BranchID)
+	}
 	return operation(o), fresh, err
 }
 func utf8String(s string) bool {
@@ -332,6 +377,7 @@ func (s *Service) List(ctx context.Context, a string) ([]View, error) {
 // Cancel fences only uncommitted work. A committed operation is honestly returned.
 func (s *Service) Cancel(ctx context.Context, a, e, r string) (Operation, error) {
 	var out pgq.ExperienceOperation
+	var preparationID string
 	err := s.transaction(ctx, func(q *pgq.Queries) error {
 		o, err := q.ExperienceOperationGet(ctx, pgq.ExperienceOperationGetParams{AccountID: a, RequestID: r})
 		if err != nil {
@@ -349,6 +395,18 @@ func (s *Service) Cancel(ctx context.Context, a, e, r string) (Operation, error)
 			return err
 		}
 		if o.Status == "pending" || o.Status == "generating" {
+			if s.NarrativeEngine {
+				p, prepErr := q.ExperiencePreparationClaimed(ctx, pgq.ExperiencePreparationClaimedParams{AccountID: a, ClaimedRequestID: ns(r)})
+				if prepErr != nil && !errors.Is(prepErr, sql.ErrNoRows) {
+					return prepErr
+				}
+				if prepErr == nil && p.ExperienceID == e && p.BranchID == o.BranchID {
+					preparationID = p.ID
+					if err = q.ExperiencePreparationInvalidate(ctx, pgq.ExperiencePreparationInvalidateParams{AccountID: a, ExperienceID: e, BranchID: o.BranchID}); err != nil {
+						return err
+					}
+				}
+			}
 			if _, err = q.ExperienceBranchFence(ctx, pgq.ExperienceBranchFenceParams{AccountID: a, ExperienceID: e, ID: o.BranchID}); err != nil {
 				return err
 			}
@@ -360,6 +418,9 @@ func (s *Service) Cancel(ctx context.Context, a, e, r string) (Operation, error)
 		out = o
 		return nil
 	})
+	if err == nil && preparationID != "" {
+		s.cancelPreparationID(a, e, out.BranchID, preparationID)
+	}
 	return operation(out), err
 }
 
@@ -420,6 +481,10 @@ func (s *Service) buildContext(ctx context.Context, o pgq.ExperienceOperation) (
 		return Context{}, err
 	}
 	c := Context{Version: 2, ExperienceID: o.ExperienceID, BranchID: o.BranchID, Revision: o.BaseRevision, Mode: o.Mode, Input: o.Input, Seed: seed, History: []HistoryPage{}, Preferences: []Preference{}, HistoryComplete: true, Recalls: []ReadReply{}}
+	c.ReadingRequest = o.ReadingRequest
+	if s.NarrativeEngine {
+		c.Pipeline = &NarrativePipeline{Version: 1, MaxActors: 2, MaxRepairs: 1}
+	}
 	c.GameplayRuntime = s.Artifacts
 	c.GameplayContext = ctx
 	c.AuthorWorld, err = branchAuthorWorld(ctx, q, o.AccountID, o.ExperienceID, o.BranchID)
@@ -486,17 +551,47 @@ func (s *Service) buildGeneration(ctx context.Context, o pgq.ExperienceOperation
 		budget = ReadBudget{MaxReads: 4, MaxReplyBytes: 64 << 10, MaxTotalReplyBytes: 128 << 10}
 	}
 	capacity := s.capacity()
-    if s.ProseFirst {
-        if algorithm, ok := s.Generator.(*Algorithm); ok {
-            available := algorithm.ModelContextTokens - algorithm.outputTokens() - 8192
-            if authority.AuthorWorld != nil {
-                attachment, _ := json.Marshal(map[string]any{"author_world": authority.AuthorWorld})
-                available -= len(attachment) + 1024
-            }
-            if available > 0 && available < capacity { capacity = available }
-        }
-    }
-    return compileGeneration(authority, boundary, newID("source_"), recent, budget, capacity)
+	if s.ProseFirst || s.NarrativeEngine {
+		if algorithm, ok := s.Generator.(*Algorithm); ok {
+			var err error
+			capacity, err = algorithm.narrativeContextCapacity(authority, capacity)
+			if err != nil {
+				return Context{}, err
+			}
+		}
+	}
+	handle := newID("source_")
+	generation, err := compileGeneration(authority, boundary, handle, recent, budget, capacity)
+	if err == nil || err.Error() != "context_capacity" || recent >= o.BaseRevision {
+		return generation, err
+	}
+	// RecentRevisions is a preferred evidence window, not an instruction to
+	// make sixteen growing pages of facts mandatory in a finite model window.
+	// Keep the oldest whole revision boundary that actually fits. The policy,
+	// boundary and omitted counts are frozen with this operation; exact deferred
+	// objects remain in commit authority and the scoped source reader.
+	//
+	// First check a lower bound: even with no changed-object roots, rules,
+	// secrets, open threads, explicit references, the latest revision's facts,
+	// the complete notebook and latest whole page must fit. If they do not,
+	// reading every intermediate snapshot cannot make this operation possible.
+	if _, minimumErr := compileGeneration(authority, authority.State, handle, o.BaseRevision, budget, capacity); minimumErr != nil {
+		return Context{}, minimumErr
+	}
+	for recent++; recent <= o.BaseRevision; recent++ {
+		raw, readErr := pgq.New(s.DB).ExperienceSnapshot(ctx, pgq.ExperienceSnapshotParams{AccountID: o.AccountID, ExperienceID: o.ExperienceID, BranchID: o.BranchID, Revision: recent - 1})
+		if readErr != nil {
+			return Context{}, fail("recall_revision_unavailable")
+		}
+		if json.Unmarshal(raw, &boundary) != nil {
+			return Context{}, fail("history_unavailable")
+		}
+		generation, err = compileGeneration(authority, boundary, handle, recent, budget, capacity)
+		if err == nil || err.Error() != "context_capacity" {
+			return generation, err
+		}
+	}
+	return Context{}, err
 }
 
 // GenerateAccepted claims once, freezes actual context, renews a lease and commits
@@ -508,6 +603,15 @@ func (s *Service) GenerateAccepted(ctx context.Context, a, r string) error {
 	}
 	if err != nil {
 		return err
+	}
+	if s.NarrativeEngine {
+		n, err := pgq.New(s.DB).ExperienceNarrativeProgress(ctx, pgq.ExperienceNarrativeProgressParams{AccountID: a, RequestID: r, Fence: o.Fence, ProgressPhase: "preparing"})
+		if err != nil {
+			return err
+		}
+		if n != 1 {
+			return nil
+		}
 	}
 	authority, err := s.buildContext(ctx, o)
 	if err != nil {
@@ -552,7 +656,23 @@ func (s *Service) GenerateAccepted(ctx context.Context, a, r string) error {
 	}()
 	frame := digest("frame", a, []string{o.ExperienceID, o.BranchID, o.RequestID})
 	var candidate Candidate
-	if generator, ok := s.Generator.(ReadingGenerator); ok {
+	c.Progress = func(phase string) error {
+		n, err := pgq.New(s.DB).ExperienceNarrativeProgress(run, pgq.ExperienceNarrativeProgressParams{AccountID: a, RequestID: r, Fence: o.Fence, ProgressPhase: phase})
+		if err != nil {
+			return err
+		}
+		if n != 1 {
+			return fail("superseded")
+		}
+		return nil
+	}
+	prepared, preparedErr := s.consumePreparation(run, o, authority)
+	if preparedErr != nil {
+		return s.failOperation(context.WithoutCancel(ctx), o, preparedErr)
+	}
+	if prepared != nil {
+		candidate = *prepared
+	} else if generator, ok := s.Generator.(ReadingGenerator); ok {
 		candidate, err = generator.GenerateWithReads(run, c, "experience-"+frame, newSourceReader(s, o, c))
 	} else {
 		candidate, err = s.Generator.Generate(run, c, "experience-"+frame)
@@ -561,18 +681,32 @@ func (s *Service) GenerateAccepted(ctx context.Context, a, r string) error {
 		return s.failOperation(context.WithoutCancel(ctx), o, err)
 	}
 	var state State
-    if s.ProseFirst {
-        candidate, state, err = applyNarrative(authority, candidate)
-    } else {
-        state, err = Apply(authority, candidate)
-    }
+	if s.NarrativeEngine {
+		if err = verifyNarrativeApproval(candidate, candidate.Review); err == nil {
+			state, err = Apply(authority, candidate)
+		}
+	} else if s.ProseFirst {
+		candidate, state, err = applyNarrative(authority, candidate)
+	} else {
+		state, err = Apply(authority, candidate)
+	}
 	if err != nil {
 		return s.failOperation(context.WithoutCancel(ctx), o, err)
 	}
+	if s.NarrativeEngine {
+		if err = c.Progress("committing"); err != nil {
+			return s.failOperation(context.WithoutCancel(ctx), o, err)
+		}
+	}
 	err = s.commit(context.WithoutCancel(ctx), o, candidate, state)
 	var domain *Error
-	if errors.As(err, &domain) && domain.Code == "invalid_gameplay" {
+	if errors.As(err, &domain) && (domain.Code == "invalid_gameplay" ||
+		domain.Code == "invalid_literary_memory" || strings.HasPrefix(domain.Code, "narrative_memory_") ||
+		domain.Code == "preparation_conflict") {
 		return s.failOperation(context.WithoutCancel(ctx), o, err)
+	}
+	if err == nil && s.NarrativeEngine && s.PrepareDispatch != nil && o.Mode != "ask" && candidate.Outcome != "ending" {
+		s.PrepareDispatch(a, o.ExperienceID, o.BranchID, o.BaseRevision+1)
 	}
 	return err
 }
@@ -613,6 +747,9 @@ func (s *Service) commit(ctx context.Context, o pgq.ExperienceOperation, c Candi
 		if latest.Status != "generating" || b.Fence != o.Fence || b.Revision != o.BaseRevision || !latest.LeaseUntil.After(now) {
 			return fail("superseded")
 		}
+		if err := s.verifyMemoryCommit(ctx, q, latest, b, c, state); err != nil {
+			return err
+		}
 		rev := o.BaseRevision + 1
 		page := Page{HistoryPage: HistoryPage{Revision: rev, Mode: o.Mode, Input: o.Input, Text: c.Passage}, StoryTime: state.StoryTime, CreatedAt: now.UTC(), Suggestions: c.Suggestions, Outcome: c.Outcome}
 		receipt, err := s.commitGameplay(ctx, q, o, b, c, state)
@@ -628,6 +765,19 @@ func (s *Service) commit(ctx context.Context, o pgq.ExperienceOperation, c Candi
 		praw, _ := json.Marshal(page)
 		sraw, _ := json.Marshal(state)
 		craw, _ := json.Marshal(c)
+		if s.NarrativeEngine {
+			if err := verifyNarrativeApproval(c, c.Review); err != nil {
+				return err
+			}
+			approval, _ := json.Marshal(c.Review)
+			n, err := q.ExperienceNarrativeApproval(ctx, pgq.ExperienceNarrativeApprovalParams{AccountID: o.AccountID, RequestID: o.RequestID, Fence: o.Fence, NarrativeApproval: approval})
+			if err != nil {
+				return err
+			}
+			if n != 1 {
+				return fail("superseded")
+			}
+		}
 		if err = q.ExperiencePageCreate(ctx, pgq.ExperiencePageCreateParams{AccountID: o.AccountID, ExperienceID: o.ExperienceID, BranchID: o.BranchID, Revision: rev, Page: praw, State: sraw, Title: c.Title}); err != nil {
 			return err
 		}

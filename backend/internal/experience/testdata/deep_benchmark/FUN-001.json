@@ -1,0 +1,308 @@
+{
+  "id": "FUN-001",
+  "source_sha256": "37a6ff7987fbc6ebacfadea70f6e8cdffc2abf0d2cfdb2ed1d2d3d729fd679d6",
+  "source_line": 11833,
+  "variant": "base",
+  "seed": "港城档案馆的调查故事，第二人称。你受馆长委托调查放行印失窃。",
+  "opening": "20:42铜印柜被打开，一枚救济船放行印消失。馆长请你在今晚闭馆前查清。柜门无破坏，只有岑、洛、余三人能进入馆区。",
+  "state": {
+    "story_time": "当晚",
+    "entities": [
+      {
+        "id": "investigator",
+        "kind": "character",
+        "name": "你",
+        "description": "馆长委托的调查者",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "cen",
+        "kind": "character",
+        "name": "岑",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "luo",
+        "kind": "character",
+        "name": "洛",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "yu",
+        "kind": "character",
+        "name": "余",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "supervisor",
+        "kind": "character",
+        "name": "值班主管",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "seal",
+        "kind": "item",
+        "name": "铜印",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "tube",
+        "kind": "item",
+        "name": "余的防潮文件筒",
+        "description": "",
+        "known": false,
+        "related_ids": []
+      }
+    ],
+    "facts": [
+      {
+        "id": "missing",
+        "kind": "fact",
+        "text": "20:42铜印柜被打开，救济船放行印消失；柜门无破坏，只有岑、洛、余能进入馆区。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "supervisor"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "truth",
+        "kind": "secret",
+        "text": "余取走铜印，铜印在余的防潮文件筒。",
+        "subject_id": "yu",
+        "known": false,
+        "known_by": [
+          "yu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "motive",
+        "kind": "secret",
+        "text": "余想提前放行被程序卡住的救济船，没有拿取钱款；防潮文件筒内还有救济船滞留函。",
+        "subject_id": "yu",
+        "known": false,
+        "known_by": [
+          "yu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "canon",
+        "kind": "rule",
+        "text": "无第四人、无替身、无时间误差、无隔空操作、无共犯；值班主管可以核实这些规则。",
+        "subject_id": "",
+        "known": false,
+        "known_by": [
+          "supervisor"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "cabinet-record",
+        "kind": "secret",
+        "text": "柜门机械开柜记录为20:42；没有破坏痕迹，只能本人插入授权铜片开启。检查柜门及机械记录可以查得。",
+        "subject_id": "",
+        "known": false,
+        "known_by": [
+          "supervisor",
+          "yu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "permissions",
+        "kind": "secret",
+        "text": "岑、洛、余各有一枚不可复制铜片，无备用片，铜片仍由各自保管；值班主管持有人员权限记录，可以查阅核实。",
+        "subject_id": "",
+        "known": false,
+        "known_by": [
+          "supervisor",
+          "cen",
+          "luo",
+          "yu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "lighthouse-video",
+        "kind": "secret",
+        "text": "灯塔双向连续视频记录岑20:40至20:46一直在塔顶；塔顶到柜室最快单程6分钟。可调阅完整影像及核实路线。",
+        "subject_id": "",
+        "known": false,
+        "known_by": [],
+        "source_revision": 1
+      },
+      {
+        "id": "cen-position",
+        "kind": "fact",
+        "text": "岑20:40至20:46连续在塔顶。",
+        "subject_id": "cen",
+        "known": false,
+        "known_by": [
+          "cen"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "dock-video",
+        "kind": "secret",
+        "text": "外码头值班连续影像记录洛20:39至20:45一直在外码头；外码头到柜室最快单程7分钟。可调阅完整影像及核实路线。",
+        "subject_id": "",
+        "known": false,
+        "known_by": [],
+        "source_revision": 1
+      },
+      {
+        "id": "luo-position",
+        "kind": "fact",
+        "text": "洛20:39至20:45连续在外码头。",
+        "subject_id": "luo",
+        "known": false,
+        "known_by": [
+          "luo"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "corridor-record",
+        "kind": "secret",
+        "text": "柜旁走廊记录余20:41进入、20:44离开，门到柜20秒。走廊记录可以调阅。",
+        "subject_id": "",
+        "known": false,
+        "known_by": [],
+        "source_revision": 1
+      },
+      {
+        "id": "yu-alibi",
+        "kind": "belief",
+        "text": "余预备声称20:35后没有进入走廊，这是余的掩饰说法，尚未向调查者说出；在走廊记录面前他可沉默、解释或改口，但不能改变记录。",
+        "subject_id": "yu",
+        "known": false,
+        "known_by": [
+          "yu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "search-authorization",
+        "kind": "rule",
+        "text": "值班主管负责批准合法查验文件筒；在排除岑、洛并出示时间记录后批准。申请本身不是已获批准，获准以后实际查验才能发现物件。",
+        "subject_id": "",
+        "known": false,
+        "known_by": [
+          "supervisor"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "investigation-time",
+        "kind": "rule",
+        "text": "调查行为按叙事序列执行，没有隐藏倒计时；正常调查不因突然宣告超时而失去关键证据。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [],
+        "source_revision": 1
+      }
+    ],
+    "threads": []
+  },
+  "steps": [
+    {
+      "id": "01",
+      "mode": "player",
+      "input": "我先看柜门和留下的机械记录，不指认任何人。"
+    },
+    {
+      "id": "02",
+      "mode": "player",
+      "input": "问值班主管：还有别人、备用片或远程开柜的可能吗？记录时钟可靠吗？"
+    },
+    {
+      "id": "03",
+      "mode": "player",
+      "input": "暂时把三个人都保留为嫌疑人，分别问他们20:40到20:46在哪里。"
+    },
+    {
+      "id": "04",
+      "mode": "player",
+      "input": "先调灯塔的完整连续影像，并核实到柜室的最快距离。"
+    },
+    {
+      "id": "05",
+      "mode": "player",
+      "input": "如果岑特别不讨人喜欢，我是否仍有证据指控他？我只据现有证据判断。"
+    },
+    {
+      "id": "06",
+      "mode": "player",
+      "input": "再查外码头的连续影像与最短路程。"
+    },
+    {
+      "id": "07",
+      "mode": "player",
+      "input": "调柜旁走廊记录，核对余是否真的一直待在办公室。"
+    },
+    {
+      "id": "08",
+      "mode": "player",
+      "input": "只向余展示走廊记录，请他解释；先不告诉他我已查过哪两个人。"
+    },
+    {
+      "id": "09",
+      "mode": "player",
+      "input": "向主管呈现三人的时间线，申请查验余的文件筒。"
+    },
+    {
+      "id": "10",
+      "mode": "player",
+      "input": "按主管允许的方式查验文件筒。",
+      "requires_steps": [
+        "09"
+      ],
+      "evidence_gate": "search-approval"
+    },
+    {
+      "id": "11",
+      "mode": "player",
+      "input": "把已核实的事实写成结论，并把尚不能证明的动机另列。",
+      "requires_steps": [
+        "10"
+      ]
+    },
+    {
+      "id": "12",
+      "mode": "player",
+      "input": "我建议先归还铜印，另将救济船问题提交紧急审议，而不擅自赦免。",
+      "requires_steps": [
+        "10"
+      ]
+    },
+    {
+      "id": "13",
+      "mode": "player",
+      "input": "隔天再次查询铜印保管和救济船处理情况。",
+      "requires_steps": [
+        "10"
+      ]
+    }
+  ],
+  "private_tokens": [],
+  "omissions": [
+    "Clue access and fixed truth are lawful author world data; expected answers/checkpoints/rubrics are not passed to the product.",
+    "This base trajectory does not cover reordered clues or the ambiguous-evidence counterfactual.",
+    "Step10 stays BLOCKED at evaluator evidence_gate=search-approval; committing the step09 application is not permission. Independent review of formal prose and snapshot must produce a source-root-bound decision before any future gate-enabled resume. Steps11-13 require actual step10 completion. No approval is inserted into world facts."
+  ]
+}

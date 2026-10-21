@@ -4,8 +4,9 @@ extension _ReaderTools on _ExperienceScreenState {
   Widget _gameplayNotes(ExperiencePage page) {
     final experience = page.reader?.gameplay?.experience;
     if (experience == null) return const SizedBox.shrink();
-    final folded = objects(experience['folded'] ?? [])
-        .where((entry) => entry['sourceVersion'] == page.revision);
+    final folded = objects(
+      experience['folded'] ?? [],
+    ).where((entry) => entry['sourceVersion'] == page.revision);
     final stop = experience['stop'];
     return Column(
       children: [
@@ -77,17 +78,43 @@ extension _ReaderTools on _ExperienceScreenState {
     final pages = c.current?.pages ?? [];
     final index = pages.indexWhere((p) => p.revision == revision);
     if (index < 0) return;
+    // Explicit navigation replaces the old reading target. The old page can
+    // legitimately leave the tree in paged mode; it is not a source mismatch.
+    final scope = c.scope, epoch = ++_readingRestoreEpoch;
+    _readingRevision = revision;
+    if (revision == c.current?.revision) {
+      _newContent = false;
+    }
+    _readingScrollEpoch++;
+    _pendingReadingAnchor = null;
+    _restoringPosition = true;
+    unawaited(c.saveReading(updateAnchor: true));
     unawaited(_personal.update({'page': index}));
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted || epoch != _readingRestoreEpoch) return;
+      if (scope != c.scope || c.loading) {
+        _restoringPosition = false;
+        return;
+      }
       final target = _pages[revision]?.currentContext;
-      if (target != null)
-        Scrollable.ensureVisible(
+      if (target != null) {
+        // A durable pagination write can finish during this animation. Keep
+        // its listener from restoring the intermediate viewport over an
+        // explicit navigation request.
+        await Scrollable.ensureVisible(
           target,
           duration: _appearance.reducedMotion
               ? Duration.zero
               : const Duration(milliseconds: 180),
         );
+      }
+      if (!mounted || epoch != _readingRestoreEpoch) return;
+      _restoringPosition = false;
+      if (scope != c.scope || c.loading) return;
+      // A short page can already be visible without emitting a scroll event.
+      // Save its actual viewport after layout just as a user scroll would.
+      _scrolled();
+      WidgetsBinding.instance.ensureVisualUpdate();
     });
   }
 
@@ -159,6 +186,13 @@ extension _ReaderTools on _ExperienceScreenState {
     final paragraphs = [
       for (final paragraph in runs) paragraph.map((run) => run.text).join(),
     ];
+    var searchFrom = 0;
+    final starts = <int>[];
+    for (final paragraph in paragraphs) {
+      final start = page.text.indexOf(paragraph, searchFrom);
+      starts.add(start);
+      searchFrom = start + paragraph.length;
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -170,6 +204,7 @@ extension _ReaderTools on _ExperienceScreenState {
                   : _appearance.fontSize * gap,
             ),
             child: ReaderProseParagraph(
+              key: _readingTextKey(page, starts[i], paragraphs[i]),
               runs: runs[i],
               onMention: (id) {
                 final item = information
@@ -184,6 +219,8 @@ extension _ReaderTools on _ExperienceScreenState {
                       title: item.name,
                       children: [
                         const Text('当时的已知记录'),
+                        if (item.recordHeading != null)
+                          Text(item.recordHeading!),
                         SelectableText(item.text),
                       ],
                     ),
@@ -434,7 +471,7 @@ extension _ReaderTools on _ExperienceScreenState {
                 if (_personal.followed.contains(item.id))
                   ListTile(
                     title: Text(item.name),
-                    subtitle: Text(item.text),
+                    subtitle: Text(item.displaySummary),
                     onTap: () => _object(item),
                   ),
             ],
@@ -552,13 +589,42 @@ extension _ReaderTools on _ExperienceScreenState {
         title: item.name,
         children: [
           Text('当前分支 · ${item.kind}'),
+          if (item.recordHeading != null) Text(item.recordHeading!),
           SelectableText(item.text),
           if (item.status?.isNotEmpty == true) Text(item.status!),
           for (final field in item.fields)
             Text(
               '${field['label'] ?? field['key']}：${field['value'] ?? '未明确'}',
             ),
-          const Text('这是当前分支最后记录的情况，不是对远方的实时探测。'),
+          Text(
+            item.isInitialEntityRecord
+                ? initialEntityRecordNotice
+                : item.isHistoricalFact
+                ? historicalFactRecordNotice
+                : '这是当前分支保存的记录，不是对远方的实时探测。',
+          ),
+          if (item.isInitialEntityRecord) ...[
+            const SizedBox(height: 16),
+            const Text('正式事实与记录'),
+            for (final fact in c.current?.information ?? <KnownInformation>[])
+              if (fact.id.startsWith('fact:') &&
+                  fact.relatedIds.contains(item.id))
+                ListTile(
+                  title: Text(fact.text),
+                  subtitle: fact.recordHeading == null
+                      ? null
+                      : Text(fact.recordHeading!),
+                  onTap: () => _object(fact),
+                ),
+            for (final record
+                in c.current?.reader?.currentRecords ?? <ReaderEvidence>[])
+              if ('entity:${record.entityId}' == item.id &&
+                  record.value.isNotEmpty &&
+                  record.kind != 'artifact')
+                Text(
+                  '${record.label}：${record.value} · 第 ${record.sourceRevision} 页',
+                ),
+          ],
           if (!widget.localReadOnly)
             Wrap(
               spacing: 8,
@@ -585,13 +651,13 @@ extension _ReaderTools on _ExperienceScreenState {
               ],
             ),
           if (item.relatedIds.isNotEmpty) ...[
-            const Text('相关的已知记录'),
+            Text(item.isInitialEntityRecord ? '初次关联' : '相关的已知记录'),
             for (final related
                 in c.current?.information ?? <KnownInformation>[])
               if (item.relatedIds.contains(related.id))
                 ListTile(
                   title: Text(related.name),
-                  subtitle: Text(related.text),
+                  subtitle: Text(related.displaySummary),
                   onTap: () => _object(related),
                 ),
           ],
@@ -1051,8 +1117,9 @@ extension _ReaderTools on _ExperienceScreenState {
         !widget.localDemo &&
         !widget.localReadOnly &&
         preparedGame is Map &&
-        (objects(preparedGame['entities'] ?? [])
-                .any((entity) => entity['kind'] == 'place') ||
+        (objects(
+              preparedGame['entities'] ?? [],
+            ).any((entity) => entity['kind'] == 'place') ||
             (preparedGame['journeys'] is Map &&
                 (preparedGame['journeys']['routes'] as List? ?? [])
                     .isNotEmpty) ||
@@ -1136,7 +1203,7 @@ extension _ReaderTools on _ExperienceScreenState {
             for (final item in items)
               ListTile(
                 title: Text(item.name),
-                subtitle: Text(item.text),
+                subtitle: Text(item.displaySummary),
                 onTap: () => _object(item),
               ),
           ],
@@ -1266,7 +1333,6 @@ extension _ReaderTools on _ExperienceScreenState {
                             {
                               'revision': p.revision,
                               'text': p.text,
-                              'input': p.input,
                               'story_time': p.storyTime,
                               'outcome': p.outcome,
                             },
@@ -1294,6 +1360,31 @@ extension _ReaderTools on _ExperienceScreenState {
             onPressed: () => _copyCurrentBranchMarkdown(view),
             child: const Text('复制当前分支正文（Markdown）'),
           ),
+          if (!widget.localDemo && widget.artifactClient != null) ...[
+            const Divider(),
+            const Text('全部阅读记录包含此工作区全部经历与分支中各页已经揭示的资料，不含幕后设定、私人输入或草稿。'),
+            TextButton(
+              onPressed: () async {
+                final client = widget.artifactClient!(), owner = c.owner;
+                try {
+                  final value = await client.exportReaderRecords();
+                  if (!mounted || c.owner != owner) return;
+                  _toast(
+                    await exportReaderFile(
+                      'elselife-reading.json',
+                      const JsonEncoder.withIndent('  ').convert(value),
+                      'application/json',
+                    ),
+                  );
+                } catch (_) {
+                  if (mounted && c.owner == owner) _toast('阅读记录导出未完成，原记录保留。');
+                } finally {
+                  client.close();
+                }
+              },
+              child: const Text('导出全部已揭示阅读记录'),
+            ),
+          ],
         ],
       ),
     );

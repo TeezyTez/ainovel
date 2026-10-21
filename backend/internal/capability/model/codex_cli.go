@@ -56,32 +56,35 @@ func (c *CodexCLI) visiblePath(path string) (string, error) {
 }
 
 func (c *CodexCLI) Generate(ctx context.Context, req Request) (Result, error) {
+	prepareFailure := func(cause error, category string) error {
+		return codexDiagnosticError(cause, CodexFailureDiagnostic{Phase: "prepare", Category: category})
+	}
 	if err := ctx.Err(); err != nil {
-		return Result{}, err
+		return Result{}, prepareFailure(err, codexContextCategory(err))
 	}
 	if c == nil || c.Path == "" || c.AuthHome == "" || c.TempDir == "" {
-		return Result{}, ErrUnavailable
+		return Result{}, prepareFailure(ErrUnavailable, "configuration")
 	}
 	if len(req.Messages) == 0 || len(req.Schema) == 0 || !json.Valid(req.Schema) || req.MaxOutputTokens < 0 {
-		return Result{}, ErrRequestFailed
+		return Result{}, prepareFailure(ErrRequestFailed, "request")
 	}
 	if req.Model != "" && c.Model != "" && req.Model != c.Model {
-		return Result{}, ErrUnavailable
+		return Result{}, prepareFailure(ErrUnavailable, "configuration")
 	}
 	transportSchema, err := codexTransportSchema(req.Schema)
 	if err != nil {
-		return Result{}, err
+		return Result{}, prepareFailure(err, "schema")
 	}
 	if req.ContextTokenLimit > 0 {
 		transported := req
 		transported.Schema = transportSchema
 		if _, err := VerifyContextBudget(transported, req.ContextTokenLimit, req.MaxOutputTokens, true); err != nil {
-			return Result{}, err
+			return Result{}, prepareFailure(err, "capacity")
 		}
 	}
 	dir, err := os.MkdirTemp(c.TempDir, "elselife-codex-")
 	if err != nil {
-		return Result{}, ErrRequestFailed
+		return Result{}, prepareFailure(ErrRequestFailed, "io")
 	}
 	schemaFile := filepath.Join(dir, "schema.json")
 	instructionsFile := filepath.Join(dir, "instructions.txt")
@@ -91,7 +94,7 @@ func (c *CodexCLI) Generate(ctx context.Context, req Request) (Result, error) {
 		_ = os.Remove(dir) // only an empty directory; never delete unknown CLI output
 	}()
 	if err := os.WriteFile(schemaFile, transportSchema, 0600); err != nil {
-		return Result{}, ErrRequestFailed
+		return Result{}, prepareFailure(ErrRequestFailed, "io")
 	}
 	var system, conversation []Message
 	for _, message := range req.Messages {
@@ -101,7 +104,7 @@ func (c *CodexCLI) Generate(ctx context.Context, req Request) (Result, error) {
 		case "user", "assistant":
 			conversation = append(conversation, message)
 		default:
-			return Result{}, ErrRequestFailed
+			return Result{}, prepareFailure(ErrRequestFailed, "request")
 		}
 	}
 	var instructions strings.Builder
@@ -111,23 +114,46 @@ func (c *CodexCLI) Generate(ctx context.Context, req Request) (Result, error) {
 	}
 	instructions.WriteString("Only output a JSON object matching the supplied schema. Do not call tools. Do not browse or read local project files.")
 	if err := os.WriteFile(instructionsFile, []byte(instructions.String()), 0600); err != nil {
-		return Result{}, ErrRequestFailed
+		return Result{}, prepareFailure(ErrRequestFailed, "io")
 	}
 	visibleDir, err := c.visiblePath(dir)
 	if err != nil {
-		return Result{}, err
+		return Result{}, prepareFailure(err, "configuration")
 	}
 	visibleSchema, err := c.visiblePath(schemaFile)
 	if err != nil {
-		return Result{}, err
+		return Result{}, prepareFailure(err, "configuration")
 	}
 	visibleInstructions, err := c.visiblePath(instructionsFile)
 	if err != nil {
-		return Result{}, err
+		return Result{}, prepareFailure(err, "configuration")
 	}
-	prompt, err := json.Marshal(conversation)
-	if err != nil {
-		return Result{}, ErrRequestFailed
+	// The CLI accepts a single user prompt, not the API's messages array.
+	// Preserve a single user's original bytes so JSON stage inputs are not
+	// encoded a second time (especially passage newlines and literal slashes).
+	// Multiple messages retain their explicit roles/order; never fold them into
+	// the trusted instructions file or discard assistant history.
+	var prompt []byte
+	if len(conversation) == 1 && conversation[0].Role == "user" {
+		prompt = []byte(conversation[0].Content)
+	} else {
+		encoded, err := json.Marshal(conversation)
+		if err != nil {
+			return Result{}, prepareFailure(ErrRequestFailed, "request")
+		}
+		prompt = append([]byte("Conversation messages in JSON, in order. Apply the system instructions to these messages and produce one schema-conforming final JSON object:\n"), encoded...)
+	}
+	if req.ContextTokenLimit > 0 {
+		// The actual CLI carrier is one instructions message plus one stdin prompt.
+		// Multi-message JSON adds escaping; the original request preflight cannot
+		// account for those bytes. The CLI carries one strict schema and has no
+		// HTTP JSON-mode fallback, whose instruction is already counted elsewhere.
+		total := uint64(req.MaxOutputTokens) + 256 + uint64(len(transportSchema)) +
+			uint64(instructions.Len()) + uint64(len(prompt)) +
+			uint64(len("system")+len("user")+2*32)
+		if total > uint64(req.ContextTokenLimit) {
+			return Result{}, prepareFailure(ErrContextBudgetExceeded, "capacity")
+		}
 	}
 	effort := c.ReasoningEffort
 	if effort != "low" && effort != "medium" && effort != "high" {
@@ -152,7 +178,7 @@ func (c *CodexCLI) Generate(ctx context.Context, req Request) (Result, error) {
 	cmd := exec.CommandContext(ctx, c.Path, args...)
 	cmd.Dir = dir
 	cmd.Env = codexEnv(c.AuthHome, c.Proxy)
-	cmd.Stdin = bytes.NewReader(append([]byte("Conversation messages in JSON, in order. Apply the system instructions to these messages and produce one schema-conforming final JSON object:\n"), prompt...))
+	cmd.Stdin = bytes.NewReader(prompt)
 	capture := &codexCapture{limit: 1 << 20, kill: func() {
 		if cmd.Process != nil {
 			_ = cmd.Process.Kill()
@@ -162,24 +188,45 @@ func (c *CodexCLI) Generate(ctx context.Context, req Request) (Result, error) {
 	cmd.Stderr = codexCaptureWriter{capture: capture}
 	err = cmd.Run()
 	if ctx.Err() != nil {
-		return Result{}, ctx.Err()
+		phase := "exit"
+		if cmd.Process == nil {
+			phase = "start"
+		}
+		return Result{}, codexDiagnosticError(ctx.Err(), capture.failureDetails(phase, codexContextCategory(ctx.Err())))
 	}
 	if capture.oversized() {
-		return Result{}, ErrResponseTooLarge
+		return Result{}, codexDiagnosticError(ErrResponseTooLarge, capture.failureDetails("exit", "response_too_large"))
 	}
+	output := capture.output()
 	if err != nil {
 		if c.diagnostic != nil {
-			c.diagnostic(append(capture.errorOutput(), capture.output()...))
+			c.diagnostic(append(capture.errorOutput(), output...))
 		}
-		return Result{}, ErrRequestFailed
+		phase := "start"
+		if cmd.Process != nil {
+			phase = "exit"
+		}
+		details := capture.failureDetails(phase, "process_error")
+		details.EventType = codexKnownFailureEvent(output)
+		details.ReportedReason = codexReportedFailureReason(output)
+		if cmd.ProcessState != nil {
+			code := cmd.ProcessState.ExitCode()
+			details.ExitCode = &code
+		}
+		return Result{}, codexDiagnosticError(ErrRequestFailed, details)
 	}
-	text, err := codexFinalMessage(capture.output())
+	text, err := codexFinalMessage(output)
 	if err != nil {
-		return Result{}, err
+		details := capture.failureDetails("parse", codexResponseCategory(err))
+		if event := codexKnownFailureEvent(output); errors.Is(err, ErrRequestFailed) && event != "" {
+			details.Phase, details.Category, details.EventType = "event", "reported_failure", event
+			details.ReportedReason = codexReportedFailureReason(output)
+		}
+		return Result{}, codexDiagnosticError(err, details)
 	}
 	text, err = codexNormalizeOutput(text, req.Schema)
 	if err != nil {
-		return Result{}, err
+		return Result{}, codexDiagnosticError(err, capture.failureDetails("normalize", codexResponseCategory(err)))
 	}
 	modelName := c.Model
 	if modelName == "" {

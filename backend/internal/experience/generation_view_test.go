@@ -98,3 +98,89 @@ func TestReadSelectorClosedSemanticConditions(t *testing.T) {
 		}
 	}
 }
+
+// Synthetic continuity fixture: this checks evidence selection, not story quality.
+func TestInputEntityRetainsOldOwnershipWithoutExpandingEveryKnower(t *testing.T) {
+	c := sampleContext()
+	c.Mode, c.Input, c.Revision = "act", "我拿出戒指证明身份。", 100
+	c.State.Entities = []Entity{
+		{ID: "ring", Kind: "item", Name: "戒指", Known: true, RelatedIDs: []string{}},
+		{ID: "merchant", Kind: "person", Name: "商人", Known: true, RelatedIDs: []string{}},
+		{ID: "guard", Kind: "person", Name: "守卫", Known: true, RelatedIDs: []string{}},
+	}
+	c.State.Facts = []Fact{
+		{ID: "sale", Kind: "fact", Text: "戒指已卖给商人。", SubjectID: "ring", Known: true, KnownBy: []string{"merchant"}, SourceRevision: 1},
+		{ID: "receipt", Kind: "fact", Text: "商人保管戒指。", Known: true, KnownBy: []string{}, SourceRevision: 2, Reader: &ReaderRecord{Kind: "item", EntityID: "ring", TargetID: "merchant", Label: "戒指", Status: "已售出"}},
+		{ID: "claim", Kind: "belief", Text: "商人相信北门已经关闭。", SubjectID: "merchant", Known: true, KnownBy: []string{"merchant"}, SourceRevision: 3},
+	}
+	for i := 0; i < 80; i++ {
+		c.State.Facts = append(c.State.Facts, Fact{ID: fmt.Sprintf("other-%03d", i), Kind: "fact", Text: strings.Repeat("商人知道的无关旧事。", 70), Known: true, KnownBy: []string{"merchant", "ring"}, SourceRevision: 1})
+	}
+	before := mustJSON(t, c)
+	view, err := compileGeneration(c, c.State, "scope", 90, ReadBudget{}, 9000)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(view.State.Facts) != 2 || view.State.Facts[0].ID != "sale" || view.State.Facts[1].ID != "receipt" {
+		t.Fatalf("old ownership missing or unrelated knower history expanded: %+v", view.State.Facts)
+	}
+	if view.State.Facts[0].SourceRevision != 1 || view.State.Facts[0].KnownBy[0] != "merchant" || len(view.State.Entities) != 2 {
+		t.Fatal("ownership provenance or entity dependency lost", view.State)
+	}
+	if string(before) != string(mustJSON(t, c)) {
+		t.Fatal("authority mutated")
+	}
+}
+
+func TestReaderRecordDependencyClosureAndAskProjection(t *testing.T) {
+	c := sampleContext()
+	c.Revision, c.Input = 100, "route-record"
+	c.State.Entities = []Entity{
+		{ID: "shop", Name: "店铺", Known: true, RelatedIDs: []string{}},
+		{ID: "cellar", Name: "暗室", Known: false, RelatedIDs: []string{}},
+	}
+	c.State.Facts = []Fact{{ID: "route-record", Kind: "fact", Text: "柜台后面有一条通道。", Known: true, KnownBy: []string{}, SourceRevision: 1, Reader: &ReaderRecord{Kind: "route", EntityID: "shop", TargetID: "cellar", Label: "通道"}}}
+	for i := 0; i < 80; i++ {
+		c.State.Facts = append(c.State.Facts, Fact{ID: fmt.Sprintf("old-%03d", i), Kind: "fact", Text: strings.Repeat("无关旧事。", 70), Known: true, KnownBy: []string{}, SourceRevision: 1})
+	}
+	view, err := compileGeneration(c, c.State, "scope", 90, ReadBudget{}, 9000)
+	if err != nil || len(view.State.Entities) != 2 || len(view.State.Facts) != 1 {
+		t.Fatalf("reader reference closure missing: %+v %v", view.State, err)
+	}
+	c.Mode = "ask"
+	view, err = compileGeneration(c, c.State, "scope", 90, ReadBudget{}, 9000)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(view.State.Facts) != 1 || view.State.Facts[0].Reader != nil || strings.Contains(string(mustJSON(t, view)), "cellar") {
+		t.Fatal("ask leaked hidden reader relation", view)
+	}
+}
+
+func TestReadingRequestRetainsExplicitOldEvidence(t *testing.T) {
+	// Evidence selection only: a reading request is not a player action, but its
+	// explicitly named committed material must survive the same capacity cut.
+	for _, reference := range []string{"戒指", "ring", "old-sale"} {
+		t.Run(reference, func(t *testing.T) {
+			c := sampleContext()
+			c.Mode, c.Input, c.ReadingRequest, c.Revision = "read", "", "继续写"+reference+"相关的后续。", 100
+			c.State = EmptyState()
+			c.State.Entities = []Entity{{ID: "ring", Kind: "item", Name: "戒指", Known: true, RelatedIDs: []string{}}}
+			c.State.Facts = []Fact{{ID: "old-sale", Kind: "fact", Text: "戒指已经卖出，不在玩家身上。", SubjectID: "ring", Known: true, KnownBy: []string{}, SourceRevision: 1}}
+			for i := 0; i < 60; i++ {
+				c.State.Facts = append(c.State.Facts, Fact{ID: fmt.Sprintf("unrelated-%03d", i), Kind: "fact", Text: strings.Repeat("无关的旧事。", 70), Known: true, KnownBy: []string{}, SourceRevision: 1})
+			}
+			before := mustJSON(t, c)
+			view, err := compileGeneration(c, c.State, "scope", 90, ReadBudget{}, 9000)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if view.StateCoverage.Complete || len(view.State.Facts) != 1 || view.State.Facts[0].ID != "old-sale" || len(view.State.Entities) != 1 {
+				t.Fatal("reading request lost explicit old fact/dependency", view.State)
+			}
+			if view.Input != "" || view.ReadingRequest != c.ReadingRequest || string(before) != string(mustJSON(t, c)) {
+				t.Fatal("reading request was converted into action or authority changed")
+			}
+		})
+	}
+}

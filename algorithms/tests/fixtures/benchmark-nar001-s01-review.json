@@ -1,0 +1,215 @@
+{
+  "purpose": "Deterministic replay of a real quote encoding failure on synthetic NAR-001. Structural repair and exact-byte checks only; never narrative quality acceptance.",
+  "source": ".validation/deep-benchmark/20261020T023454Z-fresh-v43/NAR-001/events.jsonl",
+  "source_sha256": "0cb3c76bf3c5cbe167b391bdc02a1b3c91e41fb92abd2a9f6afae20865a5f56d",
+  "source_root": "f5c1d3115b82e53baa609b0b50e49650f0fc9c59b2c52424f4c718f4af1d2936",
+  "context": {
+    "branch_id": "benchmark-main",
+    "experience_id": "benchmark-story",
+    "history": [
+      {
+        "input": "现实风格群像，第二人称。你是临时船工乔岑。",
+        "mode": "begin",
+        "revision": 1,
+        "text": "现在16:40，港口18:00停航。唯一可用船已接下把净水滤芯送往北堤的合同，单程40分钟。你想借船去南岸接一名受困朋友，单程35分钟；南北线路无法在停航前都完成。船主顾岚上周收过你修缆绳的帮助，尚未还人情。余叔也在船边。"
+      }
+    ],
+    "history_complete": true,
+    "input": "我问顾岚，能不能先去南岸接一个人。",
+    "mode": "act",
+    "preferences": [],
+    "read_budget": {
+      "max_reads": 4,
+      "max_reply_bytes": 65536,
+      "max_total_reply_bytes": 131072
+    },
+    "reading_request": null,
+    "revision": 1,
+    "seed": "现实风格群像，第二人称。你是临时船工乔岑。",
+    "state": {
+      "entities": [
+        {
+          "description": "临时船工",
+          "id": "qiao",
+          "kind": "character",
+          "known": true,
+          "name": "乔岑",
+          "related_ids": []
+        },
+        {
+          "description": "船主",
+          "id": "gu",
+          "kind": "character",
+          "known": true,
+          "name": "顾岚",
+          "related_ids": []
+        },
+        {
+          "description": "船员",
+          "id": "yu",
+          "kind": "character",
+          "known": true,
+          "name": "余叔",
+          "related_ids": []
+        }
+      ],
+      "facts": [
+        {
+          "id": "routes",
+          "kind": "rule",
+          "known": true,
+          "known_by": [
+            "qiao",
+            "gu",
+            "yu"
+          ],
+          "source_revision": 1,
+          "subject_id": "",
+          "text": "现在16:40，港口18:00停航；唯一可用船已接北堤净水滤芯合同，北堤单程40分钟，南岸单程35分钟，南北路线无法在停航前都完成。"
+        },
+        {
+          "id": "favor",
+          "kind": "fact",
+          "known": true,
+          "known_by": [
+            "qiao",
+            "gu"
+          ],
+          "source_revision": 1,
+          "subject_id": "",
+          "text": "顾岚上周受过乔岑修缆绳的帮助，尚未还人情。"
+        },
+        {
+          "id": "friend",
+          "kind": "fact",
+          "known": true,
+          "known_by": [
+            "qiao"
+          ],
+          "source_revision": 1,
+          "subject_id": "",
+          "text": "乔岑想借船到南岸接一名受困朋友，尚不知道朋友准确安全状况。"
+        },
+        {
+          "id": "gu-goals",
+          "kind": "fact",
+          "known": false,
+          "known_by": [
+            "gu"
+          ],
+          "source_revision": 1,
+          "subject_id": "gu",
+          "text": "顾岚想按合同交付滤芯、保留船工生计、不轻易亏欠人情。"
+        },
+        {
+          "id": "daughter",
+          "kind": "secret",
+          "known": false,
+          "known_by": [
+            "gu"
+          ],
+          "source_revision": 1,
+          "subject_id": "gu",
+          "text": "顾岚的女儿在北堤居住，她不愿把女儿当成每次拒绝别人的借口。"
+        },
+        {
+          "id": "water",
+          "kind": "secret",
+          "known": false,
+          "known_by": [],
+          "source_revision": 1,
+          "subject_id": "",
+          "text": "北堤还有两天饮水储备，滤芯延迟有成本但不是立即致命。"
+        },
+        {
+          "id": "friend-safe",
+          "kind": "secret",
+          "known": false,
+          "known_by": [],
+          "source_revision": 1,
+          "subject_id": "",
+          "text": "南岸朋友在有屋顶的岗亭，可以自行等到次日。"
+        },
+        {
+          "id": "yu-goals",
+          "kind": "fact",
+          "known": false,
+          "known_by": [
+            "yu"
+          ],
+          "source_revision": 1,
+          "subject_id": "yu",
+          "text": "余叔希望船员按时拿到工钱，尽量不把风险交给新人；知道北堤交付和船况，不知道顾岚女儿的住处。"
+        }
+      ],
+      "story_time": "当日16:40",
+      "threads": []
+    },
+    "state_coverage": {
+      "audience": "author",
+      "complete": true,
+      "omitted": {
+        "entities": 0,
+        "facts": 0,
+        "threads": 0
+      },
+      "policy": "full.v1",
+      "recent_from_revision": 0,
+      "source_handle": "source_f0ae9ebc9fd26a2d7df13de17f70e7aa",
+      "total": {
+        "entities": 3,
+        "facts": 8,
+        "threads": 0
+      }
+    },
+    "version": 2,
+    "pipeline": {
+      "version": 1,
+      "max_actors": 2,
+      "max_repairs": 1
+    },
+    "recalls": []
+  },
+  "outputs": [
+    {
+      "stage": "memory",
+      "raw": "{\"result\":{\"actors\":[{\"actor_id\":\"gu\",\"fact_ids\":[\"routes\",\"favor\",\"gu-goals\"],\"trigger\":\"顾岚想按合同交付滤芯、保留船工生计、不轻易亏欠人情。\"},{\"actor_id\":\"yu\",\"fact_ids\":[\"routes\",\"yu-goals\"],\"trigger\":\"余叔希望船员按时拿到工钱，尽量不把风险交给新人；知道北堤交付和船况，不知道顾岚女儿的住处。\"}],\"objective\":\"承接乔岑向顾岚提出先去南岸接人的尝试，让顾岚在北堤合同、船工生计与未还人情之间作出当场回应，余叔可从工钱和航行风险角度参与；不预定借船成功，不替乔岑承诺代价，不泄露或以无人知晓的安全状况化解冲突。\",\"relevant_fact_ids\":[\"routes\",\"favor\",\"friend\",\"gu-goals\",\"yu-goals\"]}}",
+      "raw_sha256": "64e4acbba73fb94aae96b5036a4c9e779968585dff27b91054e4bf692d0ffc5c"
+    },
+    {
+      "stage": "actor",
+      "raw": "{\"result\":{\"action\":\"尝试按原合同安排船只前往北堤交付净水滤芯，不以女儿住在北堤作为理由，也不把欠乔岑的人情视作已经偿还。\",\"actor_id\":\"gu\",\"conditions\":[],\"intent\":\"履行滤芯交付合同、维护船工生计，同时保留日后偿还乔岑人情的责任。\",\"speech\":\"\",\"used_fact_ids\":[\"routes\",\"favor\",\"gu-goals\",\"daughter\"]}}",
+      "raw_sha256": "ba60147f2693926c08e8a2d01e5901bc9620f242bdc0b0417ca283649c5903b9"
+    },
+    {
+      "stage": "actor",
+      "raw": "{\"result\":{\"action\":\"尝试安排唯一可用船立即执行北堤净水滤芯合同，出航前核对船况与返航时间，不临时增加南岸航程。\",\"actor_id\":\"yu\",\"conditions\":[\"船况允许安全出航，且预计能在18:00停航前完成往返。\"],\"intent\":\"优先履行已有合同，保障船员工钱，并避免让新人承担赶航风险。\",\"speech\":\"先核船况和返航时间，能安全赶回就按合同走北堤，不再绕南岸，别让新人冒险赶航。\",\"used_fact_ids\":[\"routes\",\"yu-goals\"]}}",
+      "raw_sha256": "358f2d2f651ef3b9a94eba610daecbe0cf320347edca029f6a62b95ee825a870"
+    },
+    {
+      "stage": "plan",
+      "raw": "{\"result\":{\"candidates\":[{\"beats\":[\"顾岚当场拒绝先去南岸：船已接北堤合同，不能拿船工的活计改道；她明确说上周修缆绳的人情仍欠着，不因这次拒绝或履约而抵销。\",\"余叔边核验船况边核对时刻，确认滤芯已装妥、船况可航；此时仍是16:40，按既定航时可在18:00返港。他要求立即离泊，不绕南岸，也不要求乔岑承担赶航任务。\",\"顾岚执行北堤出航安排，船离开泊位；乔岑是否参与由其自行决定。本段不宣布交付或返航已经完成。\"],\"causes\":[\"已有北堤合同与两条航线的时间冲突，使先去南岸意味着无法兼顾原合同。\",\"顾岚优先维护合同和船工生计；余叔的出航条件在现场核验后得到满足。\"],\"consequences\":[\"借唯一可用船先去南岸的请求明确被拒，北堤履约进入实际航行阶段。\",\"乔岑朋友的准确安全状况仍未知，顾岚所欠人情仍未偿还。\"],\"costs\":[\"唯一可用船投入北堤航程，乔岑失去本次借该船先去南岸的机会。\",\"往返时刻贴近停航线，没有增加南岸航程的时间。\"],\"fact_ids\":[\"routes\",\"favor\",\"friend\",\"gu-goals\",\"yu-goals\"],\"id\":\"north_departure\",\"purpose\":\"让合同优先的决定落实为出航，同时明确拒绝不等于偿还人情。\",\"thread_ids\":[]},{\"beats\":[\"顾岚回应不能答应先去南岸，说明北堤合同牵着船工生计，并主动承认修缆绳的人情没有还。余叔开始核对船况和返航时刻。\",\"核验结束时已到16:42；即使船况允许，按北堤往返八十分钟计算，最早也要18:02才能回来。余叔据此撤下立即往返的安排，不让新人用赶航弥补时间缺口。\",\"顾岚停止本次北堤往返出航准备，承认今天原定履约安排已无法照办，但不因此直接把船借往南岸；她转而着手通知合同对方。场面停在乔岑可以重新回应的时点。\"],\"causes\":[\"16:40距停航恰好八十分钟，现场核验耗时便会改变北堤往返是否可行。\",\"余叔明确要求安全并在停航前完成往返，顾岚不能把履约愿望当成已经具备出航条件。\"],\"consequences\":[\"北堤原定往返方案被具体时刻否决，合同交付面临延迟，而非继续抽象等待。\",\"先去南岸的请求仍未获准；航程条件变化给后续商议留下空间，但不替乔岑提出新承诺。\"],\"costs\":[\"核验占用两分钟，原本极窄的北堤往返窗口关闭。\",\"滤芯交付延迟，合同安排及船工生计目标受到影响；具体损失尚未确定。\"],\"fact_ids\":[\"routes\",\"favor\",\"friend\",\"gu-goals\",\"yu-goals\"],\"id\":\"roundtrip_window_closes\",\"purpose\":\"让必要核验造成真实时间变化，明确原合同方案失败而非强行安全出航。\",\"thread_ids\":[]}]}}",
+      "raw_sha256": "36087b2b83b43623cebe0a8e8f91e5219c5c69997f74b3e9a61541c446c05550"
+    },
+    {
+      "stage": "evaluate",
+      "raw": "{\"result\":{\"evaluations\":[{\"agency\":5,\"blocking_issues\":[],\"candidate_id\":\"north_departure\",\"causality\":4,\"consequence\":4,\"continuity\":4,\"evidence_fact_ids\":[\"routes\",\"favor\",\"friend\",\"gu-goals\",\"yu-goals\"],\"interest\":4,\"pacing\":5},{\"agency\":5,\"blocking_issues\":[],\"candidate_id\":\"roundtrip_window_closes\",\"causality\":5,\"consequence\":5,\"continuity\":5,\"evidence_fact_ids\":[\"routes\",\"favor\",\"friend\",\"gu-goals\",\"yu-goals\"],\"interest\":5,\"pacing\":5}]}}",
+      "raw_sha256": "11bb5a0b780bd16cc548de77bc0c70662cc51ddff48eae7e756435530f5cc8b1"
+    },
+    {
+      "stage": "write",
+      "raw": "{\"result\":{\"outcome\":\"awaits_player\",\"passage\":\"顾岚的手停在缆绳上。“不能先去南岸。这船接了北堤的滤芯，船工的工钱也指着这趟。”她看着你，没有避开你的目光，“上周修缆绳，你帮了我。那个人情还欠着，不是今天说一句按合同办，就算还了。”余叔蹲在船边查看舱底，随后试了发动机，声音从低处传上来：“先核船况和返航时间。不能叫新人靠赶航把时间抢回来。”\\n\\n发动机低低震着，余叔检查完，把手上的油迹擦在布上。手机屏幕亮起：16:42。他盯了片刻，又抬头看岸上的停航告示。“船况能走，时间不行。北堤来回八十分钟，现在松缆，回来也是十八点零二，还没算交货。”他站起身，“这趟往返不能发。不能拿快开两分钟当安排。”顾岚低头看了一眼仍系在桩上的缆绳，示意他关掉发动机。轰鸣收住，水拍船帮的声音一下清楚起来。\\n\\n“那原定这趟，今天照办不了了。”顾岚说。她拿出手机，翻找合同上的联系号码，拇指停在拨号键旁。“我先跟北堤说，交付得重新商量。”她转向你，“但停了北堤这趟，不等于我已经答应把船借去南岸。你要接的人，现在那边是什么情况？”船没有解缆。她握着手机，等你回答。\",\"story_time\":\"当日16:42\",\"suggestions\":[\"说明目前还不知道朋友的准确安全状况，尝试先联系朋友。\",\"询问顾岚核验后是否愿意重新商量南岸往返。\"],\"title\":\"两分钟\"}}",
+      "raw_sha256": "8d10302fed9fe490e372611439a7e93a940f9f3ff4e2b304d3e54a2759ebd67b"
+    },
+    {
+      "stage": "extract",
+      "raw": "{\"result\":{\"candidate_json\":\"{\\\"title\\\":\\\"两分钟\\\",\\\"passage\\\":\\\"顾岚的手停在缆绳上。“不能先去南岸。这船接了北堤的滤芯，船工的工钱也指着这趟。”她看着你，没有避开你的目光，“上周修缆绳，你帮了我。那个人情还欠着，不是今天说一句按合同办，就算还了。”余叔蹲在船边查看舱底，随后试了发动机，声音从低处传上来：“先核船况和返航时间。不能叫新人靠赶航把时间抢回来。”\\\\n\\\\n发动机低低震着，余叔检查完，把手上的油迹擦在布上。手机屏幕亮起：16:42。他盯了片刻，又抬头看岸上的停航告示。“船况能走，时间不行。北堤来回八十分钟，现在松缆，回来也是十八点零二，还没算交货。”他站起身，“这趟往返不能发。不能拿快开两分钟当安排。”顾岚低头看了一眼仍系在桩上的缆绳，示意他关掉发动机。轰鸣收住，水拍船帮的声音一下清楚起来。\\\\n\\\\n“那原定这趟，今天照办不了了。”顾岚说。她拿出手机，翻找合同上的联系号码，拇指停在拨号键旁。“我先跟北堤说，交付得重新商量。”她转向你，“但停了北堤这趟，不等于我已经答应把船借去南岸。你要接的人，现在那边是什么情况？”船没有解缆。她握着手机，等你回答。\\\",\\\"story_time\\\":\\\"当日16:42\\\",\\\"outcome\\\":\\\"awaits_player\\\",\\\"suggestions\\\":[\\\"说明目前还不知道朋友的准确安全状况，尝试先联系朋友。\\\",\\\"询问顾岚核验后是否愿意重新商量南岸往返。\\\"],\\\"new_entities\\\":[],\\\"new_facts\\\":[{\\\"id\\\":\\\"gu-response-r2\\\",\\\"kind\\\":\\\"statement\\\",\\\"known\\\":true,\\\"known_by\\\":[\\\"gu\\\",\\\"qiao\\\"],\\\"source_revision\\\":2,\\\"subject_id\\\":\\\"gu\\\",\\\"text\\\":\\\"顾岚拒绝先去南岸，说明北堤滤芯合同关系船工工钱，并承认仍欠乔岑修缆绳的人情。\\\"},{\\\"id\\\":\\\"yu-inspection-r2\\\",\\\"kind\\\":\\\"fact\\\",\\\"known\\\":true,\\\"known_by\\\":[\\\"yu\\\",\\\"gu\\\",\\\"qiao\\\"],\\\"source_revision\\\":2,\\\"subject_id\\\":\\\"yu\\\",\\\"text\\\":\\\"余叔查看舱底并试发动机，核验结束时手机显示16:42。\\\"},{\\\"id\\\":\\\"yu-assessment-r2\\\",\\\"kind\\\":\\\"statement\\\",\\\"known\\\":true,\\\"known_by\\\":[\\\"yu\\\",\\\"gu\\\",\\\"qiao\\\"],\\\"source_revision\\\":2,\\\"subject_id\\\":\\\"yu\\\",\\\"text\\\":\\\"余叔核验后表示船况能走，但北堤往返八十分钟，此时出发最早18:02返回且尚未计入交货，因此这趟往返不能发，不能靠快开弥补。\\\"},{\\\"id\\\":\\\"north-departure-stopped-r2\\\",\\\"kind\\\":\\\"fact\\\",\\\"known\\\":true,\\\"known_by\\\":[\\\"gu\\\",\\\"yu\\\",\\\"qiao\\\"],\\\"source_revision\\\":2,\\\"subject_id\\\":\\\"gu\\\",\\\"text\\\":\\\"顾岚示意关闭发动机，发动机随后停止；原定北堤往返出航准备停止，船仍系缆未出发。\\\"},{\\\"id\\\":\\\"gu-renegotiation-r2\\\",\\\"kind\\\":\\\"statement\\\",\\\"known\\\":true,\\\"known_by\\\":[\\\"gu\\\",\\\"qiao\\\"],\\\"source_revision\\\":2,\\\"subject_id\\\":\\\"gu\\\",\\\"text\\\":\\\"顾岚表示原定北堤这趟今天无法照办，准备联系北堤重新商量交付；停止北堤这趟不代表答应借船去南岸，并询问乔岑朋友的现状。\\\"},{\\\"id\\\":\\\"gu-phone-ready-r2\\\",\\\"kind\\\":\\\"fact\\\",\\\"known\\\":true,\\\"known_by\\\":[\\\"gu\\\",\\\"qiao\\\"],\\\"source_revision\\\":2,\\\"subject_id\\\":\\\"gu\\\",\\\"text\\\":\\\"顾岚拿出手机翻找合同联系号码，拇指停在拨号键旁，尚未拨通，等待乔岑回答。\\\"}],\\\"new_threads\\\":[{\\\"id\\\":\\\"north-delivery-r2\\\",\\\"known\\\":true,\\\"related_fact_ids\\\":[\\\"routes\\\",\\\"north-departure-stopped-r2\\\",\\\"gu-renegotiation-r2\\\",\\\"gu-phone-ready-r2\\\"],\\\"text\\\":\\\"原定北堤往返出航停止，交付如何重新协商及其具体代价尚未确定。\\\"},{\\\"id\\\":\\\"south-request-r2\\\",\\\"known\\\":true,\\\"related_fact_ids\\\":[\\\"friend\\\",\\\"gu-response-r2\\\",\\\"gu-renegotiation-r2\\\"],\\\"text\\\":\\\"南岸接人请求尚未获准；朋友现状及顾岚是否愿意重新商量仍待回应。\\\"}],\\\"reveal_entity_ids\\\":[],\\\"reveal_fact_ids\\\":[],\\\"reveal_thread_ids\\\":[],\\\"resolve_thread_ids\\\":[],\\\"knowledge_changes\\\":[],\\\"narrative_update\\\":{\\\"version\\\":1,\\\"through_revision\\\":2,\\\"episodes\\\":[{\\\"id\\\":\\\"harbor-window-r1-r2\\\",\\\"summary\\\":\\\"乔岑请求先去南岸接朋友。顾岚以北堤合同和船工工钱拒绝，同时承认欠下的人情未还。余叔核验船况与返航时间，两分钟后指出北堤往返最早18:02返回。顾岚停止原定出航准备，着手找合同联系方式，尚未拨通，也未同意南岸请求，转而询问朋友现状。\\\",\\\"from_revision\\\":1,\\\"to_revision\\\":2,\\\"fact_ids\\\":[\\\"routes\\\",\\\"favor\\\",\\\"friend\\\",\\\"gu-response-r2\\\",\\\"yu-inspection-r2\\\",\\\"yu-assessment-r2\\\",\\\"north-departure-stopped-r2\\\",\\\"gu-renegotiation-r2\\\",\\\"gu-phone-ready-r2\\\"]}],\\\"characters\\\":[{\\\"entity_id\\\":\\\"qiao\\\",\\\"goals\\\":[\\\"争取借船前往南岸接受困朋友\\\"],\\\"relationships\\\":[{\\\"entity_id\\\":\\\"gu\\\",\\\"stance\\\":\\\"曾帮助修缆绳，对方承认人情未还，但此次借船尚未获准。\\\",\\\"fact_ids\\\":[\\\"favor\\\",\\\"gu-response-r2\\\",\\\"gu-renegotiation-r2\\\"]}],\\\"voice\\\":\\\"第二人称视角；不代替玩家补充朋友状况或承诺。\\\",\\\"belief_fact_ids\\\":[],\\\"updated_revision\\\":2},{\\\"entity_id\\\":\\\"gu\\\",\\\"goals\\\":[\\\"按合同交付滤芯并保留船工生计\\\",\\\"不轻易亏欠人情\\\",\\\"联系北堤重新商量交付\\\"],\\\"relationships\\\":[{\\\"entity_id\\\":\\\"qiao\\\",\\\"stance\\\":\\\"承认欠修缆绳的人情，但不将其直接兑换为南岸借船许可。\\\",\\\"fact_ids\\\":[\\\"favor\\\",\\\"gu-response-r2\\\",\\\"gu-renegotiation-r2\\\"]}],\\\"voice\\\":\\\"直视对方，明确区分欠人情、合同责任与借船许可。\\\",\\\"belief_fact_ids\\\":[\\\"gu-response-r2\\\",\\\"gu-renegotiation-r2\\\"],\\\"updated_revision\\\":2},{\\\"entity_id\\\":\\\"yu\\\",\\\"goals\\\":[\\\"让船员按时拿到工钱\\\",\\\"尽量不把风险交给新人\\\",\\\"不以赶航弥补返航时间缺口\\\"],\\\"relationships\\\":[],\\\"voice\\\":\\\"务实，以船况、时间核算和操作边界说话。\\\",\\\"belief_fact_ids\\\":[\\\"yu-assessment-r2\\\"],\\\"updated_revision\\\":2}],\\\"arcs\\\":[{\\\"thread_id\\\":\\\"north-delivery-r2\\\",\\\"status\\\":\\\"open\\\",\\\"tension\\\":4,\\\"next_beats\\\":[\\\"由顾岚实际联系合同方，呈现对方回应及可核实的交付条件。\\\"],\\\"payoff_conditions\\\":[\\\"交付新安排或无法达成安排的结果得到实际确认。\\\"],\\\"fact_ids\\\":[\\\"routes\\\",\\\"north-departure-stopped-r2\\\",\\\"gu-renegotiation-r2\\\",\\\"gu-phone-ready-r2\\\"],\\\"updated_revision\\\":2},{\\\"thread_id\\\":\\\"south-request-r2\\\",\\\"status\\\":\\\"open\\\",\\\"tension\\\":4,\\\"next_beats\\\":[\\\"等待乔岑说明掌握的信息，或尝试联系朋友核实状况。\\\",\\\"依据核实结果与航程条件重新商议，不预设借船成功。\\\"],\\\"payoff_conditions\\\":[\\\"南岸请求得到明确处理。\\\",\\\"朋友安全状况通过可观察信息得到核实。\\\"],\\\"fact_ids\\\":[\\\"friend\\\",\\\"gu-response-r2\\\",\\\"gu-renegotiation-r2\\\"],\\\"updated_revision\\\":2}],\\\"style\\\":{\\\"voice\\\":\\\"现实风格群像，以具体操作、对话和时间成本推进冲突。\\\",\\\"perspective\\\":\\\"第二人称，乔岑视角\\\",\\\"pace\\\":\\\"balanced\\\",\\\"detail\\\":\\\"balanced\\\",\\\"avoid\\\":[\\\"将角色发言直接升级为世界真相\\\",\\\"泄露未传递的隐藏信息\\\",\\\"替玩家作出承诺或重大决定\\\",\\\"把准备联系写成已经协商成功\\\"],\\\"preference_refs\\\":[]}}}\"}}",
+      "raw_sha256": "4404e0dec1995691c71011dfa5e060c65d0821a1df46c558b1f8e8d6915ba304"
+    },
+    {
+      "stage": "review",
+      "raw": "{\"result\":{\"approved\":true,\"issues\":[],\"knowledge_supports\":[{\"fact_id\":\"gu-response-r2\",\"quote\":\"“不能先去南岸。这船接了北堤的滤芯，船工的工钱也指着这趟。”她看着你，没有避开你的目光，“上周修缆绳，你帮了我。那个人情还欠着，不是今天说一句按合同办，就算还了。”\",\"subject_id\":\"gu\"},{\"fact_id\":\"gu-response-r2\",\"quote\":\"“不能先去南岸。这船接了北堤的滤芯，船工的工钱也指着这趟。”她看着你，没有避开你的目光，“上周修缆绳，你帮了我。那个人情还欠着，不是今天说一句按合同办，就算还了。”\",\"subject_id\":\"qiao\"},{\"fact_id\":\"yu-inspection-r2\",\"quote\":\"余叔蹲在船边查看舱底，随后试了发动机\",\"subject_id\":\"yu\"},{\"fact_id\":\"yu-inspection-r2\",\"quote\":\"余叔蹲在船边查看舱底，随后试了发动机\",\"subject_id\":\"gu\"},{\"fact_id\":\"yu-inspection-r2\",\"quote\":\"余叔蹲在船边查看舱底，随后试了发动机\",\"subject_id\":\"qiao\"},{\"fact_id\":\"yu-assessment-r2\",\"quote\":\"“船况能走，时间不行。北堤来回八十分钟，现在松缆，回来也是十八点零二，还没算交货。”他站起身，“这趟往返不能发。不能拿快开两分钟当安排。”\",\"subject_id\":\"yu\"},{\"fact_id\":\"yu-assessment-r2\",\"quote\":\"“船况能走，时间不行。北堤来回八十分钟，现在松缆，回来也是十八点零二，还没算交货。”他站起身，“这趟往返不能发。不能拿快开两分钟当安排。”\",\"subject_id\":\"gu\"},{\"fact_id\":\"yu-assessment-r2\",\"quote\":\"“船况能走，时间不行。北堤来回八十分钟，现在松缆，回来也是十八点零二，还没算交货。”他站起身，“这趟往返不能发。不能拿快开两分钟当安排。”\",\"subject_id\":\"qiao\"},{\"fact_id\":\"north-departure-stopped-r2\",\"quote\":\"顾岚低头看了一眼仍系在桩上的缆绳，示意他关掉发动机。轰鸣收住，水拍船帮的声音一下清楚起来。\",\"subject_id\":\"gu\"},{\"fact_id\":\"north-departure-stopped-r2\",\"quote\":\"顾岚低头看了一眼仍系在桩上的缆绳，示意他关掉发动机。轰鸣收住，水拍船帮的声音一下清楚起来。\",\"subject_id\":\"yu\"},{\"fact_id\":\"north-departure-stopped-r2\",\"quote\":\"顾岚低头看了一眼仍系在桩上的缆绳，示意他关掉发动机。轰鸣收住，水拍船帮的声音一下清楚起来。\",\"subject_id\":\"qiao\"},{\"fact_id\":\"gu-renegotiation-r2\",\"quote\":\"“那原定这趟，今天照办不了了。”顾岚说。她拿出手机，翻找合同上的联系号码，拇指停在拨号键旁。“我先跟北堤说，交付得重新商量。”她转向你，“但停了北堤这趟，不等于我已经答应把船借去南岸。你要接的人，现在那边是什么情况？”\",\"subject_id\":\"gu\"},{\"fact_id\":\"gu-renegotiation-r2\",\"quote\":\"“那原定这趟，今天照办不了了。”顾岚说。她拿出手机，翻找合同上的联系号码，拇指停在拨号键旁。“我先跟北堤说，交付得重新商量。”她转向你，“但停了北堤这趟，不等于我已经答应把船借去南岸。你要接的人，现在那边是什么情况？”\",\"subject_id\":\"qiao\"},{\"fact_id\":\"gu-phone-ready-r2\",\"quote\":\"她拿出手机，翻找合同上的联系号码，拇指停在拨号键旁。\",\"subject_id\":\"gu\"},{\"fact_id\":\"gu-phone-ready-r2\",\"quote\":\"她拿出手机，翻找合同上的联系号码，拇指停在拨号键旁。\",\"subject_id\":\"qiao\"}],\"reveal_supports\":[],\"supports\":[{\"fact_id\":\"gu-response-r2\",\"quote\":\"“不能先去南岸。这船接了北堤的滤芯，船工的工钱也指着这趟。”她看着你，没有避开你的目光，“上周修缆绳，你帮了我。那个人情还欠着，不是今天说一句按合同办，就算还了。”\"},{\"fact_id\":\"yu-inspection-r2\",\"quote\":\"余叔蹲在船边查看舱底，随后试了发动机，声音从低处传上来：“先核船况和返航时间。不能叫新人靠赶航把时间抢回来。”\\\\n\\\\n发动机低低震着，余叔检查完，把手上的油迹擦在布上。手机屏幕亮起：16:42。\"},{\"fact_id\":\"yu-assessment-r2\",\"quote\":\"“船况能走，时间不行。北堤来回八十分钟，现在松缆，回来也是十八点零二，还没算交货。”他站起身，“这趟往返不能发。不能拿快开两分钟当安排。”\"},{\"fact_id\":\"north-departure-stopped-r2\",\"quote\":\"顾岚低头看了一眼仍系在桩上的缆绳，示意他关掉发动机。轰鸣收住，水拍船帮的声音一下清楚起来。\"},{\"fact_id\":\"gu-renegotiation-r2\",\"quote\":\"“那原定这趟，今天照办不了了。”顾岚说。她拿出手机，翻找合同上的联系号码，拇指停在拨号键旁。“我先跟北堤说，交付得重新商量。”她转向你，“但停了北堤这趟，不等于我已经答应把船借去南岸。你要接的人，现在那边是什么情况？”\"},{\"fact_id\":\"gu-phone-ready-r2\",\"quote\":\"她拿出手机，翻找合同上的联系号码，拇指停在拨号键旁。“我先跟北堤说，交付得重新商量。”她转向你，“但停了北堤这趟，不等于我已经答应把船借去南岸。你要接的人，现在那边是什么情况？”船没有解缆。她握着手机，等你回答。\"}]}}",
+      "raw_sha256": "ca29169312f771c651b3697ce9b29c4d1bac716797c3148fda5a516ace9ee2fe"
+    }
+  ]
+}

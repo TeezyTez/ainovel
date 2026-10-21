@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -23,18 +24,40 @@ import (
 	"elselife/backend/internal/sqlc/pgq"
 )
 
+func copyActualRuntimeBinary(source, binary string) (string, error) {
+	input, err := os.Open(source)
+	if err != nil {
+		return "", err
+	}
+	defer input.Close()
+	output, err := os.OpenFile(binary, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0700)
+	if err != nil {
+		return "", err
+	}
+	sum := sha256.New()
+	// Hide File.WriteTo so CopyBuffer always uses this bounded read buffer,
+	// including on DrvFS where one executable-sized read can fail with ENOMEM.
+	_, copyErr := io.CopyBuffer(io.MultiWriter(output, sum), struct{ io.Reader }{input}, make([]byte, 64<<10))
+	closeErr := output.Close()
+	if copyErr != nil {
+		return "", copyErr
+	}
+	if closeErr != nil {
+		return "", closeErr
+	}
+	return fmt.Sprintf("%x", sum.Sum(nil)), nil
+}
+
 func actualReadRuntime(t *testing.T) string {
 	t.Helper()
 	source := os.Getenv("ELSELIFE_TEST_RUST_RUNTIME")
 	if source == "" {
 		t.Skip("explicit actual Rust executable required")
 	}
-	raw, err := os.ReadFile(source)
-	must(t, err)
-	sum := sha256.Sum256(raw)
-	t.Logf("actual Rust executable sha256=%x", sum)
 	binary := filepath.Join(t.TempDir(), "runtime")
-	must(t, os.WriteFile(binary, raw, 0700))
+	sum, err := copyActualRuntimeBinary(source, binary)
+	must(t, err)
+	t.Logf("actual Rust executable sha256=%s", sum)
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
 	must(t, err)
 	addr := lis.Addr().String()
@@ -42,15 +65,33 @@ func actualReadRuntime(t *testing.T) string {
 	cmd := exec.Command(binary, "--listen", addr, "--insecure-plaintext")
 	cmd.Dir = t.TempDir()
 	cmd.Env = []string{"PATH=" + os.Getenv("PATH"), "HOME=" + cmd.Dir}
+	logPath := filepath.Join(cmd.Dir, "runtime.log")
+	output, err := os.Create(logPath)
+	must(t, err)
+	t.Cleanup(func() { _ = output.Close() })
+	cmd.Stdout, cmd.Stderr = output, output
+	runtimeLog := func() string {
+		raw, err := os.ReadFile(logPath)
+		if err != nil {
+			return "runtime log unavailable: " + err.Error()
+		}
+		return string(raw)
+	}
 	must(t, cmd.Start())
-	exited := make(chan error, 1)
-	go func() { exited <- cmd.Wait() }()
+	// A closed channel broadcasts completion to readiness and cleanup. A single
+	// error value would be consumed by readiness and make cleanup falsely time out.
+	exited := make(chan struct{})
+	var waitErr error
+	go func() {
+		waitErr = cmd.Wait()
+		close(exited)
+	}()
 	t.Cleanup(func() {
 		_ = cmd.Process.Kill()
 		select {
 		case <-exited:
 		case <-time.After(3 * time.Second):
-			t.Error("runtime failed to exit")
+			t.Errorf("runtime failed to exit\n%s", runtimeLog())
 		}
 	})
 	deadline := time.NewTimer(5 * time.Second)
@@ -64,10 +105,10 @@ func actualReadRuntime(t *testing.T) string {
 			return addr
 		}
 		select {
-		case err := <-exited:
-			t.Fatal(err)
+		case <-exited:
+			t.Fatalf("runtime exited before becoming ready: %v\n%s", waitErr, runtimeLog())
 		case <-deadline.C:
-			t.Fatal("runtime never ready")
+			t.Fatalf("runtime never ready\n%s", runtimeLog())
 		case <-tick.C:
 		}
 	}

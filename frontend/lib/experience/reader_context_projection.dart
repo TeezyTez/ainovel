@@ -1,4 +1,5 @@
 import 'experience_models.dart';
+import 'reader_information_display.dart';
 
 /// Adapts committed public snapshots to the original read-only source UI.
 /// Diagram positions are presentation only; no inferred relationship is added.
@@ -15,7 +16,7 @@ List<Json> readerContextObjects(ExperienceView view) {
           'thread' => 'clue',
           _ => item.kind,
         },
-        'summary': item.text,
+        'summary': item.displaySummary,
         'certainty':
             item.certainty ??
             switch (item.kind) {
@@ -40,13 +41,19 @@ List<Json> readerContextObjects(ExperienceView view) {
             view.revision,
         'fields': [
           ...item.fields,
+          if (item.isInitialEntityRecord && item.relatedIds.isNotEmpty)
+            {
+              'key': 'initialAssociations',
+              'label': '初次关联',
+              'value': item.relatedNames(view.information),
+            },
           for (final record in view.reader?.currentRecords ?? [])
             if ('entity:${record.entityId}' == item.id &&
                 record.value.isNotEmpty &&
                 record.kind != 'artifact')
               {
                 'key': record.label,
-                'label': record.label,
+                'label': '正式记录 · ${record.label}（第 ${record.sourceRevision} 页）',
                 'value': record.value,
               },
         ],

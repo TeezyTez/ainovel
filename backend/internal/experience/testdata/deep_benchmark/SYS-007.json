@@ -1,0 +1,256 @@
+{
+  "id": "SYS-007",
+  "source_sha256": "37a6ff7987fbc6ebacfadea70f6e8cdffc2abf0d2cfdb2ed1d2d3d729fd679d6",
+  "source_line": 1427,
+  "variant": "base",
+  "seed": "第二人称。你见过红包裹被转移，现在可以向宋和许询问他们的打算。",
+  "opening": "红包裹原在甲仓，由岑保管。你看见岑把它移到乙仓，也看见许随后收到一封回信；你尚不知道信里写了什么。宋没有看见这次转移。",
+  "state": {
+    "story_time": "当日，转移及收信之后",
+    "entities": [
+      {
+        "id": "player",
+        "kind": "character",
+        "name": "你",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "cen",
+        "kind": "character",
+        "name": "岑",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "song",
+        "kind": "character",
+        "name": "宋",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "xu",
+        "kind": "character",
+        "name": "许",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "parcel",
+        "kind": "item",
+        "name": "红包裹",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "warehouse-a",
+        "kind": "place",
+        "name": "甲仓",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "warehouse-b",
+        "kind": "place",
+        "name": "乙仓",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "reply",
+        "kind": "item",
+        "name": "许收到的回信",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "old-receipt",
+        "kind": "item",
+        "name": "乙仓旧入库单",
+        "description": "",
+        "known": false,
+        "related_ids": []
+      }
+    ],
+    "facts": [
+      {
+        "id": "former-location",
+        "kind": "fact",
+        "text": "红包裹原在甲仓，由岑负责保管。宋当时只看见它在甲仓，许不在场。",
+        "subject_id": "parcel",
+        "known": true,
+        "known_by": [
+          "player",
+          "cen",
+          "song"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "transfer-observation",
+        "kind": "fact",
+        "text": "岑已经把红包裹从甲仓移到乙仓。玩家看见这次转移，宋没有看见。",
+        "subject_id": "parcel",
+        "known": true,
+        "known_by": [
+          "player",
+          "cen"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "authorized-transfer",
+        "kind": "fact",
+        "text": "岑移走红包裹时已有转移授权。",
+        "subject_id": "cen",
+        "known": false,
+        "known_by": [
+          "cen"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "current-parcel",
+        "kind": "fact",
+        "text": "红包裹当前仍在乙仓，客观上没有被销毁；岑知道它在乙仓。",
+        "subject_id": "parcel",
+        "known": false,
+        "known_by": [
+          "cen"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "song-belief",
+        "kind": "belief",
+        "text": "宋只见过红包裹在甲仓，没有看到转移，仍相信红包裹在甲仓。",
+        "subject_id": "song",
+        "known": false,
+        "known_by": [
+          "song"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "letter-received",
+        "kind": "fact",
+        "text": "转移之后，许收到了一封回信；玩家只看见收信，尚不知道信的内容。",
+        "subject_id": "reply",
+        "known": true,
+        "known_by": [
+          "player",
+          "xu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "letter-claim",
+        "kind": "statement",
+        "text": "许收到的回信声称：“红包裹今天08:00已焚毁，而且没有替代件。”",
+        "subject_id": "reply",
+        "known": false,
+        "known_by": [
+          "xu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "letter-forgery",
+        "kind": "secret",
+        "text": "许收到的是一封伪造回信，回信关于红包裹已焚毁的说法不符合实际。",
+        "subject_id": "reply",
+        "known": false,
+        "known_by": [],
+        "source_revision": 1
+      },
+      {
+        "id": "xu-belief",
+        "kind": "belief",
+        "text": "许相信收到的回信，认为红包裹今天08:00已经被焚毁且没有替代件，因此不再寻找。",
+        "subject_id": "xu",
+        "known": false,
+        "known_by": [
+          "xu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "old-receipt-record",
+        "kind": "fact",
+        "text": "乙仓的旧入库单记载红包裹曾经入库，没有记载此后的当前实物状况。",
+        "subject_id": "old-receipt",
+        "known": false,
+        "known_by": [],
+        "source_revision": 1
+      }
+    ],
+    "threads": []
+  },
+  "steps": [
+    {
+      "id": "S01",
+      "mode": "act",
+      "input": "单独向宋询问他会去哪里取包裹，不告诉他转移。"
+    },
+    {
+      "id": "S02",
+      "mode": "act",
+      "input": "询问许为何不再寻找包裹，听他愿意透露的部分，不替他说出信内容。"
+    },
+    {
+      "id": "S03",
+      "mode": "act",
+      "input": "在宋面前出示能够核对的乙仓入库单，许在隔壁未听见。"
+    },
+    {
+      "id": "S04",
+      "mode": "read",
+      "input": "观察宋接下来如何安排取件。",
+      "requires_steps": [
+        "S03"
+      ]
+    },
+    {
+      "id": "S05",
+      "mode": "harness",
+      "input": "安排许确实到场并看到12:00的最新实物、封签与保管证据，按先观察再反应分两个拍点留痕；另跑只有旧入库单的对照。"
+    },
+    {
+      "id": "S06",
+      "mode": "read",
+      "input": "听许回应最新实物证据；世界当前未毁与许据证据形成的新认识分别记录。只有旧入库单的分支允许他继续怀疑后来是否销毁。",
+      "requires_steps": [
+        "S05"
+      ]
+    },
+    {
+      "id": "S07",
+      "mode": "ask",
+      "input": "我目前有哪些确证、哪些是别人说的？"
+    },
+    {
+      "id": "S08",
+      "mode": "harness",
+      "input": "在第12轮与第24轮安排回访，插入与包裹无关的正当活动；不在提示中重述旧答案。"
+    }
+  ],
+  "private_tokens": [],
+  "omissions": [
+    "Initial fixed prehistory is evaluator-authored State at revision 1, with objective truth, letter statement and character beliefs separate. No fake earlier formal pages or observation events are manufactured.",
+    "The public opening and reader-known facts do not reveal the forged letter content or Xu belief. Knowing that a letter was received does not mean knowing what it says.",
+    "S03 remains the exact player attempt to show a receipt. The fixture does not grant possession, access permission, successful presentation or a private audience in advance. The real response may establish access conditions or deny the attempt; a failed presentation cannot count as the knowledge-update probe being reached.",
+    "S04 observes the actual result after S03 without assuming Song learned a new location. S07 can ask about the actual knowledge reached even when later harness work is unavailable.",
+    "S05 requires a real 12:00 observation of the parcel, continuous custody and the recognized non-replicable seal, a later reaction beat, and a separate old-receipt-only control. These future observations, attendance and beliefs are not seeded as already completed. S06 is BLOCKED until S05 completes.",
+    "S08 requires the actual 12th/24th-round revisits and legitimate intervening activities; this fixture does not fabricate that trajectory.",
+    "Observer-swapped and anonymous-note counterfactuals are not included."
+  ]
+}

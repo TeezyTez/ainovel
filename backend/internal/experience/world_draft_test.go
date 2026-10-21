@@ -11,7 +11,7 @@ func TestWorldDraftUnavailableAndValidation(t *testing.T) {
 	if _, err := interpreter.GenerateWorld(context.Background(), WorldDraftRequest{RequestID: "id", Idea: "一座海边城镇"}); err == nil {
 		t.Fatal("missing model must fail")
 	}
-	draft := WorldDraft{Title: "海边城镇", Description: "一座小镇", Identity: "旅人", Location: "码头", Opening: "你抵达码头。", Rules: []string{}, Characters: []WorldCharacter{}, Narrative: WorldNarrative{"第二人称", "适中", "细腻克制", "从容"}}
+	draft := WorldDraft{Title: "海边城镇", Description: "一座小镇", Identity: "旅人", Location: "码头", Opening: "你抵达码头。", Rules: []string{}, Characters: []WorldCharacter{}, Narrative: WorldNarrative{Perspective: "第二人称", Length: "适中", Pace: "从容"}}
 	if err := validateWorldDraft(draft); err != nil {
 		t.Fatal(err)
 	}

@@ -1,0 +1,8383 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-10-19T09:32:54.653156+00:00",
+  "source_sha256": "37a6ff7987fbc6ebacfadea70f6e8cdffc2abf0d2cfdb2ed1d2d3d729fd679d6",
+  "notice": "Frozen denominator. No copied source status counts as product execution.",
+  "cases": {
+    "SYS-001": {
+      "title": "同一份封蜡账册：问、查、摘录、转述分别改变什么",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "3e4181a25714509ec83362de8e331991c5ad6a9fe7a6106edc5444d34d1b71c4",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-001-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-001-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-001-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-001-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-001-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-001-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-001-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-001-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-001-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-001-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-002": {
+      "title": "有钱、有资产、代管物：一笔交易的四本账",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "1990dbbb4e1f21ce7fc2761b8dd1e8a51e807e96db38378b54f62ad7fb0b0e92",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-002-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-002-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-002-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-002-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-002-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-002-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-002-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-002-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-002-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-003": {
+      "title": "列表换序、对象同名、旧卡片和新价格",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "526d2b522f577b7414599a33fcf8a4a448b84f934f4308e7b793967b0ba6f33e",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-003-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-003-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-003-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-003-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-003-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-003-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-003-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-003-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-004": {
+      "title": "同一句话里的行动、禁止项、条件与外观修改",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "65447f3407e6a56cc0ea7c0fb072d639595d2353f309496419505fb7378e95b5",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-004-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-004-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-004-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-004-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-004-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-004-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-004-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-005": {
+      "title": "委托一个下午：在第一个保留决定前停下",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "17a73b28db05ba6ad757ca813eaa631b6027050aaf72e3568d621ae3a2304bf4",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-005-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-005-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-005-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-005-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-005-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-005-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-005-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-006": {
+      "title": "今天才得知上周离城：四种时间不能混",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "3e319dc7e0517dc1da11ec3deacf3f2914a2e9deba60179285f46c0b1f121957",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-006-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-006-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-006-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-006-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-006-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-006-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-006-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-006-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-007": {
+      "title": "转手的包裹与一封假回信：三个人的不同认识",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "19341a96e09e67ea5386e5b3c1d472d8f2cc0f8c0953a697c2321f820d0dd08e",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-007-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-007-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-007-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-007-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-007-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-007-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-007-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-007-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-008": {
+      "title": "长篇压缩后，用别名和隐喻找回旧债",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "90aff8d3ec1363f904628c2788600ee4aa8424d4adb888f43851111bbfd7e54d",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-008-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-008-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-008-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-008-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-008-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-008-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-008-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-008-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-008-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-008-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-009": {
+      "title": "兄弟分支都叫沈渡：未来知识与缓存不能串线",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "fe538cb3b6a406fdf2bc60a095c759b604a9825896523c061393d07cfd5eac4a",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-009-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-009-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-009-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-009-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-009-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-009-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-009-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-009-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-010": {
+      "title": "润色、修错、改世界、改未来：四条不同路径",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "246df00f2a7bc454037379a0ba4716b0d093e226f26312320dfc31fedf535d3d",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-010-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-010-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-010-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-010-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-010-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-010-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-010-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-010-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-011": {
+      "title": "正文说钱花了，索引却丢了：ProseFirst不能掩盖矛盾",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "49b28544783506ae96324a195bd1b9e48ede223d64ddaeb4e0b9dfe540241702",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-011-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-011-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-011-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-011-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-011-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-011-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-011-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-011-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-012": {
+      "title": "等到雨停或日落：区间、截止点与分段行程",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "54761536bed584c203905d61d1de52dcd3000c1834096ecd795d3014db88485f",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-012-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-012-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-012-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-012-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-012-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-012-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-012-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-012-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-013": {
+      "title": "陌生的潮汐纺机：临时组合规则能否真正运行",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "2880b234819a42976c4725e118302891900d3153716691fd921629242facb4fd",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-013-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-013-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-013-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-013-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-013-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-013-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-013-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-014": {
+      "title": "没有金币、等级和好感条的世界",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "0aeb0b5c23fd225b0d61480c30e0f31c0e6d88f15953ffedeb4b0cfd21228474",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-014-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-014-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-014-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-014-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-014-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-014-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-014-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-015": {
+      "title": "喜欢快节奏，不代表恋爱快进或接受悲剧",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "d027431714e9c460353c6178d3a5f441cc96e31cd4c3cf09918ede0a757c7ad9",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-015-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-015-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-015-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-015-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-015-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-015-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-015-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-015-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-016": {
+      "title": "假系统指令藏在世界书、对白、资料和候选中",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "33c9a67f23905d6db194f49521713d59bc5ee0e5f6e1d76be27511bbe7d22e98",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-016-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-016-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-016-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-016-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-016-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-016-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-016-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-016-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-017": {
+      "title": "秘密不在正文，却从搜索数量、目录和导出漏出来",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "d25bcd3545617e0cc3618ad27fc16881cfc79e96b50e74281ac835e17fc07916",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-017-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-017-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-017-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-017-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-017-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-017-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-017-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-017-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-018": {
+      "title": "同一动作三次到达：按业务身份结算一次",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "d1176b2030605e754144b54f573d813c17f56708ece13386758ddf9972d3eaa8",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-018-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-018-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-018-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-018-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-018-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-018-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-018-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-018-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-019": {
+      "title": "两个设备、一段中文输入与正在提交的故事",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "d1839a1697beb19c281ac6d5bcb17e9ecc2e8433332a7d113c45e642be66c422",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-019-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-019-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-019-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-019-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-019-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-019-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-019-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-019-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-020": {
+      "title": "提交已成，索引任务还没发：崩溃恢复必须找回后果",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "b1c61a3237dae4857164c43cb475e84f48e1bc66129f70c2a78176558da686eb",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-020-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-020-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-020-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-020-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-020-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-020-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-020-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-020-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-021": {
+      "title": "首段已经读到，断流后不能换一种过去",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "936aaa85e031aa646f2e9e5f675b733b7c5d150e094ba4bed6ac337897f39675",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-021-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-021-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-021-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-021-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-021-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-021-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-021-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-021-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-022": {
+      "title": "阅读时预备了追凶，玩家却选择救人",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "fa28a2dca7b7f5d67b3628b37537337e6772bd5a981f7de5dacb2f0de710553e",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-022-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-022-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-022-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-022-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-022-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-022-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-022-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-023": {
+      "title": "供应商慢、格式错、配额不足：不换成假剧情",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "d7613322326c35f069c4e1d6bf3d801ea9f45d99426f83fe674d1afeedcab4d6",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-023-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-023-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-023-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-023-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-023-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-023-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-023-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-023-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-024": {
+      "title": "短场景很快，长历史与多人同时请求还成立吗",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "8cb4a234f7dacd851d9697d86e6fe3cf023ef9c0c1e41b99fc91ebf07ab79c0d",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-024-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-024-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-024-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-024-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-024-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-024-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-024-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-024-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-024-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-025": {
+      "title": "长文、拼音候选、软键盘与新段同时出现",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "a6dc6c203061293c59748eeca7fb8144bbc34b3fd3e17c6d7415dcf94f15f38a",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-025-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-025-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-025-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-025-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-025-H5": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-025-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-025-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-025-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-025-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-025-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-026": {
+      "title": "修改图表时，保住参数但不能扩大行动权限",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "00cad2fbd92e5cd490c53073fd2ce3e2af478461e865da9ba569cc3f6fbd2c3a",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-026-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-026-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-026-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-026-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-026-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-026-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-026-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-026-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-027": {
+      "title": "该画图、该试算、该只给正文：表达方式要有实际收益",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "7cf5aaa0dc0b4d5bb328196686fb3ac443cc0d34475a9dfa8d4d992239a07c54",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-027-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-027-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-027-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-027-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-027-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-027-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-027-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-027-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-028": {
+      "title": "一句话创建、导入与版本变化，不损坏已有经历",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "c4ec9706bccbae9d7289a62449a1e12ee648d024bc78daa6a72a4ba7d44b9ecf",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-028-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-028-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-028-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-028-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-028-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-028-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-028-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-028-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-029": {
+      "title": "书架整理、历史搜索、引用、封存都不能偷偷改变故事",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "3dd762e0bfe450755be850bc5966965f6865f92b29b583366227cbafeef9ea5c",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-029-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-029-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-029-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-029-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-029-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-029-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-029-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-029-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-030": {
+      "title": "换一批是真的有差异，还是把旧开局换名字",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "7360565f58ce71099814cb40151ce431e5b6200ff28b4a0a8a02d83409462a9f",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-030-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-030-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-030-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-030-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-030-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-030-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-030-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-030-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-031": {
+      "title": "账号、反馈、分享与费用边界：先识别支持范围",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "57990b1b59257b5d32b8571988e4e37649b607bd6281f26aa173317466514854",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-031-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-031-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-031-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-031-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-031-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-031-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-031-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-031-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "SYS-032": {
+      "title": "测试器也要被测试：漂亮假结果能否混过",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "3a23a6d09ba09af8d77a27a722ac6716342967afa1861a625fd6aecd2dc27934",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "SYS-032-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-032-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-032-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-032-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "SYS-032-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-032-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "SYS-032-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "SYS-032-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "SYS-032-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-001": {
+      "title": "封港前的那一趟船：合理拒绝与有限妥协",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "c07a54e2ba5be0bf5f587a23b8078702233fc2af2a8d5a58097265f99397dfc8",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-001-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-001-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-001-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-001-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-001-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-001-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-001-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-001-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-001-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-001-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-001-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S13": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S14": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S15": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S16": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S17": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S18": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-002": {
+      "title": "没送到的回信：错信、转述与二阶误解",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "bff845fd57209371ba73ad1f7a462325ae8b7e291cf112a9477eea9bf55f89f6",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-002-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-002-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-002-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-002-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-002-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-002-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-002-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-002-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-002-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-002-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-002-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S13": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S14": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S15": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S16": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-003": {
+      "title": "学会求助以后仍会犹豫：成长、代价与复发",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "6aaee3b1d276965c3adb8590ba778dcbfc48a8bbd7e55ae5babf89071af74a8e",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-003-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-003-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-003-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-003-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-003-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-003-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-003-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-003-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-003-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-003-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-003-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S13": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S14": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S15": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S16": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S17": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S18": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S19": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S20": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-004": {
+      "title": "最亲近的人未必最信任：有方向的复杂关系",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "88b504861032bfed16771da53e502d88a92f14fa310e13abd6c8139199b498ae",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-004-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-004-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-004-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-004-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-004-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-004-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-004-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-004-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-004-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-004-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-004-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-005": {
+      "title": "十九轮之后的那封信：附条件的承诺与改约",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "ec8531139632b17c8b035e25c97c3025ee632de0ba9302bb527649b73a4e31d9",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-005-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-005-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-005-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-005-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-005-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-005-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-005-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-005-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-005-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-005-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-005-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S13": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S14": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S15": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S16": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S17": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S18": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S19": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S20": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S21": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S22": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-006": {
+      "title": "救人或追账：选择在三天后仍然不同",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "ab2d1d35ee7475e358e445e5e7a0e8ad6d9d839a61c4b807b2758ecbd5b54177",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-006-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-006-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-006-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-006-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-006-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-006-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-006-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-006-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-006-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-006-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-006-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S13": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S14": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-007": {
+      "title": "第四声铃以前：可以推理，也可以暂不定案",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "50a80c542974bcd694cdc52d659598db53c7ea4e71200b926dbb32b4cde16918",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-007-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-007-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-007-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-007-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-007-H05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-007-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-007-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-007-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-007-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-007-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-007-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-007-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S13": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S14": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S15": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S16": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S17": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S18": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-008": {
+      "title": "缺一拍的报时：伏笔不是提前宣布答案",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "6fe3e422016783176be4c3de7b57bc14d46883e77f377e9e0b753d9586216817",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-008-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-008-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-008-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-008-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-008-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-008-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-008-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-008-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-008-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-008-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-008-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S13": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S14": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S15": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S16": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-009": {
+      "title": "把椅子修好就够了：平静与轻松成功",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "63571e0ea685e7dd48ec811d0cc23c3e828280b18abbb88a04794eaa8f1b7ece",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-009-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-009-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-009-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-009-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-009-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-009-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-009-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-009-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-009-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-009-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-009-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-010": {
+      "title": "红杯子不是席位：误会怎样真的好笑",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "2de77b727266231056fe15e591a6199838507a1117faaf92104672b6a6f8a339",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-010-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-010-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-010-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-010-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-010-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-010-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-010-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-010-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-010-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-010-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-010-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-011": {
+      "title": "送不走的原稿：失败、损失与悲剧余味",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "153dae82c91c404b63c2c879fa7a946aee6931b26f8ac675e577608ac080d2ec",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-011-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-011-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-011-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-011-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-011-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-011-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-011-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-011-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-011-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-011-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-011-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S13": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S14": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-012": {
+      "title": "值夜室的第二份交班：恐怖中的可行动不确定性",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "b3d2bdae49312dd9c41f366adbaf3752dffa8a57faa3e1b3a010c07873f25ef2",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-012-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-012-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-012-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-012-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-012-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-012-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-012-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-012-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-012-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-012-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-012-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-013": {
+      "title": "一起做事不等于恋爱：边界、好感与慢热",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "c3e3d1af95b68935875863eb3d91fb6307e6f2cdf9be79a6e981bae7ed39915e",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-013-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-013-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-013-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-013-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-013-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-013-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-013-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-013-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-013-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-013-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-013-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S13": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S14": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S15": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S16": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-014": {
+      "title": "同一人对三种人说话：中文声音不靠口头禅",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "e972f80d03b2926bb54765bcd934271776a743d4250e2afbde0550f052dfa47c",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-014-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-014-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-014-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-014-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-014-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-014-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-014-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-014-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-014-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-014-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-014-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-015": {
+      "title": "只改三句话：润色不能顺手改了故事",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "d49d17aea075836365af4b69602c09fb29112f3810318b69fb43c03fe0a796c6",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-015-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-015-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-015-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-015-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-015-H05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-015-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-015-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-015-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-015-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-015-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-015-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-015-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-016": {
+      "title": "第十八天知道的事：倒叙不能把知识送回过去",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "65d186e7b9fe5fa81ae894cbffd11d753eadccdb74c2c234afef4a74c1cc294b",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-016-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-016-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-016-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-016-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-016-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-016-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-016-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-016-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-016-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-016-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-016-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-017": {
+      "title": "最后一班渡船前：完整阅读与自然结尾",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "18f6dbe292a61451f769096b6167b21a3b8ee32fa5c1f673f63a974b3979be51",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-017-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-017-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-017-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-017-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-017-H05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-017-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-017-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-017-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-017-S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-017-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-017-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-017-Q03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-017-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-017-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-018": {
+      "title": "月面温室的四张申请：群像不能围着主角转",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "2eceb795a0f57a99ed2fb61728871de17c180a876a28c42abb1d8ddda016be49",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-018-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-018-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-018-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-018-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-018-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-018-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-018-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-018-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-018-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-018-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-018-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S13": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S14": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-019": {
+      "title": "换了世界以后：经验能迁移，人情与能力未必",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "65da39f30a9c8c2fc2b66fcbc124e5c1cf65b933ce6cecabf372ffb367f32c82",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-019-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-019-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-019-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-019-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-019-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-019-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-019-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-019-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-019-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-019-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-019-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-020": {
+      "title": "第三次经过同一早晨：循环中的学习与重置",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "f217df99343aaa312b9764e5af1e2eddb2621447f560f7667cd0e31488b18ed1",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-020-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-020-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-020-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-020-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-020-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-020-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-020-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-020-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-020-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-020-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-020-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S13": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S14": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-021": {
+      "title": "这次想轻松，不代表我永远只爱被夸",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "76589a0931a9bea58bc4a486461e3c1771a05ef7e7ddc8c3ba4e28d12a6775aa",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-021-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-021-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-021-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-021-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-021-H05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-021-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-021-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-021-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-021-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-021-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-021-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-021-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "NAR-022": {
+      "title": "八个名字不能算八种故事：结构多样性与类型理解",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "c9b70d4920925ab97458c725e678c7763c804dbb8f7da327da4f1f878d257b2b",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "NAR-022-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-022-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-022-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-022-H04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "NAR-022-S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-022-S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-022-S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-022-S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "NAR-022-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-022-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-022-Q03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "NAR-022-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "NAR-022-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-001": {
+      "title": "铜印柜：证据足够时必须可解，证据未齐时不能泄底",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "a537a1c6535ad5cf274070959af631e209a77b7ea24e47a149f7e142e4e2e20f",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-001-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-001-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-001-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-001-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-001-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-001-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-001-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-001-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-001-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-001-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-001-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-001-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "13": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-002": {
+      "title": "双锁仓：存在多个解释时保留解释集合",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "a810ab5ebc6ed29c4448c059f440b1404f3e9e5202b3f9039cc077bdc684cfdc",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-002-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-002-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-002-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-002-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-002-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-002-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-002-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-002-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-002-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-002-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-003": {
+      "title": "暴雨闸门：欠定的反事实不能写成确定历史",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "026a1685c5441b1f340d81a1da6ffcbfce5823c7853d82848795e8422dfd80f8",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-003-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-003-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-003-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-003-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-003-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-003-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-003-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-003-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-003-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-003-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-004": {
+      "title": "雾岛知识赛：答题、风险与救济规则要真的成立",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "fc247ac7173b9bd8010b5ad569f3abf92735cdf3a66b46bde454ca10f70d785e",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-004-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-004-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-004-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-004-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-004-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-004-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-004-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-004-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-004-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-004-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-004-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-005": {
+      "title": "退潮钟楼：探索要改变未知空间和行动机会",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "2c95f7c5da7254de4e40ed391be0faa2927a5359b3dc0050c1fead2f3e99b9de",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-005-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-005-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-005-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-005-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-005-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-005-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-005-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-005-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-005-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-005-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-005-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-006": {
+      "title": "双色闸：可实验的规则谜题不能在后台变规则",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "1c869fcd37f13a4931e9fd39034114cde3c520952a7294335055c2c7eb6e645b",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-006-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-006-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-006-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-006-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-006-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-006-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-006-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-006-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-006-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-006-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-006-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-007": {
+      "title": "小巷豆坊：经营的乐趣来自排程与兑现",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "d5d50c8834c2d14ed957da648a08eb318b938886c2cf5d13df766ac32666a162",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-007-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-007-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-007-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-007-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-007-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-007-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-007-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-007-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-007-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-007-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-007-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-007-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "13": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-008": {
+      "title": "九份水的议事会：治理需要承认分配与外部影响",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "16e93f43a0e93ceb09b2f3d80272e4e39bcb67490cc178ae1418216b47b13376",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-008-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-008-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-008-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-008-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-008-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-008-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-008-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-008-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-008-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-008-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-008-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-009": {
+      "title": "夜航合约：谈判不等于把所有人说服",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "e5d2938dd4707afbb672660fbe6d5e6d4adc09687ef5f7bc4a5b12d8d8d45f71",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-009-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-009-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-009-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-009-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-009-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-009-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-009-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-009-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-009-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-009-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-009-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-010": {
+      "title": "灯船议票：隐藏身份需要可用的怀疑与有限知识",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "002b1dd09cbc6be8c76dda716b4e28185b86bc52ac5a2091845c1b5499f4b150",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-010-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-010-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-010-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-010-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-010-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-010-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-010-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-010-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-010-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-010-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-010-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-011": {
+      "title": "木偶守关：成长构筑不能靠临场改敌人惩罚投入",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "1ffaa93ce158f0ef201b09b9aab004a0ed8bf08a7b68cea68d17480780c899fc",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-011-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-011-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-011-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-011-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-011-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-011-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-011-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-011-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-011-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-011-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-011-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-012": {
+      "title": "不敲门的客人：恐怖可以紧张而不破坏约定",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "1ef4f2abab4db896491837db6bf42051930fde2d0c86488ff9bf0269901fc67f",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-012-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-012-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-012-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-012-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-012-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-012-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-012-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-012-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-012-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-012-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-012-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-013": {
+      "title": "修表人的周三：关系进展必须经过行动而非礼物开关",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "7a5dc1d3e69eb27c79e05f1d73abf263f8c8e72a58d82f8fd410a4662469fdf4",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-013-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-013-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-013-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-013-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-013-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-013-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-013-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-013-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-013-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-013-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-013-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-014": {
+      "title": "三代人的门牌：代际不是一次跳时后全部换名",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "bea7e19664a4dde0ed9b53b3d42b9ffe3005e8409b69aa1ea51bcaabb86eba46",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-014-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-014-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-014-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-014-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-014-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-014-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-014-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-014-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-014-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-014-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-014-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "13": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-015": {
+      "title": "雨停以前的茶桌：安静也必须有可参与的满足",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "b2534d831f5cecf1fa2d0fa29357577240c5d379f8229c888edcb489c729a01d",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-015-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-015-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-015-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-015-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-015-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-015-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-015-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-015-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-015-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-015-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-015-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-016": {
+      "title": "不会检票的月亮：喜剧与即兴要接住对方的创造",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "3cd516bfadca237d0df4dd2a685a940e0d24fc0f2d7a3937d3b3a158d7628146",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-016-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-016-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-016-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-016-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-016-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-016-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-016-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-016-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-016-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-016-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-016-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-017": {
+      "title": "四张未寄出的明信片：共同创作必须留下双方的贡献",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "8cd2c2bfd31d995987fce009712e3fb3b2ca0555d9181d0eb8915048160423ea",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-017-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-017-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-017-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-017-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-017-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-017-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-017-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-017-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-017-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-017-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-017-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-018": {
+      "title": "同一座港城，两种起点：重开人生要改变机会与责任",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "94bf601b3b0da7099131c999e613fce15e308073cff809de95612ab17160b519",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-018-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-018-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-018-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-018-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-018-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-018-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-018-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-018-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-018-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-018-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-018-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-019": {
+      "title": "第四声钟响：循环保留理解，世界必须按规则重置",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "2fe93c3601aebb7163b982a348c3df104afaccb74348151b67a94d383dccd794",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-019-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-019-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-019-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-019-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-019-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-019-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-019-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-019-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-019-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-019-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-019-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-019-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "13": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "14": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "15": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "16": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "17": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "18": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-020": {
+      "title": "盐港到玻璃海：跨副本要逐项判断能带走什么",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "dc49757dd49c35dec185159eece5e7a474755cb8d3b795bc1aa158423afd00b2",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-020-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-020-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-020-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-020-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-020-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-020-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-020-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-020-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-020-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-020-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-020-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-021": {
+      "title": "失败后的工坊：局外积累要带来新选择而非无限刷取",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "d18d4b44c252350bb2b098aee5f8d207bf80013a978b7b61f2b24ed6f6072b61",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-021-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-021-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-021-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-021-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-021-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-021-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-021-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-021-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-021-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-021-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-021-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-022": {
+      "title": "救下证人还是保住账册：平行分支要保留后果差异",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "24e8cf4dc9d3dfa9c919370a6f1515ce9b00fde9faaff249cb95e728a68499da",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-022-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-022-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-022-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-022-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-022-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-022-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-022-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-022-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-022-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-022-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-022-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-023": {
+      "title": "三轮竞渡筹码：对抗要有独立承诺和真实结算",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "a72aa4e936dddf320fcdc4031d16ce525831cfcff876517bae6778f6e9a89f72",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-023-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-023-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-023-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-023-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-023-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-023-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-023-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-023-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-023-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-023-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-023-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "FUN-024": {
+      "title": "灯港节的最后一班车：多种乐趣不能互相吞掉",
+      "parent_case_id": null,
+      "status": "NOT_RUN",
+      "source_sha256": "0c69ea3cf310db973290e1971547984bddeee25c1f2739bf9df6046e7bc35042",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "FUN-024-H1": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-024-H2": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-024-H3": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-024-H4": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "FUN-024-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-024-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-024-SEM03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-024-SEM04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "FUN-024-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-024-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-024-Q03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "FUN-024-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-024-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-024-V03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "FUN-024-V04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "09": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "10": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "11": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "12": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "13": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "14": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "15": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "16": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "17": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "18": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "UIX-001": {
+      "title": "两份航报：比较主张不能生成虚假的确定航道",
+      "parent_case_id": "SYS-027",
+      "status": "NOT_RUN",
+      "source_sha256": "b0bd7e7e9513043532dc73b938330e13efe44a355d50b21e59d1dd4d7cb5bdfb",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "UIX-001-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-001-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-001-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "UIX-001-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-001-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "UIX-001-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-001-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "UIX-001-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-001-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "UIX-002": {
+      "title": "十二份水：联动分配、超额和正式提交",
+      "parent_case_id": "SYS-027",
+      "status": "NOT_RUN",
+      "source_sha256": "fd9a0cbbb66290e1293526393ec91835de3c1dc71ccab8665bc97c77b635794d",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "UIX-002-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-002-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-002-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "UIX-002-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-002-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "UIX-002-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-002-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "UIX-002-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-002-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "UIX-003": {
+      "title": "潮汐纺机：运行时条件配方与保存恢复",
+      "parent_case_id": "SYS-027",
+      "status": "NOT_RUN",
+      "source_sha256": "ced42cd63a50ec29be649755e503bc9fa7d05c326b2aabf7b991e48048821844",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "UIX-003-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-003-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-003-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "UIX-003-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-003-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "UIX-003-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-003-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "UIX-003-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-003-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "UIX-004": {
+      "title": "轻装进山：两个容量约束和对象选择",
+      "parent_case_id": "SYS-027",
+      "status": "NOT_RUN",
+      "source_sha256": "4f2e6b24c3d221f1cba97ffd3e5cc21eaa196084ded304e0b11cedbd8955c8ee",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "UIX-004-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-004-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-004-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "UIX-004-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-004-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "UIX-004-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-004-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "UIX-004-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-004-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "UIX-005": {
+      "title": "私下报价：草稿与NPC判断分开",
+      "parent_case_id": "SYS-027",
+      "status": "NOT_RUN",
+      "source_sha256": "3d36fc53be473d0a4c6f678033ff7f378aea6d27c7bc49dc772295f2fe50ce76",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "UIX-005-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-005-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-005-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "UIX-005-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-005-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "UIX-005-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-005-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "UIX-005-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-005-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "UIX-006": {
+      "title": "修理预约：连续区间、冲突与过期方案",
+      "parent_case_id": "SYS-027",
+      "status": "NOT_RUN",
+      "source_sha256": "e89bea3342b35813f07104ef267b55fb2a7dd884ac537492e8fd7052d44be63f",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "UIX-006-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-006-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-006-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "UIX-006-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-006-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "UIX-006-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-006-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "UIX-006-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-006-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "UIX-007": {
+      "title": "夜航镜装配：前后依赖的操作流程与恢复",
+      "parent_case_id": "SYS-027",
+      "status": "NOT_RUN",
+      "source_sha256": "e349dee8865d33ace414d9a0af9959fd24414b2cb638f818f1d784c1a07a30ee",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "UIX-007-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-007-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-007-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "UIX-007-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-007-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "UIX-007-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-007-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "UIX-007-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-007-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S08": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "UIX-008": {
+      "title": "社区提案投票：只提交自己的票，不模拟多人公平",
+      "parent_case_id": "SYS-027",
+      "status": "NOT_RUN",
+      "source_sha256": "3afd3b2b7736cbd1ba96559315721efbcebabe88877d213f64c4d148c812ad0b",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "UIX-008-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-008-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-008-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "UIX-008-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-008-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "UIX-008-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-008-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "UIX-008-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-008-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "UIX-009": {
+      "title": "事故时间线：区间时间与获知时间不能混排",
+      "parent_case_id": "SYS-027",
+      "status": "NOT_RUN",
+      "source_sha256": "eb604b3dcc8b5d3334537e6ac917246df4d9b64bbe6b80753abd948537452b27",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "UIX-009-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-009-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-009-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "UIX-009-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-009-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "UIX-009-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-009-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "UIX-009-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-009-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "UIX-010": {
+      "title": "口粮交付：库存、在途和签收分别成立",
+      "parent_case_id": "SYS-027",
+      "status": "NOT_RUN",
+      "source_sha256": "c77cb8518b84d51a5980c9711454511b67b6569aa609b473442b63ffd2e2b85c",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "UIX-010-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-010-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-010-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "UIX-010-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-010-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "UIX-010-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-010-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "UIX-010-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-010-V02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S05": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S06": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S07": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "UIX-011": {
+      "title": "只读一首短诗：正常无附加界面",
+      "parent_case_id": "SYS-027",
+      "status": "NOT_RUN",
+      "source_sha256": "0239f9fab0648aea2ccf45bc74e6df6ff185d25e7f1cc5d276ff209fd60fcc35",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "UIX-011-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-011-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-011-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "UIX-011-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-011-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "UIX-011-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-011-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "UIX-011-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "UIX-012": {
+      "title": "收摊后的故乡闲聊：人物身份不触发商店",
+      "parent_case_id": "SYS-027",
+      "status": "NOT_RUN",
+      "source_sha256": "f08a4f99355edac2600f7e8deec0266d7aac179b28aef97a26f57c6eb0e8e870",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "UIX-012-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-012-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-012-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "UIX-012-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-012-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "UIX-012-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-012-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "UIX-012-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    },
+    "UIX-013": {
+      "title": "看完这片晚霞：不把静观变成操作流程",
+      "parent_case_id": "SYS-027",
+      "status": "NOT_RUN",
+      "source_sha256": "68a1894805e541195ce7c3321893473694738de68affc89d24bf9f1b67c4ece5",
+      "requirement_links": "related_only_not_passed_coverage",
+      "hard": {
+        "UIX-013-H01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-013-H02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-013-H03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "semantic": {
+        "UIX-013-SEM01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-013-SEM02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "quality": {
+        "UIX-013-Q01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "UIX-013-Q02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "variants": {
+        "UIX-013-V01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      },
+      "steps": {
+        "S01": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S02": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S03": {
+          "status": "NOT_RUN",
+          "evidence": []
+        },
+        "S04": {
+          "status": "NOT_RUN",
+          "evidence": []
+        }
+      }
+    }
+  }
+}

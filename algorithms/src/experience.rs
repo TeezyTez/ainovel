@@ -10,13 +10,26 @@ mod reader_projection;
 pub use reader_projection::*;
 #[path = "experience_gameplay.rs"]
 mod gameplay;
+#[path = "narrative_state.rs"]
+mod narrative_state;
+pub use narrative_state::*;
+#[path = "literary_memory.rs"]
+mod literary_memory;
+pub use literary_memory::*;
+#[path = "narrative_pipeline.rs"]
+pub mod pipeline;
 
 pub const PROTOCOL_VERSION: &str = "elselife.experience.v1";
 pub const CONTRACT_REVISION: &str = "685758b9009c647f0b6b0da2dbe1769ea6964a71";
 pub const CONTRACT_SHA256: &str =
-    "af34208ebcffdde21ea3a727e24743b60c808f0dd5df303b52a3f476483429fc";
+    "44f536fc3f4949e7ece9580fee0c3f3178149465df3840e342ecbb0a84cd0a21";
 pub const CONTRACT: &str = include_str!("../contracts/experience/v1/contract.json");
-pub const PROMPT_VERSION: &str = "elselife.narrative.v2";
+pub const PROMPT_VERSION: &str = "elselife.narrative.v3";
+/// Additional model content over serialized Context, mirrored by Go's generation preflight.
+/// Includes prompt, one schema, bounded brief and JSON/message framing; dynamic transport
+/// fields and Go's second schema reservation are accounted separately by that caller.
+pub const NARRATIVE_CONTENT_OVERHEAD_BYTES: usize = 32 * 1024;
+pub const NARRATIVE_SCHEMA_MAX_BYTES: usize = 9000;
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -90,6 +103,10 @@ pub struct Thread {
 #[serde(deny_unknown_fields)]
 pub struct State {
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub literary_memory: Option<LiteraryMemory>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub narrative: Option<NarrativeState>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gameplay: Option<Value>,
     pub story_time: String,
     pub facts: Vec<Fact>,
@@ -116,6 +133,10 @@ pub struct Page {
 #[serde(deny_unknown_fields)]
 pub struct Context {
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pipeline: Option<PipelineConfig>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reading_request: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gameplay_action: Option<Value>,
     pub version: u32,
     pub experience_id: String,
@@ -141,6 +162,12 @@ pub struct KnowledgeChange {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(deny_unknown_fields)]
 pub struct Candidate {
+    #[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "literary_memory::present_option")]
+    pub memory_changes: Option<Vec<MemoryChange>>,
+    #[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "literary_memory::present_option")]
+    pub memory_delta: Option<MemoryDelta>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub narrative_update: Option<NarrativeState>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gameplay_update: Option<Value>,
     pub title: String,
@@ -212,10 +239,6 @@ fn fact_valid(
         deferred_entities,
     )
 }
-fn references<'a>(refs: impl Iterator<Item = &'a str>, ids: &HashSet<&str>) -> Checked<()> {
-    let refs = unique(refs)?;
-    require(refs.iter().all(|id| ids.contains(id)), "unknown_reference")
-}
 // Deferred membership is resolved only by Go's full Apply. A known wrong-type ID is never deferred.
 fn deferred_references<'a>(
     refs: impl Iterator<Item = &'a str>,
@@ -243,6 +266,16 @@ impl Context {
     }
     pub fn validate(&self) -> Checked<()> {
         require(self.version == 2, "unsupported_context_version")?;
+        if let Some(p) = &self.pipeline { p.validate()?; }
+        if let Some(r) = &self.reading_request { require(nonempty(r) && r.len() <= 4096, "invalid_reading_request")?; }
+        if let Some(n) = &self.state.narrative {
+            require(self.mode != Mode::Ask, "reader_private_notebook")?;
+            n.validate(&self.state, self.revision, &[], !self.state_coverage.complete)?;
+        }
+        if let Some(memory) = &self.state.literary_memory {
+            require(self.mode != Mode::Ask, "reader_private_memory")?;
+            memory.validate(&self.state, self.revision, !self.state_coverage.complete)?;
+        }
         if let Some(value) = &self.state.gameplay {
             require(self.mode != Mode::Begin, "invalid_begin_state")?;
             gameplay::state(value, self.revision)?;
@@ -396,6 +429,7 @@ impl Candidate {
     }
     pub fn validate(&self, c: &Context) -> Checked<()> {
         c.validate()?;
+        require(c.mode != Mode::Ask || self.narrative_update.is_none(), "ask_changes_world")?;
         if let Some(value) = &self.gameplay_update {
             require(c.mode != Mode::Ask, "ask_changes_world")?;
             gameplay::update(value, &self.passage, &self.story_time)?;
@@ -560,6 +594,15 @@ impl Candidate {
                 "duplicate_knowledge_change",
             )?;
         }
+        if let Some(n) = &self.narrative_update {
+            require(n.through_revision == c.revision + 1, "narrative_revision_mismatch")?;
+            let mut next = state.clone();
+            next.facts.extend(self.new_facts.clone());
+            next.entities.extend(self.new_entities.clone());
+            next.threads.extend(self.new_threads.clone());
+            n.validate(&next, c.revision + 1, &self.resolve_thread_ids, !c.state_coverage.complete)?;
+        }
+        literary_memory::validate_memory_changes(self, c, &state)?;
         Ok(())
     }
 }
@@ -567,6 +610,8 @@ impl Candidate {
 /// A player-visible projection, not the private author context. Filter links as well as bodies.
 pub fn known_information(state: &State) -> State {
     let mut projection = State {
+        literary_memory: None,
+        narrative: None,
         gameplay: state.gameplay.clone(),
         story_time: state.story_time.clone(),
         facts: state.facts.iter().filter(|f| f.known).cloned().collect(),
@@ -620,7 +665,12 @@ pub fn known_information(state: &State) -> State {
 /// Closed Generate object: only Candidate or ReadRequest, never Context/coverage/ReadReply.
 pub fn candidate_schema() -> Value {
     let contract: Value = serde_json::from_str(CONTRACT).expect("build-verified canonical schema");
-    let mut root = contract["$defs"]["generation_result"].clone();
+    with_contract_definitions(contract["$defs"]["generation_result"].clone())
+}
+
+/// Keep only definitions reachable from the actual model output, not the whole context contract.
+fn with_contract_definitions(mut root: Value) -> Value {
+    let contract: Value = serde_json::from_str(CONTRACT).expect("build-verified canonical schema");
     fn references(value: &Value, pending: &mut Vec<String>) {
         match value {
             Value::Object(object) => {
@@ -651,7 +701,7 @@ pub fn candidate_schema() -> Value {
 }
 
 pub const NARRATIVE_PROMPT: &str = r#"你是 ElseLife 的小说叙事作者，不是任务执行器。只输出给定 schema 的闭合 JSON 对象 {"result": Candidate或ReadRequest}；不输出 Markdown、解释或内部思考。版本 elselife.narrative.v2。不得输出ReadReply、覆盖声明或自造回执。
-写可读、连贯、有具体生活质感的中文小说：通过动作、空间、感官细节、对白的语气与留白塑造人物；保持叙述视角、语言风格、因果与节奏。段落让手机长文也易读。不要用列表、状态播报、流程汇报、空泛华丽辞藻代替场景。每次接续产生恰当的实际变化或新的理解，不机械重复上一段；平静日常、悬而未决、拒绝与自然结束都可以有价值，不必每段制造危机、选项或成功。
+写可读、连贯、有具体生活质感的中文小说：语言风格由你根据题材、时代背景、人物身份和场景内容自行判断，直接体现在正文中，不套用预设标签或默认文风；开场确立叙述声音，续写沿用已有正文并随内容自然变化。通过动作、空间、感官细节、对白的语气与留白塑造人物；保持叙述视角、因果与节奏。段落让手机长文也易读。不要用列表、状态播报、流程汇报、空泛华丽辞藻代替场景。每次接续产生恰当的实际变化或新的理解，不机械重复上一段；平静日常、悬而未决、拒绝与自然结束都可以有价值，不必每段制造危机、选项或成功。
 用户愿望是尝试或表达，不是必成的世界指令。角色具有动机、边界与独立行动；角色拒绝不是生成失败，不修正到玩家获胜，不为“达成目标”再试。outcome 是故事位置 continues/awaits_player/ending，不是玩家成败或系统PASS。只有后端提交才是正式页，你只提出候选。
 模式分义：begin 是根据 seed 获授权创作开场，低门槛进入，不索要百科；seed 是虚构创作授权，不是用户现实人格、创伤或偏好的证据。act 只接续 input 明确授权的角色行动/言语及其世界后果，不把愿望变成已实现的结果；重大歧义可让叙事停在需要介入处。read 允许故事时间、环境与NPC自然演化，也可继续明确已授权的过程；不得替玩家作重大决定、承诺、价值取舍、关系确认、不可逆行为。重要关口停在邀请介入的位置，以 awaits_player 表示，但不强迫每段选择。ask 是跳出角色的询问/解释，不是角色对白或行动，不推进时间，不新增事实/实体/联系，不改变人物知情，不揭示隐藏事实/人物/地点/联系、不解决联系；只解释玩家已知内容，对未知明确说尚不知晓。ask 的 story_time 必须原字保留。
 known仅本分支本正式位置对阅读者公开，不等于现实用户跨分支记忆，绝不合并别分支知识。known_by独立记录故事中哪些人物知情；knowledge_changes只提议人物获知既定事实，reveal_fact_ids/reveal_entity_ids/reveal_thread_ids分别只向阅读者公开对应稳定对象，两类操作不能代替彼此；人物不可无因知晓known_by未包含自己的秘密。
@@ -672,11 +722,14 @@ pub fn narrative_input(c: &Context) -> Checked<Value> {
     if c.mode == Mode::Ask {
         model_context.state = known.clone();
     }
+    let brief = narrative_brief::build(&model_context)?;
     Ok(json!({ "context": model_context,
         "authoring": { "next_source_revision": c.revision + 1, "prompt_version": PROMPT_VERSION,
-            "contract_sha256": CONTRACT_SHA256 } }))
+            "contract_sha256": CONTRACT_SHA256, "narrative_brief": brief } }))
 }
 
+#[path = "narrative_brief.rs"]
+mod narrative_brief;
 #[path = "narrative_response.rs"]
 mod narrative_response;
 pub use narrative_response::{decode_response, response_schema, RESPONSE_PROMPT};

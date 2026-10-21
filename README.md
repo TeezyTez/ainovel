@@ -8,7 +8,7 @@
 | --- | --- |
 | `frontend/` | Flutter 门户、世界创作、书架、阅读器、资料、设置与草稿恢复 |
 | `backend/` | Go API、正式历史、分支、版本、取消、提交与 PostgreSQL 持久化 |
-| `algorithms/` | Rust 叙事提示、候选生成、结构验证与历史回取 |
+| `algorithms/` | Rust 显式叙事阶段、角色提案、剧情比较、正文与审核、结构验证及历史回取 |
 | `contracts/` | 各端共享的 JSON 与 protobuf 协议 |
 | `tools/artifact-compiler/`、`tools/artifact-validator/` | Go 调用的交互作品编译与校验工具 |
 
@@ -50,6 +50,14 @@ cd frontend && flutter analyze --no-pub
 ```
 
 Go 的隔离 PostgreSQL、Rust 和交互工具集成测试见 `backend/README.md`；交互编译器测试运行 `npm --prefix tools/artifact-compiler test`。本轮结果见 [替换验证记录](notes/2026-10-19-repository-replacement.md)，功能迁入情况见 [融合记录](INTEGRATION.md)。
+
+叙事生成 v3 的改动、测试、真实模型耗时和限制见 [叙事改造记录](notes/2026-10-19-narrative-generation.md)，完整合成场景正文见 [连续阅读对比](notes/2026-10-19-narrative-reading-samples.md)。
+
+v4 将生成拆为 memory / actor / plan / evaluate / write / extract / review，加入随分支保存的私有叙事笔记和版本绑定的下一段准备。正式应用入口启用 v4 严格流程，本机服务已切换；真实模型结果、失败和性能限制见 [显式叙事引擎记录](notes/2026-10-19-narrative-engine.md)，完整正文见 [v4 阅读样本](notes/2026-10-19-narrative-engine-samples.md)。
+
+默认阅读篇幅、精简提取的真实模型对照及验证边界见 [阅读篇幅与耗时验证](notes/2026-10-20-reading-length-latency.md)。
+
+当前源码叙事引擎为 v4.13，记忆索引与实际证据分离的工程验证见 [记忆证据记录](notes/2026-10-20-memory-evidence-v2-validation.md)。2026-10-21 的重新构建、全量回归与本机真实开场联调见 [本地交付记录](notes/2026-10-21-local-release.md)。
 
 `SOURCE_MANIFEST.json`、`SOURCE_REVISIONS.json` 与 `验证记录.md` 保留源码包的历史来源证据，不代表当前工作树的完整性清单。`tools/verify_source.py` 只用于核对原始未修改源码包；当前迭代以 Git、协议检查和实际测试为准。
 

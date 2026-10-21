@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:sembast/sembast.dart';
 import '../data/store/local_store_factory.dart';
 import 'experience_models.dart';
+import 'reader_reading_anchor.dart';
 
 abstract class ExperienceJournal {
   Future<Json> read(String scope);
@@ -73,7 +74,15 @@ class LocalExperienceJournal implements ExperienceJournal {
       final parts=jsonDecode(entry.key);
       if(parts is! List||parts.length!=2||parts.any((p)=>p is! String)||entry.value is! Map)throw const FormatException('本机记录格式无效');
       final row=Map<String,dynamic>.from(entry.value as Map);
+      if (row['reading_request'] != null) {
+        PendingReadingRequest(object(row['reading_request']));
+      }
+      if (row['reading_anchor'] != null &&
+          ReaderReadingAnchor.parse(row['reading_anchor']) == null) {
+        throw const FormatException('备份含有无效的阅读原文锚点');
+      }
       if(bad(row['draft'],(v)=>parts[0]=='world-studio'?v is Map:v is String)||
+        bad(row['draft_revision'],(v)=>v is int&&v>=0)||
         bad(row['mode'],(v)=>v is String&&['act','read','ask'].contains(v))||
         bad(row['font_size'],(v)=>v is num&&v.isFinite)||bad(row['offset'],(v)=>v is num&&v.isFinite&&v>=0)||
         bad(row['last_view'],(v)=>v is Map&&v['id'] is String&&v['branch'] is String)||

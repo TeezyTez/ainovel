@@ -45,7 +45,10 @@ func ReaderState(in State) State {
 	}
 	for _, f := range in.Facts {
 		if visible[f.ID] {
-			f.KnownBy = filter(f.KnownBy)
+			// Knowing a proposition does not reveal which other characters
+			// learned it privately. Public acquisition/propagation events are
+			// ordinary known facts; authority's knowledge edges stay private.
+			f.KnownBy = []string{}
 			if f.Reader != nil && (!visible[f.Reader.EntityID] || f.Reader.TargetID != "" && !visible[f.Reader.TargetID]) {
 				f.Reader = nil
 			}
@@ -97,8 +100,16 @@ func compileGeneration(authority Context, boundary State, handle string, recent 
 		return c, err
 	} // no shared backing slices
 	c.AuthorWorld = authority.AuthorWorld
+	c.Progress = authority.Progress
+	c.AuthorityState = &authority.State
 	c.GameplayRuntime = authority.GameplayRuntime
 	c.GameplayContext = authority.GameplayContext
+	if c.Pipeline != nil {
+		// Persistent literary memory is an index, not a mandatory prompt block.
+		// Stage compilation selects it from the pinned AuthorityState as needed.
+		c.State.Narrative = nil
+		c.State.LiteraryMemory = nil
+	}
 	audience := "author"
 	if c.Mode == "ask" {
 		c.AuthorWorld = nil
@@ -137,15 +148,34 @@ func compileGeneration(authority Context, boundary State, handle string, recent 
 			selected[t.ID] = true
 		}
 	}
-	// Deterministic exact literal identification in the current user input,
+	// Deterministic exact literal identification in the current user request,
 	// before generation. This has no relevance-ranking/completeness pretense.
+	// Read-mode direction is intentionally separate from world-changing input.
+	// It still names evidence the continuation needs, without becoming an act.
+	requestedMaterial := c.Input + "\n" + c.ReadingRequest
+	if c.Pipeline != nil && len(c.History) > 0 {
+		// Continued scenes and pronouns often name nobody in the new input.
+		// Keep a small scene entry through the latest whole page's identities.
+		requestedMaterial += "\n" + c.History[len(c.History)-1].Text
+	}
+	explicitEntities := map[string]bool{}
 	for _, e := range c.State.Entities {
-		if strings.Contains(c.Input, e.ID) || (e.Name != "" && strings.Contains(c.Input, e.Name)) {
+		if strings.Contains(requestedMaterial, e.ID) || (e.Name != "" && strings.Contains(requestedMaterial, e.Name)) {
 			selected[e.ID] = true
+			explicitEntities[e.ID] = true
+		}
+	}
+	// Old ownership, location, promises and beliefs can point to an entity
+	// without that append-only entity linking back to later facts. Root these
+	// relations only for explicit input entities: a knower or dependency reached
+	// below must not recursively import every fact the character has ever known.
+	for _, f := range c.State.Facts {
+		if c.Pipeline == nil && (explicitEntities[f.SubjectID] || f.Reader != nil && (explicitEntities[f.Reader.EntityID] || explicitEntities[f.Reader.TargetID])) {
+			selected[f.ID] = true
 		}
 	}
 	for id := range now {
-		if strings.Contains(c.Input, id) {
+		if strings.Contains(requestedMaterial, id) {
 			selected[id] = true
 		}
 	}
@@ -163,6 +193,10 @@ func compileGeneration(authority Context, boundary State, handle string, recent 
 		for _, f := range c.State.Facts {
 			if selected[f.ID] {
 				add(f.SubjectID)
+				if f.Reader != nil {
+					add(f.Reader.EntityID)
+					add(f.Reader.TargetID)
+				}
 				for _, id := range f.KnownBy {
 					add(id)
 				}
@@ -201,6 +235,7 @@ func compileGeneration(authority Context, boundary State, handle string, recent 
 			view.Threads = append(view.Threads, t)
 		}
 	}
+	view.Narrative = c.State.Narrative
 	c.State = view
 	omitted := subtract(total, counts(view))
 	c.StateCoverage.Policy = "rules-secrets-open-recent-closure.v1"

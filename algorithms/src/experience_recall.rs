@@ -14,6 +14,8 @@ pub enum CoveragePolicy {
     Full,
     #[serde(rename = "rules-secrets-open-recent-closure.v1")]
     Bounded,
+    #[serde(rename = "stage-scene-selection.v1")]
+    Scene,
 }
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Default)]
 #[serde(deny_unknown_fields)]

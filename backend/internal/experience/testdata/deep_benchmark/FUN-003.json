@@ -1,0 +1,149 @@
+{
+  "id": "FUN-003",
+  "source_sha256": "37a6ff7987fbc6ebacfadea70f6e8cdffc2abf0d2cfdb2ed1d2d3d729fd679d6",
+  "source_line": 12377,
+  "variant": "base",
+  "seed": "第二人称。你在山城防洪复盘中核对旧记录，讨论闸门与桥的工程因果。",
+  "opening": "原史中未开闸，桥在水位9时垮塌。开闸能把水位降到7。桥的实际承载阈值未被你确认，只知可能是6或8。你想知道早点开闸能否救桥。",
+  "state": {
+    "story_time": "桥垮塌后的复盘阶段",
+    "entities": [
+      {
+        "id": "player",
+        "kind": "character",
+        "name": "你",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "bridge",
+        "kind": "structure",
+        "name": "桥",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "flood-gate",
+        "kind": "structure",
+        "name": "闸门",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "material-report",
+        "kind": "item",
+        "name": "桥体材料检测记录",
+        "description": "",
+        "known": false,
+        "related_ids": []
+      }
+    ],
+    "facts": [
+      {
+        "id": "original-history",
+        "kind": "fact",
+        "text": "原史中未开闸，水位为9，桥已经垮塌。",
+        "subject_id": "bridge",
+        "known": true,
+        "known_by": [
+          "player"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "engineering-rule",
+        "kind": "rule",
+        "text": "在给定的桥梁工程模型中，水位大于承载阈值时桥垮；开闸后的水位为7，不开闸的水位为9。",
+        "subject_id": "bridge",
+        "known": true,
+        "known_by": [
+          "player"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "unresolved-threshold",
+        "kind": "fact",
+        "text": "复盘开始时，玩家尚未取得桥体材料检测结果；玩家只知实际承载阈值可能为6或8。",
+        "subject_id": "player",
+        "known": true,
+        "known_by": [
+          "player"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "actual-threshold",
+        "kind": "secret",
+        "text": "这座桥的实际承载阈值为8。",
+        "subject_id": "bridge",
+        "known": false,
+        "known_by": [],
+        "source_revision": 1
+      },
+      {
+        "id": "existing-material-record",
+        "kind": "secret",
+        "text": "存在一份桥体材料检测记录，检测结果记载这座桥的承载阈值为8；可查阅该既存记录。",
+        "subject_id": "material-report",
+        "known": false,
+        "known_by": [],
+        "source_revision": 1
+      }
+    ],
+    "threads": []
+  },
+  "steps": [
+    {
+      "id": "01",
+      "mode": "player",
+      "input": "如果当时开闸，桥是不是一定能保住？"
+    },
+    {
+      "id": "02",
+      "mode": "player",
+      "input": "我很自责，愿意承认都是我的错。你依据现有记录怎么看？"
+    },
+    {
+      "id": "03",
+      "mode": "player",
+      "input": "分别在阈值6和8的模型里演算开闸后会怎样。"
+    },
+    {
+      "id": "04",
+      "mode": "player",
+      "input": "查有没有桥体材料检测记录；若没有就保持未知。"
+    },
+    {
+      "id": "05",
+      "mode": "player",
+      "input": "据新结果再回答早点开闸对这座桥的影响。"
+    },
+    {
+      "id": "06",
+      "mode": "player",
+      "input": "把这个反事实作为复盘，不要把已经垮掉的原史桥改成仍存在。"
+    },
+    {
+      "id": "07",
+      "mode": "player",
+      "input": "下一次暴雨之前，我选择先做检测和演练；请让相关人员提出可行意见。"
+    }
+  ],
+  "private_tokens": [],
+  "omissions": [
+    "Evaluator-authored synthetic prehistory is seeded only at revision 1. It is not a generated prior trajectory; no earlier formal pages, acquired observations or player decisions are fabricated.",
+    "Only seed, public opening, world State and exact player inputs enter the product. Case IDs, omissions, checkpoints, reference calculations and scoring remain evaluator metadata.",
+    "All source steps are player operations and map to the existing Go act entry. No speculative access gate or automatic success is inserted. A committed request is not proof that evidence was obtained; the actual prose and same-revision snapshot determine which knowledge probe was reached.",
+    "Only the base trajectory is drafted. Counterfactual pairs, independent semantic evidence review and target-reader blind review are not performed or claimed. No model or database operation has run for this draft.",
+    "The public initial knowledge says the threshold is unconfirmed by the player, rather than claiming no measurement has ever existed. This resolves the source player brief's unmeasured wording against its explicit existing diagnostic record, without pre-disclosing its existence or contents. The exact original player steps are unchanged.",
+    "Author choices: unnamed player; a nonspecific post-collapse time; neutral bridge, gate and hidden record entities. No named engineer, record custodian, access refusal, historic measurement date, current gate position, casualties, moral liability, available labor or response deadline is supplied.",
+    "The fixed private threshold is world truth, not a precomputed counterfactual verdict. No possible-model answer table, 7-versus-threshold result, guaranteed rescue or emotional judgment is included in State. Record existence is hidden; neither observation nor permission is pre-marked as completed.",
+    "Step03 uses the existing text action to discuss explicitly conditional engineering calculations. It does not claim an implemented simulation fork, mutate the original bridge history or manufacture a branch record. Optional product branch functionality is outside this base textual execution.",
+    "Step05 depends semantically on the actual record obtained in step04, not merely on operation completion. If no result was obtained, the later unique-conclusion probe is unreached or failed as warranted. Original history remains collapsed; whether anyone could have measured before the historical event, wider human consequences and responsibility remain unestablished.",
+    "The source record-removal and threshold-6 variants require separately frozen worlds and paired evidence; they are not run here."
+  ]
+}

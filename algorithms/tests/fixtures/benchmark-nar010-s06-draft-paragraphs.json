@@ -1,0 +1,327 @@
+{
+  "fixture_version": 1,
+  "purpose": "Recorded synthetic benchmark output and separator-only engineering control; no new model call, formal page, or narrative acceptance.",
+  "source": {
+    "run": ".validation/deep-benchmark/20261020T110759Z-state-repair-v411-serial/NAR-010",
+    "case_id": "NAR-010",
+    "step_id": "S06",
+    "root_sha256": "cb31a7c02bff7068635fd35d6814e9ccbc8e81c846e57c55260d6c71598ce9e4",
+    "events_sha256": "21512a1b83aef5028166ea36d391b565c0bd504de5db3effbf2f0acce0fd822a",
+    "request_event_seq": 134,
+    "result_event_seq": 135,
+    "result_event_sha256": "4c736104cd9bc7b20aab9c3c25b0c5b7654808e005d24931ceb75c8aae4ab849",
+    "fixture_sha256": "66f756bd33a82214aba5a6b20ade89e71fb16d241cb15fa37b28ccece2e83f15",
+    "source_tree_sha256": "ceadc0ce1c50314a226cb95e67ac03cf8bfe76390c0f65d5b3c3660431579e8d",
+    "runtime_sha256": "0eb162953ad024a8e8df65c0b13f4645a04b1ee2596b91a88add39517205ce3c",
+    "engine": "narrative-engine.v4.11"
+  },
+  "old_schema": {
+    "$defs": {
+      "read_request": {
+        "additionalProperties": false,
+        "description": "Read-only retrieval inside the SAME accepted operation, issued by the generator when its bounded input cannot satisfy the task. Never a story page, never a revision advance, never a candidate. Backend authorizes, pins, matches literally and returns raw committed source.",
+        "properties": {
+          "max_reply_bytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "request_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "selector": {
+            "description": "Closed literal selectors. Names only target entity.name; facts/threads have text and use enumerate. Terms match text for facts/threads and name+description for entities, with case-sensitive Unicode literal all/any semantics (not similarity). Ambiguity enumerates every exact match in stable typed-ID order with query-computed complete/cursor; never an arbitrary best pick.",
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "cursor": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "const": "objects"
+                  },
+                  "objects": {
+                    "items": {
+                      "$ref": "#/$defs/read_target"
+                    },
+                    "minItems": 1,
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "objects"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "at_revision": {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "cursor": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "const": "names"
+                  },
+                  "names": {
+                    "items": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "minItems": 1,
+                    "type": "array"
+                  },
+                  "type": {
+                    "const": "entity",
+                    "description": "Only entities have a name in this domain schema; facts/threads use literal text selectors."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "type",
+                  "names"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "cursor": {
+                    "type": "string"
+                  },
+                  "from_revision": {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "kind": {
+                    "const": "pages"
+                  },
+                  "to_revision": {
+                    "minimum": 1,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "from_revision",
+                  "to_revision"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "allOf": [
+                  {
+                    "if": {
+                      "anyOf": [
+                        {
+                          "required": [
+                            "fact_kind"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "from_source_revision"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "to_source_revision"
+                          ]
+                        }
+                      ]
+                    },
+                    "then": {
+                      "properties": {
+                        "type": {
+                          "const": "fact"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "if": {
+                      "required": [
+                        "terms"
+                      ]
+                    },
+                    "then": {
+                      "required": [
+                        "match"
+                      ]
+                    }
+                  }
+                ],
+                "properties": {
+                  "cursor": {
+                    "type": "string"
+                  },
+                  "fact_kind": {
+                    "enum": [
+                      "fact",
+                      "rule",
+                      "secret",
+                      "statement",
+                      "belief"
+                    ],
+                    "type": "string"
+                  },
+                  "from_source_revision": {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "kind": {
+                    "const": "enumerate"
+                  },
+                  "match": {
+                    "enum": [
+                      "all",
+                      "any"
+                    ],
+                    "type": "string"
+                  },
+                  "terms": {
+                    "items": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "minItems": 1,
+                    "type": "array"
+                  },
+                  "to_source_revision": {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "type": {
+                    "enum": [
+                      "fact",
+                      "entity",
+                      "thread"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "type"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "source_handle": {
+            "description": "Must echo the handle from the generation state_coverage; a model cannot mint read authority.",
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "source_handle",
+          "selector",
+          "max_reply_bytes"
+        ],
+        "type": "object"
+      },
+      "read_target": {
+        "additionalProperties": false,
+        "properties": {
+          "at_revision": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "fact",
+              "entity",
+              "thread"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "result": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "outcome": {
+                "enum": [
+                  "continues",
+                  "awaits_player",
+                  "ending"
+                ],
+                "type": "string"
+              },
+              "passage": {
+                "type": "string"
+              },
+              "story_time": {
+                "type": "string"
+              },
+              "suggestions": {
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 4,
+                "type": "array"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "outcome",
+              "passage",
+              "story_time",
+              "suggestions",
+              "title"
+            ],
+            "type": "object"
+          },
+          {
+            "$ref": "#/$defs/read_request"
+          }
+        ]
+      }
+    },
+    "required": [
+      "result"
+    ],
+    "type": "object"
+  },
+  "original": {
+    "raw": "{\"result\":{\"outcome\":\"continues\",\"passage\":\"何叔终于把嘴里的菜咽下，邻座也恰好放下筷子。两人对上目光，都笑了。\\n\\n“这回能说了。”邻座道，“我最近在收拾阳台。”\\n\\n何叔点点头：“这个我有办法——”\\n\\n邻座已经接下去：“主要是想腾个地方，坐着晒晒太阳。”\\n\\n何叔把刚抬起来的筷子放低一点：“那我先听你说完，免得办法用早了。”你正夹菜，听到这里，筷子在盘边停了一瞬。邻座看见，顺手把盘子往你这边推了推，你便夹起那块已经瞄了半天的豆腐，稳稳送进碗里。它比看起来软，你不敢立刻接话，先低头把它吃了。\\n\\n邻座说，阳台收拾到最后，腾出了一张椅子的地方，偏偏又多出一盆不知道放哪儿的花。\\n\\n“你后来怎么办？”你问。\\n\\n“我站着晒了一会儿。”\\n\\n何叔笑着往椅背上一靠：“地方是给自己腾的，最后自己最客气。”他刚说完，见你还端着碗听，便指了指你的碗，“你别学，趁现在吃。”\\n\\n你索性又夹了一口。秦姨没插话，正认真挑盘里一块边缘煎得微黄的菜，夹稳了才说：“花盆能挪，太阳可不等人。”邻座点头，说下回先把椅子坐住，再考虑花盆。何叔听得很赞同，似乎已经替那张椅子安排好了用处，自己的椅子却一寸也没往外挪。\\n\\n门边又有人端菜进来。靠近门的客人先伸手接住盘底，提醒了一声“有点热”，旁边便有人把面前的小碟收近。你把自己的碗往胸前端了端，空出的那条路足够盘子经过，不必起身。阿穆坐在另一侧，左手接过盘边，右手的筷子上还夹着一片藕。\\n\\n他低头看看藕，又看看盘子，短短一会儿，哪边都没舍得放。\\n\\n“先落碗里。”秦姨说。\\n\\n阿穆赶紧把藕放回碗中，腾出手，和旁边的人一起将盘子放稳。是一盘热腾腾的蒸蛋，表面撒着细碎葱花，盘沿轻轻晃了一下，很快静下来。\\n\\n“好了。”他拿回筷子，先去找自己那片藕，“刚才接菜，差点把这口也递出去了。”\\n\\n你笑着把公勺转向他。他却没急着舀，先吃掉藕片，才接过勺子。秦姨看着他：“这回两件事都办成了。”\\n\\n蒸蛋沿桌传着舀了一轮。轮到你时，勺背破开平整的表面，热气从缺口里冒出来，你给自己盛了一勺，尝到一点清鲜的汤汁。何叔也吃了，朝邻座说：“这个软，你收拾完阳台可以做，省得忙完还得费劲嚼。”\\n\\n“我收拾阳台，也没累到这一步。”邻座笑道。\\n\\n“那就不收拾也做。”何叔很快改口，“吃菜的理由不能卡得太严。”\\n\\n阿穆正给自己添蒸蛋，听见这句，点了一下头，勺子却还悬着。你把旁边的盘子略挪开些，让他有地方落手。他道声谢，低头舀完，才问何叔：“您刚才说有办法，是什么办法？”\\n\\n“哦，对。”何叔放下筷子，“我是想起前两天找一把剪刀。想着常用的东西得放在顺手的地方，就挪了一次。”\\n\\n“然后找不着了？”你问。\\n\\n“找着了。我顺手的地方有三个，轮着找了一遍。”\\n\\n秦姨夹菜的手顿住：“最后在哪个？”\\n\\n“第一个。第一次拉抽屉太急，剪刀在后头，没看见。”何叔用手比了比，接着笑，“所以我这办法还没说出来，自己先想明白了：你那盆花，别急着挪。”\\n\\n邻座端起杯子，笑得没喝成，又放了回去：“那我今天算白问了？”\\n\\n“没白问。”你说，“至少不用找三遍花盆。”\\n\\n这句话赶上了阿穆刚喝完茶。他放下杯子，笑着抿住嘴，过了一会儿才拿起筷子。桌对面的人没听全，问了一句，何叔便把剪刀的事从头讲起。这次他没再夹菜，专心把三个抽屉交代清楚；讲完，邻座替他把面前那盘菜往近处推了推：“行，现在轮到你忙这口了。”\\n\\n后一道菜也在说笑间放下。你随手帮忙扶住盘沿，等它落稳便收回手，给自己添了些米饭。秦姨尝了新菜，说比刚才那盘清淡；旁边有人喜欢重一点的，便仍旧去夹原来的。盘子慢慢换了位置，筷子各有去处，没人需要等你逐一招呼。\\n\\n你碗里最后一点蒸蛋沾上了米饭，吃起来正合适。阿穆问你还要不要，你摇摇头，把公勺让给另一边。何叔的剪刀故事已经讲完，邻座正在比画阳台上那盆花究竟有多大。你一边听，一边把碗底的饭拢到一起，忽然发现，刚才那道菜是什么时候端进门的，你竟没留意。\\n\\n你还坐在原处。面前的饭吃完了一轮，筷子握在手里，正好够得着下一口菜。\",\"story_time\":\"社区小宴开席后，众人安稳用餐时\",\"suggestions\":[\"继续吃饭，听听桌边的闲聊。\",\"聊聊自己第一次主持小宴的感受。\"],\"title\":\"这回轮到吃饭\"}}",
+    "raw_sha256": "4d895e26a62904be6aa1a9f3912a88a9192fc8676aa09f7c9cb0668a99b66318",
+    "passage_sha256": "b041e0329bcba162132554b3e1047dee07bba383c1600b74211b1da37461e07b",
+    "passage_utf8_bytes": 4740,
+    "paragraphs": 31
+  },
+  "separator_only_24": {
+    "raw": "{\"result\":{\"outcome\":\"continues\",\"passage\":\"何叔终于把嘴里的菜咽下，邻座也恰好放下筷子。两人对上目光，都笑了。\\n“这回能说了。”邻座道，“我最近在收拾阳台。”\\n何叔点点头：“这个我有办法——”\\n邻座已经接下去：“主要是想腾个地方，坐着晒晒太阳。”\\n何叔把刚抬起来的筷子放低一点：“那我先听你说完，免得办法用早了。”你正夹菜，听到这里，筷子在盘边停了一瞬。邻座看见，顺手把盘子往你这边推了推，你便夹起那块已经瞄了半天的豆腐，稳稳送进碗里。它比看起来软，你不敢立刻接话，先低头把它吃了。\\n邻座说，阳台收拾到最后，腾出了一张椅子的地方，偏偏又多出一盆不知道放哪儿的花。\\n“你后来怎么办？”你问。\\n“我站着晒了一会儿。”\\n\\n何叔笑着往椅背上一靠：“地方是给自己腾的，最后自己最客气。”他刚说完，见你还端着碗听，便指了指你的碗，“你别学，趁现在吃。”\\n\\n你索性又夹了一口。秦姨没插话，正认真挑盘里一块边缘煎得微黄的菜，夹稳了才说：“花盆能挪，太阳可不等人。”邻座点头，说下回先把椅子坐住，再考虑花盆。何叔听得很赞同，似乎已经替那张椅子安排好了用处，自己的椅子却一寸也没往外挪。\\n\\n门边又有人端菜进来。靠近门的客人先伸手接住盘底，提醒了一声“有点热”，旁边便有人把面前的小碟收近。你把自己的碗往胸前端了端，空出的那条路足够盘子经过，不必起身。阿穆坐在另一侧，左手接过盘边，右手的筷子上还夹着一片藕。\\n\\n他低头看看藕，又看看盘子，短短一会儿，哪边都没舍得放。\\n\\n“先落碗里。”秦姨说。\\n\\n阿穆赶紧把藕放回碗中，腾出手，和旁边的人一起将盘子放稳。是一盘热腾腾的蒸蛋，表面撒着细碎葱花，盘沿轻轻晃了一下，很快静下来。\\n\\n“好了。”他拿回筷子，先去找自己那片藕，“刚才接菜，差点把这口也递出去了。”\\n\\n你笑着把公勺转向他。他却没急着舀，先吃掉藕片，才接过勺子。秦姨看着他：“这回两件事都办成了。”\\n\\n蒸蛋沿桌传着舀了一轮。轮到你时，勺背破开平整的表面，热气从缺口里冒出来，你给自己盛了一勺，尝到一点清鲜的汤汁。何叔也吃了，朝邻座说：“这个软，你收拾完阳台可以做，省得忙完还得费劲嚼。”\\n\\n“我收拾阳台，也没累到这一步。”邻座笑道。\\n\\n“那就不收拾也做。”何叔很快改口，“吃菜的理由不能卡得太严。”\\n\\n阿穆正给自己添蒸蛋，听见这句，点了一下头，勺子却还悬着。你把旁边的盘子略挪开些，让他有地方落手。他道声谢，低头舀完，才问何叔：“您刚才说有办法，是什么办法？”\\n\\n“哦，对。”何叔放下筷子，“我是想起前两天找一把剪刀。想着常用的东西得放在顺手的地方，就挪了一次。”\\n\\n“然后找不着了？”你问。\\n\\n“找着了。我顺手的地方有三个，轮着找了一遍。”\\n\\n秦姨夹菜的手顿住：“最后在哪个？”\\n\\n“第一个。第一次拉抽屉太急，剪刀在后头，没看见。”何叔用手比了比，接着笑，“所以我这办法还没说出来，自己先想明白了：你那盆花，别急着挪。”\\n\\n邻座端起杯子，笑得没喝成，又放了回去：“那我今天算白问了？”\\n\\n“没白问。”你说，“至少不用找三遍花盆。”\\n\\n这句话赶上了阿穆刚喝完茶。他放下杯子，笑着抿住嘴，过了一会儿才拿起筷子。桌对面的人没听全，问了一句，何叔便把剪刀的事从头讲起。这次他没再夹菜，专心把三个抽屉交代清楚；讲完，邻座替他把面前那盘菜往近处推了推：“行，现在轮到你忙这口了。”\\n\\n后一道菜也在说笑间放下。你随手帮忙扶住盘沿，等它落稳便收回手，给自己添了些米饭。秦姨尝了新菜，说比刚才那盘清淡；旁边有人喜欢重一点的，便仍旧去夹原来的。盘子慢慢换了位置，筷子各有去处，没人需要等你逐一招呼。\\n\\n你碗里最后一点蒸蛋沾上了米饭，吃起来正合适。阿穆问你还要不要，你摇摇头，把公勺让给另一边。何叔的剪刀故事已经讲完，邻座正在比画阳台上那盆花究竟有多大。你一边听，一边把碗底的饭拢到一起，忽然发现，刚才那道菜是什么时候端进门的，你竟没留意。\\n\\n你还坐在原处。面前的饭吃完了一轮，筷子握在手里，正好够得着下一口菜。\",\"story_time\":\"社区小宴开席后，众人安稳用餐时\",\"suggestions\":[\"继续吃饭，听听桌边的闲聊。\",\"聊聊自己第一次主持小宴的感受。\"],\"title\":\"这回轮到吃饭\"}}",
+    "raw_sha256": "a55f2961d91c054bb1d283ce1bdd3808bd43ff760726a493b574d36bf62d5c10",
+    "passage_sha256": "dc6b48e8f45488dd882bd74128e23532acfc58e932ff9277bec982857cb62299",
+    "passage_utf8_bytes": 4733,
+    "paragraphs": 24,
+    "transformation": "Replace the first seven LF LF separators with LF; preserve every other decoded character and every other Draft field. This control is not a product repair.",
+    "removed_lf": 7,
+    "non_newline_characters_identical": true
+  }
+}

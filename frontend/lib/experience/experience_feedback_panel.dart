@@ -35,8 +35,10 @@ class _ExperienceFeedbackPanelState extends State<ExperienceFeedbackPanel> {
   Json? _interpretation;
   bool _busy = false, _loaded = false;
   String? _error;
+  String? _notice;
   ExperienceController get c => widget.controller;
   late final String _owner = c.owner;
+  late final String _readingScope = c.scope;
   late final String _scope = experienceScope(
     c.session.backendUrl,
     c.session.workspaceId,
@@ -118,6 +120,29 @@ class _ExperienceFeedbackPanelState extends State<ExperienceFeedbackPanel> {
     }
   }
 
+  Future<void> _forNextBeat() async {
+    if (!_canAct) return;
+    final text = _text.text;
+    setState(() {
+      _busy = true;
+      _notice = null;
+    });
+    try {
+      await _persist();
+      if (!_same) return;
+      await c.setReadingRequest(text, expectedScope: _readingScope);
+      if (_same) setState(() => _notice = '已用于下一段；提交成功后消耗，不保存为今后口味。');
+    } catch (e) {
+      if (_same)
+        setState(
+          () =>
+              _error = e is FormatException ? e.message : '下一段要求保存失败，请保留原文并重试。',
+        );
+    } finally {
+      if (_same) setState(() => _busy = false);
+    }
+  }
+
   @override
   void dispose() {
     _text.dispose();
@@ -136,6 +161,7 @@ class _ExperienceFeedbackPanelState extends State<ExperienceFeedbackPanel> {
         Text('读者反馈（可选）', style: Theme.of(context).textTheme.titleLarge),
         const Text(
           '可以只写自己的话，不需要模型，也没有问卷。原文可直接保存为今后口味。'
+          '选择“用于下一段”只影响当前分支的下一次续写。'
           '正文输入框里的话只用于本次阅读或行动，不保存为长期口味。'
           '角色对白、当前场景和现实人格不是同一件事；引用的对白不会变成你的偏好或人格。'
           '偏好不保证愿望成功，也不改变人物立场和既定事实。',
@@ -148,11 +174,15 @@ class _ExperienceFeedbackPanelState extends State<ExperienceFeedbackPanel> {
           maxLines: 6,
           decoration: const InputDecoration(labelText: '我的阅读感受、希望或反馈'),
           onChanged: (_) {
-            setState(() => _interpretation = null);
+            setState(() {
+              _interpretation = null;
+              _notice = null;
+            });
             unawaited(_persist().catchError((Object _) {}));
           },
         ),
         if (_error != null) Semantics(liveRegion: true, child: Text(_error!)),
+        if (_notice != null) Semantics(liveRegion: true, child: Text(_notice!)),
         if (!_loaded)
           TextButton(
             onPressed: _busy ? null : _restore,
@@ -168,6 +198,13 @@ class _ExperienceFeedbackPanelState extends State<ExperienceFeedbackPanel> {
         Wrap(
           spacing: 8,
           children: [
+            TextButton(
+              onPressed:
+                  _canAct && c.current != null && c.scope == _readingScope
+                  ? _forNextBeat
+                  : null,
+              child: const Text('用于下一段'),
+            ),
             TextButton(
               onPressed: _canAct ? _interpret : null,
               child: Text(_busy ? '正在解读…' : '可选：让服务端解读（最多一次）'),

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 
 	"elselife/backend/internal/experience"
@@ -94,6 +95,19 @@ func (h Handler) Routes() http.Handler {
 	}))
 	mux.HandleFunc("GET /v1/experiences/{id}/operations/{request_id}", h.wrap(func(w http.ResponseWriter, r *http.Request, a string) error {
 		v, err := h.Service.GetOperation(r.Context(), a, r.PathValue("id"), r.PathValue("request_id"))
+		if err != nil {
+			return err
+		}
+		writeJSON(w, r, 200, v)
+		return nil
+	}))
+	mux.HandleFunc("GET /v1/experiences/{id}/preparation", h.wrap(func(w http.ResponseWriter, r *http.Request, a string) error {
+		revision, err := strconv.ParseInt(r.URL.Query().Get("base_revision"), 10, 64)
+		if err != nil || revision < 0 {
+			writeErrorJSON(w, r, 400, "invalid_input", "Invalid revision.")
+			return nil
+		}
+		v, err := h.Service.Preparation(r.Context(), a, r.PathValue("id"), r.URL.Query().Get("branch_id"), revision)
 		if err != nil {
 			return err
 		}

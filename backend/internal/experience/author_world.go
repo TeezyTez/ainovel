@@ -8,6 +8,29 @@ import (
 	"unicode/utf8"
 )
 
+// UnmarshalJSON reads the one removed field in legacy saved author worlds and
+// keeps it only for pre-upgrade request digest comparison. Current DTOs and model
+// attachments never serialize it; other unknown fields and malformed values fail.
+func (n *WorldNarrative) UnmarshalJSON(raw []byte) error {
+	type narrativeFields WorldNarrative
+	var wire struct {
+		narrativeFields
+		LegacyStyle json.RawMessage `json:"style"`
+	}
+	if RequiredJSON(raw, "perspective", "length", "pace") != nil || StrictJSON(raw, &wire) != nil {
+		return fail("invalid_json")
+	}
+	var legacy *string
+	if wire.LegacyStyle != nil {
+		if json.Unmarshal(wire.LegacyStyle, &legacy) != nil || legacy == nil || !utf8.ValidString(*legacy) || strings.ContainsRune(*legacy, 0) || utf16Length(*legacy) > 200 {
+			return fail("invalid_json")
+		}
+	}
+	*n = WorldNarrative(wire.narrativeFields)
+	n.legacyStyle = legacy
+	return nil
+}
+
 // ValidateAuthorWorldJSON requires the complete author DTO, never an arbitrary
 // browser snapshot, credential blob, or partially decoded free-form object.
 func ValidateAuthorWorldJSON(raw []byte) error {
@@ -20,7 +43,7 @@ func ValidateAuthorWorldJSON(raw []byte) error {
 	}
 	var fields map[string]json.RawMessage
 	_ = json.Unmarshal(raw, &fields)
-	if RequiredJSON(fields["narrative"], "perspective", "length", "style", "pace") != nil {
+	if RequiredJSON(fields["narrative"], "perspective", "length", "pace") != nil {
 		return fail("invalid_input")
 	}
 	var characters []json.RawMessage
@@ -69,7 +92,7 @@ func validateAuthorWorld(w WorldDraft) error {
 		value string
 		max   int
 	}
-	fields := []field{{w.Title, 100}, {w.Description, 4000}, {w.Era, 500}, {w.Identity, 500}, {w.Location, 500}, {w.Goal, 1000}, {w.Opening, 12000}, {w.Narrative.Style, 200}}
+	fields := []field{{w.Title, 100}, {w.Description, 4000}, {w.Era, 500}, {w.Identity, 500}, {w.Location, 500}, {w.Goal, 1000}, {w.Opening, 12000}}
 	for _, r := range w.Rules {
 		fields = append(fields, field{r, 2000})
 	}

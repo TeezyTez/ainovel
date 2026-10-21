@@ -1,0 +1,181 @@
+{
+  "id": "SYS-004",
+  "source_sha256": "37a6ff7987fbc6ebacfadea70f6e8cdffc2abf0d2cfdb2ed1d2d3d729fd679d6",
+  "source_line": 953,
+  "variant": "base",
+  "seed": "第二人称。你和同伴来到渡口询问船价。",
+  "opening": "你在渡口，手里有10枚。你此前只答应询问船价，尚未选路线，也没有买票。眼前的路线表列着快船4枚、20分钟，慢船2枚、35分钟；同伴是否同行由他自己决定。",
+  "state": {
+    "story_time": "当日",
+    "entities": [
+      {
+        "id": "player",
+        "kind": "character",
+        "name": "你",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "companion",
+        "kind": "character",
+        "name": "同伴",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "landing",
+        "kind": "place",
+        "name": "渡口",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "route-table",
+        "kind": "item",
+        "name": "路线表",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "fast-boat",
+        "kind": "item",
+        "name": "快船",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "slow-boat",
+        "kind": "item",
+        "name": "慢船",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      }
+    ],
+    "facts": [
+      {
+        "id": "at-landing",
+        "kind": "fact",
+        "text": "玩家和同伴在渡口。",
+        "subject_id": "landing",
+        "known": true,
+        "known_by": [
+          "player",
+          "companion"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "initial-money",
+        "kind": "fact",
+        "text": "玩家当前有10枚钱。",
+        "subject_id": "player",
+        "known": true,
+        "known_by": [
+          "player"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "prior-commitment",
+        "kind": "fact",
+        "text": "玩家此前只答应询问船价，尚未选择路线，也没有购买船票。",
+        "subject_id": "player",
+        "known": true,
+        "known_by": [
+          "player"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "visible-routes",
+        "kind": "fact",
+        "text": "当前可见的路线表列明：快船票价4枚，航程20分钟；慢船票价2枚，航程35分钟。",
+        "subject_id": "route-table",
+        "known": true,
+        "known_by": [
+          "player",
+          "companion"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "companion-choice",
+        "kind": "rule",
+        "text": "同伴是否同行由同伴自己决定。",
+        "subject_id": "companion",
+        "known": true,
+        "known_by": [
+          "player",
+          "companion"
+        ],
+        "source_revision": 1
+      }
+    ],
+    "threads": []
+  },
+  "steps": [
+    {
+      "id": "S01",
+      "mode": "act",
+      "input": "先问同伴愿不愿意坐快船；如果他不愿意就留在岸上，不付款。顺便把路线表字号放大。",
+      "evidence_gate": "mixed-input-router-and-route-table-ui"
+    },
+    {
+      "id": "S02",
+      "mode": "observe",
+      "input": "记录输入路由结果及是否真正发生任何故事操作、界面修改。",
+      "requires_steps": [
+        "S01"
+      ]
+    },
+    {
+      "id": "S03",
+      "mode": "harness",
+      "input": "按当前产品混合输入契约先澄清时，明确回答“先只放大字号”；另一分支明确回答“只向同伴询问，不买票”。"
+    },
+    {
+      "id": "S04",
+      "mode": "act",
+      "input": "我不是要走快船，也不是让你替我决定，我只是问慢船最晚什么时候出发。"
+    },
+    {
+      "id": "S05",
+      "mode": "act",
+      "input": "按已确认条件买一张慢船票，2枚；不要给同伴买。",
+      "requires_steps": [
+        "S04"
+      ],
+      "evidence_gate": "slow-boat-confirmed-conditions"
+    },
+    {
+      "id": "S06",
+      "mode": "act",
+      "input": "刚才那句话是我在练习台词：“给我们买两张”，不要执行。"
+    },
+    {
+      "id": "S07",
+      "mode": "observe",
+      "input": "检查金额、票数、同伴意愿、世界时间、真实模型调用链和原输入保留。",
+      "requires_steps": [
+        "S05",
+        "S06"
+      ]
+    }
+  ],
+  "private_tokens": [],
+  "omissions": [
+    "The visible route table is an initial world fact, not a fabricated prepared UI artifact. No departure time, companion consent or ticket purchase is invented.",
+    "S01 requires a real route-table presentation and PrepareArtifact InputRouting binding. The generic act adapter bypasses that route and must remain BLOCKED; approval alone cannot substitute for implementing the missing entry point.",
+    "S02 requires S01 and is not complete routing/UI observation while S01 is blocked. S03 requires actual clarification responses on two separate product branches; the harness instruction is never sent as story text.",
+    "S04 is independently executable as a negated travel request and actual departure-time inquiry; the fixture does not fill an unknown departure time.",
+    "S05 requires S04 and a source-bound review that the slow-boat conditions referenced by the exact input were actually confirmed. An answer committing a page alone is insufficient.",
+    "S06 is an independently executable quoted non-execution request. S07 depends on the actual purchase and quoted-input steps and cannot certify missing mixed-route controls.",
+    "Negation-scope, colloquial, omitted-subject and typo counterfactuals are not included."
+  ]
+}

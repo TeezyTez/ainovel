@@ -205,6 +205,7 @@ class ReaderGameplay {
           'fields': item.fields,
           'relatedIds': item.relatedIds,
           'sourceVersion': item.sourceVersion,
+          'recordedRevision': item.recordedRevision,
         },
     ], revision))
       KnownInformation({
@@ -215,6 +216,7 @@ class ReaderGameplay {
         'fields': value['fields'] ?? [],
         'related_ids': value['relatedIds'] ?? [],
         'source_version': value['sourceVersion'],
+        'recorded_revision': value['recordedRevision'],
         'certainty': value['certainty'],
         'status': value['status'],
       }),

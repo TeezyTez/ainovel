@@ -8,6 +8,7 @@ import '../portal/portal_icon.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 import 'experience_controller.dart';
@@ -27,6 +28,7 @@ import 'reader_gameplay_receipt.dart';
 import 'reader_historical_interaction.dart';
 import 'reader_projection.dart';
 import 'reader_information_sheet.dart';
+import 'reader_information_display.dart';
 import 'reader_story_waiting.dart';
 import 'reader_local_state.dart';
 import 'reader_panels.dart';
@@ -34,12 +36,17 @@ import 'reader_assistance_panel.dart';
 import 'reader_artifact_repository.dart';
 import 'reader_prepared_workbench.dart';
 import 'reader_prose_mentions.dart';
+import 'reader_reading_anchor.dart';
+import 'reader_page_context.dart';
+import 'reader_notebook.dart';
 import '../portal/portal_service_client.dart';
 import '../portal/portal_preferences.dart';
 part 'reader_tools.dart';
 part 'reader_branches.dart';
 part 'reader_context.dart';
 part 'reader_comparison.dart';
+part 'reader_position.dart';
+part 'reader_notebook_host.dart';
 
 bool experienceCanSubmit(TextEditingValue value) =>
     !value.composing.isValid || value.composing.isCollapsed;
@@ -85,13 +92,23 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
   final _focus = FocusNode(debugLabel: '经历自由输入');
   final _scroll = ScrollController();
   final Map<int, GlobalKey> _pages = {};
+  final _readingViewport = GlobalKey();
+  final Map<String, _ReaderTextNode> _readingNodes = {};
+  ReaderReadingAnchor? _pendingReadingAnchor;
+  int _readingRestoreEpoch = 0;
+  int _readingScrollEpoch = 0;
   String? _readerScope;
   ReaderArtifactRepository? _artifactRepository;
   String? _artifactScope;
   bool _artifactModal = false;
   String _shelfQuery = '';
   bool _syncing = false, _restoringPosition = false;
-  int _portalInfoTab = 0;
+  ExperienceView? _notebookView;
+  ReaderPageContextIndex? _notebookIndex;
+  int? _readingRevision;
+  ReaderReadingAnchor? _notebookReturnAnchor;
+  int? _notebookReturnRevision;
+  String? _notebookReturnScope;
   bool _composerExpanded = false;
   late final ReaderLocalState _personal;
   late final ReaderLocalState _checkpoints;
@@ -127,7 +144,20 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
   }
 
   void _readerChanged() {
+    if (!_restoreLegacyPagedPosition()) {
+      _preserveReadingAnchor();
+      _syncReadingPage();
+    }
     if (mounted) setState(() {});
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Observe viewport, text scale and keyboard changes even when only a
+    // descendant uses MediaQuery to lay out the basic reader.
+    MediaQuery.of(context);
+    _preserveReadingAnchor();
   }
 
   void _mutate(VoidCallback action) {
@@ -149,17 +179,34 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
       _selection = '';
       _lastRevision = c.current?.revision ?? 0;
       _newContent = false;
+      _readingRevision = c.readingAnchor?.revision;
+      _notebookReturnAnchor = null;
+      _notebookReturnRevision = null;
+      _notebookReturnScope = null;
       unawaited(_personal.open(c.scope));
       _composerExpanded = false;
       _pages.clear();
+      _readingNodes.clear();
+      _pendingReadingAnchor = null;
       if (c.current == null) _shelfQuery = '';
       _restoringPosition = true;
+      final restoreEpoch = ++_readingRestoreEpoch;
+      final restoreScope = c.scope;
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || restoreScope != c.scope ||
+            restoreEpoch != _readingRestoreEpoch) return;
         if (mounted && _scroll.hasClients) {
-          _scroll.jumpTo(c.offset.clamp(0, _scroll.position.maxScrollExtent));
+          if (c.readingAnchor != null) {
+            _restoreReadingAnchor(c.readingAnchor!);
+          } else {
+            _scroll.jumpTo(c.offset.clamp(0, _scroll.position.maxScrollExtent));
+            _trackRestoredReadingPage();
+          }
         }
         _restoringPosition = false;
       });
+    } else {
+      _preserveReadingAnchor();
     }
     final momentsScope = experienceScope(
       c.session.backendUrl,
@@ -188,6 +235,17 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
     if (_restoringPosition || !_scroll.hasClients) return;
     // Record synchronously in memory. Serialized durable write cannot overwrite request/draft.
     unawaited(c.saveReading(position: _scroll.offset));
+    // A scroll listener runs before layout applies the new viewport transform.
+    // Read source coordinates only after that frame, not from the old paint.
+    final epoch = ++_readingScrollEpoch, scope = c.scope;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || scope != c.scope || epoch != _readingScrollEpoch ||
+          _restoringPosition || !_scroll.hasClients) return;
+      final anchor = _captureReadingAnchor();
+      _trackReadingPage(anchor);
+      unawaited(c.saveReading(position: _scroll.offset,
+        anchor: anchor, updateAnchor: true));
+    });
   }
 
   Future<void> _send({String? mode}) async {
@@ -196,6 +254,7 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
         experienceCanSubmit(_input.value) &&
         await _handleInputCommand())
       return;
+    if (!c.checkDraftAnchor(explicitMode: mode)) return;
     final routingRepository = !widget.localDemo ? _artifactRepository : null;
     final rich = readerRichRequest(
       c.draft,
@@ -217,7 +276,7 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
     }
     // Optional background presentation work must not hold the story composer.
     // Keep its durable request so an unknown result remains recoverable.
-    if (routingRepository?.pending != null) routingRepository!.cancel();
+    routingRepository?.cancel();
     String? inputOperationId;
     Json? routedAction;
 
@@ -489,6 +548,7 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: ReaderStoryWaiting(
+          phase: c.progress?.phase,
           input: input is String ? input : '',
           publishedText: pages != null && pages.isNotEmpty
               ? pages.last.text
@@ -679,6 +739,7 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                         : Scrollbar(
                             controller: _scroll,
                             child: SingleChildScrollView(
+                              key: _readingViewport,
                               controller: _scroll,
                               padding: const EdgeInsets.fromLTRB(
                                 24,
@@ -849,6 +910,7 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                                                   ),
                                                   const SizedBox(height: 14),
                                                   Text(
+                                                    key: _readingTextKey(page, 0, page.text),
                                                     page.text,
                                                     style: TextStyle(
                                                       fontSize: c.fontSize,
@@ -920,6 +982,34 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (view != null) _status(),
+                            if (c.draftNeedsReview) _draftReview(),
+                            if (view != null && c.readingRequest != null)
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text('下一段要求：${c.readingRequest}'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => c
+                                        .setReadingRequest(
+                                          null,
+                                          expectedScope: c.scope,
+                                        )
+                                        .catchError((Object _) {}),
+                                    child: const Text('移除'),
+                                  ),
+                                ],
+                              ),
+                            if (view != null &&
+                                !c.blocked &&
+                                c.preparation != null &&
+                                c.preparation!.status !=
+                                    PreparationStatus.unavailable)
+                              Text(
+                                c.preparation!.status == PreparationStatus.ready
+                                    ? '已有后续准备，继续阅读时会核对'
+                                    : '正在准备后续，你可以继续阅读或自由行动',
+                              ),
                             if (view != null)
                               Wrap(
                                 spacing: 8,
@@ -957,6 +1047,8 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                                     HardwareKeyboard
                                         .instance
                                         .isControlPressed &&
+                                    !HardwareKeyboard.instance.isShiftPressed &&
+                                    !HardwareKeyboard.instance.isAltPressed &&
                                     experienceCanSubmit(_input.value)) {
                                   _send();
                                   return KeyEventResult.handled;
@@ -1035,7 +1127,9 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
     };
     final muted = theme.colorScheme.onSurfaceVariant;
     final line = theme.colorScheme.outlineVariant;
-    final orientationPage = _visiblePages(view).lastOrNull;
+    final orientationPage = _readingPage(view);
+    final notebook = orientationPage == null
+        ? null : _pageContextIndex(view).at(orientationPage.revision);
     final orientationGameplay = orientationPage?.revision == view.revision
         ? view.publicGameplay
         : orientationPage?.reader?.gameplay;
@@ -1054,8 +1148,8 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
         child: Column(
           children: [
             Container(
-              height: 64,
-              padding: const EdgeInsets.symmetric(horizontal: 18),
+              constraints: const BoxConstraints(minHeight: 64),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
                 border: Border(bottom: BorderSide(color: line)),
@@ -1070,6 +1164,7 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -1097,8 +1192,8 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                       style: TextStyle(color: muted, fontSize: 11),
                     ),
                   IconButton(
-                    tooltip: '已知资料',
-                    onPressed: _information,
+                    tooltip: '页边记事',
+                    onPressed: _openNotebook,
                     icon: const PortalIcon('layers', size: 19),
                   ),
                   IconButton(
@@ -1211,6 +1306,7 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                           child: Scrollbar(
                             controller: _scroll,
                             child: SingleChildScrollView(
+                              key: _readingViewport,
                               controller: _scroll,
                               child: Center(
                                 child: ConstrainedBox(
@@ -1335,6 +1431,11 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                                                   ],
                                                   _readerProse(page, ink),
                                                   _gameplayNotes(page),
+                                                  if (_pageContextIndex(view).at(page.revision) case final context?)
+                                                    ReaderNotebookDoorway(
+                                                      page: context,
+                                                      onOpen: () => _openNotebook(page.revision),
+                                                    ),
                                                   if (page.interactionSnapshot !=
                                                           null &&
                                                       widget.artifactClient !=
@@ -1440,7 +1541,22 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                             child: const Text('有新内容 ↓'),
                           ),
                         if (_selection.isNotEmpty) _selectionBar(),
-                        _portalComposer(context, view, latestSuggestions),
+                        ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxHeight:
+                                (MediaQuery.sizeOf(context).height -
+                                    MediaQuery.viewInsetsOf(context).bottom) *
+                                .55,
+                          ),
+                          child: SingleChildScrollView(
+                            primary: false,
+                            child: _portalComposer(
+                              context,
+                              view,
+                              latestSuggestions,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -1451,7 +1567,9 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                         color: theme.colorScheme.surface,
                         border: Border(left: BorderSide(color: line)),
                       ),
-                      child: _portalDossier(context, view),
+                      child: notebook == null
+                          ? const Center(child: Text('故事开始后，记载会留在这里。'))
+                          : _notebookPanel(view, notebook),
                     ),
                 ],
               ),
@@ -1471,7 +1589,11 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
     if (widget.localReadOnly)
       return Padding(
         padding: const EdgeInsets.all(12),
-        child: Wrap(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _notebookNavigation(view),
+            Wrap(
           spacing: 8,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
@@ -1494,6 +1616,8 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
               child: const Text('回到书架'),
             ),
           ],
+            ),
+          ],
         ),
       );
     return Container(
@@ -1512,6 +1636,7 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _notebookNavigation(view),
               Row(
                 children: [
                   Expanded(
@@ -1572,6 +1697,7 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
               ),
               if (_personal.references.isNotEmpty) _referenceChips(),
               _contextChips(),
+              if (c.draftNeedsReview) _draftReview(),
               Visibility(
                 visible: _composerExpanded,
                 maintainState: true,
@@ -1683,106 +1809,26 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
     );
   }
 
-  Widget _portalDossier(BuildContext context, ExperienceView view) {
-    final theme = Theme.of(context);
-    final categories = ['概览', '人物', '地点', '物品', '线索', '状态', '时间', '手记'];
-    final kinds = [
-      const <String>{},
-      const {'person', 'character'},
-      const {'location'},
-      const {'item'},
-      const {'clue', 'thread'},
-      const {'status', 'fact', 'rule'},
-      const {'event', 'agreement', 'schedule'},
-      const <String>{},
-    ];
-    final items = _portalInfoTab == 0
-        ? view.information
-        : view.information
-              .where((item) => kinds[_portalInfoTab].contains(item.kind))
-              .toList();
+  Widget _draftReview() {
+    final scope = c.scope, revision = c.current!.revision;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(18, 20, 18, 14),
-          child: Row(
-            children: [
-              Text('故事资料', style: theme.textTheme.titleSmall),
-              const Spacer(),
-              IconButton(
-                onPressed: _information,
-                icon: const PortalIcon('arrow-up-right', size: 16),
-                tooltip: '查看全部已知资料',
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Wrap(
-            spacing: 4,
-            children: [
-              for (var index = 0; index < categories.length; index++)
-                TextButton(
-                  onPressed: () {
-                    if (index == 7) {
-                      _notes();
-                    } else {
-                      setState(() => _portalInfoTab = index);
-                      if (index == 2) _readerPanel('map');
-                      if (index == 6) _readerPanel('time');
-                    }
-                  },
-                  child: Text(
-                    categories[index],
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: _portalInfoTab == index
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
+        Text(c.draftReviewMessage),
+        TextButton(
+          key: const ValueKey('experience-confirm-draft-position'),
+          onPressed:
+              c.blocked || c.loading || !experienceCanSubmit(_input.value)
+              ? null
+              : () => c.confirmDraftAtCurrentRevision(
+                  expectedScope: scope,
+                  expectedRevision: revision,
                 ),
-            ],
-          ),
-        ),
-        Divider(color: theme.colorScheme.outlineVariant),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(18),
-            children: [
-              Text('此处已知的资料', style: theme.textTheme.labelSmall),
-              const SizedBox(height: 8),
-              if (items.isEmpty)
-                Text(
-                  '尚无已知资料。新的事实会随正式经历逐步呈现。',
-                  style: theme.textTheme.bodySmall,
-                ),
-              for (final item in items)
-                InkWell(
-                  onTap: () => _object(item),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(item.name, style: theme.textTheme.titleSmall),
-                        const SizedBox(height: 4),
-                        Text(
-                          item.text,
-                          maxLines: 4,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
-          ),
+          child: const Text('已核对，在当前页使用这份草稿'),
         ),
       ],
     );
   }
+
 }

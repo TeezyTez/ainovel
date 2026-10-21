@@ -1,0 +1,190 @@
+{
+  "id": "SYS-005",
+  "source_sha256": "37a6ff7987fbc6ebacfadea70f6e8cdffc2abf0d2cfdb2ed1d2d3d729fd679d6",
+  "source_line": 1098,
+  "variant": "base",
+  "seed": "第二人称。你经营一家有店员照料普通售茶的茶铺。",
+  "opening": "14:00，茶铺开始营业，手头现金6枚。今天营业到18:00，固定成本按每个完整营业小时结束扣1枚；普通售茶可由店员处理。担保、借贷和搬家需要你自己决定。",
+  "state": {
+    "story_time": "当日14:00",
+    "entities": [
+      {
+        "id": "player",
+        "kind": "character",
+        "name": "你",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "clerk",
+        "kind": "character",
+        "name": "店员",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "visitor",
+        "kind": "character",
+        "name": "来访者",
+        "description": "",
+        "known": false,
+        "related_ids": []
+      },
+      {
+        "id": "regular",
+        "kind": "character",
+        "name": "熟客",
+        "description": "",
+        "known": false,
+        "related_ids": []
+      },
+      {
+        "id": "teashop",
+        "kind": "place",
+        "name": "茶铺",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      }
+    ],
+    "facts": [
+      {
+        "id": "business-hours",
+        "kind": "rule",
+        "text": "茶铺当日从14:00营业到18:00。",
+        "subject_id": "teashop",
+        "known": true,
+        "known_by": [
+          "player",
+          "clerk"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "cash-at-opening",
+        "kind": "fact",
+        "text": "当日14:00开门营业时，茶铺现金为6枚。",
+        "subject_id": "teashop",
+        "known": true,
+        "known_by": [
+          "player",
+          "clerk"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "hourly-fixed-cost",
+        "kind": "rule",
+        "text": "营业固定成本为每小时1枚，在每个完整营业小时结束时扣除。",
+        "subject_id": "teashop",
+        "known": true,
+        "known_by": [
+          "player",
+          "clerk"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "ordinary-tea-service",
+        "kind": "rule",
+        "text": "普通售茶可由店员独立处理。",
+        "subject_id": "clerk",
+        "known": true,
+        "known_by": [
+          "player",
+          "clerk"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "reserved-decisions",
+        "kind": "rule",
+        "text": "任何担保、借贷、搬家均须由玩家自己决定，店员不能代替玩家作出决定。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "player",
+          "clerk"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "quiet-first-interval",
+        "kind": "rule",
+        "text": "当日14:00至15:20之间没有访客，没有普通营业收入，也没有额外支出。",
+        "subject_id": "teashop",
+        "known": false,
+        "known_by": [],
+        "source_revision": 1
+      },
+      {
+        "id": "guarantee-visit-schedule",
+        "kind": "rule",
+        "text": "当日15:20，来访者到茶铺提出一份需要玩家签署的担保；这是届时提出的请求，目前尚未发生。",
+        "subject_id": "visitor",
+        "known": false,
+        "known_by": [],
+        "source_revision": 1
+      },
+      {
+        "id": "regular-visit-schedule",
+        "kind": "rule",
+        "text": "当日16:00，一位普通熟客来到茶铺，此次到访不会提前发生。",
+        "subject_id": "regular",
+        "known": false,
+        "known_by": [],
+        "source_revision": 1
+      }
+    ],
+    "threads": []
+  },
+  "steps": [
+    {
+      "id": "S01",
+      "mode": "act",
+      "input": "继续经营到傍晚六点，普通售茶交给店员。有人要我签字、额外花费超过两枚或重要访客到了就停下来；不借钱。"
+    },
+    {
+      "id": "S02",
+      "mode": "observe",
+      "input": "核对最早停点15:20及已发生的成本、收入、人物位置，不允许直接跨到18:00。"
+    },
+    {
+      "id": "S03",
+      "mode": "read",
+      "input": "继续看看对方怎样解释这份担保，我还没决定签。"
+    },
+    {
+      "id": "S04",
+      "mode": "ask",
+      "input": "我答应了哪些事情，哪些仍然没有答应？"
+    },
+    {
+      "id": "S05",
+      "mode": "act",
+      "input": "不签担保，请他离开；继续原先普通经营，到16:00就停。"
+    },
+    {
+      "id": "S06",
+      "mode": "harness",
+      "input": "技术恢复后再次读取同一结果；取消尚未提交的下一段计算。"
+    },
+    {
+      "id": "S07",
+      "mode": "observe",
+      "input": "看后续候选中即使写有签字/收款，是否仍未变成正式事实。",
+      "requires_steps": [
+        "S06"
+      ]
+    }
+  ],
+  "private_tokens": [],
+  "omissions": [
+    "Exact scheduled-world base: costs and visit schedule are world rules; the expected stop balance is not injected as a result.",
+    "S06 needs a real technical restore plus cancellation of an uncommitted operation; this fixture does not supply that control binding.",
+    "S07 is blocked until S06 actually restores and cancels an uncommitted candidate; a plain snapshot is not cancellation evidence.",
+    "No scheduled-visitor-removed or 15:00 delegation-limit counterfactual is included."
+  ]
+}

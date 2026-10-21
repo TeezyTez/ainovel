@@ -54,13 +54,14 @@ Json testOperation(
   String branch = 'main',
   String status = 'committed',
   String id = 'experience-a',
+  int baseRevision = 1,
 }) => {
   'request_id': request,
   'experience_id': id,
   'branch_id': branch,
   'status': status,
-  'base_revision': 1,
-  if (status == 'committed') 'committed_revision': 2,
+  'base_revision': baseRevision,
+  if (status == 'committed') 'committed_revision': baseRevision + 1,
 };
 WorkspaceSession testSession() =>
     WorkspaceSession(backendUrl: 'https://world.test');
@@ -154,6 +155,7 @@ class FakeExperienceApi implements ExperienceApi {
             id: id,
             branch: body['branch_id'],
             status: status,
+            baseRevision: body['expected_revision'],
           ),
         );
   }

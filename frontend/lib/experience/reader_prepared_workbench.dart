@@ -207,16 +207,16 @@ class _ReaderPreparedWorkbenchState extends State<ReaderPreparedWorkbench> {
       return;
     }
 
-    if (kind == 'advanced-repair' &&
-        value is String &&
-        value.isNotEmpty &&
-        value.length <= 4000) {
+    if (kind == 'advanced-repair') {
+      final reason = value is String ? value : value is Map ? value['reason'] : null;
+      final automatic = value is String || value is Map && value['automatic'] == true;
+      if (reason is! String || reason.isEmpty || reason.length > 4000) return;
       if (!r.writable || submitting) return;
       submitting = true;
       changed();
       try {
         await flushState();
-        if (r.writable) await r.prepare(value, retry: true);
+        if (r.writable) await r.repair(reason, automatic: automatic);
       } finally {
         submitting = false;
         changed();

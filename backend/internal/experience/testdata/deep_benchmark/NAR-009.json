@@ -1,0 +1,150 @@
+{
+  "id": "NAR-009",
+  "source_sha256": "37a6ff7987fbc6ebacfadea70f6e8cdffc2abf0d2cfdb2ed1d2d3d729fd679d6",
+  "source_line": 8123,
+  "variant": "base",
+  "seed": "安静日常，第二人称。你是回老家休假的成年人许舟。",
+  "opening": "你回到老家的厨房。外婆方芹想把那把有点晃的旧椅子修稳。家里工具足够，你有基本木工经验，通常一个下午就能完成。",
+  "state": {
+    "story_time": "当日13:00",
+    "entities": [
+      {
+        "id": "xu",
+        "kind": "character",
+        "name": "许舟",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "fq",
+        "kind": "character",
+        "name": "方芹",
+        "description": "许舟的外婆",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "chair",
+        "kind": "item",
+        "name": "厨房的旧椅子",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      }
+    ],
+    "facts": [
+      {
+        "id": "chair-task",
+        "kind": "fact",
+        "text": "厨房旧椅子有点晃，方芹希望修稳；工具足够，许舟有基本木工经验，通常一个下午即可完成。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "xu",
+          "fq"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "ordinary-boundary",
+        "kind": "rule",
+        "text": "这次不要病危、拆迁、隐藏遗产、陌生来客或恋爱；普通波折允许。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [],
+        "source_revision": 1
+      },
+      {
+        "id": "fq-wishes",
+        "kind": "fact",
+        "text": "方芹希望椅子能继续用，也希望外孙能坐一会儿；她不愿用责备或卖惨留人。",
+        "subject_id": "fq",
+        "known": false,
+        "known_by": [
+          "fq"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "fq-health",
+        "kind": "fact",
+        "text": "方芹没有危急健康变化。",
+        "subject_id": "fq",
+        "known": false,
+        "known_by": [
+          "fq"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "chair-plain",
+        "kind": "fact",
+        "text": "椅子没有机关或重大秘密。",
+        "subject_id": "chair",
+        "known": false,
+        "known_by": [],
+        "source_revision": 1
+      },
+      {
+        "id": "fq-limits",
+        "kind": "fact",
+        "text": "方芹知道椅子的用途、许舟难得回来，不知道许舟未说的计划。",
+        "subject_id": "fq",
+        "known": false,
+        "known_by": [
+          "fq"
+        ],
+        "source_revision": 1
+      }
+    ],
+    "threads": []
+  },
+  "steps": [
+    {
+      "id": "S01",
+      "mode": "act",
+      "input": "我先检查椅子哪里晃。"
+    },
+    {
+      "id": "S02",
+      "mode": "act",
+      "input": "我向外婆借家里已有的工具，按自己会的办法修。"
+    },
+    {
+      "id": "S03",
+      "mode": "continue",
+      "input": "这段慢一些，让修椅子和厨房里的日常自然展开。"
+    },
+    {
+      "id": "S04",
+      "mode": "act",
+      "input": "我做手头的活，听她愿意说的近况。"
+    },
+    {
+      "id": "S05",
+      "mode": "act",
+      "input": "若椅子已修稳，请她试坐；若还有问题，按实际问题做一次小调整。"
+    },
+    {
+      "id": "S06",
+      "mode": "act",
+      "input": "我归位工具，给自己倒杯水，在旁边坐一会儿。"
+    },
+    {
+      "id": "S07",
+      "mode": "continue",
+      "input": "让这个下午自然结束，修完椅子可以就是结尾。"
+    },
+    {
+      "id": "S08",
+      "mode": "continue",
+      "input": "仅写自愿后记：几天后再看见这把椅子，不推翻已有结果。",
+      "epilogue": true
+    }
+  ],
+  "private_tokens": [],
+  "omissions": [
+    "Human literary review and counterfactual variants remain pending. Initial page is a fixture, not a generated page."
+  ]
+}

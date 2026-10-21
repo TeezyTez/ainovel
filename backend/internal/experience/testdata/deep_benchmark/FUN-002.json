@@ -1,0 +1,188 @@
+{
+  "id": "FUN-002",
+  "source_sha256": "37a6ff7987fbc6ebacfadea70f6e8cdffc2abf0d2cfdb2ed1d2d3d729fd679d6",
+  "source_line": 12134,
+  "variant": "base",
+  "seed": "第二人称。你在雪原运输站比较一次开仓的现有证据，并决定下一步调查。",
+  "opening": "仓门需两人各转一把钥匙。青、白、赤三人中恰有两人开过仓。唯一公开记录是：青与白不同时在场；白与赤至少一人在场。你尚未查看青的钥匙盒在开仓前后的连续记录。",
+  "state": {
+    "story_time": "开仓后的调查阶段",
+    "entities": [
+      {
+        "id": "player",
+        "kind": "character",
+        "name": "你",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "qing",
+        "kind": "character",
+        "name": "青",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "bai",
+        "kind": "character",
+        "name": "白",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "chi",
+        "kind": "character",
+        "name": "赤",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "warehouse-door",
+        "kind": "item",
+        "name": "双锁仓门",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "qing-key-box",
+        "kind": "item",
+        "name": "青的钥匙盒",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "cleaner-record",
+        "kind": "item",
+        "name": "清洁器的钥匙盒连续记录",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      }
+    ],
+    "facts": [
+      {
+        "id": "two-key-rule",
+        "kind": "rule",
+        "text": "仓门需两人各转一把钥匙。无单人双钥匙、代持或第四人，钥匙只能由本人使用。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "player",
+          "qing",
+          "bai",
+          "chi"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "two-openers",
+        "kind": "fact",
+        "text": "青、白、赤三人中恰有两人开过仓。",
+        "subject_id": "warehouse-door",
+        "known": true,
+        "known_by": [
+          "player"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "public-attendance-record",
+        "kind": "fact",
+        "text": "唯一公开记录是：青与白不同时在场；白与赤至少一人在场。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "player"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "record-access-rule",
+        "kind": "rule",
+        "text": "可申请查青的钥匙盒记录，代价为放弃同一时段一次非关键盘问。",
+        "subject_id": "cleaner-record",
+        "known": true,
+        "known_by": [
+          "player"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "actual-openers",
+        "kind": "secret",
+        "text": "这次开仓的两人为白和赤。",
+        "subject_id": "warehouse-door",
+        "known": false,
+        "known_by": [
+          "bai",
+          "chi"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "diagnostic-record",
+        "kind": "secret",
+        "text": "清洁器只拍到青的钥匙从20:00到20:10始终留在封存玻璃盒内；开仓发生于20:05。",
+        "subject_id": "cleaner-record",
+        "known": false,
+        "known_by": [],
+        "source_revision": 1
+      }
+    ],
+    "threads": []
+  },
+  "steps": [
+    {
+      "id": "01",
+      "mode": "player",
+      "input": "先列出证据允许的所有二人组合，不选一个当作真相。"
+    },
+    {
+      "id": "02",
+      "mode": "player",
+      "input": "我个人很信任白，但这能否从逻辑上排除白赤？"
+    },
+    {
+      "id": "03",
+      "mode": "player",
+      "input": "如果去查赤有没有到过仓门，这条信息能区分哪种解释？"
+    },
+    {
+      "id": "04",
+      "mode": "player",
+      "input": "我申请查看青的钥匙盒在开仓前后的连续记录。"
+    },
+    {
+      "id": "05",
+      "mode": "player",
+      "input": "基于记录更新候选组合，并说明是哪条新信息排除了另一种。"
+    },
+    {
+      "id": "06",
+      "mode": "player",
+      "input": "我愿意听两人的解释，但不把“打开仓门”自动等同于“偷货”。"
+    },
+    {
+      "id": "07",
+      "mode": "player",
+      "input": "回看第一步：当时能否已经断言白赤？"
+    }
+  ],
+  "private_tokens": [],
+  "omissions": [
+    "Evaluator-authored synthetic prehistory is seeded only at revision 1. It is not a generated prior trajectory; no earlier formal pages, acquired observations or player decisions are fabricated.",
+    "Only seed, public opening, world State and exact player inputs enter the product. Case IDs, omissions, checkpoints, reference calculations and scoring remain evaluator metadata.",
+    "All source steps are player operations and map to the existing Go act entry. No speculative access gate or automatic success is inserted. A committed request is not proof that evidence was obtained; the actual prose and same-revision snapshot determine which knowledge probe was reached.",
+    "Only the base trajectory is drafted. Counterfactual pairs, independent semantic evidence review and target-reader blind review are not performed or claimed. No model or database operation has run for this draft.",
+    "The source engine_fixture possible_pairs_before_test is a derived reference answer, so it is deliberately absent from product State. The public constraints and privately fixed actual openers remain world facts; no deduction, unique answer or distinguishing-power explanation is preloaded.",
+    "Author choices: unnamed player entity; a nonspecific post-opening story time; named neutral carrier objects for the already-specified door, key box and continuous record. The universal physical key rule is known by the three keyholders; the public constraints/access rule are initially recorded for the player only. Bai and Chi know their own joint action. No extra witness knowledge, record custodian, approval outcome or theft/motive is invented.",
+    "The continuous record exists but remains reader-unknown and has no initialized human knower. Object visibility/record availability does not mean the contents have been read. The access opportunity and cost are initialized, but no permission, waived interview, obtained record or acquisition event is marked completed.",
+    "Step05 may use only what the actual step04 response disclosed; if no diagnostic evidence was acquired, a unique-solution check is unreached or failed as warranted, not made true by step wording. Step07 must distinguish the actual first-step evidence from later disclosures."
+  ]
+}

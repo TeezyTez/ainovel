@@ -1,0 +1,327 @@
+{
+  "fixture_version": 1,
+  "purpose": "Recorded synthetic benchmark output and a separator-only engineering control. No new model call, no repaired formal page, and no narrative acceptance.",
+  "source": {
+    "run": ".validation/deep-benchmark/20261020T110759Z-state-repair-v411-serial/NAR-017",
+    "case_id": "NAR-017",
+    "step_id": "S03",
+    "root_sha256": "21c9478a5c0a2c8bc1260597d5e94add846b3fc84ff10e3e5f83514e3cc2c147",
+    "events_sha256": "8a049f7c76d0947264027dd0a93f1bce421d15df5e4a3755b5917f1aaa4c1a89",
+    "request_event_seq": 68,
+    "result_event_seq": 69,
+    "result_event_sha256": "7fe6a1f05e28dc2b8638d0455da12339b2466849e0edba31de16fd819a2a510c",
+    "fixture_sha256": "17d89a2fa42be15a8afcee20f78d5c14c4b24916cc6f19d0e5961708268633e8",
+    "source_tree_sha256": "ceadc0ce1c50314a226cb95e67ac03cf8bfe76390c0f65d5b3c3660431579e8d",
+    "runtime_sha256": "0eb162953ad024a8e8df65c0b13f4645a04b1ee2596b91a88add39517205ce3c",
+    "engine": "narrative-engine.v4.11"
+  },
+  "old_schema": {
+    "$defs": {
+      "read_request": {
+        "additionalProperties": false,
+        "description": "Read-only retrieval inside the SAME accepted operation, issued by the generator when its bounded input cannot satisfy the task. Never a story page, never a revision advance, never a candidate. Backend authorizes, pins, matches literally and returns raw committed source.",
+        "properties": {
+          "max_reply_bytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "request_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "selector": {
+            "description": "Closed literal selectors. Names only target entity.name; facts/threads have text and use enumerate. Terms match text for facts/threads and name+description for entities, with case-sensitive Unicode literal all/any semantics (not similarity). Ambiguity enumerates every exact match in stable typed-ID order with query-computed complete/cursor; never an arbitrary best pick.",
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "cursor": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "const": "objects"
+                  },
+                  "objects": {
+                    "items": {
+                      "$ref": "#/$defs/read_target"
+                    },
+                    "minItems": 1,
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "objects"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "at_revision": {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "cursor": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "const": "names"
+                  },
+                  "names": {
+                    "items": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "minItems": 1,
+                    "type": "array"
+                  },
+                  "type": {
+                    "const": "entity",
+                    "description": "Only entities have a name in this domain schema; facts/threads use literal text selectors."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "type",
+                  "names"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "cursor": {
+                    "type": "string"
+                  },
+                  "from_revision": {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "kind": {
+                    "const": "pages"
+                  },
+                  "to_revision": {
+                    "minimum": 1,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "from_revision",
+                  "to_revision"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "allOf": [
+                  {
+                    "if": {
+                      "anyOf": [
+                        {
+                          "required": [
+                            "fact_kind"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "from_source_revision"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "to_source_revision"
+                          ]
+                        }
+                      ]
+                    },
+                    "then": {
+                      "properties": {
+                        "type": {
+                          "const": "fact"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "if": {
+                      "required": [
+                        "terms"
+                      ]
+                    },
+                    "then": {
+                      "required": [
+                        "match"
+                      ]
+                    }
+                  }
+                ],
+                "properties": {
+                  "cursor": {
+                    "type": "string"
+                  },
+                  "fact_kind": {
+                    "enum": [
+                      "fact",
+                      "rule",
+                      "secret",
+                      "statement",
+                      "belief"
+                    ],
+                    "type": "string"
+                  },
+                  "from_source_revision": {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "kind": {
+                    "const": "enumerate"
+                  },
+                  "match": {
+                    "enum": [
+                      "all",
+                      "any"
+                    ],
+                    "type": "string"
+                  },
+                  "terms": {
+                    "items": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "minItems": 1,
+                    "type": "array"
+                  },
+                  "to_source_revision": {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "type": {
+                    "enum": [
+                      "fact",
+                      "entity",
+                      "thread"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "type"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "source_handle": {
+            "description": "Must echo the handle from the generation state_coverage; a model cannot mint read authority.",
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "source_handle",
+          "selector",
+          "max_reply_bytes"
+        ],
+        "type": "object"
+      },
+      "read_target": {
+        "additionalProperties": false,
+        "properties": {
+          "at_revision": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "fact",
+              "entity",
+              "thread"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "result": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "outcome": {
+                "enum": [
+                  "continues",
+                  "awaits_player",
+                  "ending"
+                ],
+                "type": "string"
+              },
+              "passage": {
+                "type": "string"
+              },
+              "story_time": {
+                "type": "string"
+              },
+              "suggestions": {
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 4,
+                "type": "array"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "outcome",
+              "passage",
+              "story_time",
+              "suggestions",
+              "title"
+            ],
+            "type": "object"
+          },
+          {
+            "$ref": "#/$defs/read_request"
+          }
+        ]
+      }
+    },
+    "required": [
+      "result"
+    ],
+    "type": "object"
+  },
+  "original": {
+    "raw": "{\"result\":{\"outcome\":\"continues\",\"passage\":\"季砚把《田野札记》放回书架，抽出时用来垫着的纸留在柜台上。布袋底有一点从教师家带回来的粉笔灰，他翻过袋角拍净，才锁门去找陆棠。街上的货车已经挪了位置，一扇卸下来的柜门斜靠在车斗里，镜面朝内，用旧毯子包着。\\n\\n陆棠家的门开着。季砚站在门外叫她，先听见胶带被扯开的声音，随后她从一只纸箱后面直起腰。袖口卷到小臂，手背粘着一小片纸。\\n\\n“正好，你站那儿别动。”她把胶带头按在箱沿上，过去移开门边的凳子，“刚擦过，里面那块地还湿。”\\n\\n季砚跨过门槛，把布袋拎给她看：“来收《沿岸草木》。”\\n\\n“没封进去。想着你今天会来。”陆棠蹲到窗下，掀开一只箱子的盖。里面的书横着码了两层，最上面垫着件薄毛衣。她把毛衣搭在膝上，抽出那本书，顺手抹去封面上的一根线头。\\n\\n季砚接过来，就着窗光看了扉页印章。书脊还紧，封底有一小块擦白。他翻到中间，一张折起的纸露出半边，便托住书递回她面前。\\n\\n“这个还要吗？”\\n\\n陆棠抽出来，展开看了一眼。纸上是几行尺寸，边上画着一个歪斜的长方框。“要，新地方窗台的尺寸。我就说记在哪儿了。”她把纸塞进外套口袋，拍了拍，“现在可不能把外套也装箱。”\\n\\n季砚笑了一声，翻完余下的书页，装进布袋。陆棠把毛衣放回箱里，用膝盖顶住箱壁，两边盖子却总有一边翘起来。他放下袋子，过去按住，她沿缝贴好胶带，掌根压着抹了一遍。\\n\\n“今天走吗？”她低头找剪刀，问得很平常。\\n\\n“还没定。”\\n\\n剪刀就在窗沿，她拿起来，把胶带截断。“票也没买？”\\n\\n“还没有。先把书收齐。”\\n\\n“剩几本？”\\n\\n“一本。在于砚那里修。”\\n\\n她在箱侧写了个‘书’字，又补上箭头。“那倒快了。”写完，她没有马上盖笔帽，抬头看他，“不过，收齐以后呢？”\\n\\n季砚的手还按在箱盖上。他松开，那里留下一个浅浅的凹处。“原想忙完再想。上午跑下来，回来就看钟，像下一趟出了门，总能顺带想明白。”\\n\\n陆棠把笔帽扣上。屋里原先放柜子的地方露出一块浅色墙面，地上有几枚垫柜脚的硬纸片。她弯腰拾起来，摞在掌心。\\n\\n“我也有句话得跟你说明白。”她说，“今天这里乱，你愿意搭把手，我当然省力。但别看我忙，就觉得你得留下；也别觉得我把东西装箱了，你也该走。”\\n\\n“我没说要替你搬完。”\\n\\n“我知道。我是先把这句说了，省得一会儿我喊你挪张桌子，你又把下午也算进来。”她指了一下靠墙的小桌，“那个我等人来抬，你别碰。”\\n\\n季砚收回目光，拣起脚边滚出来的一只木衣夹，放到她摊开的纸片上。“那这个不算。”\\n\\n“不算。”\\n\\n他们把门口散着的几样小东西收进一只浅盒。陆棠用旧报纸包住杯子，季砚扶着盒沿，等她塞稳。窗外有人喊楼下的车要挪，她走到窗口应了一声，回来把盒子放在已经封好的箱上，没有再往里添。\\n\\n“你留在岛上，冬天也不只是还书。”她提起布袋，递给他，“吃饭，晒衣服，屋里潮了怎么办，总得一样样过。走了也一样，船靠岸以后还有事。”\\n\\n“听着哪边都不轻省。”\\n\\n“那倒是。”她拿手背蹭了蹭额角，“我现在就想先找出扫帚。”\\n\\n扫帚在敞开的门后。季砚侧身让她拿出来，没有替她把这屋子的事继续做下去。她扫起墙边的纸屑，他拎着书站到门外，回头说：“书收到了。回去记上。”\\n\\n“好。”陆棠把一片胶带从扫帚毛上摘掉，“下楼慢点，楼梯拐角堆了东西。”\\n\\n回程时，餐馆门口已经有人端着碗等位。季砚闻到葱和热油的味道，肚子这才空了一下。他没有赶着穿过人群，沿街边绕到书店，先开门，再把布袋放上柜台。\\n\\n十一点五十五。他在第三行写下归还日期，将《沿岸草木》放到旁边，等墨迹干。书架上那一小段空位已经可以补上，借阅簿却还不能合起来：最后一行是《旧诗选》，在于砚手里。\\n\\n季砚把十七点的纸条抽出来，放在钟下。随后另拿一张废纸，在背面写了两行：‘离岛前要办的事’，‘留下过冬要办的事’。他望了一会儿，先在两行上方添了‘午饭’，把笔横搁在纸边。还有一本书要去取，但他不必饿着肚子，把整个冬天也一并想完。\",\"story_time\":\"冬季停航前最后一天11:55\",\"suggestions\":[\"继续第四章。\"],\"title\":\"第三章：尚未封口的箱子\"}}",
+    "raw_sha256": "0700b1e0c72d5608ef91de1c5020ff12d97a09546cc4e2bbe7dde3aaee7527be",
+    "passage_sha256": "99d6a4f67081058b62127494eaeab3c0b00e53f661701040db222fc830f497fd",
+    "passage_utf8_bytes": 4682,
+    "paragraphs": 32
+  },
+  "separator_only_24": {
+    "raw": "{\"result\":{\"outcome\":\"continues\",\"passage\":\"季砚把《田野札记》放回书架，抽出时用来垫着的纸留在柜台上。布袋底有一点从教师家带回来的粉笔灰，他翻过袋角拍净，才锁门去找陆棠。街上的货车已经挪了位置，一扇卸下来的柜门斜靠在车斗里，镜面朝内，用旧毯子包着。\\n陆棠家的门开着。季砚站在门外叫她，先听见胶带被扯开的声音，随后她从一只纸箱后面直起腰。袖口卷到小臂，手背粘着一小片纸。\\n“正好，你站那儿别动。”她把胶带头按在箱沿上，过去移开门边的凳子，“刚擦过，里面那块地还湿。”\\n季砚跨过门槛，把布袋拎给她看：“来收《沿岸草木》。”\\n“没封进去。想着你今天会来。”陆棠蹲到窗下，掀开一只箱子的盖。里面的书横着码了两层，最上面垫着件薄毛衣。她把毛衣搭在膝上，抽出那本书，顺手抹去封面上的一根线头。\\n季砚接过来，就着窗光看了扉页印章。书脊还紧，封底有一小块擦白。他翻到中间，一张折起的纸露出半边，便托住书递回她面前。\\n“这个还要吗？”\\n陆棠抽出来，展开看了一眼。纸上是几行尺寸，边上画着一个歪斜的长方框。“要，新地方窗台的尺寸。我就说记在哪儿了。”她把纸塞进外套口袋，拍了拍，“现在可不能把外套也装箱。”\\n季砚笑了一声，翻完余下的书页，装进布袋。陆棠把毛衣放回箱里，用膝盖顶住箱壁，两边盖子却总有一边翘起来。他放下袋子，过去按住，她沿缝贴好胶带，掌根压着抹了一遍。\\n\\n“今天走吗？”她低头找剪刀，问得很平常。\\n\\n“还没定。”\\n\\n剪刀就在窗沿，她拿起来，把胶带截断。“票也没买？”\\n\\n“还没有。先把书收齐。”\\n\\n“剩几本？”\\n\\n“一本。在于砚那里修。”\\n\\n她在箱侧写了个‘书’字，又补上箭头。“那倒快了。”写完，她没有马上盖笔帽，抬头看他，“不过，收齐以后呢？”\\n\\n季砚的手还按在箱盖上。他松开，那里留下一个浅浅的凹处。“原想忙完再想。上午跑下来，回来就看钟，像下一趟出了门，总能顺带想明白。”\\n\\n陆棠把笔帽扣上。屋里原先放柜子的地方露出一块浅色墙面，地上有几枚垫柜脚的硬纸片。她弯腰拾起来，摞在掌心。\\n\\n“我也有句话得跟你说明白。”她说，“今天这里乱，你愿意搭把手，我当然省力。但别看我忙，就觉得你得留下；也别觉得我把东西装箱了，你也该走。”\\n\\n“我没说要替你搬完。”\\n\\n“我知道。我是先把这句说了，省得一会儿我喊你挪张桌子，你又把下午也算进来。”她指了一下靠墙的小桌，“那个我等人来抬，你别碰。”\\n\\n季砚收回目光，拣起脚边滚出来的一只木衣夹，放到她摊开的纸片上。“那这个不算。”\\n\\n“不算。”\\n\\n他们把门口散着的几样小东西收进一只浅盒。陆棠用旧报纸包住杯子，季砚扶着盒沿，等她塞稳。窗外有人喊楼下的车要挪，她走到窗口应了一声，回来把盒子放在已经封好的箱上，没有再往里添。\\n\\n“你留在岛上，冬天也不只是还书。”她提起布袋，递给他，“吃饭，晒衣服，屋里潮了怎么办，总得一样样过。走了也一样，船靠岸以后还有事。”\\n\\n“听着哪边都不轻省。”\\n\\n“那倒是。”她拿手背蹭了蹭额角，“我现在就想先找出扫帚。”\\n\\n扫帚在敞开的门后。季砚侧身让她拿出来，没有替她把这屋子的事继续做下去。她扫起墙边的纸屑，他拎着书站到门外，回头说：“书收到了。回去记上。”\\n\\n“好。”陆棠把一片胶带从扫帚毛上摘掉，“下楼慢点，楼梯拐角堆了东西。”\\n\\n回程时，餐馆门口已经有人端着碗等位。季砚闻到葱和热油的味道，肚子这才空了一下。他没有赶着穿过人群，沿街边绕到书店，先开门，再把布袋放上柜台。\\n\\n十一点五十五。他在第三行写下归还日期，将《沿岸草木》放到旁边，等墨迹干。书架上那一小段空位已经可以补上，借阅簿却还不能合起来：最后一行是《旧诗选》，在于砚手里。\\n\\n季砚把十七点的纸条抽出来，放在钟下。随后另拿一张废纸，在背面写了两行：‘离岛前要办的事’，‘留下过冬要办的事’。他望了一会儿，先在两行上方添了‘午饭’，把笔横搁在纸边。还有一本书要去取，但他不必饿着肚子，把整个冬天也一并想完。\",\"story_time\":\"冬季停航前最后一天11:55\",\"suggestions\":[\"继续第四章。\"],\"title\":\"第三章：尚未封口的箱子\"}}",
+    "raw_sha256": "6e1bafa685f16fa2a12ce6ebe1b5ba4c6dac2eb26cbade224ba486e8bd6a8ed1",
+    "passage_sha256": "69f6a505c46e860f3e594a19f801c468af8d038f8459cccee098c75304499f91",
+    "passage_utf8_bytes": 4674,
+    "paragraphs": 24,
+    "transformation": "Replace the first eight LF LF separators with LF; preserve every other decoded character and every other Draft field. This control is not a product repair.",
+    "removed_lf": 8,
+    "non_newline_characters_identical": true
+  }
+}

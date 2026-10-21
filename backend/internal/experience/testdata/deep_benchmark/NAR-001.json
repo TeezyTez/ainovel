@@ -1,0 +1,223 @@
+{
+  "id": "NAR-001",
+  "source_sha256": "37a6ff7987fbc6ebacfadea70f6e8cdffc2abf0d2cfdb2ed1d2d3d729fd679d6",
+  "source_line": 5809,
+  "variant": "base",
+  "seed": "现实风格群像，第二人称。你是临时船工乔岑。",
+  "opening": "现在16:40，港口18:00停航。唯一可用船已接下把净水滤芯送往北堤的合同，单程40分钟。你想借船去南岸接一名受困朋友，单程35分钟；南北线路无法在停航前都完成。船主顾岚上周收过你修缆绳的帮助，尚未还人情。余叔也在船边。",
+  "state": {
+    "story_time": "当日16:40",
+    "entities": [
+      {
+        "id": "qiao",
+        "kind": "character",
+        "name": "乔岑",
+        "description": "临时船工",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "gu",
+        "kind": "character",
+        "name": "顾岚",
+        "description": "船主",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "yu",
+        "kind": "character",
+        "name": "余叔",
+        "description": "船员",
+        "known": true,
+        "related_ids": []
+      }
+    ],
+    "facts": [
+      {
+        "id": "routes",
+        "kind": "rule",
+        "text": "现在16:40，港口18:00停航；唯一可用船已接北堤净水滤芯合同，北堤单程40分钟，南岸单程35分钟，南北路线无法在停航前都完成。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "qiao",
+          "gu",
+          "yu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "favor",
+        "kind": "fact",
+        "text": "顾岚上周受过乔岑修缆绳的帮助，尚未还人情。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "qiao",
+          "gu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "friend",
+        "kind": "fact",
+        "text": "乔岑想借船到南岸接一名受困朋友，尚不知道朋友准确安全状况。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "qiao"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "gu-goals",
+        "kind": "fact",
+        "text": "顾岚想按合同交付滤芯、保留船工生计、不轻易亏欠人情。",
+        "subject_id": "gu",
+        "known": false,
+        "known_by": [
+          "gu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "daughter",
+        "kind": "secret",
+        "text": "顾岚的女儿在北堤居住，她不愿把女儿当成每次拒绝别人的借口。",
+        "subject_id": "gu",
+        "known": false,
+        "known_by": [
+          "gu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "water",
+        "kind": "secret",
+        "text": "北堤还有两天饮水储备，滤芯延迟有成本但不是立即致命。",
+        "subject_id": "",
+        "known": false,
+        "known_by": [],
+        "source_revision": 1
+      },
+      {
+        "id": "friend-safe",
+        "kind": "secret",
+        "text": "南岸朋友在有屋顶的岗亭，可以自行等到次日。",
+        "subject_id": "",
+        "known": false,
+        "known_by": [],
+        "source_revision": 1
+      },
+      {
+        "id": "yu-goals",
+        "kind": "fact",
+        "text": "余叔希望船员按时拿到工钱，尽量不把风险交给新人；知道北堤交付和船况，不知道顾岚女儿的住处。",
+        "subject_id": "yu",
+        "known": false,
+        "known_by": [
+          "yu"
+        ],
+        "source_revision": 1
+      }
+    ],
+    "threads": []
+  },
+  "steps": [
+    {
+      "id": "S01",
+      "mode": "act",
+      "input": "我问顾岚，能不能先去南岸接一个人。"
+    },
+    {
+      "id": "S02",
+      "mode": "ask",
+      "input": "我现在确实知道哪些航线和停航条件？"
+    },
+    {
+      "id": "S03",
+      "mode": "act",
+      "input": "我提起上周修缆绳的事，说这次算我求她。"
+    },
+    {
+      "id": "S04",
+      "mode": "act",
+      "input": "我问：你最担心的是哪一笔损失？不方便说的不用说。"
+    },
+    {
+      "id": "S05",
+      "mode": "act",
+      "input": "我提议自己承担今天的船工工资，请她考虑，但不替她决定。"
+    },
+    {
+      "id": "S06",
+      "mode": "act",
+      "input": "我找余叔，问附近是否还有已经公开知道的可行办法。"
+    },
+    {
+      "id": "S07",
+      "mode": "act",
+      "input": "我尝试通过港口公用电话确认南岸朋友的情况。"
+    },
+    {
+      "id": "S08",
+      "mode": "act",
+      "input": "我把确实问到的情况告诉顾岚，没问到的直说没问到。"
+    },
+    {
+      "id": "S09",
+      "mode": "act",
+      "input": "我问她能否再考虑一次；如果仍不同意，就请她把我送到合法可达的最近下船点。"
+    },
+    {
+      "id": "S10",
+      "mode": "act",
+      "input": "我按已经达成的安排做事，不再拿旧人情逼她。"
+    },
+    {
+      "id": "S11",
+      "mode": "continue",
+      "input": "继续到今天这项安排有一个可见结果。"
+    },
+    {
+      "id": "S12",
+      "mode": "act",
+      "input": "我问余叔今天的工钱或交付有没有因此受影响。"
+    },
+    {
+      "id": "S13",
+      "mode": "continue",
+      "input": "写当天收船后的普通相处，不替任何人预设和解。"
+    },
+    {
+      "id": "S14",
+      "mode": "act",
+      "input": "我向顾岚说一句：今天的事我会记着。语气平静。"
+    },
+    {
+      "id": "S15",
+      "mode": "continue",
+      "input": "进入次日一段与昨天选择有关或自然相邻的工作。"
+    },
+    {
+      "id": "S16",
+      "mode": "act",
+      "input": "我请顾岚再帮一个小忙：借半小时工具，并愿意按约归还。"
+    },
+    {
+      "id": "S17",
+      "mode": "continue",
+      "input": "继续到这一小段工作结束。"
+    },
+    {
+      "id": "S18",
+      "mode": "act",
+      "input": "过了几天，我再次遇见顾岚，只问最近忙不忙。"
+    }
+  ],
+  "private_tokens": [],
+  "omissions": [
+    "Full 18-step trajectory; human review and paired counterfactuals remain pending. Conditional actions must use only public prior outcomes."
+  ]
+}

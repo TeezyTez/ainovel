@@ -676,6 +676,9 @@ message ModelCallRequest {
   string schema_json = 2; // Empty = free text. Non-empty = JSON schema the backend must honor.
   uint32 max_output_bytes = 3;
   string model = 4; // Catalog name. When facts.allowed_models is non-empty, must be a member.
+  // ElseLife v4 only: Go validates stage order and actor-scoped access.
+  string narrative_stage = 5;
+  string narrative_actor_id = 6;
 }
 message ModelCallResult {
   string text = 1;

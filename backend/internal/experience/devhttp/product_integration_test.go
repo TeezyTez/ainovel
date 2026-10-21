@@ -25,7 +25,7 @@ func TestProductSchemaAndPlainJSONWorkspace(t *testing.T) {
 	if err = schema.ApplyEmpty(ctx, db); err != nil {
 		t.Fatal(err)
 	}
-	_, err = db.ExecContext(ctx, `DO $$ BEGIN IF (SELECT string_agg(tablename, ',' ORDER BY tablename) FROM pg_tables WHERE schemaname='public') <> 'experience_artifact_heads,experience_artifact_receipts,experience_artifact_versions,experience_branches,experience_forks,experience_gameplay_operations,experience_model_inputs,experience_operations,experience_pages,experience_preferences,experience_reads,experiences,recovery_gate' THEN RAISE EXCEPTION 'unexpected product schema inventory'; END IF; END $$;`)
+	_, err = db.ExecContext(ctx, `DO $$ BEGIN IF (SELECT string_agg(tablename, ',' ORDER BY tablename) FROM pg_tables WHERE schemaname='public') <> 'experience_artifact_heads,experience_artifact_receipts,experience_artifact_versions,experience_branches,experience_forks,experience_gameplay_operations,experience_model_inputs,experience_narrative_preparations,experience_operations,experience_pages,experience_preferences,experience_reads,experiences,recovery_gate' THEN RAISE EXCEPTION 'unexpected product schema inventory'; END IF; END $$;`)
 	if err != nil {
 		t.Fatal(err)
 	}

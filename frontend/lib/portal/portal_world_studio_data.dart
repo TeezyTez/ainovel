@@ -73,7 +73,6 @@ class PortalWorldDraft {
   List<PortalWorldCharacterDraft> characters = [];
   String perspective = '第二人称';
   String length = '适中';
-  String style = '细腻克制';
   String pace = '从容';
 
   factory PortalWorldDraft.fromJson(Object? value) {
@@ -100,9 +99,6 @@ class PortalWorldDraft {
       ..length = _string(narrative['length']).isEmpty
           ? '适中'
           : _string(narrative['length'])
-      ..style = _string(narrative['style']).isEmpty
-          ? '细腻克制'
-          : _string(narrative['style'])
       ..pace = _string(narrative['pace']).isEmpty
           ? '从容'
           : _string(narrative['pace']);
@@ -124,7 +120,6 @@ class PortalWorldDraft {
     'narrative': {
       'perspective': perspective,
       'length': length,
-      'style': style,
       'pace': pace,
     },
   };
@@ -165,9 +160,6 @@ class PortalWorldDraft {
           if (narrative['length'] is String) {
             length = _string(narrative['length']);
           }
-          if (narrative['style'] is String) {
-            style = _string(narrative['style']);
-          }
           if (narrative['pace'] is String) {
             pace = _string(narrative['pace']);
           }
@@ -191,7 +183,6 @@ class PortalWorldDraft {
       '起始地点': (location, 500),
       '个人目标': (goal, 1000),
       '开场正文': (opening, 12000),
-      '文风': (style, 200),
     };
     for (final entry in fields.entries) {
       if (entry.value.$1.length > entry.value.$2) {
@@ -241,7 +232,7 @@ class PortalWorldDraft {
       '开场正文：\n${opening.trim()}',
       if (characters.isNotEmpty)
         '公开人物：\n${characters.map((c) => '• ${c.name.trim()}${c.role.trim().isEmpty ? '' : ' · ${c.role.trim()}'}${c.public.trim().isEmpty ? '' : '：${c.public.trim()}'}').join('\n')}',
-      '叙述偏好：$perspective；$length；$style；$pace',
+      '叙述偏好：$perspective；$length；$pace',
     ];
     final publicSeed = sections.join('\n\n');
     if (utf8.encode(publicSeed).length > 32 * 1024) {
@@ -352,7 +343,7 @@ PortalWorldImport parsePortalWorldImport(String content, String filename) {
     if (data['narrative'] is Map) {
       final narrative = _map(data['narrative']);
       fields['narrative'] = {
-        for (final key in ['perspective', 'length', 'style', 'pace'])
+        for (final key in ['perspective', 'length', 'pace'])
           if (narrative[key] is String && _string(narrative[key]).length <= 200)
             key: narrative[key],
       };
@@ -560,8 +551,6 @@ PortalWorldDraft portalDraftFromPreset(
           draft.perspective = entry.value as String;
         case 'length':
           draft.length = entry.value as String;
-        case 'style':
-          draft.style = entry.value as String;
         case 'pace':
           draft.pace = entry.value as String;
       }

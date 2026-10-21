@@ -1,6 +1,7 @@
 import '../portal/portal_icon.dart';
 import 'package:flutter/material.dart';
 import 'experience_models.dart';
+import 'reader_information_display.dart';
 import 'reader_local_state.dart';
 import '../portal/portal_preferences.dart';
 
@@ -93,7 +94,10 @@ class ReaderInformationBrowser extends StatefulWidget {
 
 class _ReaderInformationBrowserState extends State<ReaderInformationBrowser> {
   String details(KnownInformation item) => [
-    item.text,
+    item.displaySummary,
+    if (item.sourceVersion != null) '来源：第 ${item.sourceVersion} 页',
+    if (item.relatedIds.isNotEmpty)
+      '${item.associationLabel}：${item.relatedNames(widget.information)}',
     if (item.status?.isNotEmpty == true) item.status!,
     for (final field in item.fields)
       '${field['label'] ?? field['key']}：${field['value'] ?? '未明确'}',
@@ -289,7 +293,7 @@ class _ReaderInformationBrowserState extends State<ReaderInformationBrowser> {
                   cells: [
                     const DataCell(Text('已知情况')),
                     for (final i in picked)
-                      DataCell(SizedBox(width: 240, child: Text(i.text))),
+                      DataCell(SizedBox(width: 240, child: Text(details(i)))),
                   ],
                 ),
               ],
@@ -337,7 +341,13 @@ class _ReaderInformationBrowserState extends State<ReaderInformationBrowser> {
                     '${showKind ? '${names[i.kind] ?? i.kind} · ' : ''}${i.name}',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
+                  if (showText && i.recordHeading != null)
+                    Text(i.recordHeading!),
                   if (showText) SelectableText(i.text),
+                  if (showText && i.relatedIds.isNotEmpty)
+                    Text(
+                      '${i.associationLabel}：${i.relatedNames(widget.information)}',
+                    ),
                   if (showText && i.status?.isNotEmpty == true) Text(i.status!),
                   if (showText)
                     for (final field in i.fields)

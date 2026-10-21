@@ -1,6 +1,7 @@
 /// 对外经历 API 的已知投影。字段来自 sundries 经历语义与迁移决定。
 library;
 
+import 'dart:convert';
 import 'reader_projection.dart';
 import 'reader_gameplay_receipt.dart';
 import 'reader_gameplay.dart';
@@ -30,6 +31,73 @@ int integer(Json j, String key) {
   return value;
 }
 
+/// Only these public labels cross the generation boundary. No model prose is
+/// retained in progress or preparation responses.
+enum NarrativePhase {
+  preparing,
+  remembering,
+  characters,
+  planning,
+  evaluating,
+  writing,
+  extracting,
+  checking,
+  revising,
+  committing;
+
+  String get label => switch (this) {
+    preparing => '准备续写',
+    remembering => '回顾前文',
+    characters => '梳理人物处境',
+    planning => '构思后续发展',
+    evaluating => '推敲情节',
+    writing => '正在写作',
+    extracting || checking => '核对情节',
+    revising => '调整表达',
+    committing => '即将呈现',
+  };
+}
+
+class NarrativeProgress {
+  NarrativeProgress(Json j)
+    : seq = integer(j, 'seq'),
+      phase = NarrativePhase.values.firstWhere(
+        (phase) => phase.name == j['phase'],
+        orElse: () => throw const FormatException('未知生成阶段'),
+      );
+  final int seq;
+  final NarrativePhase phase;
+}
+
+enum PreparationStatus { preparing, ready, unavailable }
+
+class ExperiencePreparation {
+  ExperiencePreparation(Json j)
+    : experienceId = string(j, 'experience_id'),
+      branchId = string(j, 'branch_id'),
+      baseRevision = integer(j, 'base_revision'),
+      status = PreparationStatus.values.firstWhere(
+        (status) => status.name == j['status'],
+        orElse: () => throw const FormatException('未知准备状态'),
+      );
+  final String experienceId, branchId;
+  final int baseRevision;
+  final PreparationStatus status;
+}
+
+/// Device-only identity distinguishes replacement feedback, even identical text.
+class PendingReadingRequest {
+  PendingReadingRequest(Json j)
+    : id = string(j, 'id'),
+      text = string(j, 'text') {
+    if (id.isEmpty || text.trim().isEmpty || utf8.encode(text).length > 4096) {
+      throw const FormatException('下一段要求需为 1–4096 UTF-8 字节');
+    }
+  }
+  final String id, text;
+  Json toJson() => {'id': id, 'text': text};
+}
+
 class ExperienceOperation {
   ExperienceOperation(Json j)
     : requestId = string(j, 'request_id'),
@@ -37,6 +105,9 @@ class ExperienceOperation {
       branchId = string(j, 'branch_id'),
       status = string(j, 'status'),
       baseRevision = integer(j, 'base_revision'),
+      progress = j['progress'] == null
+          ? null
+          : NarrativeProgress(object(j['progress'])),
       committedRevision = j['committed_revision'] as int?,
       errorCode = j['error_code'] as String? {
     if (!const {
@@ -57,6 +128,7 @@ class ExperienceOperation {
   final int baseRevision;
   final int? committedRevision;
   final String? errorCode;
+  final NarrativeProgress? progress;
   bool get running => status == 'pending' || status == 'generating';
 }
 
@@ -116,6 +188,7 @@ class KnownInformation {
       relatedIds = (j['related_ids'] as List).cast<String>(),
       fields = objects(j['fields'] ?? <Json>[]),
       sourceVersion = j['source_version'] as int?,
+      recordedRevision = j['recorded_revision'] as int?,
       certainty = j['certainty'] as String?,
       status = j['status'] as String?;
   final String id, kind, _name, text;
@@ -131,6 +204,9 @@ class KnownInformation {
   /// Optional literal display fields supplied by the source-demo projection.
   final List<Json> fields;
   final int? sourceVersion;
+
+  /// Original record version, not the reader's discovery or public source page.
+  final int? recordedRevision;
   final String? certainty, status;
 }
 

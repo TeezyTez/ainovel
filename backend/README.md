@@ -2,6 +2,8 @@
 
 Go 1.26+、PostgreSQL 16+。这是单 workspace、本机开发组合根，不是生产服务器，不含账号/套餐/支付/管理后台。
 
+2026-10-19 叙事改造的状态恢复、容量边界、实际验证及 opt-in 连续阅读评测命令见 [叙事改造记录](../notes/2026-10-19-narrative-generation.md)。普通单测不会发真实模型请求。
+
 ## 空数据库与运行
 
 所有命令在本 `backend/` 执行。请仅使用自己新建的本地空数据库，**不要指向既有/生产库**。
@@ -121,7 +123,9 @@ sqlc generate
 
 CreateRequest 可另带 `author_world` 和 `world_version`；ForkRequest 在 world_version 变更时可带 `author_world`。author_world 使用世界草稿 DTO 的严格白名单：title/description/era/rules/characters/identity/location/goal/opening/narrative，其中 characters 包含 name/role/public/goal/history/secret，不接受本机记录 id/seed/tagline/characters[].id 等额外字段。创建时 world_version.public_seed 必须等于实际 seed，以保留起始身份等选择。
 
-编辑过的作者资料使用编辑器 UTF-16 字段上限（开场 12000、秘密 3000、规则 40 条、人物 30 位、自定义文风 200），整体至多 1 MiB；Create/Fork HTTP 请求至多 2 MiB。AI 生成草稿继续使用单独较小的输出约束。模型输入仍受显式上下文预算限制，资料过大时明确失败，不裁掉秘密或假装完整理解。
+编辑过的作者资料使用编辑器 UTF-16 字段上限（开场 12000、秘密 3000、规则 40 条、人物 30 位），整体至多 1 MiB；Create/Fork HTTP 请求至多 2 MiB。AI 生成草稿继续使用单独较小的输出约束。模型输入仍受显式上下文预算限制，资料过大时明确失败，不裁掉秘密或假装完整理解。
+
+`narrative` 仅包含 perspective/length/pace。语言风格不设选项、默认值或单独字段，由模型根据题材与世界内容直接形成开场，并在续写中承接已有叙述声音。旧作者资料的 `narrative.style` 仅兼容读取及升级前请求的幂等校验，不进入新保存的 DTO 或模型附件。
 
 私有资料在 PostgreSQL 分支元数据持久化，后代继承最近世界版本；换版本不覆盖旧分支。Go 的内部 AuthorWorld 字段不序列化进普通 DTO 或共享 Context JSON。非 ask 模型调用使用独立 JSON 数据附件及系统级边界：作者秘密不等于玩家知识，不能越过已知事实、可观察发现与行动授权。ask 在资料投影和模型桥两处移除此附件。View、书架、Reader 与公开 seed 不输出作者资料；完整 archive 有意备份它。模型叙事仍须遵守提示约束，结构验证不等于逐句文义隐私证明。
 

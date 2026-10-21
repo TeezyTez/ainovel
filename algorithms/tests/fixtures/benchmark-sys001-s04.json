@@ -1,0 +1,206 @@
+{
+  "purpose": "Deterministic replay of a real model structural failure on synthetic SYS-001; not a literary quality acceptance.",
+  "source": ".validation/deep-benchmark/20261019T092722Z/SYS-001/events.jsonl",
+  "source_sha256": "a11b102805952e027460a0d9712d84b89347cf2cf3bf4f74a29e17a22e692d13",
+  "context": {
+    "branch_id": "benchmark-main",
+    "experience_id": "benchmark-story",
+    "history": [
+      {
+        "input": "第二人称。你在灯塔外厅，准备查清运费记录。",
+        "mode": "begin",
+        "revision": 1,
+        "text": "18:00，你在灯塔外厅。封蜡账册在公开可见的抽屉里，属于档案员黎桑。伙伴周岚也在外厅，守卫邵舟在隔音门外。你没有打开或转述账册。"
+      },
+      {
+        "input": "根据我已经知道的内容，账册里是否能证明运费已经付清？",
+        "mode": "ask",
+        "revision": 2,
+        "text": "尚未得知。你只知道封蜡账册属于黎桑，放在公开可见的抽屉里；你还没有打开或转述账册，已知内容也未披露其中的运费记录。因此，目前无法判断账册能否证明运费已经付清。"
+      }
+    ],
+    "history_complete": true,
+    "input": "请黎桑允许我只看第7页；如果她不同意，就收回手，不擅自打开。",
+    "mode": "act",
+    "preferences": [],
+    "read_budget": {
+      "max_reads": 4,
+      "max_reply_bytes": 65536,
+      "max_total_reply_bytes": 131072
+    },
+    "revision": 2,
+    "seed": "第二人称。你在灯塔外厅，准备查清运费记录。",
+    "state": {
+      "entities": [
+        {
+          "description": "",
+          "id": "player",
+          "kind": "character",
+          "known": true,
+          "name": "你",
+          "related_ids": []
+        },
+        {
+          "description": "档案员",
+          "id": "li",
+          "kind": "character",
+          "known": true,
+          "name": "黎桑",
+          "related_ids": []
+        },
+        {
+          "description": "你的伙伴",
+          "id": "zhou",
+          "kind": "character",
+          "known": true,
+          "name": "周岚",
+          "related_ids": []
+        },
+        {
+          "description": "守卫",
+          "id": "shao",
+          "kind": "character",
+          "known": true,
+          "name": "邵舟",
+          "related_ids": []
+        },
+        {
+          "description": "",
+          "id": "ledger",
+          "kind": "item",
+          "known": true,
+          "name": "封蜡账册",
+          "related_ids": []
+        }
+      ],
+      "facts": [
+        {
+          "id": "lobby",
+          "kind": "fact",
+          "known": true,
+          "known_by": [
+            "player",
+            "li",
+            "zhou"
+          ],
+          "source_revision": 1,
+          "subject_id": "",
+          "text": "你和周岚在灯塔外厅，封蜡账册在公开可见的抽屉里，所有者为黎桑。"
+        },
+        {
+          "id": "door",
+          "kind": "fact",
+          "known": true,
+          "known_by": [
+            "player",
+            "li",
+            "zhou",
+            "shao"
+          ],
+          "source_revision": 1,
+          "subject_id": "",
+          "text": "邵舟在隔音门外；未开门或进入以前听不到外厅私语。"
+        },
+        {
+          "id": "unopened",
+          "kind": "fact",
+          "known": true,
+          "known_by": [
+            "player",
+            "li",
+            "zhou"
+          ],
+          "source_revision": 1,
+          "subject_id": "",
+          "text": "玩家还没有打开或转述账册。"
+        },
+        {
+          "id": "paid",
+          "kind": "secret",
+          "known": false,
+          "known_by": [
+            "li"
+          ],
+          "source_revision": 1,
+          "subject_id": "ledger",
+          "text": "账册第7页记载运费已付。"
+        },
+        {
+          "id": "password",
+          "kind": "secret",
+          "known": false,
+          "known_by": [
+            "li"
+          ],
+          "source_revision": 1,
+          "subject_id": "ledger",
+          "text": "账册第7页的密码是“霜禾四十七”。"
+        }
+      ],
+      "story_time": "18:00",
+      "threads": []
+    },
+    "state_coverage": {
+      "audience": "author",
+      "complete": true,
+      "omitted": {
+        "entities": 0,
+        "facts": 0,
+        "threads": 0
+      },
+      "policy": "full.v1",
+      "recent_from_revision": 0,
+      "source_handle": "source_736d9008f52d20f41bfb31a9ce5b05e6",
+      "total": {
+        "entities": 5,
+        "facts": 5,
+        "threads": 0
+      }
+    },
+    "version": 2,
+    "recalls": [],
+    "pipeline": {
+      "version": 1,
+      "max_actors": 2,
+      "max_repairs": 1
+    }
+  },
+  "outputs": [
+    {
+      "stage": "memory",
+      "raw": "{\"result\":{\"actors\":[{\"actor_id\":\"li\",\"fact_ids\":[\"lobby\",\"unopened\"],\"trigger\":\"你和周岚在灯塔外厅，封蜡账册在公开可见的抽屉里，所有者为黎桑。\"}],\"objective\":\"呈现你向黎桑请求仅查看账册第7页的尝试及她的回应，不预设许可或请求已被听见；若她拒绝，你收回手，不擅自打开。未实际获准并阅读前，不将第7页内容或密码变成你的知识；隔音门外的邵舟不能据此外厅私语作出反应。\",\"relevant_fact_ids\":[\"lobby\",\"unopened\",\"door\",\"paid\",\"password\"]}}",
+      "source_seq": 16,
+      "raw_sha256": "9562978f527d04284367f267ec7d0fc42067a5125e7a3afd1ccbc58baaeb7e95"
+    },
+    {
+      "stage": "actor",
+      "raw": "{\"result\":{\"action\":\"尝试走到公开可见的抽屉旁，取出属于自己的封蜡账册，查看封蜡是否完整。\",\"actor_id\":\"li\",\"conditions\":[],\"intent\":\"检查自己的账册当前是否完好。\",\"speech\":\"\",\"used_fact_ids\":[\"lobby\",\"unopened\"]}}",
+      "source_seq": 19,
+      "raw_sha256": "7bc9cea8dbbc8eac96422e7fd5bb1687f367359ce4991fd8ef1fd974d02f3d3c"
+    },
+    {
+      "stage": "plan",
+      "raw": "{\"result\":{\"candidates\":[{\"beats\":[\"你向黎桑提出只看第7页的请求，手停在抽屉之外；她走近取出自己的账册，检查封蜡。\",\"封蜡完整。黎桑听完后拒绝当场拆封，说自己要先核对查阅手续；你收回手，没有打开账册。\"],\"causes\":[\"账册归黎桑所有，公开可见不等于可以自行取阅。\",\"黎桑本次正尝试检查账册封蜡；你的请求不保证获得许可。\"],\"consequences\":[\"账册转由黎桑持有，查阅需要后续协商。\",\"你与周岚仍不知道第7页内容或密码；邵舟没有听见私语。\"],\"costs\":[\"本次无法获得运费是否付清的证据，查阅进度延后。\",\"黎桑需暂停检查回应请求。\"],\"fact_ids\":[\"lobby\",\"unopened\",\"door\"],\"id\":\"plan_refuse_after_inspection\",\"purpose\":\"让所有者的保管行动与拒绝产生实际进展，同时落实玩家不擅自打开的边界。\",\"thread_ids\":[]},{\"beats\":[\"你开口请求仅查看第7页；黎桑走到抽屉旁，取出账册，检查到封蜡完整。\",\"黎桑同意由她拆封并翻到第7页，再把该页朝向你，其他页压在封面下。\",\"你只阅读获准展示的第7页，看见运费已付的记载及密码“霜禾四十七”；黎桑随后合上账册，仍自行保管。\"],\"causes\":[\"黎桑作为所有者可以自主决定是否开放指定页。\",\"第7页实际同时载有运费记载和密码；只有获准且实际阅读后才成为你的知识。\"],\"consequences\":[\"你得知账册记载运费已付，但这不额外证明实际付款过程。\",\"第7页密码也随阅读向你披露；周岚是否看清或听见须由正文明确，不自动共享。\",\"邵舟仍在隔音门外，不因本次私语获得信息。\"],\"costs\":[\"原有封蜡被黎桑亲手拆开，不能再维持原封状态。\",\"限定页查阅仍使黎桑承担该页密码被你知悉的信息代价。\"],\"fact_ids\":[\"lobby\",\"unopened\",\"door\",\"paid\",\"password\"],\"id\":\"plan_supervised_page\",\"purpose\":\"以所有者主动许可和实际展示实现有限查阅，并保留拆封与同页秘密披露的代价。\",\"thread_ids\":[]}]}}",
+      "source_seq": 22,
+      "raw_sha256": "0f29f8ae3a35ae58ffbd852f80bc101d09e6ef9e45ddff6ac05c9024543ccea3"
+    },
+    {
+      "stage": "evaluate",
+      "raw": "{\"result\":{\"evaluations\":[{\"agency\":5,\"blocking_issues\":[],\"candidate_id\":\"plan_refuse_after_inspection\",\"causality\":5,\"consequence\":4,\"continuity\":5,\"evidence_fact_ids\":[\"lobby\",\"unopened\",\"door\"],\"interest\":3,\"pacing\":4},{\"agency\":5,\"blocking_issues\":[],\"candidate_id\":\"plan_supervised_page\",\"causality\":5,\"consequence\":5,\"continuity\":5,\"evidence_fact_ids\":[\"lobby\",\"unopened\",\"door\",\"paid\",\"password\"],\"interest\":4,\"pacing\":5}]}}",
+      "source_seq": 25,
+      "raw_sha256": "130d40927de8e421c5088fa6534fe500a3d9910e14a1c9c79f434e503c8d2710"
+    },
+    {
+      "stage": "write",
+      "raw": "{\"result\":{\"outcome\":\"continues\",\"passage\":\"你将手停在抽屉外，低声问黎桑：“能让我只看账册第7页吗？如果不方便，我就不碰。”黎桑看了你一眼，走到抽屉旁，亲手取出账册。她把封口转向灯光，沿蜡印边缘仔细检查；封蜡完整，没有裂痕。片刻后，她说：“可以。我来拆封、翻页，你只看第7页。”你收回手，给她让出桌前的位置。\\n\\n蜡封在她指下裂开，碎屑落在桌面。黎桑翻到第7页，将其余书页压在封面下，只把这一页朝向你。你俯身读到运费一栏写着“已付”；同页还记着密码：“霜禾四十七”。你没有念出任何字。周岚留在你身后几步外，没有凑近，也未看清朝向你的页面；隔音门始终关着，邵舟仍在门外。\\n\\n待你读完，黎桑便将账册合上，收回自己手边。“只到这里。”她拢起桌上的蜡屑，裂开的蜡印已无法恢复原样。你直起身：账册确实记着运费已付，但付款究竟如何完成，眼前这一页并未让你亲见。\",\"story_time\":\"18:03\",\"suggestions\":[\"询问黎桑，这笔运费是否另有收据可供核对。\",\"询问黎桑能否说明“已付”记录的经手人。\"],\"title\":\"只看第7页\"}}",
+      "source_seq": 28,
+      "raw_sha256": "d2d816c83d6021c59c7b03da8d425da216de52e2364515e1648d013131b08e1e"
+    },
+    {
+      "stage": "extract",
+      "raw": "{\"result\":{\"candidate_json\":\"{\\\"title\\\":\\\"只看第7页\\\",\\\"passage\\\":\\\"你将手停在抽屉外，低声问黎桑：“能让我只看账册第7页吗？如果不方便，我就不碰。”黎桑看了你一眼，走到抽屉旁，亲手取出账册。她把封口转向灯光，沿蜡印边缘仔细检查；封蜡完整，没有裂痕。片刻后，她说：“可以。我来拆封、翻页，你只看第7页。”你收回手，给她让出桌前的位置。\\\\n\\\\n蜡封在她指下裂开，碎屑落在桌面。黎桑翻到第7页，将其余书页压在封面下，只把这一页朝向你。你俯身读到运费一栏写着“已付”；同页还记着密码：“霜禾四十七”。你没有念出任何字。周岚留在你身后几步外，没有凑近，也未看清朝向你的页面；隔音门始终关着，邵舟仍在门外。\\\\n\\\\n待你读完，黎桑便将账册合上，收回自己手边。“只到这里。”她拢起桌上的蜡屑，裂开的蜡印已无法恢复原样。你直起身：账册确实记着运费已付，但付款究竟如何完成，眼前这一页并未让你亲见。\\\",\\\"story_time\\\":\\\"18:03\\\",\\\"outcome\\\":\\\"continues\\\",\\\"suggestions\\\":[\\\"询问黎桑，这笔运费是否另有收据可供核对。\\\",\\\"询问黎桑能否说明“已付”记录的经手人。\\\"],\\\"new_entities\\\":[],\\\"new_facts\\\":[{\\\"id\\\":\\\"li_authorized_page7_r3\\\",\\\"kind\\\":\\\"fact\\\",\\\"known\\\":true,\\\"known_by\\\":[\\\"player\\\",\\\"li\\\"],\\\"source_revision\\\":3,\\\"subject_id\\\":\\\"li\\\",\\\"text\\\":\\\"黎桑允许你只看账册第7页，由她亲自拆封、翻页；你收回手，没有自行打开账册。\\\"},{\\\"id\\\":\\\"ledger_unsealed_r3\\\",\\\"kind\\\":\\\"fact\\\",\\\"known\\\":true,\\\"known_by\\\":[\\\"player\\\",\\\"li\\\"],\\\"source_revision\\\":3,\\\"subject_id\\\":\\\"ledger\\\",\\\"text\\\":\\\"黎桑检查时账册封蜡完整无裂痕，随后亲手拆开蜡封；裂开的蜡印已无法恢复原样。\\\"},{\\\"id\\\":\\\"page7_reading_r3\\\",\\\"kind\\\":\\\"fact\\\",\\\"known\\\":true,\\\"known_by\\\":[\\\"player\\\",\\\"li\\\"],\\\"source_revision\\\":3,\\\"subject_id\\\":\\\"ledger\\\",\\\"text\\\":\\\"黎桑仅将账册第7页朝向你，其他书页压在封面下；你阅读了该页，没有念出任何字。\\\"},{\\\"id\\\":\\\"zhou_did_not_read_r3\\\",\\\"kind\\\":\\\"fact\\\",\\\"known\\\":true,\\\"known_by\\\":[\\\"zhou\\\"],\\\"source_revision\\\":3,\\\"subject_id\\\":\\\"zhou\\\",\\\"text\\\":\\\"周岚留在你身后几步外，没有凑近，也未看清朝向你的账册页面。\\\"},{\\\"id\\\":\\\"shao_outside_r3\\\",\\\"kind\\\":\\\"fact\\\",\\\"known\\\":true,\\\"known_by\\\":[\\\"player\\\",\\\"li\\\",\\\"zhou\\\",\\\"shao\\\"],\\\"source_revision\\\":3,\\\"subject_id\\\":\\\"shao\\\",\\\"text\\\":\\\"此次查阅期间隔音门始终关着，邵舟仍在门外。\\\"},{\\\"id\\\":\\\"ledger_closed_with_li_r3\\\",\\\"kind\\\":\\\"fact\\\",\\\"known\\\":true,\\\"known_by\\\":[\\\"player\\\",\\\"li\\\"],\\\"source_revision\\\":3,\\\"subject_id\\\":\\\"ledger\\\",\\\"text\\\":\\\"你读完后，黎桑将账册合上并收回自己手边，结束此次限定页查阅。\\\"},{\\\"id\\\":\\\"payment_not_witnessed_r3\\\",\\\"kind\\\":\\\"fact\\\",\\\"known\\\":true,\\\"known_by\\\":[\\\"player\\\"],\\\"source_revision\\\":3,\\\"subject_id\\\":\\\"player\\\",\\\"text\\\":\\\"你通过阅读确认账册记载运费已付，但没有亲见实际付款过程。\\\"}],\\\"new_threads\\\":[],\\\"reveal_entity_ids\\\":[],\\\"reveal_fact_ids\\\":[\\\"paid\\\",\\\"password\\\"],\\\"reveal_thread_ids\\\":[],\\\"resolve_thread_ids\\\":[],\\\"knowledge_changes\\\":[{\\\"fact_id\\\":\\\"paid\\\",\\\"subject_id\\\":\\\"player\\\"},{\\\"fact_id\\\":\\\"password\\\",\\\"subject_id\\\":\\\"player\\\"}],\\\"narrative_update\\\":{\\\"version\\\":1,\\\"through_revision\\\":3,\\\"episodes\\\":[{\\\"id\\\":\\\"episode_supervised_page7\\\",\\\"summary\\\":\\\"你请求仅查看第7页，黎桑同意并亲自拆封展示。你读到运费已付的记载及同页密码，未念出内容；周岚未看清页面，邵舟仍在关闭的隔音门外。黎桑随后合上并收回账册，原蜡封已破坏。记录不能替代对付款过程的核实。\\\",\\\"from_revision\\\":1,\\\"to_revision\\\":3,\\\"fact_ids\\\":[\\\"lobby\\\",\\\"door\\\",\\\"li_authorized_page7_r3\\\",\\\"ledger_unsealed_r3\\\",\\\"page7_reading_r3\\\",\\\"paid\\\",\\\"password\\\",\\\"zhou_did_not_read_r3\\\",\\\"shao_outside_r3\\\",\\\"ledger_closed_with_li_r3\\\",\\\"payment_not_witnessed_r3\\\"]}],\\\"characters\\\":[{\\\"entity_id\\\":\\\"player\\\",\\\"goals\\\":[\\\"查清运费记录及实际付款依据。\\\"],\\\"relationships\\\":[{\\\"entity_id\\\":\\\"li\\\",\\\"stance\\\":\\\"尊重账册所有者的许可范围，本次仅接受她展示第7页。\\\",\\\"fact_ids\\\":[\\\"lobby\\\",\\\"li_authorized_page7_r3\\\",\\\"page7_reading_r3\\\"]}],\\\"voice\\\":\\\"以低声、明确限定范围的请求表达意图。\\\",\\\"belief_fact_ids\\\":[],\\\"updated_revision\\\":3},{\\\"entity_id\\\":\\\"li\\\",\\\"goals\\\":[\\\"将此次查阅限制在第7页，结束后收回账册。\\\"],\\\"relationships\\\":[{\\\"entity_id\\\":\\\"player\\\",\\\"stance\\\":\\\"允许限定页查阅，但自行控制拆封、翻页和结束展示。\\\",\\\"fact_ids\\\":[\\\"li_authorized_page7_r3\\\",\\\"page7_reading_r3\\\",\\\"ledger_closed_with_li_r3\\\"]}],\\\"voice\\\":\\\"简短直接，清楚划定权限边界。\\\",\\\"belief_fact_ids\\\":[],\\\"updated_revision\\\":3},{\\\"entity_id\\\":\\\"zhou\\\",\\\"goals\\\":[],\\\"relationships\\\":[],\\\"voice\\\":\\\"\\\",\\\"belief_fact_ids\\\":[],\\\"updated_revision\\\":3},{\\\"entity_id\\\":\\\"shao\\\",\\\"goals\\\":[],\\\"relationships\\\":[],\\\"voice\\\":\\\"\\\",\\\"belief_fact_ids\\\":[],\\\"updated_revision\\\":3}],\\\"arcs\\\":[],\\\"style\\\":{\\\"voice\\\":\\\"克制叙述，以可观察行动和明确的信息边界推进。\\\",\\\"perspective\\\":\\\"第二人称\\\",\\\"pace\\\":\\\"balanced\\\",\\\"detail\\\":\\\"balanced\\\",\\\"avoid\\\":[\\\"把账册的已付记载等同于实际付款已被证明。\\\",\\\"让周岚或邵舟自动获得第7页内容。\\\",\\\"把已拆开的蜡封恢复为原封状态。\\\"],\\\"preference_refs\\\":[]}}}\"}}",
+      "source_seq": 31,
+      "raw_sha256": "4694de8a6322abc6500b4c40cde6806541f5ab97d98706540d7c7159afd2dde4"
+    }
+  ]
+}

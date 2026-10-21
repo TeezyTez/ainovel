@@ -29,6 +29,8 @@ $arguments=@('-u','root','--','bash',$script,'start',$root,(To-WslPath $cli.Full
  $logRoot=Join-Path $env:LOCALAPPDATA 'ElseLife\logs'
  New-Item -ItemType Directory -Force -Path $logRoot | Out-Null
  $launch=Start-Process -FilePath 'wsl.exe' -ArgumentList (($arguments | ForEach-Object {Quote-Argument $_}) -join ' ') -WindowStyle Hidden -RedirectStandardOutput (Join-Path $logRoot 'launcher.log') -RedirectStandardError (Join-Path $logRoot 'launcher-error.log') -PassThru
+# Keep the process handle open so Windows PowerShell retains the real exit code.
+$null=$launch.Handle
 $launch.WaitForExit()
 if($launch.ExitCode -ne 0){throw 'Startup refused or failed. Run -Check and inspect /root/.cache/elselife-local/logs. No existing process was stopped.'}
 for($attempt=0;$attempt -lt 20;$attempt++){

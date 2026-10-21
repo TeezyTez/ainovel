@@ -163,7 +163,9 @@ void main() {
     expect(tester.takeException(), isNull);
     await c.saveDraft('我的原草稿');
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('已知资料'));
+    await tester.tap(find.byTooltip('页边记事'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('查阅全部资料'));
     await tester.pumpAndSettle();
     await tester.enterText(
       find.byKey(const ValueKey('reader-information-search')),

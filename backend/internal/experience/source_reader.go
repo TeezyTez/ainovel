@@ -48,15 +48,19 @@ func replyBodyHash(r ReadReply) (string, error) {
 type readCursor struct {
 	query  string
 	offset int
+	actor  string
 }
 type sourceReader struct {
-	service           *Service
-	operation         pgq.ExperienceOperation
-	generation        Context
-	mu                sync.Mutex
-	reads, totalBytes int
-	seen              map[string]bool
-	cursors           map[string]readCursor
+	preparationEvidence *narrativeEvidenceOrigin
+	checkOverride       func(context.Context, *pgq.Queries) error
+	auditOverride       func(context.Context, *pgq.Queries, any) error
+	service             *Service
+	operation           pgq.ExperienceOperation
+	generation          Context
+	mu                  sync.Mutex
+	reads, totalBytes   int
+	seen                map[string]bool
+	cursors             map[string]readCursor
 }
 
 func newSourceReader(s *Service, o pgq.ExperienceOperation, g Context) *sourceReader {
@@ -67,6 +71,9 @@ func newSourceReader(s *Service, o pgq.ExperienceOperation, g Context) *sourceRe
 // actual operation/branch clock and fence. PostgreSQL is the authority, not a
 // hash/cursor supplied by the model. This is also called inside the audit txn.
 func (r *sourceReader) check(ctx context.Context, q *pgq.Queries) error {
+	if r.checkOverride != nil {
+		return r.checkOverride(ctx, q)
+	}
 	o := r.operation
 	b, err := q.ExperienceBranchLock(ctx, pgq.ExperienceBranchLockParams{AccountID: o.AccountID, ExperienceID: o.ExperienceID, ID: o.BranchID})
 	if err != nil {
@@ -93,6 +100,9 @@ func (r *sourceReader) RecordModel(ctx context.Context, view Context, sequence i
 	return r.service.transaction(ctx, func(q *pgq.Queries) error {
 		if err := r.check(ctx, q); err != nil {
 			return err
+		}
+		if r.auditOverride != nil {
+			return r.auditOverride(ctx, q, map[string]any{"kind": "model", "sequence": sequence, "context": json.RawMessage(raw), "request": request})
 		}
 		return q.ExperienceModelInputRecord(ctx, pgq.ExperienceModelInputRecordParams{AccountID: r.operation.AccountID, OperationID: r.operation.RequestID, Sequence: int32(sequence), Fence: r.operation.Fence, Context: raw, ModelRequest: request})
 	})
@@ -201,6 +211,9 @@ func selectorMatch(obj ReadObject, s ReadSelector) bool {
 	return found > 0
 }
 func (r *sourceReader) matches(ctx context.Context, req ReadRequest) ([]ReadObject, []HistoryPage, error) {
+	return r.matchesScoped(ctx, req, "")
+}
+func (r *sourceReader) matchesScoped(ctx context.Context, req ReadRequest, actor string) ([]ReadObject, []HistoryPage, error) {
 	tx, err := r.service.DB.BeginTx(ctx, &sql.TxOptions{ReadOnly: true, Isolation: sql.LevelRepeatableRead})
 	if err != nil {
 		return nil, nil, err
@@ -210,7 +223,31 @@ func (r *sourceReader) matches(ctx context.Context, req ReadRequest) ([]ReadObje
 	sel := req.Selector
 	o := r.operation
 	objects, pages := []ReadObject{}, []HistoryPage{}
-	if sel.Kind == "pages" {
+	if actor != "" {
+		// Actor scope is supplied by the Go stage machine, not by a model.
+		// Filter knowledge before matching, counting or issuing a cursor.
+		if err := actorSelectorScope(sel, o.BaseRevision); err != nil {
+			return nil, nil, err
+		}
+		s, err := r.snapshot(ctx, q, o.BaseRevision)
+		if err != nil {
+			return nil, nil, err
+		}
+		for _, fact := range s.Facts {
+			if !factKnownBy(fact, actor) {
+				continue
+			}
+			raw, _ := json.Marshal(fact)
+			obj := ReadObject{Type: "fact", AsOfRevision: o.BaseRevision, Body: raw}
+			match := sel.Kind != "objects" && selectorMatch(obj, sel)
+			for _, target := range sel.Objects {
+				match = match || target.ID == fact.ID
+			}
+			if match {
+				objects = append(objects, obj)
+			}
+		}
+	} else if sel.Kind == "pages" {
 		from, to := *sel.FromRevision, *sel.ToRevision
 		if from > to || to > o.BaseRevision {
 			return nil, nil, fail("recall_scope_mismatch")
@@ -279,6 +316,37 @@ func (r *sourceReader) matches(ctx context.Context, req ReadRequest) ([]ReadObje
 }
 func jsonNumber(n int64) string { raw, _ := json.Marshal(n); return string(raw) }
 func (r *sourceReader) Read(ctx context.Context, req ReadRequest) (ReadReply, error) {
+	return r.readScoped(ctx, req, "")
+}
+func (r *sourceReader) ReadActor(ctx context.Context, req ReadRequest, actor string) (ReadReply, error) {
+	if !keyOK(actor) || actorSelectorScope(req.Selector, r.operation.BaseRevision) != nil {
+		return ReadReply{}, fail("recall_scope_mismatch")
+	}
+	return r.readScoped(ctx, req, actor)
+}
+func actorSelectorScope(sel ReadSelector, base int64) error {
+	if sel.Kind == "objects" {
+		for _, target := range sel.Objects {
+			if target.Type != "fact" || revision(target.AtRevision, base) != base {
+				return fail("recall_scope_mismatch")
+			}
+		}
+		return nil
+	}
+	if sel.Kind != "enumerate" || sel.Type != "fact" || revision(sel.AtRevision, base) != base {
+		return fail("recall_scope_mismatch")
+	}
+	return nil
+}
+func factKnownBy(f Fact, actor string) bool {
+	for _, id := range f.KnownBy {
+		if id == actor {
+			return true
+		}
+	}
+	return false
+}
+func (r *sourceReader) readScoped(ctx context.Context, req ReadRequest, actor string) (ReadReply, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	var empty ReadReply
@@ -310,12 +378,12 @@ func (r *sourceReader) Read(ctx context.Context, req ReadRequest) (ReadReply, er
 	start := 0
 	if req.Selector.Cursor != "" {
 		cursor, ok := r.cursors[req.Selector.Cursor]
-		if !ok || cursor.query != query {
+		if !ok || cursor.query != query || cursor.actor != actor {
 			return empty, fail("recall_scope_mismatch")
 		}
 		start = cursor.offset
 	}
-	objects, pages, err := r.matches(ctx, req)
+	objects, pages, err := r.matchesScoped(ctx, req, actor)
 	if err != nil {
 		return empty, err
 	}
@@ -356,7 +424,7 @@ func (r *sourceReader) Read(ctx context.Context, req ReadRequest) (ReadReply, er
 	reply.NextCursor = nil
 	if !reply.Complete {
 		reply.NextCursor = &cursor
-		r.cursors[cursor] = readCursor{query: query, offset: pos}
+		r.cursors[cursor] = readCursor{query: query, offset: pos, actor: actor}
 	}
 	reply.Receipt.QuerySHA256, err = receiptHash(req)
 	if err != nil {
@@ -384,6 +452,9 @@ func (r *sourceReader) Read(ctx context.Context, req ReadRequest) (ReadReply, er
 	err = r.service.transaction(ctx, func(q *pgq.Queries) error {
 		if err := r.check(ctx, q); err != nil {
 			return err
+		}
+		if r.auditOverride != nil {
+			return r.auditOverride(ctx, q, map[string]any{"kind": "read", "sequence": r.reads, "request": json.RawMessage(raw), "reply": json.RawMessage(encoded)})
 		}
 		return q.ExperienceReadRecord(ctx, pgq.ExperienceReadRecordParams{AccountID: r.operation.AccountID, OperationID: r.operation.RequestID, Sequence: int32(r.reads), RequestID: req.RequestID, Fence: r.operation.Fence, Request: raw, Reply: encoded})
 	})

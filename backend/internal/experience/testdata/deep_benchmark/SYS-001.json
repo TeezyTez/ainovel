@@ -1,0 +1,168 @@
+{
+  "id": "SYS-001",
+  "source_sha256": "37a6ff7987fbc6ebacfadea70f6e8cdffc2abf0d2cfdb2ed1d2d3d729fd679d6",
+  "source_line": 470,
+  "variant": "base",
+  "seed": "第二人称。你在灯塔外厅，准备查清运费记录。",
+  "opening": "18:00，你在灯塔外厅。封蜡账册在公开可见的抽屉里，属于档案员黎桑。伙伴周岚也在外厅，守卫邵舟在隔音门外。你没有打开或转述账册。",
+  "state": {
+    "story_time": "18:00",
+    "entities": [
+      {
+        "id": "player",
+        "kind": "character",
+        "name": "你",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "li",
+        "kind": "character",
+        "name": "黎桑",
+        "description": "档案员",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "zhou",
+        "kind": "character",
+        "name": "周岚",
+        "description": "你的伙伴",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "shao",
+        "kind": "character",
+        "name": "邵舟",
+        "description": "守卫",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "ledger",
+        "kind": "item",
+        "name": "封蜡账册",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      }
+    ],
+    "facts": [
+      {
+        "id": "lobby",
+        "kind": "fact",
+        "text": "你和周岚在灯塔外厅，封蜡账册在公开可见的抽屉里，所有者为黎桑。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "player",
+          "li",
+          "zhou"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "door",
+        "kind": "fact",
+        "text": "邵舟在隔音门外；未开门或进入以前听不到外厅私语。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "player",
+          "li",
+          "zhou",
+          "shao"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "unopened",
+        "kind": "fact",
+        "text": "玩家还没有打开或转述账册。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "player",
+          "li",
+          "zhou"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "paid",
+        "kind": "secret",
+        "text": "账册第7页记载运费已付。",
+        "subject_id": "ledger",
+        "known": false,
+        "known_by": [
+          "li"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "password",
+        "kind": "secret",
+        "text": "账册第7页的密码是“霜禾四十七”。",
+        "subject_id": "ledger",
+        "known": false,
+        "known_by": [
+          "li"
+        ],
+        "source_revision": 1
+      }
+    ],
+    "threads": []
+  },
+  "steps": [
+    {
+      "id": "S01",
+      "mode": "ask",
+      "input": "根据我已经知道的内容，账册里是否能证明运费已经付清？"
+    },
+    {
+      "id": "S02",
+      "mode": "observe",
+      "input": "独立读取故事时间、版本、各角色知情，以及玩家资料/建议/对象详情全部返回体。"
+    },
+    {
+      "id": "S03",
+      "mode": "harness",
+      "input": "在私人笔记写“我猜运费已付”，不发送为角色对白；再次打开账册详情。"
+    },
+    {
+      "id": "S04",
+      "mode": "act",
+      "input": "请黎桑允许我只看第7页；如果她不同意，就收回手，不擅自打开。"
+    },
+    {
+      "id": "S05",
+      "mode": "harness",
+      "input": "分为已经获得允许与未获得允许两条真实路径；只有前者继续检查原文，后者尝试询问付款是否有公开凭证。"
+    },
+    {
+      "id": "S06",
+      "mode": "act",
+      "input": "若已合法看到付款记录，只在周岚耳边转述所见，避免门外的人听见；否则告诉周岚目前尚无可核实答案。"
+    },
+    {
+      "id": "S07",
+      "mode": "ask",
+      "input": "现在我能确认什么，哪些只是我自己的推测？"
+    },
+    {
+      "id": "S08",
+      "mode": "act",
+      "input": "向门外的邵舟询问他掌握的付款消息，不把我刚得知的内容告诉他。"
+    }
+  ],
+  "private_tokens": [
+    "霜禾四十七"
+  ],
+  "omissions": [
+    "S03 private-note UI operation requires browser binding; this Go adapter records BLOCKED and never converts note text into dialogue.",
+    "S05 is branch-control bookkeeping; conditional S06 input remains conditional, no missing authorization is filled in.",
+    "Positive-control consent variant and door-open counterfactual not included in base trajectory."
+  ]
+}

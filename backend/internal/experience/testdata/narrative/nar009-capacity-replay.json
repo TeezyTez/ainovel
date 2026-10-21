@@ -1,0 +1,2564 @@
+{
+  "boundary": "Recorded real-model outputs on evaluator-authored synthetic NAR-009 prehistory. Exact state and page bytes are replayed for a capacity/authority regression only; this is not a literary-quality acceptance score.",
+  "source_sha256": "75a6f9a2fea6075255ac41cbba5adc0681446bf421f27f47dba4b051f8c7e01d",
+  "seed": "安静日常，第二人称。你是回老家休假的成年人许舟。",
+  "request": {
+    "reading_request": "让这个下午自然结束，修完椅子可以就是结尾。",
+    "request_id": "benchmark-S07",
+    "branch_id": "benchmark-main",
+    "expected_revision": 7,
+    "mode": "read",
+    "input": ""
+  },
+  "revisions": [
+    {
+      "page": {
+        "revision": 1,
+        "mode": "begin",
+        "input": "安静日常，第二人称。你是回老家休假的成年人许舟。",
+        "text": "你回到老家的厨房。外婆方芹想把那把有点晃的旧椅子修稳。家里工具足够，你有基本木工经验，通常一个下午就能完成。",
+        "story_time": "当日13:00",
+        "created_at": "2026-10-19T09:27:29.453642857Z",
+        "suggestions": [],
+        "outcome": "continues"
+      },
+      "state": {
+        "story_time": "当日13:00",
+        "facts": [
+          {
+            "id": "chair-task",
+            "kind": "fact",
+            "text": "厨房旧椅子有点晃，方芹希望修稳；工具足够，许舟有基本木工经验，通常一个下午即可完成。",
+            "subject_id": "",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "ordinary-boundary",
+            "kind": "rule",
+            "text": "这次不要病危、拆迁、隐藏遗产、陌生来客或恋爱；普通波折允许。",
+            "subject_id": "",
+            "known": true,
+            "known_by": [],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-wishes",
+            "kind": "fact",
+            "text": "方芹希望椅子能继续用，也希望外孙能坐一会儿；她不愿用责备或卖惨留人。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-health",
+            "kind": "fact",
+            "text": "方芹没有危急健康变化。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "chair-plain",
+            "kind": "fact",
+            "text": "椅子没有机关或重大秘密。",
+            "subject_id": "chair",
+            "known": false,
+            "known_by": [],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-limits",
+            "kind": "fact",
+            "text": "方芹知道椅子的用途、许舟难得回来，不知道许舟未说的计划。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          }
+        ],
+        "entities": [
+          {
+            "id": "xu",
+            "kind": "character",
+            "name": "许舟",
+            "description": "",
+            "known": true,
+            "related_ids": []
+          },
+          {
+            "id": "fq",
+            "kind": "character",
+            "name": "方芹",
+            "description": "许舟的外婆",
+            "known": true,
+            "related_ids": []
+          },
+          {
+            "id": "chair",
+            "kind": "item",
+            "name": "厨房的旧椅子",
+            "description": "",
+            "known": true,
+            "related_ids": []
+          }
+        ],
+        "threads": []
+      }
+    },
+    {
+      "page": {
+        "revision": 2,
+        "mode": "act",
+        "input": "我先检查椅子哪里晃。",
+        "text": "你扶住椅背，轮流按了按座面的四角，再轻轻左右摇动。椅脚在地砖上发出短促的嗒嗒声。你蹲下来，一手稳住椅腿，一手轻推横档：其中一处接合随着受力张开细细的缝，松手后又合回去。你换了个方向试，晃动仍从这里传来。\n\n外婆方芹把旁边的菜篮挪到柜边，给你腾出位置。“你方便帮我看看这把椅子吗？有点晃，我还想接着用。”她看你已经蹲下，便把后半句说得慢些，“你要有空，也坐会儿；有事就先忙，不急着今天修。”厨房里没有开火，窗外的亮光落在菜篮露出的几片青叶上。\n\n你凑近看了看松动处，又沿相邻木料的边缘摸过去，暂时没发现明显裂纹。接合处确实松了，但要不要拆开重新上胶，还得进一步查看。你将椅子摆到不挡路的墙边，没有坐上去试重；工具还没取出，刚才那阵细碎的嗒嗒声也停了。",
+        "story_time": "当日13:05",
+        "created_at": "2026-10-19T09:30:07.092174Z",
+        "suggestions": [
+          "进一步检查松动接合处是否需要拆开上胶。",
+          "回应外婆，告诉她自己是否方便坐一会儿。"
+        ],
+        "outcome": "continues"
+      },
+      "state": {
+        "narrative": {
+          "version": 1,
+          "through_revision": 2,
+          "episodes": [
+            {
+              "id": "episode-chair-check",
+              "summary": "许舟回老家休假，开始检查外婆想继续使用的旧椅子，将晃动定位到一处椅腿与横档接合；暂未发现明显裂纹，尚未拆修。方芹邀请他有空坐会儿，并明确不急着今天修，许舟尚未回应邀请。",
+              "from_revision": 1,
+              "to_revision": 2,
+              "fact_ids": [
+                "chair-task",
+                "chair-joint-inspection-r2",
+                "fq-invitation-r2",
+                "chair-inspection-stop-r2"
+              ]
+            }
+          ],
+          "characters": [
+            {
+              "entity_id": "xu",
+              "goals": [
+                "检查旧椅子的晃动原因。"
+              ],
+              "relationships": [
+                {
+                  "entity_id": "fq",
+                  "stance": "外婆提出修椅与坐会儿的邀请；尚未作出停留或修完的承诺。",
+                  "fact_ids": [
+                    "chair-task",
+                    "fq-invitation-r2"
+                  ]
+                }
+              ],
+              "voice": "第二人称，以具体观察和手上动作呈现，不替玩家承诺。",
+              "belief_fact_ids": [],
+              "updated_revision": 2
+            },
+            {
+              "entity_id": "fq",
+              "goals": [
+                "让旧椅子继续使用。",
+                "希望外孙能坐一会儿，不用责备或卖惨留人。"
+              ],
+              "relationships": [
+                {
+                  "entity_id": "xu",
+                  "stance": "邀请外孙帮忙和稍坐，也给他先忙其他事情的余地。",
+                  "fact_ids": [
+                    "fq-wishes",
+                    "fq-invitation-r2"
+                  ]
+                }
+              ],
+              "voice": "日常、温和，邀请不带催迫。",
+              "belief_fact_ids": [
+                "fq-invitation-r2"
+              ],
+              "updated_revision": 2
+            }
+          ],
+          "arcs": [],
+          "style": {
+            "voice": "安静日常，以有限的观察、家务动作与自然对话推进。",
+            "perspective": "第二人称，许舟视角。",
+            "pace": "slow",
+            "detail": "balanced",
+            "avoid": [
+              "病危、拆迁、隐藏遗产、陌生来客或恋爱。",
+              "将计划或初步观察写成已完成修理。",
+              "替玩家承诺停留或作重大决定。",
+              "将隐藏事实直接变成角色已知。"
+            ],
+            "preference_refs": []
+          }
+        },
+        "story_time": "当日13:05",
+        "facts": [
+          {
+            "id": "chair-task",
+            "kind": "fact",
+            "text": "厨房旧椅子有点晃，方芹希望修稳；工具足够，许舟有基本木工经验，通常一个下午即可完成。",
+            "subject_id": "",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "ordinary-boundary",
+            "kind": "rule",
+            "text": "这次不要病危、拆迁、隐藏遗产、陌生来客或恋爱；普通波折允许。",
+            "subject_id": "",
+            "known": true,
+            "known_by": [],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-wishes",
+            "kind": "fact",
+            "text": "方芹希望椅子能继续用，也希望外孙能坐一会儿；她不愿用责备或卖惨留人。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-health",
+            "kind": "fact",
+            "text": "方芹没有危急健康变化。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "chair-plain",
+            "kind": "fact",
+            "text": "椅子没有机关或重大秘密。",
+            "subject_id": "chair",
+            "known": false,
+            "known_by": [],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-limits",
+            "kind": "fact",
+            "text": "方芹知道椅子的用途、许舟难得回来，不知道许舟未说的计划。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "chair-joint-inspection-r2",
+            "kind": "fact",
+            "text": "许舟检查发现椅腿与横档的一处接合受力时开缝，换方向试摇后晃动仍从这里传来；查看并触摸相邻木料后暂未发现明显裂纹，是否需要拆开重新上胶仍待进一步查看。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 2
+          },
+          {
+            "id": "fq-invitation-r2",
+            "kind": "statement",
+            "text": "方芹请许舟帮忙看看椅子，说自己还想接着用；她邀请许舟有空坐会儿，也表示有事可以先忙，不急着今天修。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 2
+          },
+          {
+            "id": "chair-inspection-stop-r2",
+            "kind": "fact",
+            "text": "许舟检查后将椅子摆到不挡路的墙边，没有坐上去试重，工具尚未取出，也尚未拆修。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 2
+          }
+        ],
+        "entities": [
+          {
+            "id": "xu",
+            "kind": "character",
+            "name": "许舟",
+            "description": "",
+            "known": true,
+            "related_ids": []
+          },
+          {
+            "id": "fq",
+            "kind": "character",
+            "name": "方芹",
+            "description": "许舟的外婆",
+            "known": true,
+            "related_ids": []
+          },
+          {
+            "id": "chair",
+            "kind": "item",
+            "name": "厨房的旧椅子",
+            "description": "",
+            "known": true,
+            "related_ids": []
+          }
+        ],
+        "threads": []
+      }
+    },
+    {
+      "page": {
+        "revision": 3,
+        "mode": "act",
+        "input": "我向外婆借家里已有的工具，按自己会的办法修。",
+        "text": "“外婆，家里的工具借我用用。”你扶着椅背问。方芹朝柜子下层指了指：“箱子在那儿，胶也在里头。”她把桌角的搪瓷盆挪开，留出放工具的位置，没再问你待多久。你取来木锤、木胶和夹具，在椅子下面垫了块旧布，才将松动的接合转向亮处。\n\n你托稳椅腿，垫着木块轻敲横档。几下之后，原先那道细缝慢慢张开，榫头退了出来。露出的木料边缘没有明显断裂，缝里留着干硬的旧胶屑。你一点点刮去松散的部分，把碎屑拢到布上，再将接合试着推回去，确认能合到原位，才重新退出，薄薄涂胶。横档合拢后，你垫好夹具两端，逐渐收紧，停下来核对它的位置，又把椅子放平，查看四只脚是否都贴着地砖。窗边传来几声鸟叫，你松开扶椅背的手，换湿布擦掉接缝旁挤出的胶。\n\n你扶住椅腿，轻轻推了推横档，先前容易张开的地方只剩一道很窄的线；胶还没固化，你没有坐上去试重。“先夹着，等胶干透了再试。”你说。方芹应了声，把菜篮从椅旁挪远，另搬了一张凳子坐下择菜。一截豆角落进盆里，发出轻轻的一响。你把木锤放回箱中，夹具仍留在椅子上，桌角搁着拧好盖子的木胶。",
+        "story_time": "当日13:45",
+        "created_at": "2026-10-19T09:33:05.511632Z",
+        "suggestions": [
+          "查看木胶说明，确认需要夹紧和固化多久。",
+          "收拾胶屑与工具，把椅子留在不挡路的位置。",
+          "搬张凳子，在外婆旁边坐一会儿。"
+        ],
+        "outcome": "continues"
+      },
+      "state": {
+        "narrative": {
+          "version": 1,
+          "through_revision": 3,
+          "episodes": [
+            {
+              "id": "episode-chair-check",
+              "summary": "许舟回老家休假，将旧椅子的晃动定位到一处椅腿与横档接合。方芹邀请他有空坐会儿，也表示不急着今天修。许舟借用家中工具，退出松动榫头，未见露出木料明显断裂，清胶试合后重新上胶夹紧。接合开缝减小，但胶未固化，尚未试重或确认最终稳固。方芹另搬凳子择菜，许舟尚未回应陪坐邀请。",
+              "from_revision": 1,
+              "to_revision": 3,
+              "fact_ids": [
+                "chair-task",
+                "chair-joint-inspection-r2",
+                "fq-invitation-r2",
+                "chair-disassembly-r3",
+                "chair-reglued-clamped-r3",
+                "xu-wait-for-glue-r3",
+                "tools-placement-r3",
+                "fq-sorting-vegetables-r3"
+              ]
+            }
+          ],
+          "characters": [
+            {
+              "entity_id": "xu",
+              "goals": [
+                "按自己会的办法修理旧椅子；已完成重新上胶夹紧，待固化后检验。"
+              ],
+              "relationships": [
+                {
+                  "entity_id": "fq",
+                  "stance": "已借家中工具着手修椅；没有承诺陪坐或停留多久。",
+                  "fact_ids": [
+                    "fq-invitation-r2",
+                    "chair-reglued-clamped-r3",
+                    "xu-wait-for-glue-r3"
+                  ]
+                }
+              ],
+              "voice": "第二人称，以具体观察和手上动作呈现，不替玩家承诺。",
+              "belief_fact_ids": [
+                "xu-wait-for-glue-r3"
+              ],
+              "updated_revision": 3
+            },
+            {
+              "entity_id": "fq",
+              "goals": [
+                "让旧椅子继续使用。",
+                "希望外孙能坐一会儿，不用责备或卖惨留人。"
+              ],
+              "relationships": [
+                {
+                  "entity_id": "xu",
+                  "stance": "邀请外孙帮忙和稍坐，也给他先忙其他事情的余地；回应等待胶干的话后另坐凳子择菜，没有追问停留时间。",
+                  "fact_ids": [
+                    "fq-wishes",
+                    "fq-invitation-r2",
+                    "fq-sorting-vegetables-r3"
+                  ]
+                }
+              ],
+              "voice": "日常、温和，邀请不带催迫。",
+              "belief_fact_ids": [
+                "fq-invitation-r2"
+              ],
+              "updated_revision": 3
+            }
+          ],
+          "arcs": [],
+          "style": {
+            "voice": "安静日常，以有限的观察、家务动作与自然对话推进。",
+            "perspective": "第二人称，许舟视角。",
+            "pace": "slow",
+            "detail": "balanced",
+            "avoid": [
+              "病危、拆迁、隐藏遗产、陌生来客或恋爱。",
+              "将计划或初步观察写成已完成修理。",
+              "替玩家承诺停留或作重大决定。",
+              "将隐藏事实直接变成角色已知。"
+            ],
+            "preference_refs": []
+          }
+        },
+        "story_time": "当日13:45",
+        "facts": [
+          {
+            "id": "chair-task",
+            "kind": "fact",
+            "text": "厨房旧椅子有点晃，方芹希望修稳；工具足够，许舟有基本木工经验，通常一个下午即可完成。",
+            "subject_id": "",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "ordinary-boundary",
+            "kind": "rule",
+            "text": "这次不要病危、拆迁、隐藏遗产、陌生来客或恋爱；普通波折允许。",
+            "subject_id": "",
+            "known": true,
+            "known_by": [],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-wishes",
+            "kind": "fact",
+            "text": "方芹希望椅子能继续用，也希望外孙能坐一会儿；她不愿用责备或卖惨留人。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-health",
+            "kind": "fact",
+            "text": "方芹没有危急健康变化。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "chair-plain",
+            "kind": "fact",
+            "text": "椅子没有机关或重大秘密。",
+            "subject_id": "chair",
+            "known": false,
+            "known_by": [],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-limits",
+            "kind": "fact",
+            "text": "方芹知道椅子的用途、许舟难得回来，不知道许舟未说的计划。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "chair-joint-inspection-r2",
+            "kind": "fact",
+            "text": "许舟检查发现椅腿与横档的一处接合受力时开缝，换方向试摇后晃动仍从这里传来；查看并触摸相邻木料后暂未发现明显裂纹，是否需要拆开重新上胶仍待进一步查看。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 2
+          },
+          {
+            "id": "fq-invitation-r2",
+            "kind": "statement",
+            "text": "方芹请许舟帮忙看看椅子，说自己还想接着用；她邀请许舟有空坐会儿，也表示有事可以先忙，不急着今天修。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 2
+          },
+          {
+            "id": "chair-inspection-stop-r2",
+            "kind": "fact",
+            "text": "许舟检查后将椅子摆到不挡路的墙边，没有坐上去试重，工具尚未取出，也尚未拆修。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 2
+          },
+          {
+            "id": "chair-disassembly-r3",
+            "kind": "fact",
+            "text": "许舟用木块垫着轻敲横档，退出松动接合的榫头；露出的木料边缘没有明显断裂，缝中有干硬旧胶屑。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "chair-reglued-clamped-r3",
+            "kind": "fact",
+            "text": "许舟清理松散旧胶并试合，确认接合能合到原位后薄涂木胶、重新合拢并用夹具夹紧，核对位置、查看四脚落地情况并擦去挤出的胶。轻推横档时原先容易张开的地方只剩很窄的线；胶尚未固化，许舟没有坐上去试重，最终承重与稳固程度尚未验证。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "xu-wait-for-glue-r3",
+            "kind": "statement",
+            "text": "许舟说先保持夹紧，等胶干透后再试。",
+            "subject_id": "xu",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "tools-placement-r3",
+            "kind": "fact",
+            "text": "本次操作结束时，木锤已放回工具箱，夹具仍留在椅子上，拧好盖子的木胶搁在桌角。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "fq-sorting-vegetables-r3",
+            "kind": "fact",
+            "text": "方芹回应许舟等胶干透再试的话后，将菜篮从椅旁挪远，另搬一张凳子坐下择菜。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 3
+          }
+        ],
+        "entities": [
+          {
+            "id": "xu",
+            "kind": "character",
+            "name": "许舟",
+            "description": "",
+            "known": true,
+            "related_ids": []
+          },
+          {
+            "id": "fq",
+            "kind": "character",
+            "name": "方芹",
+            "description": "许舟的外婆",
+            "known": true,
+            "related_ids": []
+          },
+          {
+            "id": "chair",
+            "kind": "item",
+            "name": "厨房的旧椅子",
+            "description": "",
+            "known": true,
+            "related_ids": []
+          }
+        ],
+        "threads": []
+      }
+    },
+    {
+      "page": {
+        "revision": 4,
+        "mode": "read",
+        "input": "",
+        "text": "方芹掐下豆角的一头，顺着边缘慢慢撕去细筋。“那就先放着，等干透了再试。你要是不忙，就坐会儿，歇歇手。”她把择好的豆角往盆里放，另一根却从指间滑出去，擦过围裙，落在凳脚旁。她低头看了看，手里还捏着刚撕下的筋。墙边的旧椅子离得远，夹具没有碰着。\n\n她先将搪瓷盆搁稳在桌边，把细筋放进菜篮一角，再扶着自己坐的凳沿站起来。鞋底在地砖上轻轻挪了一下，她弯腰拾起那根豆角，放到旁边空着的小碟里。“这根等会儿洗洗再用。”她说着，拂掉围裙上粘的一小截豆角尖，没有叫你搭手。\n\n重新坐下后，方芹把菜篮拉到脚边近些的地方，伸手便能取到。你面前的桌角还搁着盖好的木胶，墙边接合处的夹具仍收紧着，垫在下面的旧布有一角微微卷起。她挑出一根豆角，拇指抵住尖端，轻轻一折。短短的脆响之后，又是细筋被慢慢撕开的声音；小碟里那根还单独放着，盆里的豆角则添了一截。",
+        "story_time": "当日13:48",
+        "created_at": "2026-10-19T09:36:06.16988Z",
+        "suggestions": [
+          "拉张别的凳子坐下，陪外婆聊几句。",
+          "问问这盆豆角准备怎么做。"
+        ],
+        "outcome": "continues"
+      },
+      "state": {
+        "narrative": {
+          "version": 1,
+          "through_revision": 4,
+          "episodes": [
+            {
+              "id": "episode-chair-check",
+              "summary": "许舟回老家休假，将旧椅子的晃动定位到一处椅腿与横档接合。方芹邀请他有空坐会儿，也表示不急着今天修。许舟借用家中工具，退出松动榫头，未见露出木料明显断裂，清胶试合后重新上胶夹紧。接合开缝减小，但胶未固化，尚未试重或确认最终稳固。方芹另搬凳子择菜，许舟尚未回应陪坐邀请。",
+              "from_revision": 1,
+              "to_revision": 3,
+              "fact_ids": [
+                "chair-task",
+                "chair-joint-inspection-r2",
+                "fq-invitation-r2",
+                "chair-disassembly-r3",
+                "chair-reglued-clamped-r3",
+                "xu-wait-for-glue-r3",
+                "tools-placement-r3",
+                "fq-sorting-vegetables-r3"
+              ]
+            },
+            {
+              "id": "episode-bean-interruption-r4",
+              "summary": "等待木胶期间，方芹再次温和邀请许舟稍坐。一根豆角滑落，她自行起身拾起并单独放在小碟，表示稍后洗过再用；随后把菜篮拉近，继续择菜。豆角尚未清洗，椅子仍夹紧，许舟没有接受陪坐邀请或承担新任务。",
+              "from_revision": 4,
+              "to_revision": 4,
+              "fact_ids": [
+                "fq-invitation-r4",
+                "fq-dropped-bean-r4",
+                "fq-bean-washing-plan-r4",
+                "fq-resumes-sorting-r4",
+                "chair-still-clamped-r4"
+              ]
+            }
+          ],
+          "characters": [
+            {
+              "entity_id": "xu",
+              "goals": [
+                "按自己会的办法修理旧椅子；已完成重新上胶夹紧，待固化后检验。"
+              ],
+              "relationships": [
+                {
+                  "entity_id": "fq",
+                  "stance": "已借家中工具着手修椅；外婆再次邀请稍坐，尚未回应，没有承诺停留多久或承担新任务。",
+                  "fact_ids": [
+                    "fq-invitation-r2",
+                    "chair-reglued-clamped-r3",
+                    "xu-wait-for-glue-r3",
+                    "fq-invitation-r4"
+                  ]
+                }
+              ],
+              "voice": "第二人称，以具体观察和手上动作呈现，不替玩家承诺。",
+              "belief_fact_ids": [
+                "xu-wait-for-glue-r3"
+              ],
+              "updated_revision": 4
+            },
+            {
+              "entity_id": "fq",
+              "goals": [
+                "让旧椅子继续使用。",
+                "希望外孙能坐一会儿，不用责备或卖惨留人。",
+                "落地的豆角稍后洗过再用，尚未完成。"
+              ],
+              "relationships": [
+                {
+                  "entity_id": "xu",
+                  "stance": "温和邀请外孙歇手稍坐，不催迫；自行处理落地豆角，未要求他搭手。",
+                  "fact_ids": [
+                    "fq-wishes",
+                    "fq-invitation-r2",
+                    "fq-invitation-r4",
+                    "fq-dropped-bean-r4"
+                  ]
+                }
+              ],
+              "voice": "日常、温和，邀请不带催迫。",
+              "belief_fact_ids": [
+                "fq-invitation-r2",
+                "fq-invitation-r4",
+                "fq-bean-washing-plan-r4"
+              ],
+              "updated_revision": 4
+            }
+          ],
+          "arcs": [],
+          "style": {
+            "voice": "安静日常，以有限的观察、家务动作与自然对话推进。",
+            "perspective": "第二人称，许舟视角。",
+            "pace": "slow",
+            "detail": "balanced",
+            "avoid": [
+              "病危、拆迁、隐藏遗产、陌生来客或恋爱。",
+              "将计划或初步观察写成已完成修理。",
+              "替玩家承诺停留或作重大决定。",
+              "将隐藏事实直接变成角色已知。"
+            ],
+            "preference_refs": []
+          }
+        },
+        "story_time": "当日13:48",
+        "facts": [
+          {
+            "id": "chair-task",
+            "kind": "fact",
+            "text": "厨房旧椅子有点晃，方芹希望修稳；工具足够，许舟有基本木工经验，通常一个下午即可完成。",
+            "subject_id": "",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "ordinary-boundary",
+            "kind": "rule",
+            "text": "这次不要病危、拆迁、隐藏遗产、陌生来客或恋爱；普通波折允许。",
+            "subject_id": "",
+            "known": true,
+            "known_by": [],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-wishes",
+            "kind": "fact",
+            "text": "方芹希望椅子能继续用，也希望外孙能坐一会儿；她不愿用责备或卖惨留人。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-health",
+            "kind": "fact",
+            "text": "方芹没有危急健康变化。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "chair-plain",
+            "kind": "fact",
+            "text": "椅子没有机关或重大秘密。",
+            "subject_id": "chair",
+            "known": false,
+            "known_by": [],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-limits",
+            "kind": "fact",
+            "text": "方芹知道椅子的用途、许舟难得回来，不知道许舟未说的计划。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "chair-joint-inspection-r2",
+            "kind": "fact",
+            "text": "许舟检查发现椅腿与横档的一处接合受力时开缝，换方向试摇后晃动仍从这里传来；查看并触摸相邻木料后暂未发现明显裂纹，是否需要拆开重新上胶仍待进一步查看。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 2
+          },
+          {
+            "id": "fq-invitation-r2",
+            "kind": "statement",
+            "text": "方芹请许舟帮忙看看椅子，说自己还想接着用；她邀请许舟有空坐会儿，也表示有事可以先忙，不急着今天修。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 2
+          },
+          {
+            "id": "chair-inspection-stop-r2",
+            "kind": "fact",
+            "text": "许舟检查后将椅子摆到不挡路的墙边，没有坐上去试重，工具尚未取出，也尚未拆修。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 2
+          },
+          {
+            "id": "chair-disassembly-r3",
+            "kind": "fact",
+            "text": "许舟用木块垫着轻敲横档，退出松动接合的榫头；露出的木料边缘没有明显断裂，缝中有干硬旧胶屑。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "chair-reglued-clamped-r3",
+            "kind": "fact",
+            "text": "许舟清理松散旧胶并试合，确认接合能合到原位后薄涂木胶、重新合拢并用夹具夹紧，核对位置、查看四脚落地情况并擦去挤出的胶。轻推横档时原先容易张开的地方只剩很窄的线；胶尚未固化，许舟没有坐上去试重，最终承重与稳固程度尚未验证。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "xu-wait-for-glue-r3",
+            "kind": "statement",
+            "text": "许舟说先保持夹紧，等胶干透后再试。",
+            "subject_id": "xu",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "tools-placement-r3",
+            "kind": "fact",
+            "text": "本次操作结束时，木锤已放回工具箱，夹具仍留在椅子上，拧好盖子的木胶搁在桌角。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "fq-sorting-vegetables-r3",
+            "kind": "fact",
+            "text": "方芹回应许舟等胶干透再试的话后，将菜篮从椅旁挪远，另搬一张凳子坐下择菜。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "fq-invitation-r4",
+            "kind": "statement",
+            "text": "方芹表示先放着椅子等胶干透再试，并邀请许舟如果不忙就坐会儿、歇歇手。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "fq-dropped-bean-r4",
+            "kind": "fact",
+            "text": "方芹择菜时一根豆角滑落凳脚旁，没有碰到远处旧椅子的夹具。她搁稳搪瓷盆，扶凳沿站起，自行拾起豆角，单独放入旁边的小碟，没有叫许舟搭手；本段结束时豆角仍单独放着，尚未清洗。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "fq-bean-washing-plan-r4",
+            "kind": "statement",
+            "text": "方芹说落地的那根豆角等会儿洗洗再用。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "fq-resumes-sorting-r4",
+            "kind": "fact",
+            "text": "方芹重新坐下，将菜篮拉近脚边，继续折豆角、撕筋并往盆里添菜。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "chair-still-clamped-r4",
+            "kind": "fact",
+            "text": "旧椅子仍在墙边，接合处的夹具保持收紧；桌角仍搁着盖好的木胶，椅子下面旧布的一角微微卷起。本段没有拆夹具或试重。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 4
+          }
+        ],
+        "entities": [
+          {
+            "id": "xu",
+            "kind": "character",
+            "name": "许舟",
+            "description": "",
+            "known": true,
+            "related_ids": []
+          },
+          {
+            "id": "fq",
+            "kind": "character",
+            "name": "方芹",
+            "description": "许舟的外婆",
+            "known": true,
+            "related_ids": []
+          },
+          {
+            "id": "chair",
+            "kind": "item",
+            "name": "厨房的旧椅子",
+            "description": "",
+            "known": true,
+            "related_ids": []
+          }
+        ],
+        "threads": []
+      }
+    },
+    {
+      "page": {
+        "revision": 5,
+        "mode": "act",
+        "input": "我做手头的活，听她愿意说的近况。",
+        "text": "你把垫过木锤的木块收进工具箱，将擦过胶的湿布另放一边，没去动椅子底下那块旧布。墙边的夹具仍收紧着。方芹坐在凳上，一根根折豆角，撕下的筋绕在指尖，攒成一小撮才放进菜篮一角。你收起桌边剩下的零碎，给搪瓷盆腾出些地方。\n\n她往小碟里看了一眼。“那根等这把择完，一起洗。”又从篮里抽出两根豆角，拇指在豆荚上捏了捏。“最近中午做得简单，炒个菜，热口饭。菜要是择多了，就分两顿，省得每回都弄。”其中一根折开后，边缘牵出一条粗筋；她慢慢往下撕，撕到一半断了，便换一头接着找。“这根老了，得多择一下。”\n\n你合上工具箱，把它放回柜子下层，听她说完。盆沿有一截豆角搭在外头，她用手背轻轻拨进去，给新择好的又腾出一小块地方。你把盖好的木胶往桌角里面挪了挪，盆便能摆得更稳些。菜篮里还剩薄薄一层，方芹将那根较老的单独搁在篮边，另拿了一根；厨房里又响起一声清脆的轻折声。",
+        "story_time": "当日13:53",
+        "created_at": "2026-10-19T09:38:56.954211Z",
+        "suggestions": [
+          "继续收拾，听外婆闲聊。",
+          "问问她最近常做什么菜。",
+          "取个空盆，帮忙清洗择好的豆角。"
+        ],
+        "outcome": "continues"
+      },
+      "state": {
+        "narrative": {
+          "version": 1,
+          "through_revision": 5,
+          "episodes": [
+            {
+              "id": "episode-chair-check",
+              "summary": "许舟回老家休假，将旧椅子的晃动定位到一处椅腿与横档接合。方芹邀请他有空坐会儿，也表示不急着今天修。许舟借用家中工具，退出松动榫头，未见露出木料明显断裂，清胶试合后重新上胶夹紧。接合开缝减小，但胶未固化，尚未试重或确认最终稳固。方芹另搬凳子择菜，许舟尚未回应陪坐邀请。",
+              "from_revision": 1,
+              "to_revision": 3,
+              "fact_ids": [
+                "chair-task",
+                "chair-joint-inspection-r2",
+                "fq-invitation-r2",
+                "chair-disassembly-r3",
+                "chair-reglued-clamped-r3",
+                "xu-wait-for-glue-r3",
+                "tools-placement-r3",
+                "fq-sorting-vegetables-r3"
+              ]
+            },
+            {
+              "id": "episode-bean-interruption-r4",
+              "summary": "等待木胶期间，方芹再次温和邀请许舟稍坐。一根豆角滑落，她自行起身拾起并单独放在小碟，表示稍后洗过再用；随后把菜篮拉近，继续择菜。豆角尚未清洗，椅子仍夹紧，许舟没有接受陪坐邀请或承担新任务。",
+              "from_revision": 4,
+              "to_revision": 4,
+              "fact_ids": [
+                "fq-invitation-r4",
+                "fq-dropped-bean-r4",
+                "fq-bean-washing-plan-r4",
+                "fq-resumes-sorting-r4",
+                "chair-still-clamped-r4"
+              ]
+            },
+            {
+              "id": "episode-tidying-and-chat-r5",
+              "summary": "许舟收好木块、湿布和桌边零碎，将工具箱放回柜子下层，挪木胶给盆留位置，一边听方芹闲聊。方芹说落地豆角等择完一起洗，并自述最近午饭简单、菜多时分两顿。她继续处理豆角粗筋，将其中一根单独搁在篮边；篮中仍有余菜，清洗未开始，椅子仍夹紧未验收。",
+              "from_revision": 5,
+              "to_revision": 5,
+              "fact_ids": [
+                "xu-tidies-tools-r5",
+                "chair-remains-clamped-r5",
+                "fq-wash-after-sorting-r5",
+                "fq-lunch-routine-account-r5",
+                "fq-older-bean-comment-r5",
+                "fq-sorting-progress-r5"
+              ]
+            }
+          ],
+          "characters": [
+            {
+              "entity_id": "xu",
+              "goals": [
+                "按自己会的办法修理旧椅子；已完成重新上胶夹紧，待固化后检验。",
+                "收拾手头用过的工具和零碎，听外婆愿意说的近况。"
+              ],
+              "relationships": [
+                {
+                  "entity_id": "fq",
+                  "stance": "边收拾边听外婆自愿谈午饭近况；未承诺停留多久，也未确认吃饭安排或承担清洗任务。",
+                  "fact_ids": [
+                    "fq-invitation-r4",
+                    "xu-tidies-tools-r5",
+                    "fq-lunch-routine-account-r5",
+                    "fq-sorting-progress-r5"
+                  ]
+                }
+              ],
+              "voice": "第二人称，以具体观察和手上动作呈现，不替玩家承诺。",
+              "belief_fact_ids": [
+                "xu-wait-for-glue-r3"
+              ],
+              "updated_revision": 5
+            },
+            {
+              "entity_id": "fq",
+              "goals": [
+                "让旧椅子继续使用。",
+                "希望外孙能坐一会儿，不用责备或卖惨留人。",
+                "继续择菜，待这把择完后把落地豆角一起洗，尚未完成。"
+              ],
+              "relationships": [
+                {
+                  "entity_id": "xu",
+                  "stance": "温和邀请、不催迫，择菜时自愿讲述近期午饭做法，未要求外孙清洗或留下吃饭。",
+                  "fact_ids": [
+                    "fq-wishes",
+                    "fq-invitation-r4",
+                    "fq-lunch-routine-account-r5",
+                    "fq-sorting-progress-r5"
+                  ]
+                }
+              ],
+              "voice": "日常、温和，邀请不带催迫；从手边家务自然聊起近况。",
+              "belief_fact_ids": [
+                "fq-invitation-r2",
+                "fq-invitation-r4",
+                "fq-bean-washing-plan-r4",
+                "fq-wash-after-sorting-r5",
+                "fq-lunch-routine-account-r5",
+                "fq-older-bean-comment-r5"
+              ],
+              "updated_revision": 5
+            }
+          ],
+          "arcs": [],
+          "style": {
+            "voice": "安静日常，以有限的观察、家务动作与自然对话推进。",
+            "perspective": "第二人称，许舟视角。",
+            "pace": "slow",
+            "detail": "balanced",
+            "avoid": [
+              "病危、拆迁、隐藏遗产、陌生来客或恋爱。",
+              "将计划或初步观察写成已完成修理。",
+              "替玩家承诺停留或作重大决定。",
+              "将隐藏事实直接变成角色已知。"
+            ],
+            "preference_refs": []
+          }
+        },
+        "story_time": "当日13:53",
+        "facts": [
+          {
+            "id": "chair-task",
+            "kind": "fact",
+            "text": "厨房旧椅子有点晃，方芹希望修稳；工具足够，许舟有基本木工经验，通常一个下午即可完成。",
+            "subject_id": "",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "ordinary-boundary",
+            "kind": "rule",
+            "text": "这次不要病危、拆迁、隐藏遗产、陌生来客或恋爱；普通波折允许。",
+            "subject_id": "",
+            "known": true,
+            "known_by": [],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-wishes",
+            "kind": "fact",
+            "text": "方芹希望椅子能继续用，也希望外孙能坐一会儿；她不愿用责备或卖惨留人。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-health",
+            "kind": "fact",
+            "text": "方芹没有危急健康变化。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "chair-plain",
+            "kind": "fact",
+            "text": "椅子没有机关或重大秘密。",
+            "subject_id": "chair",
+            "known": false,
+            "known_by": [],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-limits",
+            "kind": "fact",
+            "text": "方芹知道椅子的用途、许舟难得回来，不知道许舟未说的计划。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "chair-joint-inspection-r2",
+            "kind": "fact",
+            "text": "许舟检查发现椅腿与横档的一处接合受力时开缝，换方向试摇后晃动仍从这里传来；查看并触摸相邻木料后暂未发现明显裂纹，是否需要拆开重新上胶仍待进一步查看。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 2
+          },
+          {
+            "id": "fq-invitation-r2",
+            "kind": "statement",
+            "text": "方芹请许舟帮忙看看椅子，说自己还想接着用；她邀请许舟有空坐会儿，也表示有事可以先忙，不急着今天修。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 2
+          },
+          {
+            "id": "chair-inspection-stop-r2",
+            "kind": "fact",
+            "text": "许舟检查后将椅子摆到不挡路的墙边，没有坐上去试重，工具尚未取出，也尚未拆修。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 2
+          },
+          {
+            "id": "chair-disassembly-r3",
+            "kind": "fact",
+            "text": "许舟用木块垫着轻敲横档，退出松动接合的榫头；露出的木料边缘没有明显断裂，缝中有干硬旧胶屑。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "chair-reglued-clamped-r3",
+            "kind": "fact",
+            "text": "许舟清理松散旧胶并试合，确认接合能合到原位后薄涂木胶、重新合拢并用夹具夹紧，核对位置、查看四脚落地情况并擦去挤出的胶。轻推横档时原先容易张开的地方只剩很窄的线；胶尚未固化，许舟没有坐上去试重，最终承重与稳固程度尚未验证。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "xu-wait-for-glue-r3",
+            "kind": "statement",
+            "text": "许舟说先保持夹紧，等胶干透后再试。",
+            "subject_id": "xu",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "tools-placement-r3",
+            "kind": "fact",
+            "text": "本次操作结束时，木锤已放回工具箱，夹具仍留在椅子上，拧好盖子的木胶搁在桌角。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "fq-sorting-vegetables-r3",
+            "kind": "fact",
+            "text": "方芹回应许舟等胶干透再试的话后，将菜篮从椅旁挪远，另搬一张凳子坐下择菜。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "fq-invitation-r4",
+            "kind": "statement",
+            "text": "方芹表示先放着椅子等胶干透再试，并邀请许舟如果不忙就坐会儿、歇歇手。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "fq-dropped-bean-r4",
+            "kind": "fact",
+            "text": "方芹择菜时一根豆角滑落凳脚旁，没有碰到远处旧椅子的夹具。她搁稳搪瓷盆，扶凳沿站起，自行拾起豆角，单独放入旁边的小碟，没有叫许舟搭手；本段结束时豆角仍单独放着，尚未清洗。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "fq-bean-washing-plan-r4",
+            "kind": "statement",
+            "text": "方芹说落地的那根豆角等会儿洗洗再用。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "fq-resumes-sorting-r4",
+            "kind": "fact",
+            "text": "方芹重新坐下，将菜篮拉近脚边，继续折豆角、撕筋并往盆里添菜。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "chair-still-clamped-r4",
+            "kind": "fact",
+            "text": "旧椅子仍在墙边，接合处的夹具保持收紧；桌角仍搁着盖好的木胶，椅子下面旧布的一角微微卷起。本段没有拆夹具或试重。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "xu-tidies-tools-r5",
+            "kind": "fact",
+            "text": "许舟将垫过木锤的木块收进工具箱，把擦胶湿布另放一边，收起桌边零碎后合上工具箱并放回柜子下层；他将盖好的木胶往桌角里面挪，为搪瓷盆腾出空间。",
+            "subject_id": "xu",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 5
+          },
+          {
+            "id": "chair-remains-clamped-r5",
+            "kind": "fact",
+            "text": "墙边旧椅子的夹具仍收紧着，许舟未动椅子下面的旧布，本段没有拆夹具或试重。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 5
+          },
+          {
+            "id": "fq-wash-after-sorting-r5",
+            "kind": "statement",
+            "text": "方芹看向小碟后说，落地的那根豆角等这把择完再一起洗；清洗尚未发生。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 5
+          },
+          {
+            "id": "fq-lunch-routine-account-r5",
+            "kind": "statement",
+            "text": "方芹说最近中午做得简单，炒个菜、热口饭；菜择多了就分两顿，省得每回都弄。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 5
+          },
+          {
+            "id": "fq-older-bean-comment-r5",
+            "kind": "statement",
+            "text": "方芹撕一根豆角的粗筋时说这根老了，得多择一下。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 5
+          },
+          {
+            "id": "fq-sorting-progress-r5",
+            "kind": "fact",
+            "text": "方芹继续坐着折豆角、撕筋，将盆沿搭着的一截豆角拨回盆内；菜篮里还剩薄薄一层，她把撕过粗筋的那根单独搁在篮边，又拿起另一根继续择。许舟收拾时听她说完近况，尚未参与清洗。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 5
+          }
+        ],
+        "entities": [
+          {
+            "id": "xu",
+            "kind": "character",
+            "name": "许舟",
+            "description": "",
+            "known": true,
+            "related_ids": []
+          },
+          {
+            "id": "fq",
+            "kind": "character",
+            "name": "方芹",
+            "description": "许舟的外婆",
+            "known": true,
+            "related_ids": []
+          },
+          {
+            "id": "chair",
+            "kind": "item",
+            "name": "厨房的旧椅子",
+            "description": "",
+            "known": true,
+            "related_ids": []
+          }
+        ],
+        "threads": []
+      }
+    },
+    {
+      "page": {
+        "revision": 6,
+        "mode": "act",
+        "input": "若椅子已修稳，请她试坐；若还有问题，按实际问题做一次小调整。",
+        "text": "你拿起桌角的木胶，转过瓶身，找到标签上的固化说明。照上面要求的等待时间，刚才上胶到现在还远远不够。“还得等，不能光看缝合上了就试坐。”你把瓶子放回去，没有松夹具，也没动椅下的旧布。方芹应了声，手里的豆角折成两截，落进盆里。\n\n“您这把快择完了，要不要我帮着洗菜？小碟里那根也一起洗。”你问。她把篮底余下的几根择好，端起盆放到水池边：“行，你先洗。我把这根老的再理理。”你拿来小碟，将那根掉过地的豆角单独冲洗，指腹顺着豆荚搓过，再放进盆里。水龙头开小些，水流推着盆里的豆角慢慢转动。\n\n身后传来菜筋放进篮子的窸窣声。“你最近怎么样，忙不忙？”方芹问。你关小水流，把浮起的半截豆角按进水里；她仍坐在凳上，低头找着那根老豆角边缘没撕净的筋，等你接话。",
+        "story_time": "当日14:00",
+        "created_at": "2026-10-19T09:42:00.278383Z",
+        "suggestions": [
+          "一边洗菜，一边说说最近的真实近况。",
+          "问问外婆平时还爱做些什么菜。"
+        ],
+        "outcome": "continues"
+      },
+      "state": {
+        "narrative": {
+          "version": 1,
+          "through_revision": 6,
+          "episodes": [
+            {
+              "id": "episode-chair-check",
+              "summary": "许舟回老家休假，将旧椅子的晃动定位到一处椅腿与横档接合。方芹邀请他有空坐会儿，也表示不急着今天修。许舟借用家中工具，退出松动榫头，未见露出木料明显断裂，清胶试合后重新上胶夹紧。接合开缝减小，但胶未固化，尚未试重或确认最终稳固。方芹另搬凳子择菜，许舟尚未回应陪坐邀请。",
+              "from_revision": 1,
+              "to_revision": 3,
+              "fact_ids": [
+                "chair-task",
+                "chair-joint-inspection-r2",
+                "fq-invitation-r2",
+                "chair-disassembly-r3",
+                "chair-reglued-clamped-r3",
+                "xu-wait-for-glue-r3",
+                "tools-placement-r3",
+                "fq-sorting-vegetables-r3"
+              ]
+            },
+            {
+              "id": "episode-bean-interruption-r4",
+              "summary": "等待木胶期间，方芹再次温和邀请许舟稍坐。一根豆角滑落，她自行起身拾起并单独放在小碟，表示稍后洗过再用；随后把菜篮拉近，继续择菜。此时豆角尚未清洗，椅子仍夹紧，许舟没有接受陪坐邀请或承担新任务。",
+              "from_revision": 4,
+              "to_revision": 4,
+              "fact_ids": [
+                "fq-invitation-r4",
+                "fq-dropped-bean-r4",
+                "fq-bean-washing-plan-r4",
+                "fq-resumes-sorting-r4",
+                "chair-still-clamped-r4"
+              ]
+            },
+            {
+              "id": "episode-tidying-and-chat-r5",
+              "summary": "许舟收好木块、湿布和桌边零碎，将工具箱放回柜子下层，挪木胶给盆留位置，一边听方芹闲聊。方芹说落地豆角等择完一起洗，并自述最近午饭简单、菜多时分两顿。她继续处理豆角粗筋，将其中一根单独搁在篮边；当时篮中仍有余菜，清洗未开始，椅子仍夹紧未验收。",
+              "from_revision": 5,
+              "to_revision": 5,
+              "fact_ids": [
+                "xu-tidies-tools-r5",
+                "chair-remains-clamped-r5",
+                "fq-wash-after-sorting-r5",
+                "fq-lunch-routine-account-r5",
+                "fq-older-bean-comment-r5",
+                "fq-sorting-progress-r5"
+              ]
+            },
+            {
+              "id": "episode-label-and-washing-r6",
+              "summary": "许舟查看木胶标签，确认等待时间不足，告知方芹还不能试坐，保留夹具与椅下旧布。经方芹同意，他开始洗菜，已将落地豆角单独冲洗搓过并放回盆中，整盆尚未洗完。方芹继续理老豆角的筋，问他最近怎么样、忙不忙；回答尚未发生。",
+              "from_revision": 6,
+              "to_revision": 6,
+              "fact_ids": [
+                "chair-curing-check-r6",
+                "xu-defer-seat-test-r6",
+                "fq-washing-assent-r6",
+                "vegetable-washing-started-r6",
+                "fq-asks-xu-recent-life-r6"
+              ]
+            }
+          ],
+          "characters": [
+            {
+              "entity_id": "xu",
+              "goals": [
+                "按自己会的办法修理旧椅子；已重新上胶夹紧，标签要求的等待时间尚不足，待固化后检验。",
+                "已开始帮忙洗菜，整盆清洗尚未完成；听外婆愿意说的近况。"
+              ],
+              "relationships": [
+                {
+                  "entity_id": "fq",
+                  "stance": "收拾时听外婆谈午饭近况，随后提议洗菜并得到同意；尚未回答近况询问，未承诺停留多久或留下吃饭。",
+                  "fact_ids": [
+                    "xu-tidies-tools-r5",
+                    "fq-lunch-routine-account-r5",
+                    "fq-washing-assent-r6",
+                    "vegetable-washing-started-r6",
+                    "fq-asks-xu-recent-life-r6"
+                  ]
+                }
+              ],
+              "voice": "第二人称，以具体观察和手上动作呈现，不替玩家承诺。",
+              "belief_fact_ids": [
+                "xu-wait-for-glue-r3",
+                "xu-defer-seat-test-r6"
+              ],
+              "updated_revision": 6
+            },
+            {
+              "entity_id": "fq",
+              "goals": [
+                "让旧椅子继续使用。",
+                "希望外孙能坐一会儿，不用责备或卖惨留人。",
+                "继续处理老豆角未撕净的筋。",
+                "询问外孙最近的近况与忙碌程度，等待回应。"
+              ],
+              "relationships": [
+                {
+                  "entity_id": "xu",
+                  "stance": "温和邀请、不催迫，自愿讲述午饭做法；接受外孙帮忙洗菜，顺势问起他的近况，尚未得到回答。",
+                  "fact_ids": [
+                    "fq-wishes",
+                    "fq-invitation-r4",
+                    "fq-lunch-routine-account-r5",
+                    "fq-washing-assent-r6",
+                    "fq-asks-xu-recent-life-r6"
+                  ]
+                }
+              ],
+              "voice": "日常、温和，邀请不带催迫；从手边家务自然聊起近况。",
+              "belief_fact_ids": [
+                "fq-invitation-r2",
+                "fq-invitation-r4",
+                "fq-bean-washing-plan-r4",
+                "fq-wash-after-sorting-r5",
+                "fq-lunch-routine-account-r5",
+                "fq-older-bean-comment-r5",
+                "fq-washing-assent-r6",
+                "fq-asks-xu-recent-life-r6"
+              ],
+              "updated_revision": 6
+            }
+          ],
+          "arcs": [],
+          "style": {
+            "voice": "安静日常，以有限的观察、家务动作与自然对话推进。",
+            "perspective": "第二人称，许舟视角。",
+            "pace": "slow",
+            "detail": "balanced",
+            "avoid": [
+              "病危、拆迁、隐藏遗产、陌生来客或恋爱。",
+              "将计划或初步观察写成已完成修理。",
+              "替玩家承诺停留或作重大决定。",
+              "将隐藏事实直接变成角色已知。"
+            ],
+            "preference_refs": []
+          }
+        },
+        "story_time": "当日14:00",
+        "facts": [
+          {
+            "id": "chair-task",
+            "kind": "fact",
+            "text": "厨房旧椅子有点晃，方芹希望修稳；工具足够，许舟有基本木工经验，通常一个下午即可完成。",
+            "subject_id": "",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "ordinary-boundary",
+            "kind": "rule",
+            "text": "这次不要病危、拆迁、隐藏遗产、陌生来客或恋爱；普通波折允许。",
+            "subject_id": "",
+            "known": true,
+            "known_by": [],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-wishes",
+            "kind": "fact",
+            "text": "方芹希望椅子能继续用，也希望外孙能坐一会儿；她不愿用责备或卖惨留人。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-health",
+            "kind": "fact",
+            "text": "方芹没有危急健康变化。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "chair-plain",
+            "kind": "fact",
+            "text": "椅子没有机关或重大秘密。",
+            "subject_id": "chair",
+            "known": false,
+            "known_by": [],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-limits",
+            "kind": "fact",
+            "text": "方芹知道椅子的用途、许舟难得回来，不知道许舟未说的计划。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "chair-joint-inspection-r2",
+            "kind": "fact",
+            "text": "许舟检查发现椅腿与横档的一处接合受力时开缝，换方向试摇后晃动仍从这里传来；查看并触摸相邻木料后暂未发现明显裂纹，是否需要拆开重新上胶仍待进一步查看。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 2
+          },
+          {
+            "id": "fq-invitation-r2",
+            "kind": "statement",
+            "text": "方芹请许舟帮忙看看椅子，说自己还想接着用；她邀请许舟有空坐会儿，也表示有事可以先忙，不急着今天修。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 2
+          },
+          {
+            "id": "chair-inspection-stop-r2",
+            "kind": "fact",
+            "text": "许舟检查后将椅子摆到不挡路的墙边，没有坐上去试重，工具尚未取出，也尚未拆修。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 2
+          },
+          {
+            "id": "chair-disassembly-r3",
+            "kind": "fact",
+            "text": "许舟用木块垫着轻敲横档，退出松动接合的榫头；露出的木料边缘没有明显断裂，缝中有干硬旧胶屑。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "chair-reglued-clamped-r3",
+            "kind": "fact",
+            "text": "许舟清理松散旧胶并试合，确认接合能合到原位后薄涂木胶、重新合拢并用夹具夹紧，核对位置、查看四脚落地情况并擦去挤出的胶。轻推横档时原先容易张开的地方只剩很窄的线；胶尚未固化，许舟没有坐上去试重，最终承重与稳固程度尚未验证。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "xu-wait-for-glue-r3",
+            "kind": "statement",
+            "text": "许舟说先保持夹紧，等胶干透后再试。",
+            "subject_id": "xu",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "tools-placement-r3",
+            "kind": "fact",
+            "text": "本次操作结束时，木锤已放回工具箱，夹具仍留在椅子上，拧好盖子的木胶搁在桌角。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "fq-sorting-vegetables-r3",
+            "kind": "fact",
+            "text": "方芹回应许舟等胶干透再试的话后，将菜篮从椅旁挪远，另搬一张凳子坐下择菜。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "fq-invitation-r4",
+            "kind": "statement",
+            "text": "方芹表示先放着椅子等胶干透再试，并邀请许舟如果不忙就坐会儿、歇歇手。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "fq-dropped-bean-r4",
+            "kind": "fact",
+            "text": "方芹择菜时一根豆角滑落凳脚旁，没有碰到远处旧椅子的夹具。她搁稳搪瓷盆，扶凳沿站起，自行拾起豆角，单独放入旁边的小碟，没有叫许舟搭手；本段结束时豆角仍单独放着，尚未清洗。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "fq-bean-washing-plan-r4",
+            "kind": "statement",
+            "text": "方芹说落地的那根豆角等会儿洗洗再用。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "fq-resumes-sorting-r4",
+            "kind": "fact",
+            "text": "方芹重新坐下，将菜篮拉近脚边，继续折豆角、撕筋并往盆里添菜。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "chair-still-clamped-r4",
+            "kind": "fact",
+            "text": "旧椅子仍在墙边，接合处的夹具保持收紧；桌角仍搁着盖好的木胶，椅子下面旧布的一角微微卷起。本段没有拆夹具或试重。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "xu-tidies-tools-r5",
+            "kind": "fact",
+            "text": "许舟将垫过木锤的木块收进工具箱，把擦胶湿布另放一边，收起桌边零碎后合上工具箱并放回柜子下层；他将盖好的木胶往桌角里面挪，为搪瓷盆腾出空间。",
+            "subject_id": "xu",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 5
+          },
+          {
+            "id": "chair-remains-clamped-r5",
+            "kind": "fact",
+            "text": "墙边旧椅子的夹具仍收紧着，许舟未动椅子下面的旧布，本段没有拆夹具或试重。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 5
+          },
+          {
+            "id": "fq-wash-after-sorting-r5",
+            "kind": "statement",
+            "text": "方芹看向小碟后说，落地的那根豆角等这把择完再一起洗；清洗尚未发生。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 5
+          },
+          {
+            "id": "fq-lunch-routine-account-r5",
+            "kind": "statement",
+            "text": "方芹说最近中午做得简单，炒个菜、热口饭；菜择多了就分两顿，省得每回都弄。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 5
+          },
+          {
+            "id": "fq-older-bean-comment-r5",
+            "kind": "statement",
+            "text": "方芹撕一根豆角的粗筋时说这根老了，得多择一下。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 5
+          },
+          {
+            "id": "fq-sorting-progress-r5",
+            "kind": "fact",
+            "text": "方芹继续坐着折豆角、撕筋，将盆沿搭着的一截豆角拨回盆内；菜篮里还剩薄薄一层，她把撕过粗筋的那根单独搁在篮边，又拿起另一根继续择。许舟收拾时听她说完近况，尚未参与清洗。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 5
+          },
+          {
+            "id": "chair-curing-check-r6",
+            "kind": "fact",
+            "text": "许舟查看木胶标签的固化说明，对照其要求的等待时间，刚才上胶至今的时间仍远远不足；本段未松夹具、未动椅下旧布，也未试坐，最终承重与稳固程度仍未验证。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 6
+          },
+          {
+            "id": "xu-defer-seat-test-r6",
+            "kind": "statement",
+            "text": "许舟说还得等，不能光看接缝合上就试坐；方芹应了声。",
+            "subject_id": "xu",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 6
+          },
+          {
+            "id": "fq-washing-assent-r6",
+            "kind": "statement",
+            "text": "许舟提议帮忙洗菜并把小碟里的豆角一起洗，方芹同意让他先洗，表示自己再理理那根老豆角。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 6
+          },
+          {
+            "id": "vegetable-washing-started-r6",
+            "kind": "fact",
+            "text": "方芹择好篮底余下几根豆角，把盆端到水池边。许舟将小碟里掉过地的豆角单独冲洗并用指腹搓过，再放进盆里，开小水流清洗盆中豆角；整盆清洗尚未完成。方芹仍坐在凳上处理老豆角边缘未撕净的筋。",
+            "subject_id": "xu",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 6
+          },
+          {
+            "id": "fq-asks-xu-recent-life-r6",
+            "kind": "statement",
+            "text": "方芹问许舟最近怎么样、忙不忙，等他接话；许舟尚未作答。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 6
+          }
+        ],
+        "entities": [
+          {
+            "id": "xu",
+            "kind": "character",
+            "name": "许舟",
+            "description": "",
+            "known": true,
+            "related_ids": []
+          },
+          {
+            "id": "fq",
+            "kind": "character",
+            "name": "方芹",
+            "description": "许舟的外婆",
+            "known": true,
+            "related_ids": []
+          },
+          {
+            "id": "chair",
+            "kind": "item",
+            "name": "厨房的旧椅子",
+            "description": "",
+            "known": true,
+            "related_ids": []
+          }
+        ],
+        "threads": []
+      }
+    },
+    {
+      "page": {
+        "revision": 7,
+        "mode": "act",
+        "input": "我归位工具，给自己倒杯水，在旁边坐一会儿。",
+        "text": "你关掉水龙头，把盆留在池里。柜子下层的工具箱已经收妥，不必再动；你把桌角盖好的木胶往里放稳，腾出一块地方搁杯子。墙边的旧椅子仍夹着夹具。你倒了杯水，从旁边搬来另一张小凳，放平，坐到外婆近旁。\n\n方芹捏着老豆角的一端，慢慢往下撕。细筋拉到中间断了，她用指甲挑了两下，最后把那一小段掐掉，丢进菜篮。“这截不要了。”她把余下的豆角折开，搁到水池边。你端起杯子喝水，杯壁上的水珠沾湿了指腹。她没有再问你忙不忙，只把膝上的碎筋拢进篮里，起身走到水池前。\n\n水龙头重新响起来，比刚才开得还小。她将手边的豆角放进盆里，手掌探下去，轻轻翻动，搪瓷盆偶尔碰着池壁，叩一声。你坐着，脚往凳子底下收了收，给她留出转身的地方。盆里的菜还在洗，她先前那句问话也还没有得到回答；你把杯子放在手边，听水流穿过豆角间的空隙。",
+        "story_time": "当日14:04",
+        "created_at": "2026-10-19T09:44:54.571108Z",
+        "suggestions": [
+          "说说自己最近的近况。",
+          "再坐一会儿，慢慢喝水。"
+        ],
+        "outcome": "continues"
+      },
+      "state": {
+        "narrative": {
+          "version": 1,
+          "through_revision": 7,
+          "episodes": [
+            {
+              "id": "episode-chair-check",
+              "summary": "许舟回老家休假，将旧椅子的晃动定位到一处椅腿与横档接合。方芹邀请他有空坐会儿，也表示不急着今天修。许舟借用家中工具，退出松动榫头，未见露出木料明显断裂，清胶试合后重新上胶夹紧。接合开缝减小，但胶未固化，尚未试重或确认最终稳固。方芹另搬凳子择菜，许舟当时尚未回应陪坐邀请。",
+              "from_revision": 1,
+              "to_revision": 3,
+              "fact_ids": [
+                "chair-task",
+                "chair-joint-inspection-r2",
+                "fq-invitation-r2",
+                "chair-disassembly-r3",
+                "chair-reglued-clamped-r3",
+                "xu-wait-for-glue-r3",
+                "tools-placement-r3",
+                "fq-sorting-vegetables-r3"
+              ]
+            },
+            {
+              "id": "episode-bean-interruption-r4",
+              "summary": "等待木胶期间，方芹再次温和邀请许舟稍坐。一根豆角滑落，她自行起身拾起并单独放在小碟，表示稍后洗过再用；随后把菜篮拉近，继续择菜。此时豆角尚未清洗，椅子仍夹紧，许舟没有接受陪坐邀请或承担新任务。",
+              "from_revision": 4,
+              "to_revision": 4,
+              "fact_ids": [
+                "fq-invitation-r4",
+                "fq-dropped-bean-r4",
+                "fq-bean-washing-plan-r4",
+                "fq-resumes-sorting-r4",
+                "chair-still-clamped-r4"
+              ]
+            },
+            {
+              "id": "episode-tidying-and-chat-r5",
+              "summary": "许舟收好木块、湿布和桌边零碎，将工具箱放回柜子下层，挪木胶给盆留位置，一边听方芹闲聊。方芹说落地豆角等择完一起洗，并自述最近午饭简单、菜多时分两顿。她继续处理豆角粗筋，将其中一根单独搁在篮边；当时篮中仍有余菜，清洗未开始，椅子仍夹紧未验收。",
+              "from_revision": 5,
+              "to_revision": 5,
+              "fact_ids": [
+                "xu-tidies-tools-r5",
+                "chair-remains-clamped-r5",
+                "fq-wash-after-sorting-r5",
+                "fq-lunch-routine-account-r5",
+                "fq-older-bean-comment-r5",
+                "fq-sorting-progress-r5"
+              ]
+            },
+            {
+              "id": "episode-label-and-washing-r6",
+              "summary": "许舟查看木胶标签，确认等待时间不足，告知方芹还不能试坐，保留夹具与椅下旧布。经方芹同意，他开始洗菜，已将落地豆角单独冲洗搓过并放回盆中，整盆尚未洗完。方芹继续理老豆角的筋，问他最近怎么样、忙不忙；回答尚未发生。",
+              "from_revision": 6,
+              "to_revision": 6,
+              "fact_ids": [
+                "chair-curing-check-r6",
+                "xu-defer-seat-test-r6",
+                "fq-washing-assent-r6",
+                "vegetable-washing-started-r6",
+                "fq-asks-xu-recent-life-r6"
+              ]
+            },
+            {
+              "id": "episode-rest-and-washing-r7",
+              "summary": "许舟关水留盆，将木胶放稳后倒水，另搬小凳坐到方芹近旁喝水；工具箱已归位，旧椅仍夹紧未试坐。方芹掐掉老豆角难处理的一小段，收拢碎筋后起身接着洗菜。许舟收脚给她让出转身空间，仍未回答近况询问；段末清洗尚未完成。",
+              "from_revision": 7,
+              "to_revision": 7,
+              "fact_ids": [
+                "xu-rests-with-water-r7",
+                "chair-still-clamped-r7",
+                "fq-finishes-old-bean-r7",
+                "fq-resumes-washing-r7",
+                "xu-question-unanswered-r7"
+              ]
+            }
+          ],
+          "characters": [
+            {
+              "entity_id": "xu",
+              "goals": [
+                "按自己会的办法修理旧椅子；已重新上胶夹紧，等待固化后检验，不提前试坐。",
+                "在外婆近旁坐一会儿、喝水休息；近况问题尚未回答。"
+              ],
+              "relationships": [
+                {
+                  "entity_id": "fq",
+                  "stance": "已坐到外婆近旁喝水，外婆接续洗菜时收脚让出空间；尚未回答近况询问，未承诺停留多久或留下吃饭。",
+                  "fact_ids": [
+                    "fq-washing-assent-r6",
+                    "vegetable-washing-started-r6",
+                    "xu-rests-with-water-r7",
+                    "fq-resumes-washing-r7",
+                    "xu-question-unanswered-r7"
+                  ]
+                }
+              ],
+              "voice": "第二人称，以具体观察和手上动作呈现，不替玩家承诺。",
+              "belief_fact_ids": [
+                "xu-wait-for-glue-r3",
+                "xu-defer-seat-test-r6"
+              ],
+              "updated_revision": 7
+            },
+            {
+              "entity_id": "fq",
+              "goals": [
+                "让旧椅子继续使用。",
+                "希望外孙能坐一会儿，不用责备或卖惨留人。",
+                "继续清洗盆里的豆角，尚未洗完。",
+                "曾询问外孙近况与忙碌程度，未获回答，本段没有追问。"
+              ],
+              "relationships": [
+                {
+                  "entity_id": "xu",
+                  "stance": "温和邀请、不催迫；外孙已在近旁坐下，她处理完老豆角后自主接续清洗，没有再次追问他的近况。",
+                  "fact_ids": [
+                    "fq-wishes",
+                    "fq-invitation-r4",
+                    "fq-asks-xu-recent-life-r6",
+                    "xu-rests-with-water-r7",
+                    "fq-finishes-old-bean-r7",
+                    "fq-resumes-washing-r7",
+                    "xu-question-unanswered-r7"
+                  ]
+                }
+              ],
+              "voice": "日常、温和，邀请不带催迫；从手边家务自然聊起近况，也允许沉默。",
+              "belief_fact_ids": [
+                "fq-invitation-r2",
+                "fq-invitation-r4",
+                "fq-bean-washing-plan-r4",
+                "fq-wash-after-sorting-r5",
+                "fq-lunch-routine-account-r5",
+                "fq-older-bean-comment-r5",
+                "fq-washing-assent-r6",
+                "fq-asks-xu-recent-life-r6"
+              ],
+              "updated_revision": 7
+            }
+          ],
+          "arcs": [],
+          "style": {
+            "voice": "安静日常，以有限的观察、家务动作与自然对话推进。",
+            "perspective": "第二人称，许舟视角。",
+            "pace": "slow",
+            "detail": "balanced",
+            "avoid": [
+              "病危、拆迁、隐藏遗产、陌生来客或恋爱。",
+              "将计划或初步观察写成已完成修理。",
+              "替玩家承诺停留或作重大决定。",
+              "将隐藏事实直接变成角色已知。"
+            ],
+            "preference_refs": []
+          }
+        },
+        "story_time": "当日14:04",
+        "facts": [
+          {
+            "id": "chair-task",
+            "kind": "fact",
+            "text": "厨房旧椅子有点晃，方芹希望修稳；工具足够，许舟有基本木工经验，通常一个下午即可完成。",
+            "subject_id": "",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "ordinary-boundary",
+            "kind": "rule",
+            "text": "这次不要病危、拆迁、隐藏遗产、陌生来客或恋爱；普通波折允许。",
+            "subject_id": "",
+            "known": true,
+            "known_by": [],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-wishes",
+            "kind": "fact",
+            "text": "方芹希望椅子能继续用，也希望外孙能坐一会儿；她不愿用责备或卖惨留人。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-health",
+            "kind": "fact",
+            "text": "方芹没有危急健康变化。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "chair-plain",
+            "kind": "fact",
+            "text": "椅子没有机关或重大秘密。",
+            "subject_id": "chair",
+            "known": false,
+            "known_by": [],
+            "source_revision": 1
+          },
+          {
+            "id": "fq-limits",
+            "kind": "fact",
+            "text": "方芹知道椅子的用途、许舟难得回来，不知道许舟未说的计划。",
+            "subject_id": "fq",
+            "known": false,
+            "known_by": [
+              "fq"
+            ],
+            "source_revision": 1
+          },
+          {
+            "id": "chair-joint-inspection-r2",
+            "kind": "fact",
+            "text": "许舟检查发现椅腿与横档的一处接合受力时开缝，换方向试摇后晃动仍从这里传来；查看并触摸相邻木料后暂未发现明显裂纹，是否需要拆开重新上胶仍待进一步查看。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 2
+          },
+          {
+            "id": "fq-invitation-r2",
+            "kind": "statement",
+            "text": "方芹请许舟帮忙看看椅子，说自己还想接着用；她邀请许舟有空坐会儿，也表示有事可以先忙，不急着今天修。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 2
+          },
+          {
+            "id": "chair-inspection-stop-r2",
+            "kind": "fact",
+            "text": "许舟检查后将椅子摆到不挡路的墙边，没有坐上去试重，工具尚未取出，也尚未拆修。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 2
+          },
+          {
+            "id": "chair-disassembly-r3",
+            "kind": "fact",
+            "text": "许舟用木块垫着轻敲横档，退出松动接合的榫头；露出的木料边缘没有明显断裂，缝中有干硬旧胶屑。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "chair-reglued-clamped-r3",
+            "kind": "fact",
+            "text": "许舟清理松散旧胶并试合，确认接合能合到原位后薄涂木胶、重新合拢并用夹具夹紧，核对位置、查看四脚落地情况并擦去挤出的胶。轻推横档时原先容易张开的地方只剩很窄的线；胶尚未固化，许舟没有坐上去试重，最终承重与稳固程度尚未验证。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "xu-wait-for-glue-r3",
+            "kind": "statement",
+            "text": "许舟说先保持夹紧，等胶干透后再试。",
+            "subject_id": "xu",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "tools-placement-r3",
+            "kind": "fact",
+            "text": "本次操作结束时，木锤已放回工具箱，夹具仍留在椅子上，拧好盖子的木胶搁在桌角。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "fq-sorting-vegetables-r3",
+            "kind": "fact",
+            "text": "方芹回应许舟等胶干透再试的话后，将菜篮从椅旁挪远，另搬一张凳子坐下择菜。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 3
+          },
+          {
+            "id": "fq-invitation-r4",
+            "kind": "statement",
+            "text": "方芹表示先放着椅子等胶干透再试，并邀请许舟如果不忙就坐会儿、歇歇手。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "fq-dropped-bean-r4",
+            "kind": "fact",
+            "text": "方芹择菜时一根豆角滑落凳脚旁，没有碰到远处旧椅子的夹具。她搁稳搪瓷盆，扶凳沿站起，自行拾起豆角，单独放入旁边的小碟，没有叫许舟搭手；本段结束时豆角仍单独放着，尚未清洗。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "fq-bean-washing-plan-r4",
+            "kind": "statement",
+            "text": "方芹说落地的那根豆角等会儿洗洗再用。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "fq-resumes-sorting-r4",
+            "kind": "fact",
+            "text": "方芹重新坐下，将菜篮拉近脚边，继续折豆角、撕筋并往盆里添菜。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "chair-still-clamped-r4",
+            "kind": "fact",
+            "text": "旧椅子仍在墙边，接合处的夹具保持收紧；桌角仍搁着盖好的木胶，椅子下面旧布的一角微微卷起。本段没有拆夹具或试重。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 4
+          },
+          {
+            "id": "xu-tidies-tools-r5",
+            "kind": "fact",
+            "text": "许舟将垫过木锤的木块收进工具箱，把擦胶湿布另放一边，收起桌边零碎后合上工具箱并放回柜子下层；他将盖好的木胶往桌角里面挪，为搪瓷盆腾出空间。",
+            "subject_id": "xu",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 5
+          },
+          {
+            "id": "chair-remains-clamped-r5",
+            "kind": "fact",
+            "text": "墙边旧椅子的夹具仍收紧着，许舟未动椅子下面的旧布，本段没有拆夹具或试重。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 5
+          },
+          {
+            "id": "fq-wash-after-sorting-r5",
+            "kind": "statement",
+            "text": "方芹看向小碟后说，落地的那根豆角等这把择完再一起洗；清洗尚未发生。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 5
+          },
+          {
+            "id": "fq-lunch-routine-account-r5",
+            "kind": "statement",
+            "text": "方芹说最近中午做得简单，炒个菜、热口饭；菜择多了就分两顿，省得每回都弄。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 5
+          },
+          {
+            "id": "fq-older-bean-comment-r5",
+            "kind": "statement",
+            "text": "方芹撕一根豆角的粗筋时说这根老了，得多择一下。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 5
+          },
+          {
+            "id": "fq-sorting-progress-r5",
+            "kind": "fact",
+            "text": "方芹继续坐着折豆角、撕筋，将盆沿搭着的一截豆角拨回盆内；菜篮里还剩薄薄一层，她把撕过粗筋的那根单独搁在篮边，又拿起另一根继续择。许舟收拾时听她说完近况，尚未参与清洗。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 5
+          },
+          {
+            "id": "chair-curing-check-r6",
+            "kind": "fact",
+            "text": "许舟查看木胶标签的固化说明，对照其要求的等待时间，刚才上胶至今的时间仍远远不足；本段未松夹具、未动椅下旧布，也未试坐，最终承重与稳固程度仍未验证。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 6
+          },
+          {
+            "id": "xu-defer-seat-test-r6",
+            "kind": "statement",
+            "text": "许舟说还得等，不能光看接缝合上就试坐；方芹应了声。",
+            "subject_id": "xu",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 6
+          },
+          {
+            "id": "fq-washing-assent-r6",
+            "kind": "statement",
+            "text": "许舟提议帮忙洗菜并把小碟里的豆角一起洗，方芹同意让他先洗，表示自己再理理那根老豆角。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 6
+          },
+          {
+            "id": "vegetable-washing-started-r6",
+            "kind": "fact",
+            "text": "方芹择好篮底余下几根豆角，把盆端到水池边。许舟将小碟里掉过地的豆角单独冲洗并用指腹搓过，再放进盆里，开小水流清洗盆中豆角；整盆清洗尚未完成。方芹仍坐在凳上处理老豆角边缘未撕净的筋。",
+            "subject_id": "xu",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 6
+          },
+          {
+            "id": "fq-asks-xu-recent-life-r6",
+            "kind": "statement",
+            "text": "方芹问许舟最近怎么样、忙不忙，等他接话；许舟尚未作答。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 6
+          },
+          {
+            "id": "xu-rests-with-water-r7",
+            "kind": "fact",
+            "text": "许舟关掉水龙头，将盆留在水池里；工具箱已收妥，他仅将桌角盖好的木胶往里放稳，随后倒水、另搬小凳坐到方芹近旁喝水，最后把杯子放在手边。",
+            "subject_id": "xu",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 7
+          },
+          {
+            "id": "chair-still-clamped-r7",
+            "kind": "fact",
+            "text": "许舟坐下休息时，墙边旧椅子仍夹着夹具；本段没有拆夹具或试坐。",
+            "subject_id": "chair",
+            "known": true,
+            "known_by": [
+              "xu"
+            ],
+            "source_revision": 7
+          },
+          {
+            "id": "fq-finishes-old-bean-r7",
+            "kind": "fact",
+            "text": "方芹撕老豆角的筋时细筋中途断开，她用指甲挑过后掐掉一小段丢进菜篮，将余下豆角折开搁到水池边，又将膝上的碎筋拢进篮里。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 7
+          },
+          {
+            "id": "fq-resumes-washing-r7",
+            "kind": "fact",
+            "text": "方芹起身到水池前，开小水流，将手边豆角放进盆里并轻轻翻洗；许舟坐在近旁收脚给她留出转身空间。段末整盆菜仍在清洗，尚未完成。",
+            "subject_id": "fq",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 7
+          },
+          {
+            "id": "xu-question-unanswered-r7",
+            "kind": "fact",
+            "text": "方芹本段没有再追问许舟忙不忙，许舟坐在近旁喝水，仍未回答她先前关于近况与忙碌程度的问题。",
+            "subject_id": "xu",
+            "known": true,
+            "known_by": [
+              "xu",
+              "fq"
+            ],
+            "source_revision": 7
+          }
+        ],
+        "entities": [
+          {
+            "id": "xu",
+            "kind": "character",
+            "name": "许舟",
+            "description": "",
+            "known": true,
+            "related_ids": []
+          },
+          {
+            "id": "fq",
+            "kind": "character",
+            "name": "方芹",
+            "description": "许舟的外婆",
+            "known": true,
+            "related_ids": []
+          },
+          {
+            "id": "chair",
+            "kind": "item",
+            "name": "厨房的旧椅子",
+            "description": "",
+            "known": true,
+            "related_ids": []
+          }
+        ],
+        "threads": []
+      }
+    }
+  ]
+}

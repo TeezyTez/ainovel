@@ -13,7 +13,7 @@ import (
 )
 
 const experienceActive = `-- name: ExperienceActive :many
-SELECT account_id, request_id, experience_id, branch_id, digest, mode, input, status, base_revision, committed_revision, error_code, fence, lease_until, context, candidate, created_at, updated_at FROM experience_operations WHERE account_id=$1 AND experience_id=$2 AND branch_id=$3 AND status IN ('pending','generating')
+SELECT account_id, request_id, experience_id, branch_id, digest, mode, input, status, base_revision, committed_revision, error_code, fence, lease_until, context, candidate, created_at, updated_at, reading_request, progress_phase, progress_seq, narrative_approval FROM experience_operations WHERE account_id=$1 AND experience_id=$2 AND branch_id=$3 AND status IN ('pending','generating')
 `
 
 type ExperienceActiveParams struct {
@@ -49,6 +49,10 @@ func (q *Queries) ExperienceActive(ctx context.Context, arg ExperienceActivePara
 			&i.Candidate,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ReadingRequest,
+			&i.ProgressPhase,
+			&i.ProgressSeq,
+			&i.NarrativeApproval,
 		); err != nil {
 			return nil, err
 		}
@@ -216,7 +220,7 @@ func (q *Queries) ExperienceBranches(ctx context.Context, arg ExperienceBranches
 }
 
 const experienceClaim = `-- name: ExperienceClaim :one
-UPDATE experience_operations SET status='generating',updated_at=now() WHERE account_id=$1 AND request_id=$2 AND status='pending' AND lease_until>now() RETURNING account_id, request_id, experience_id, branch_id, digest, mode, input, status, base_revision, committed_revision, error_code, fence, lease_until, context, candidate, created_at, updated_at
+UPDATE experience_operations SET status='generating',updated_at=now() WHERE account_id=$1 AND request_id=$2 AND status='pending' AND lease_until>now() RETURNING account_id, request_id, experience_id, branch_id, digest, mode, input, status, base_revision, committed_revision, error_code, fence, lease_until, context, candidate, created_at, updated_at, reading_request, progress_phase, progress_seq, narrative_approval
 `
 
 type ExperienceClaimParams struct {
@@ -245,6 +249,10 @@ func (q *Queries) ExperienceClaim(ctx context.Context, arg ExperienceClaimParams
 		&i.Candidate,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ReadingRequest,
+		&i.ProgressPhase,
+		&i.ProgressSeq,
+		&i.NarrativeApproval,
 	)
 	return i, err
 }
@@ -282,7 +290,7 @@ func (q *Queries) ExperienceDatabaseTime(ctx context.Context) (time.Time, error)
 }
 
 const experienceExpired = `-- name: ExperienceExpired :many
-SELECT account_id, request_id, experience_id, branch_id, digest, mode, input, status, base_revision, committed_revision, error_code, fence, lease_until, context, candidate, created_at, updated_at FROM experience_operations WHERE status IN ('pending','generating') AND lease_until<=now() ORDER BY created_at
+SELECT account_id, request_id, experience_id, branch_id, digest, mode, input, status, base_revision, committed_revision, error_code, fence, lease_until, context, candidate, created_at, updated_at, reading_request, progress_phase, progress_seq, narrative_approval FROM experience_operations WHERE status IN ('pending','generating') AND lease_until<=now() ORDER BY created_at
 `
 
 func (q *Queries) ExperienceExpired(ctx context.Context) ([]ExperienceOperation, error) {
@@ -312,6 +320,10 @@ func (q *Queries) ExperienceExpired(ctx context.Context) ([]ExperienceOperation,
 			&i.Candidate,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ReadingRequest,
+			&i.ProgressPhase,
+			&i.ProgressSeq,
+			&i.NarrativeApproval,
 		); err != nil {
 			return nil, err
 		}
@@ -480,7 +492,7 @@ func (q *Queries) ExperienceHeartbeat(ctx context.Context, arg ExperienceHeartbe
 }
 
 const experienceLatestOperation = `-- name: ExperienceLatestOperation :many
-SELECT account_id, request_id, experience_id, branch_id, digest, mode, input, status, base_revision, committed_revision, error_code, fence, lease_until, context, candidate, created_at, updated_at FROM experience_operations WHERE account_id=$1 AND experience_id=$2 AND branch_id=$3 ORDER BY created_at DESC,request_id LIMIT 1
+SELECT account_id, request_id, experience_id, branch_id, digest, mode, input, status, base_revision, committed_revision, error_code, fence, lease_until, context, candidate, created_at, updated_at, reading_request, progress_phase, progress_seq, narrative_approval FROM experience_operations WHERE account_id=$1 AND experience_id=$2 AND branch_id=$3 ORDER BY created_at DESC,request_id LIMIT 1
 `
 
 type ExperienceLatestOperationParams struct {
@@ -516,6 +528,10 @@ func (q *Queries) ExperienceLatestOperation(ctx context.Context, arg ExperienceL
 			&i.Candidate,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ReadingRequest,
+			&i.ProgressPhase,
+			&i.ProgressSeq,
+			&i.NarrativeApproval,
 		); err != nil {
 			return nil, err
 		}
@@ -565,7 +581,7 @@ func (q *Queries) ExperienceList(ctx context.Context, accountID string) ([]Exper
 
 const experienceOperationCreate = `-- name: ExperienceOperationCreate :one
 INSERT INTO experience_operations(account_id,request_id,experience_id,branch_id,digest,mode,input,status,base_revision,fence,lease_until)
-VALUES($1,$2,$3,$4,$5,$6,$7,'pending',$8,$9,now()+$10::int*interval '1 second') RETURNING account_id, request_id, experience_id, branch_id, digest, mode, input, status, base_revision, committed_revision, error_code, fence, lease_until, context, candidate, created_at, updated_at
+VALUES($1,$2,$3,$4,$5,$6,$7,'pending',$8,$9,now()+$10::int*interval '1 second') RETURNING account_id, request_id, experience_id, branch_id, digest, mode, input, status, base_revision, committed_revision, error_code, fence, lease_until, context, candidate, created_at, updated_at, reading_request, progress_phase, progress_seq, narrative_approval
 `
 
 type ExperienceOperationCreateParams struct {
@@ -613,12 +629,16 @@ func (q *Queries) ExperienceOperationCreate(ctx context.Context, arg ExperienceO
 		&i.Candidate,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ReadingRequest,
+		&i.ProgressPhase,
+		&i.ProgressSeq,
+		&i.NarrativeApproval,
 	)
 	return i, err
 }
 
 const experienceOperationGet = `-- name: ExperienceOperationGet :one
-SELECT account_id, request_id, experience_id, branch_id, digest, mode, input, status, base_revision, committed_revision, error_code, fence, lease_until, context, candidate, created_at, updated_at FROM experience_operations WHERE account_id=$1 AND request_id=$2
+SELECT account_id, request_id, experience_id, branch_id, digest, mode, input, status, base_revision, committed_revision, error_code, fence, lease_until, context, candidate, created_at, updated_at, reading_request, progress_phase, progress_seq, narrative_approval FROM experience_operations WHERE account_id=$1 AND request_id=$2
 `
 
 type ExperienceOperationGetParams struct {
@@ -647,6 +667,10 @@ func (q *Queries) ExperienceOperationGet(ctx context.Context, arg ExperienceOper
 		&i.Candidate,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.ReadingRequest,
+		&i.ProgressPhase,
+		&i.ProgressSeq,
+		&i.NarrativeApproval,
 	)
 	return i, err
 }

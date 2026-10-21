@@ -1,0 +1,165 @@
+{
+  "id": "SYS-014",
+  "source_sha256": "37a6ff7987fbc6ebacfadea70f6e8cdffc2abf0d2cfdb2ed1d2d3d729fd679d6",
+  "source_line": 2574,
+  "variant": "base",
+  "seed": "第二人称，海边社区的日常经历。你是刚搬来的新居民。",
+  "opening": "你刚搬到海边社区。邻居先前答应借给你一把梯子，你还没去取，归还时间也没约定。店里的灯油已经一瓶不剩；家中地下储水池里有多少水，你还不清楚。",
+  "state": {
+    "story_time": "搬来海边社区后",
+    "entities": [
+      {
+        "id": "player",
+        "kind": "character",
+        "name": "你",
+        "description": "海边社区的新居民",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "neighbor",
+        "kind": "character",
+        "name": "邻居",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "ladder",
+        "kind": "item",
+        "name": "邻居的梯子",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "shop",
+        "kind": "place",
+        "name": "店铺",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "home",
+        "kind": "place",
+        "name": "你的家",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "reservoir",
+        "kind": "item",
+        "name": "地下储水池",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      }
+    ],
+    "facts": [
+      {
+        "id": "world-conventions",
+        "kind": "rule",
+        "text": "这里是日常海边社区，没有等级、金币、魔法或量化关系系统；信誉等级在这个世界不适用。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [],
+        "source_revision": 1
+      },
+      {
+        "id": "new-resident",
+        "kind": "fact",
+        "text": "玩家刚搬来，是海边社区的新居民。",
+        "subject_id": "player",
+        "known": true,
+        "known_by": [
+          "player",
+          "neighbor"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "ladder-agreement",
+        "kind": "fact",
+        "text": "邻居先前已经答应把自己的梯子借给玩家，梯子现在仍在邻居处，尚未交给玩家。",
+        "subject_id": "ladder",
+        "known": true,
+        "known_by": [
+          "player",
+          "neighbor"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "return-undecided",
+        "kind": "fact",
+        "text": "梯子的归还日期尚未约定。",
+        "subject_id": "ladder",
+        "known": true,
+        "known_by": [
+          "player",
+          "neighbor"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "lamp-oil-stock",
+        "kind": "fact",
+        "text": "店铺现有灯油为0瓶。",
+        "subject_id": "shop",
+        "known": true,
+        "known_by": [
+          "player"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "water-unknown",
+        "kind": "fact",
+        "text": "玩家不知道家中地下储水池的储水量，尚无已记录的测量结果。",
+        "subject_id": "reservoir",
+        "known": true,
+        "known_by": [
+          "player"
+        ],
+        "source_revision": 1
+      }
+    ],
+    "threads": []
+  },
+  "steps": [
+    {
+      "id": "S01",
+      "mode": "ask",
+      "input": "我有多少钱、与邻居的关系如何、家里有多少储水？"
+    },
+    {
+      "id": "S02",
+      "mode": "act",
+      "input": "去向邻居借那把已经答应借我的梯子，问他是否有方便归还的时间。"
+    },
+    {
+      "id": "S03",
+      "mode": "harness",
+      "input": "展开资料、切表格/文字视图、排序包含0/null/不适用的混合记录。"
+    },
+    {
+      "id": "S04",
+      "mode": "read",
+      "input": "继续这段日常，不要求新增数值面板。"
+    },
+    {
+      "id": "S05",
+      "mode": "harness",
+      "input": "正控制：在另一新世界正式定义两种币及3比1固定汇率，再提出换算。"
+    }
+  ],
+  "private_tokens": [],
+  "omissions": [
+    "No cash balance, quantitative affection, water measurement, exact date or neighbor name is supplied by the source or invented by this initial fixture. Ordinary details can be generated lawfully later.",
+    "S03 requires actual information-view switching and mixed-value sorting; the generic service adapter cannot count a snapshot as this UI interaction.",
+    "S05 requires a separate formally created currency world and actual conversion request. This base fixture does not implement that positive control and cannot claim H3 from leaving numbers unknown.",
+    "The zero-to-unknown and formally quantified relationship counterfactuals remain separate unexecuted variants."
+  ]
+}

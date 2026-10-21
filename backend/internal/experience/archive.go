@@ -100,6 +100,9 @@ func (s *Service) ExportArchive(ctx context.Context, account string) (Archive, e
 			if err = StrictJSON(branch.State, &b.State); err != nil {
 				return out, fail("history_unavailable")
 			}
+			if b.State.LiteraryMemory != nil && b.State.LiteraryMemory.Version == 2 {
+				out.Version = 2
+			}
 			pages, err := q.ExperienceArchivePages(ctx, pgq.ExperienceArchivePagesParams{AccountID: account, ExperienceID: row.ID, BranchID: branch.ID})
 			if err != nil {
 				return out, err
@@ -115,6 +118,9 @@ func (s *Service) ExportArchive(ctx context.Context, account string) (Archive, e
 				}
 				if p.Page.Revision != page.Revision {
 					return out, fail("history_unavailable")
+				}
+				if p.State.LiteraryMemory != nil && p.State.LiteraryMemory.Version == 2 {
+					out.Version = 2
 				}
 				p.Page.Reader = ProjectReader(p.State, p.Page.Revision)
 				b.Pages = append(b.Pages, p)
@@ -275,7 +281,7 @@ func archiveTime(t time.Time) bool { return !t.IsZero() && t.Year() >= 1 && t.Ye
 func archiveText(s string) bool    { return textOK(s) && len(s) <= MaxArchiveBytes }
 func validateArchive(a Archive) error {
 	bad := func() error { return fail("invalid_archive") }
-	if a.Format != archiveFormat || a.Version != 1 || a.Experiences == nil || len(a.Experiences) > 1000 {
+	if a.Format != archiveFormat || (a.Version != 1 && a.Version != 2) || a.Experiences == nil || len(a.Experiences) > 1000 {
 		return bad()
 	}
 	ids := map[string]bool{}
@@ -287,6 +293,9 @@ func validateArchive(a Archive) error {
 		ids[e.ID] = true
 		branches := map[string]ArchiveBranch{}
 		for _, b := range e.Branches {
+			if a.Version == 1 && b.State.LiteraryMemory != nil && b.State.LiteraryMemory.Version == 2 {
+				return bad()
+			}
 			if !keyOK(b.ID) || !archiveText(b.Name) || len(b.Name) > 512 || !archiveText(b.Title) || !archiveTime(b.CreatedAt) || b.Revision < 0 || b.Revision > maxArchivePages || b.Pages == nil || int64(len(b.Pages)) != b.Revision {
 				return bad()
 			}
@@ -303,11 +312,17 @@ func validateArchive(a Archive) error {
 			if validateArchiveState(b.State, b.Revision) != nil {
 				return bad()
 			}
+			if validateMemorySources(b.State.LiteraryMemory, b.Pages) != nil {
+				return bad()
+			}
 			total += len(b.Pages)
 			if total > maxArchivePages {
 				return bad()
 			}
 			for i, p := range b.Pages {
+				if a.Version == 1 && p.State.LiteraryMemory != nil && p.State.LiteraryMemory.Version == 2 {
+					return bad()
+				}
 				if p.Page.Revision != int64(i+1) || !archiveText(p.Title) || !archiveText(p.Page.Text) || !utf8.ValidString(p.Page.Input) || len(p.Page.Input) > 32<<10 || !archiveTime(p.CreatedAt) || !archiveTime(p.Page.CreatedAt) || p.Page.Suggestions == nil || p.Page.StoryTime != p.State.StoryTime {
 					return bad()
 				}
@@ -331,6 +346,9 @@ func validateArchive(a Archive) error {
 					}
 				}
 				if validateArchiveState(p.State, p.Page.Revision) != nil {
+					return bad()
+				}
+				if validateMemorySources(p.State.LiteraryMemory, b.Pages[:i+1]) != nil {
 					return bad()
 				}
 				if p.Page.Mode == "ask" && i > 0 && (b.ParentRevision == nil || *b.ParentRevision != p.Page.Revision) && !reflect.DeepEqual(p.State, b.Pages[i-1].State) {
@@ -380,7 +398,16 @@ func validateArchive(a Archive) error {
 						oldPage.Reader, newPage.Reader = nil, nil
 						oldPage.InteractionSnapshot, newPage.InteractionSnapshot = nil, nil
 						oldPage.Text = b.Changes.Polish.Text
-						if !reflect.DeepEqual(oldPage, newPage) || !reflect.DeepEqual(original.State, changed.State) || original.Title != changed.Title {
+						expectedState := original.State
+						invalidateLiteraryForEdit(&expectedState, at+1, false)
+						stateMatches := reflect.DeepEqual(expectedState, changed.State)
+						// Older exports predate sourced literary memory and retained
+						// their notebook on polish. Accept those historical bytes;
+						// sourced indexes must follow current invalidation semantics.
+						if original.State.LiteraryMemory == nil && changed.State.LiteraryMemory == nil {
+							stateMatches = stateMatches || reflect.DeepEqual(original.State, changed.State)
+						}
+						if !reflect.DeepEqual(oldPage, newPage) || !stateMatches || original.Title != changed.Title {
 							return bad()
 						}
 					} else {
@@ -421,6 +448,12 @@ func validateArchive(a Archive) error {
 
 func validateArchiveState(state State, revision int64) error {
 	bad := func() error { return fail("invalid_archive") }
+	if validateNarrativeState(state.Narrative, state, revision) != nil {
+		return bad()
+	}
+	if validateLiteraryMemoryState(state.LiteraryMemory, state, revision) != nil {
+		return bad()
+	}
 	if state.Facts == nil || state.Entities == nil || state.Threads == nil || !utf8.ValidString(state.StoryTime) {
 		return bad()
 	}

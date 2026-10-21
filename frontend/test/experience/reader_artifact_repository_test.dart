@@ -56,6 +56,109 @@ Json response({
 };
 
 void main() {
+  // Controlled time and fixed transport responses exercise scheduling only;
+  // they do not measure model latency or narrative quality.
+  testWidgets('自动整理先读取现有作品，在1200毫秒阅读窗口后才发起准备', (tester) async {
+    final journal = MemoryJournal(), methods = <String>[];
+    final repo = ReaderArtifactRepository(
+      client: PortalServiceClient(
+        () => 'https://api.invalid',
+        client: MockClient((request) async {
+          methods.add(request.method);
+          return http.Response('{"artifact":null,"revisions":[]}', 200);
+        }),
+      ),
+      journal: journal,
+      scope: 'scope',
+      experienceId: 'story',
+      branchId: 'branch',
+      revision: 3,
+      isCurrent: () => true,
+    );
+    addTearDown(repo.dispose);
+    final preparing = repo.prepareAutomatically();
+    await tester.pump();
+    expect(methods, ['GET']);
+    expect(repo.busy, isFalse);
+    expect(repo.blocksStoryInput, isFalse);
+    expect((await journal.read('scope'))['pending'], isNull);
+    await tester.pump(const Duration(milliseconds: 1199));
+    expect(methods, ['GET']);
+    await tester.pump(const Duration(milliseconds: 1));
+    await preparing;
+    expect(methods, ['GET', 'POST']);
+    expect((await journal.read('scope'))['auto_checked'], isTrue);
+  });
+
+  for (final reason in ['提交故事', '离开当前版本', '页面销毁']) {
+    testWidgets('$reason会阻止阅读窗口结束后发送旧版本自动整理', (tester) async {
+      final journal = MemoryJournal(), methods = <String>[];
+      var current = true;
+      final repo = ReaderArtifactRepository(
+        client: PortalServiceClient(
+          () => 'https://api.invalid',
+          client: MockClient((request) async {
+            methods.add(request.method);
+            return http.Response('{"artifact":null,"revisions":[]}', 200);
+          }),
+        ),
+        journal: journal,
+        scope: 'scope',
+        experienceId: 'story',
+        branchId: 'branch',
+        revision: 3,
+        isCurrent: () => current,
+      );
+      final preparing = repo.prepareAutomatically();
+      await tester.pump();
+      switch (reason) {
+        case '提交故事':
+          repo.cancel();
+        case '离开当前版本':
+          current = false;
+        case '页面销毁':
+          repo.dispose();
+      }
+      await tester.pump(const Duration(milliseconds: 1200));
+      await preparing;
+      expect(methods, ['GET']);
+      expect((await journal.read('scope'))['pending'], isNull);
+      if (!repo.disposed) repo.dispose();
+    });
+  }
+
+  testWidgets('明确界面请求优先，随后不补发已排队的自动整理', (tester) async {
+    final requests = <Json>[];
+    final repo = ReaderArtifactRepository(
+      client: PortalServiceClient(
+        () => 'https://api.invalid',
+        client: MockClient((request) async {
+          if (request.method == 'POST') {
+            requests.add(object(jsonDecode(request.body)));
+          }
+          return http.Response('{"artifact":null,"revisions":[]}', 200);
+        }),
+      ),
+      journal: MemoryJournal(),
+      scope: 'scope',
+      experienceId: 'story',
+      branchId: 'branch',
+      revision: 3,
+      isCurrent: () => true,
+    );
+    addTearDown(repo.dispose);
+    final automatic = repo.prepareAutomatically();
+    await tester.pump();
+    final explicit = repo.prepare('整理已经公开的线索');
+    await tester.pump();
+    await explicit;
+    await tester.pump(const Duration(milliseconds: 1200));
+    await automatic;
+    expect(requests, hasLength(1));
+    expect(requests.single['intent'], '整理已经公开的线索');
+    expect(requests.single['retry'], isTrue);
+  });
+
   test('自动准备落盘期间阻塞，发送中和回应丢失后不阻塞故事且保留原请求', () async {
     final journal = MemoryJournal()..gate = Completer<void>();
     final started = Completer<void>();

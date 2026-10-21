@@ -1,0 +1,263 @@
+{
+  "id": "NAR-017",
+  "source_sha256": "37a6ff7987fbc6ebacfadea70f6e8cdffc2abf0d2cfdb2ed1d2d3d729fd679d6",
+  "source_line": 10146,
+  "variant": "base",
+  "seed": "小岛书店的中短篇，第三人称，以季砚为叙述主角。阅读模式已委托他收回四本外借书，并决定自己是否留岛过冬，约六章形成阶段完整故事。普通行动可由叙述安排；新的重大借贷、婚姻或永久身份变更仍须先停下交回读者决定。",
+  "opening": "冬季停航前的最后一天，早上九点。临时书店员季砚翻开借阅簿：四本外借书尚未收回，分别在餐馆、教师家、搬家中的旧友陆棠和修补员于砚手里。餐馆答应归还，教师说暂时找不到；陆棠忙着搬家，于砚正在修书。最后一班离岛渡船下午五点开，之后整个冬季停航。季砚还没决定是否留下。",
+  "state": {
+    "story_time": "冬季停航前最后一天09:00",
+    "entities": [
+      {
+        "id": "jy",
+        "kind": "character",
+        "name": "季砚",
+        "description": "临时书店员",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "lu",
+        "kind": "character",
+        "name": "陆棠",
+        "description": "季砚的旧友",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "xiu",
+        "kind": "character",
+        "name": "于砚",
+        "description": "图书修补员",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "restaurant",
+        "kind": "character",
+        "name": "餐馆店主",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "teacher",
+        "kind": "character",
+        "name": "教师",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "book-tide",
+        "kind": "item",
+        "name": "《潮汐表》",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "book-field",
+        "kind": "item",
+        "name": "《田野札记》",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "book-plants",
+        "kind": "item",
+        "name": "《沿岸草木》",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "book-poems",
+        "kind": "item",
+        "name": "《旧诗选》",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      }
+    ],
+    "facts": [
+      {
+        "id": "ferry-timetable",
+        "kind": "rule",
+        "text": "冬季停航前最后一天的离岛渡船在17:00开航，之后整个冬季停航；现在是当日09:00。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "jy",
+          "lu",
+          "xiu",
+          "restaurant",
+          "teacher"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "reading-delegation",
+        "kind": "rule",
+        "text": "读者委托叙述季砚收回四本外借书、决定留下或离岛，包括普通行动与这项去留决定；新的重大借贷、婚姻、永久身份变更不在授权内，发生时须先停下。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [],
+        "source_revision": 1
+      },
+      {
+        "id": "story-scope",
+        "kind": "rule",
+        "text": "这是小岛书店约六章的阶段完整经历，书未全部收回也可诚实交代已有结果与未完成事项，季砚可留下或离开。没有神秘藏宝图或幕后阴谋。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [],
+        "source_revision": 1
+      },
+      {
+        "id": "loan-tide",
+        "kind": "fact",
+        "text": "借阅簿记载《潮汐表》借给餐馆店主，目前仍由店主保管；店主已经表示愿意归还，尚未交回。",
+        "subject_id": "book-tide",
+        "known": true,
+        "known_by": [
+          "jy",
+          "restaurant"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "loan-field",
+        "kind": "fact",
+        "text": "借阅簿记载《田野札记》借给教师，书目前仍在教师家，尚未归还；教师暂时找不到，季砚不知道具体放置处。",
+        "subject_id": "book-field",
+        "known": true,
+        "known_by": [
+          "jy",
+          "teacher"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "loan-plants",
+        "kind": "fact",
+        "text": "借阅簿记载《沿岸草木》借给旧友陆棠，目前仍由陆棠持有；陆棠正在搬家，书尚未交回。",
+        "subject_id": "book-plants",
+        "known": true,
+        "known_by": [
+          "jy",
+          "lu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "loan-poems",
+        "kind": "fact",
+        "text": "借阅簿记载《旧诗选》交给修补员于砚，书仍在于砚处，尚未修毕和交回。",
+        "subject_id": "book-poems",
+        "known": true,
+        "known_by": [
+          "jy",
+          "xiu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "jy-undecided",
+        "kind": "fact",
+        "text": "季砚想完成外借书的归还，并决定是否留岛过冬；去留决定尚未作出，他不知道借书人未向他讲述的私事。",
+        "subject_id": "jy",
+        "known": true,
+        "known_by": [
+          "jy"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "lu-goals",
+        "kind": "fact",
+        "text": "陆棠想按时完成搬家，也想与旧友季砚把话说清；她知道自己的借书与搬家安排，不知道季砚尚未作出的留岛决定。",
+        "subject_id": "lu",
+        "known": false,
+        "known_by": [
+          "lu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "xiu-goals",
+        "kind": "fact",
+        "text": "于砚想修好可修的书，不把实际损伤伪装成原样无损；他知道手上书的实际破损，不知道其他借书人的理由。",
+        "subject_id": "xiu",
+        "known": false,
+        "known_by": [
+          "xiu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "poems-damage",
+        "kind": "secret",
+        "text": "《旧诗选》的书脊断线、部分书叶松脱，一处原书页角已缺失；于砚已拆开旧线，尚未重缝。缺失页角没有藏图或其他秘密。",
+        "subject_id": "book-poems",
+        "known": false,
+        "known_by": [
+          "xiu"
+        ],
+        "source_revision": 1
+      }
+    ],
+    "threads": []
+  },
+  "steps": [
+    {
+      "id": "S01",
+      "mode": "continue",
+      "input": "写第一章，让我进入这个岛上的当下生活。"
+    },
+    {
+      "id": "S02",
+      "mode": "continue",
+      "input": "继续第二章。"
+    },
+    {
+      "id": "S03",
+      "mode": "continue",
+      "input": "继续第三章。"
+    },
+    {
+      "id": "S04",
+      "mode": "continue",
+      "input": "写第四章，可以慢一点，留一些人物相处的空间，仍接续已发生的事。"
+    },
+    {
+      "id": "S05",
+      "mode": "continue",
+      "input": "写第五章。"
+    },
+    {
+      "id": "S06",
+      "mode": "continue",
+      "input": "第六章让这段经历收束；主要问题给出相称落点，不必把所有未来写完。"
+    },
+    {
+      "id": "S07",
+      "mode": "ask",
+      "input": "只回顾这段故事实际发生的结局和还保留的空白。"
+    },
+    {
+      "id": "S08",
+      "mode": "continue",
+      "input": "我自愿看一小段后日谈，延续已有结局，不重新打开主要危机。",
+      "epilogue": true
+    }
+  ],
+  "private_tokens": [],
+  "omissions": [
+    "The original case requires the opening to freeze the exact ferry timetable, each holder and repair condition but does not supply their values. This fixture freezes 09:00/17:00, four book titles and a spine/missing-corner condition before generation; these are authored world details, not observed events or expected outcomes.",
+    "No future return, departure, permission or repair success is seeded. The teacher book is at the teacher's home as specified by the source; its exact placement is unknown, not a secretly supplied solution.",
+    "The source 900-1400 Chinese characters per chapter is evaluator-side workload guidance; current short-scene output length is measured as a deviation, not silently equated to six full chapters or an automatic literary failure.",
+    "A nondelegated major decision may stop the trajectory; no evaluator inserts a new player choice. Audience review, delayed 24-72h memory feedback and three-chapter/abridged counterfactuals remain pending."
+  ]
+}

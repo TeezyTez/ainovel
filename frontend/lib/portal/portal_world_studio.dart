@@ -100,7 +100,6 @@ class _PortalWorldStudioState extends State<PortalWorldStudio> {
     return PortalWorldDraft()
       ..perspective = choice('perspective', '第二人称')
       ..length = choice('length', '适中')
-      ..style = choice('style', '细腻克制')
       ..pace = choice('pace', '从容');
   }
 
@@ -185,7 +184,6 @@ class _PortalWorldStudioState extends State<PortalWorldStudio> {
       'location': _draft.location,
       'goal': _draft.goal,
       'opening': _draft.opening,
-      'style': _draft.style,
     };
     for (final entry in values.entries) {
       _fields[entry.key] = TextEditingController(text: entry.value);
@@ -217,8 +215,7 @@ class _PortalWorldStudioState extends State<PortalWorldStudio> {
       ..identity = value('identity')
       ..location = value('location')
       ..goal = value('goal')
-      ..opening = value('opening')
-      ..style = value('style');
+      ..opening = value('opening');
     for (final character in _draft.characters) {
       final fields = _characters[character.id];
       if (fields == null) continue;
@@ -1506,7 +1503,6 @@ class _PortalWorldStudioState extends State<PortalWorldStudio> {
                                     ], compact),
                                     SizedBox(height: 20),
                                     _grid([
-                                      _field('文风', 'style', max: 200),
                                       _select(
                                         '节奏',
                                         _draft.pace,

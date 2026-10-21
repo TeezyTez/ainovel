@@ -1,0 +1,310 @@
+{
+  "provenance": {
+    "case": "NAR-009",
+    "step": "S03",
+    "source_run": ".validation/deep-benchmark/20261020T090058Z-memory-v49-serial/NAR-009",
+    "frozen_source_root": ".validation/source-knowledge-20261020/source-freeze-20261020T085909Z/source",
+    "original_fixture_sha256": "7e66bf8fe2563f9f0c3d340f6a497d25e2a981fb7f8a4b2ee04eeefde0d633a4",
+    "root_sha256": "20848b1d813e019d5e2f41c0991e145e7c34c9022109f8d2133df712227adfc1",
+    "events_sha256": "488f0a336f95e9959adf7c79f76d3f06b450103ff8177ff633f34fbe970ba18b",
+    "operation_event_seq": 46,
+    "request_event_seq": 47,
+    "result_event_seq": 48,
+    "result_event_sha256": "488ab09c5d884dd69d86efddb9e0ade4a927cacbeaa21733663ca867bce1c256",
+    "original_result_sha256": "35c10777407f1812ac59ff25439cea1098cb3d1cbb9b88e9875fb161df83808d",
+    "original_result_bytes": 1188,
+    "reconstructed_context_go_json_sha256": "e7dff1a452f5fbda6ea082afa61e5adad2ef7c91e14dba798380986252794648",
+    "reconstructed_context_bytes": 7187,
+    "context_capacity": 19618,
+    "source_tree_sha256": "e50f306614aa5e5f42e2a82f5a24bb62832fc6f275dbae2932392fd6b2101ada",
+    "original_rust_pipeline_sha256": "07e25b8cf0a2eb2e7af6948598912289264967b3219ebc1473fe3cf412fdb3b8",
+    "reconstruction_source_sha256": {
+      "backend/internal/experience/service.go": "87ff555324ab2b8eacde94302f23253fd40dfb547fb6f64c706b911c4f39a405",
+      "backend/internal/experience/context.go": "7bb6e2b1505a66f269dfaac8bdd667508942693b7b22f0de78fb6096ac7f29c6",
+      "backend/internal/experience/generation_view.go": "b51bd2c1eb312dfe9e89b591f1c63e8dfcccb3b67299aea5953a0403361963ef",
+      "backend/internal/experience/narrative_capacity.go": "87cd276707db3f9291e7fb6319604f7cff50b1b6e9e6635eb8f9eca3b1f6ed9d"
+    },
+    "original_request_experience_wire_saved": false,
+    "boundary": "The result is the exact recorded model text. Context is a deterministic reconstruction from operation event 46's authority before-state, seed, request, preferences and all three committed branch pages, passed through the unchanged Go narrativeContextCapacity and compileGeneration with the original benchmark parameters. The request.experience wire was not saved separately. This tests reference semantics only; no model call, formal commit, new narrative, or literary quality acceptance.",
+    "original_algorithm": {
+      "byte_token_bound_verified": true,
+      "context_tokens": 65536,
+      "max_calls": 12,
+      "model": "gpt-6.1-sol",
+      "output_tokens": 8192
+    },
+    "actual_model_projection_complete": false,
+    "reconstructed_entry_complete": true
+  },
+  "context": {
+    "pipeline": {
+      "version": 1,
+      "max_actors": 2,
+      "max_repairs": 1
+    },
+    "reading_request": "这段慢一些，让修椅子和厨房里的日常自然展开。",
+    "version": 2,
+    "experience_id": "benchmark-story",
+    "branch_id": "benchmark-main",
+    "revision": 3,
+    "mode": "read",
+    "input": "",
+    "seed": "安静日常，第二人称。你是回老家休假的成年人许舟。",
+    "state": {
+      "story_time": "当日13:25",
+      "facts": [
+        {
+          "id": "chair-task",
+          "kind": "fact",
+          "text": "厨房旧椅子有点晃，方芹希望修稳；工具足够，许舟有基本木工经验，通常一个下午即可完成。",
+          "subject_id": "",
+          "known": true,
+          "known_by": [
+            "xu",
+            "fq"
+          ],
+          "source_revision": 1
+        },
+        {
+          "id": "ordinary-boundary",
+          "kind": "rule",
+          "text": "这次不要病危、拆迁、隐藏遗产、陌生来客或恋爱；普通波折允许。",
+          "subject_id": "",
+          "known": true,
+          "known_by": [],
+          "source_revision": 1
+        },
+        {
+          "id": "fq-wishes",
+          "kind": "fact",
+          "text": "方芹希望椅子能继续用，也希望外孙能坐一会儿；她不愿用责备或卖惨留人。",
+          "subject_id": "fq",
+          "known": false,
+          "known_by": [
+            "fq"
+          ],
+          "source_revision": 1
+        },
+        {
+          "id": "fq-health",
+          "kind": "fact",
+          "text": "方芹没有危急健康变化。",
+          "subject_id": "fq",
+          "known": false,
+          "known_by": [
+            "fq"
+          ],
+          "source_revision": 1
+        },
+        {
+          "id": "chair-plain",
+          "kind": "fact",
+          "text": "椅子没有机关或重大秘密。",
+          "subject_id": "chair",
+          "known": false,
+          "known_by": [],
+          "source_revision": 1
+        },
+        {
+          "id": "fq-limits",
+          "kind": "fact",
+          "text": "方芹知道椅子的用途、许舟难得回来，不知道许舟未说的计划。",
+          "subject_id": "fq",
+          "known": false,
+          "known_by": [
+            "fq"
+          ],
+          "source_revision": 1
+        },
+        {
+          "id": "chair-loose-joint-r2",
+          "kind": "fact",
+          "text": "许舟检查发现，旧椅子一处横撑与椅腿的连接在推压时露出细缝，松手后合回；用手托紧该连接再推椅面，晃动明显减小。",
+          "subject_id": "chair",
+          "known": true,
+          "known_by": [
+            "xu"
+          ],
+          "source_revision": 2
+        },
+        {
+          "id": "xu-shows-loose-joint-r2",
+          "kind": "statement",
+          "text": "许舟指着旧椅子一处横撑与椅腿的连接对方芹说：“这里松了。”方芹俯身看了该处。",
+          "subject_id": "xu",
+          "known": true,
+          "known_by": [
+            "xu",
+            "fq"
+          ],
+          "source_revision": 2
+        },
+        {
+          "id": "chair-inspection-status-r2",
+          "kind": "fact",
+          "text": "截至当日13:08，许舟已检查旧椅子的晃动，尚未拆动椅子。",
+          "subject_id": "chair",
+          "known": true,
+          "known_by": [
+            "xu"
+          ],
+          "source_revision": 2
+        },
+        {
+          "id": "fq-clears-workspace-r2",
+          "kind": "fact",
+          "text": "方芹看过许舟指出的连接处后，把旁边的菜篮往里挪，为许舟腾出地方。",
+          "subject_id": "fq",
+          "known": true,
+          "known_by": [
+            "xu",
+            "fq"
+          ],
+          "source_revision": 2
+        },
+        {
+          "id": "chair-screw-condition-r3",
+          "kind": "fact",
+          "text": "当日13:25前，许舟检查发现旧椅子松动横撑下侧有一颗松退的固定螺钉，周围木头没有裂，螺钉孔仍能咬住螺钉。",
+          "subject_id": "chair",
+          "known": true,
+          "known_by": [
+            "xu"
+          ],
+          "source_revision": 3
+        },
+        {
+          "id": "chair-repair-r3",
+          "kind": "fact",
+          "text": "许舟借用家中工具盒内的螺丝刀，扶正旧椅子的松动横撑，逐渐旋紧固定螺钉，检查接缝及横撑没有错位后再补紧一点。",
+          "subject_id": "chair",
+          "known": true,
+          "known_by": [
+            "xu"
+          ],
+          "source_revision": 3
+        },
+        {
+          "id": "chair-test-r3",
+          "kind": "fact",
+          "text": "修理后，许舟交替按压旧椅子椅面四角，扶着桌沿坐下并向两侧移动重心；本次测试中原松动接缝没有再张开，椅脚稳贴地面。他起身后又推动椅背两下。",
+          "subject_id": "chair",
+          "known": true,
+          "known_by": [
+            "xu"
+          ],
+          "source_revision": 3
+        },
+        {
+          "id": "xu-repair-report-r3",
+          "kind": "statement",
+          "text": "许舟检查修理后的旧椅子后对方芹说：“好了，你用的时候再留意着。”",
+          "subject_id": "xu",
+          "known": true,
+          "known_by": [
+            "xu",
+            "fq"
+          ],
+          "source_revision": 3
+        },
+        {
+          "id": "fq-chair-return-r3",
+          "kind": "fact",
+          "text": "当日13:25，方芹伸手按了按修理后的旧椅子，将它挪回桌旁，并掸掉椅面上的一点灰。",
+          "subject_id": "chair",
+          "known": true,
+          "known_by": [
+            "xu",
+            "fq"
+          ],
+          "source_revision": 3
+        },
+        {
+          "id": "fq-water-invitation-r3",
+          "kind": "statement",
+          "text": "方芹说旧椅子还能接着用，并对许舟说：“不赶时间的话，坐会儿，我给你倒杯水。”",
+          "subject_id": "fq",
+          "known": true,
+          "known_by": [
+            "xu",
+            "fq"
+          ],
+          "source_revision": 3
+        }
+      ],
+      "entities": [
+        {
+          "id": "xu",
+          "kind": "character",
+          "name": "许舟",
+          "description": "",
+          "known": true,
+          "related_ids": []
+        },
+        {
+          "id": "fq",
+          "kind": "character",
+          "name": "方芹",
+          "description": "许舟的外婆",
+          "known": true,
+          "related_ids": []
+        },
+        {
+          "id": "chair",
+          "kind": "item",
+          "name": "厨房的旧椅子",
+          "description": "",
+          "known": true,
+          "related_ids": []
+        }
+      ],
+      "threads": []
+    },
+    "preferences": [],
+    "history": [
+      {
+        "revision": 1,
+        "mode": "begin",
+        "input": "安静日常，第二人称。你是回老家休假的成年人许舟。",
+        "text": "你回到老家的厨房。外婆方芹想把那把有点晃的旧椅子修稳。家里工具足够，你有基本木工经验，通常一个下午就能完成。"
+      },
+      {
+        "revision": 2,
+        "mode": "act",
+        "input": "我先检查椅子哪里晃。",
+        "text": "你扶住椅背，交替按了按椅面两侧。旧椅子随着手上的力道轻轻摇摆，底下传来一声短促的吱响。你把它挪到厨房光线亮些的地方，蹲下来，一手稳住椅腿，一手试着推压横撑。\n\n靠近你的一处横撑与椅腿相接的地方，随着推压露出一线细缝，松手又合回去。你用手托紧这处连接，再轻推椅面，晃动便明显小了。“这里松了。”你指给外婆看。她俯身瞧了一眼，把旁边的菜篮往里挪了挪，给你腾出地方。你还没拆动它，指腹上已蹭了一层薄灰。"
+      },
+      {
+        "revision": 3,
+        "mode": "act",
+        "input": "我向外婆借家里已有的工具，按自己会的办法修。",
+        "text": "“外婆，家里的工具借我用用。”你把椅子侧放，露出刚才松动的连接处。“在柜子底下，整盒拿出来就行。”她把菜篮挪稳，又往旁边让了让。你取来工具盒，拨开搭扣，挑出一把螺丝刀。横撑下侧有颗松退的固定螺钉，你用手扶正连接，借着窗边的光看了看，周围的木头没有裂，螺钉孔也还咬得住。\n\n你一手把横撑抵回原位，一手慢慢旋紧螺钉。螺丝刀起初转得轻，到后来渐渐吃上力；你停下来摸了摸接缝，又轻推横撑，确认没有错位，才补紧一点。外婆在一旁择菜，偶尔有菜叶落进盆里。等你把椅子翻正，她问：“这就行了？”“我试试。”你收开工具，交替按压椅面四角，再扶着桌沿缓缓坐下，把重心向两侧移了移。刚才那处接缝没有再张开，椅脚也稳稳贴着地面。\n\n你起身又推了两下椅背，才把螺丝刀放回盒里。“好了，你用的时候再留意着。”外婆伸手按按椅面，将它挪回桌旁。“那还能接着用。”她掸掉椅面上的一点灰，抬头看你，“不赶时间的话，坐会儿，我给你倒杯水。”工具盒的搭扣轻轻合上，窗外传来一阵自行车铃声。"
+      }
+    ],
+    "history_complete": true,
+    "state_coverage": {
+      "policy": "full.v1",
+      "recent_from_revision": 0,
+      "total": {
+        "facts": 16,
+        "entities": 3,
+        "threads": 0
+      },
+      "omitted": {
+        "facts": 0,
+        "entities": 0,
+        "threads": 0
+      },
+      "complete": true,
+      "source_handle": "source_6a5a821092e9c61bd0f00b925d2ee990",
+      "audience": "author"
+    },
+    "recalls": [],
+    "read_budget": {
+      "max_reads": 4,
+      "max_reply_bytes": 65536,
+      "max_total_reply_bytes": 131072
+    }
+  },
+  "original_result": "{\"result\":{\"actors\":[{\"actor_id\":\"fq\",\"fact_ids\":[\"fq-water-invitation-r3\",\"fq-chair-return-r3\"],\"trigger\":\"方芹说旧椅子还能接着用，并对许舟说：“不赶时间的话，坐会儿，我给你倒杯水。”\"}],\"context_needs\":{\"fact_ids\":[\"chair-repair-r3\",\"chair-test-r3\",\"fq-chair-return-r3\",\"fq-water-invitation-r3\",\"ordinary-boundary\"],\"open_questions\":[],\"participant_ids\":[\"xu\",\"fq\"],\"relationship_targets\":[\"许舟与外婆方芹\"],\"topics\":[\"修椅后的收尾\",\"倒水与择菜\",\"厨房里的安静日常\"]},\"objective\":\"以第二人称慢节奏续写修椅后的厨房日常，形成有自然停顿的完整小场景。承接椅子已经旋紧、测试并放回桌旁的进度，不重演修理或凭空制造故障；让收拾工具、洗去手灰、外婆倒水与择菜等普通后续通过动作、声音和简短交谈自然展开。可叙述阅读委托内的普通回应，不替许舟新增重大决定，不把本次测试扩大为永久修好保证。保持安静日常边界。\",\"relevant_fact_ids\":[\"ordinary-boundary\",\"chair-screw-condition-r3\",\"chair-repair-r3\",\"chair-test-r3\",\"xu-repair-report-r3\",\"fq-chair-return-r3\",\"fq-water-invitation-r3\"]}}"
+}

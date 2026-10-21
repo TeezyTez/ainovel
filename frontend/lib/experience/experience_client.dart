@@ -29,6 +29,15 @@ abstract interface class ExperienceArtifactApi {
   );
 }
 
+/// Optional, read-only hint. Scripted/offline APIs need not implement it.
+abstract interface class ExperiencePreparationApi {
+  Future<ExperiencePreparation> preparation(
+    String id,
+    String branch,
+    int revision,
+  );
+}
+
 class ExperienceHttpException implements Exception {
   const ExperienceHttpException(this.message, {this.status, this.code});
   final String message;
@@ -38,7 +47,8 @@ class ExperienceHttpException implements Exception {
   String toString() => message;
 }
 
-class ExperienceClient implements ExperienceApi, ExperienceArtifactApi {
+class ExperienceClient
+    implements ExperienceApi, ExperienceArtifactApi, ExperiencePreparationApi {
   ExperienceClient({
     required this.baseUrl,
     http.Client? client,
@@ -107,6 +117,27 @@ class ExperienceClient implements ExperienceApi, ExperienceArtifactApi {
     );
     if (result.id != id || branch != null && result.branchId != branch) {
       throw const FormatException('经历视图归属不符');
+    }
+    return result;
+  }
+
+  @override
+  Future<ExperiencePreparation> preparation(
+    String id,
+    String branch,
+    int revision,
+  ) async {
+    final result = ExperiencePreparation(
+      await _request(
+        'GET',
+        '/v1/experiences/${_id(id)}/preparation',
+        query: {'branch_id': branch, 'base_revision': '$revision'},
+      ),
+    );
+    if (result.experienceId != id ||
+        result.branchId != branch ||
+        result.baseRevision != revision) {
+      throw const FormatException('准备状态归属不符');
     }
     return result;
   }

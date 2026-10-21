@@ -93,9 +93,17 @@ func (s *Service) ChangePreference(ctx context.Context, account string, change P
 		if err != nil {
 			return err
 		}
+		if s.NarrativeEngine {
+			if err = q.ExperiencePreparationInvalidateAccount(ctx, account); err != nil {
+				return err
+			}
+		}
 		rows, err = q.ExperiencePreferences(ctx, account)
 		out = preferenceSnapshots(rows)
 		return err
 	})
+	if err == nil && s.NarrativeEngine {
+		s.cancelAccountPreparations(account)
+	}
 	return out, err
 }

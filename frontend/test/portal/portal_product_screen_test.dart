@@ -113,16 +113,16 @@ void main() {
       if(width<=800)expect(find.text('创造世界'),findsWidgets);
       final data=find.text('数据与备份').first;
       await tester.ensureVisible(data);await tester.tap(data);await tester.pumpAndSettle();
-      expect(find.text('导出本机记录'),findsOneWidget);
+      expect(find.text('导出作者完整备份'),findsOneWidget);
       await tester.tap(find.text('发现').last);await tester.pumpAndSettle();
       expect(find.byType(PortalHome),findsOneWidget);
       await tester.tap(find.text('设置').first);await tester.pumpAndSettle();
-      expect(find.text('导出本机记录'),findsOneWidget);
+      expect(find.text('导出作者完整备份'),findsOneWidget);
       await tester.tap(find.text('创造世界').last);await tester.pumpAndSettle();
       expect(find.byType(PortalWorldStudio),findsOneWidget);
       expect(find.text('设置'),findsWidgets);
       await tester.tap(find.text('设置').first);await tester.pumpAndSettle();
-      expect(find.text('导出本机记录'),findsOneWidget);
+      expect(find.text('导出作者完整备份'),findsOneWidget);
       expect(tester.takeException(),isNull);
     });
   }

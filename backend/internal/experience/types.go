@@ -41,11 +41,13 @@ type Thread struct {
 	ResolvedAtRevision *int64 `json:"resolved_at_revision"`
 }
 type State struct {
-	Gameplay  *GameplayState `json:"gameplay,omitempty"`
-	StoryTime string         `json:"story_time"`
-	Facts     []Fact         `json:"facts"`
-	Entities  []Entity       `json:"entities"`
-	Threads   []Thread       `json:"threads"`
+	LiteraryMemory *LiteraryMemory `json:"literary_memory,omitempty"`
+	Narrative *NarrativeState `json:"narrative,omitempty"`
+	Gameplay  *GameplayState  `json:"gameplay,omitempty"`
+	StoryTime string          `json:"story_time"`
+	Facts     []Fact          `json:"facts"`
+	Entities  []Entity        `json:"entities"`
+	Threads   []Thread        `json:"threads"`
 }
 type Preference struct {
 	Dimension string `json:"dimension"`
@@ -117,46 +119,54 @@ type ReadReceipt struct {
 }
 
 type Context struct {
-	GameplayReplay  *GameplayReplay  `json:"-"`
-	GameplayRuntime *ArtifactRuntime `json:"-"`
-	GameplayContext context.Context  `json:"-"`
-	GameplayAction  *GameplayAction  `json:"gameplay_action,omitempty"`
-	AuthorWorld     *WorldDraft      `json:"-"` // Go-only private prompt attachment, never ordinary DTO/contract JSON.
-	Version         int              `json:"version"`
-	ExperienceID    string           `json:"experience_id"`
-	BranchID        string           `json:"branch_id"`
-	Revision        int64            `json:"revision"`
-	Mode            string           `json:"mode"`
-	Input           string           `json:"input"`
-	Seed            string           `json:"seed"`
-	State           State            `json:"state"`
-	Preferences     []Preference     `json:"preferences"`
-	History         []HistoryPage    `json:"history"`
-	HistoryComplete bool             `json:"history_complete"`
-	StateCoverage   StateCoverage    `json:"state_coverage"`
-	Recalls         []ReadReply      `json:"recalls"`
-	ReadBudget      ReadBudget       `json:"read_budget"`
+	Pipeline        *NarrativePipeline `json:"pipeline,omitempty"`
+	ReadingRequest  string             `json:"reading_request,omitempty"`
+	Progress        func(string) error `json:"-"`
+	AuthorityState  *State             `json:"-"` // Complete Go-owned evidence for actor projection and notebook checks.
+	GameplayReplay  *GameplayReplay    `json:"-"`
+	GameplayRuntime *ArtifactRuntime   `json:"-"`
+	GameplayContext context.Context    `json:"-"`
+	GameplayAction  *GameplayAction    `json:"gameplay_action,omitempty"`
+	AuthorWorld     *WorldDraft        `json:"-"` // Go-only private prompt attachment, never ordinary DTO/contract JSON.
+	Version         int                `json:"version"`
+	ExperienceID    string             `json:"experience_id"`
+	BranchID        string             `json:"branch_id"`
+	Revision        int64              `json:"revision"`
+	Mode            string             `json:"mode"`
+	Input           string             `json:"input"`
+	Seed            string             `json:"seed"`
+	State           State              `json:"state"`
+	Preferences     []Preference       `json:"preferences"`
+	History         []HistoryPage      `json:"history"`
+	HistoryComplete bool               `json:"history_complete"`
+	StateCoverage   StateCoverage      `json:"state_coverage"`
+	Recalls         []ReadReply        `json:"recalls"`
+	ReadBudget      ReadBudget         `json:"read_budget"`
 }
 type KnowledgeChange struct {
 	SubjectID string `json:"subject_id"`
 	FactID    string `json:"fact_id"`
 }
 type Candidate struct {
-    NarrativeOnly bool `json:"-"` // local commit mode; never trusted from a model or client
-	GameplayUpdate   *GameplayUpdate   `json:"gameplay_update,omitempty"`
-	Title            string            `json:"title"`
-	Passage          string            `json:"passage"`
-	StoryTime        string            `json:"story_time"`
-	Outcome          string            `json:"outcome"`
-	Suggestions      []string          `json:"suggestions"`
-	NewFacts         []Fact            `json:"new_facts"`
-	NewEntities      []Entity          `json:"new_entities"`
-	NewThreads       []Thread          `json:"new_threads"`
-	RevealEntityIDs  []string          `json:"reveal_entity_ids"`
-	RevealThreadIDs  []string          `json:"reveal_thread_ids"`
-	RevealFactIDs    []string          `json:"reveal_fact_ids"`
-	ResolveThreadIDs []string          `json:"resolve_thread_ids"`
-	KnowledgeChanges []KnowledgeChange `json:"knowledge_changes"`
+	MemoryDelta      *MemoryDelta       `json:"memory_delta,omitempty"`
+	MemoryChanges    []MemoryChange     `json:"memory_changes,omitempty"`
+	NarrativeUpdate  *NarrativeState    `json:"narrative_update,omitempty"`
+	Review           *NarrativeApproval `json:"-"` // Go-issued approval receipt; never decoded from a model.
+	NarrativeOnly    bool               `json:"-"` // local commit mode; never trusted from a model or client
+	GameplayUpdate   *GameplayUpdate    `json:"gameplay_update,omitempty"`
+	Title            string             `json:"title"`
+	Passage          string             `json:"passage"`
+	StoryTime        string             `json:"story_time"`
+	Outcome          string             `json:"outcome"`
+	Suggestions      []string           `json:"suggestions"`
+	NewFacts         []Fact             `json:"new_facts"`
+	NewEntities      []Entity           `json:"new_entities"`
+	NewThreads       []Thread           `json:"new_threads"`
+	RevealEntityIDs  []string           `json:"reveal_entity_ids"`
+	RevealThreadIDs  []string           `json:"reveal_thread_ids"`
+	RevealFactIDs    []string           `json:"reveal_fact_ids"`
+	ResolveThreadIDs []string           `json:"resolve_thread_ids"`
+	KnowledgeChanges []KnowledgeChange  `json:"knowledge_changes"`
 }
 type Page struct {
 	InteractionSnapshot      *ArtifactSnapshot `json:"interaction_snapshot,omitempty"`
@@ -177,13 +187,14 @@ type Branch struct {
 	ParentRevision *int64  `json:"parent_revision,omitempty"`
 }
 type Operation struct {
-	RequestID         string  `json:"request_id"`
-	ExperienceID      string  `json:"experience_id"`
-	BranchID          string  `json:"branch_id"`
-	Status            string  `json:"status"`
-	BaseRevision      int64   `json:"base_revision"`
-	CommittedRevision *int64  `json:"committed_revision,omitempty"`
-	ErrorCode         *string `json:"error_code,omitempty"`
+	Progress          *NarrativeProgress `json:"progress,omitempty"`
+	RequestID         string             `json:"request_id"`
+	ExperienceID      string             `json:"experience_id"`
+	BranchID          string             `json:"branch_id"`
+	Status            string             `json:"status"`
+	BaseRevision      int64              `json:"base_revision"`
+	CommittedRevision *int64             `json:"committed_revision,omitempty"`
+	ErrorCode         *string            `json:"error_code,omitempty"`
 }
 type Information struct {
 	ID         string   `json:"id"`
@@ -191,6 +202,9 @@ type Information struct {
 	Name       string   `json:"name"`
 	Text       string   `json:"text"`
 	RelatedIDs []string `json:"related_ids"`
+	// Record creation is distinct from when a reader learned this fact or
+	// which public prose page supports it. Never infer either from this value.
+	RecordedRevision int64 `json:"recorded_revision,omitempty"`
 }
 type Summary struct {
 	ID             string    `json:"id"`
@@ -222,6 +236,7 @@ type CreateRequest struct {
 	Seed         string              `json:"seed"`
 }
 type AdvanceRequest struct {
+	ReadingRequest   string `json:"reading_request,omitempty"`
 	RequestID        string `json:"request_id"`
 	BranchID         string `json:"branch_id"`
 	ExpectedRevision int64  `json:"expected_revision"`
@@ -353,7 +368,7 @@ func Apply(ctx Context, c Candidate) (State, error) {
 			return State{}, fail("invalid_candidate")
 		}
 	}
-	if ctx.Mode == "ask" && (c.GameplayUpdate != nil || c.StoryTime != ctx.State.StoryTime || len(c.NewFacts)+len(c.NewEntities)+len(c.NewThreads)+len(c.RevealEntityIDs)+len(c.RevealThreadIDs)+len(c.RevealFactIDs)+len(c.ResolveThreadIDs)+len(c.KnowledgeChanges) > 0) {
+	if ctx.Mode == "ask" && (c.MemoryDelta != nil || c.MemoryChanges != nil || c.NarrativeUpdate != nil || c.GameplayUpdate != nil || c.StoryTime != ctx.State.StoryTime || len(c.NewFacts)+len(c.NewEntities)+len(c.NewThreads)+len(c.RevealEntityIDs)+len(c.RevealThreadIDs)+len(c.RevealFactIDs)+len(c.ResolveThreadIDs)+len(c.KnowledgeChanges) > 0) {
 		return State{}, fail("ask_mutation")
 	}
 	raw, _ := json.Marshal(ctx.State)
@@ -524,10 +539,20 @@ func Apply(ctx Context, c Candidate) (State, error) {
 		return State{}, err
 	}
 	state.Gameplay = gameplay
+	if err := applyNarrativeState(ctx, c, &state); err != nil {
+		return State{}, err
+	}
+	if err := applyLiteraryMemory(ctx, c, &state); err != nil {
+		return State{}, err
+	}
 	return state, nil
 }
 
 func Project(s State) []Information {
+	// Every public information surface uses the same audience boundary as ask,
+	// history and reader records. Checking Known independently is insufficient:
+	// a known belief may still name an undisclosed subject and link its identity.
+	s = ReaderState(s)
 	known := map[string]bool{}
 	for _, f := range s.Facts {
 		if f.Known {
@@ -556,7 +581,7 @@ func Project(s State) []Information {
 	out := []Information{}
 	for _, f := range s.Facts {
 		if f.Known {
-			out = append(out, Information{ID: "fact:" + f.ID, Kind: f.Kind, Name: "", Text: f.Text, RelatedIDs: refs([]string{f.SubjectID})})
+			out = append(out, Information{ID: "fact:" + f.ID, Kind: f.Kind, Name: "", Text: f.Text, RelatedIDs: refs([]string{f.SubjectID}), RecordedRevision: f.SourceRevision})
 		}
 	}
 	for _, e := range s.Entities {

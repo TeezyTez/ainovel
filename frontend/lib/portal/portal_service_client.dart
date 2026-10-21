@@ -60,6 +60,14 @@ class PortalServiceClient {
     _assistance=null;
   }
   Future<Json> exportRecords() => request('GET', '/v1/archive');
+  Future<Json> exportReaderRecords() async {
+    final value = await request('GET', '/v1/reader-export');
+    if (value['format'] != 'elselife-reader-export' ||
+        value['version'] != 1 || value['experiences'] is! List) {
+      throw const FormatException('读者导出格式不符，未保存文件。');
+    }
+    return value;
+  }
   Future<Json> importRecords(Json archive) => request('POST', '/v1/archive', archive);
   void close() { cancelGeneration(); cancelAssistance(); _client.close(); }
 }

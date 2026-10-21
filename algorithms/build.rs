@@ -17,7 +17,7 @@ fn check_experience_contract() {
     );
     assert_eq!(
         include_str!(".experience-sha256").trim(),
-        "af34208ebcffdde21ea3a727e24743b60c808f0dd5df303b52a3f476483429fc",
+        "44f536fc3f4949e7ece9580fee0c3f3178149465df3840e342ecbb0a84cd0a21",
         "experience source digest drift"
     );
     assert_eq!(

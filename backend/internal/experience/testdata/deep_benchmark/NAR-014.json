@@ -1,0 +1,258 @@
+{
+  "id": "NAR-014",
+  "source_sha256": "37a6ff7987fbc6ebacfadea70f6e8cdffc2abf0d2cfdb2ed1d2d3d729fd679d6",
+  "source_line": 9393,
+  "variant": "base",
+  "seed": "第二人称。你是面包店的临时合伙人，和何絮、童澈、容小满一起处理一批迟交的订单。",
+  "opening": "烤箱延迟使面包店的一批订单晚了20分钟。你是店里的临时合伙人，何絮、童澈和新人容小满都在工作；这批迟交订单尚待处理。",
+  "state": {
+    "story_time": "当日，订单延迟后",
+    "entities": [
+      {
+        "id": "player",
+        "kind": "character",
+        "name": "你",
+        "description": "面包店临时合伙人",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "hx",
+        "kind": "character",
+        "name": "何絮",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "tc",
+        "kind": "character",
+        "name": "童澈",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "rx",
+        "kind": "character",
+        "name": "容小满",
+        "description": "面包店新人",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "inspector",
+        "kind": "character",
+        "name": "检查员",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "bakery",
+        "kind": "place",
+        "name": "面包店",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "oven",
+        "kind": "item",
+        "name": "烤箱",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "order",
+        "kind": "event",
+        "name": "迟交订单",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      }
+    ],
+    "facts": [
+      {
+        "id": "order-delay",
+        "kind": "fact",
+        "text": "面包店这批订单已晚20分钟。",
+        "subject_id": "order",
+        "known": true,
+        "known_by": [
+          "player",
+          "hx",
+          "tc"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "delay-cause",
+        "kind": "fact",
+        "text": "这批订单的20分钟延迟由烤箱延迟造成。",
+        "subject_id": "oven",
+        "known": true,
+        "known_by": [
+          "player",
+          "hx"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "hx-voice",
+        "kind": "fact",
+        "text": "何絮重实际，面对熟人省略前提，面对检查员讲事实，面对新人分步骤。",
+        "subject_id": "hx",
+        "known": true,
+        "known_by": [
+          "player",
+          "hx"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "tc-voice",
+        "kind": "fact",
+        "text": "童澈会先用不伤人的玩笑缓和气氛，真有损失时会收起玩笑。",
+        "subject_id": "tc",
+        "known": true,
+        "known_by": [
+          "player",
+          "tc"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "rx-experience",
+        "kind": "fact",
+        "text": "容小满经验少但观察细，会留意工作中的具体现象。",
+        "subject_id": "rx",
+        "known": true,
+        "known_by": [
+          "player",
+          "rx"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "hx-goals",
+        "kind": "fact",
+        "text": "何絮想如实处理迟交，不把压力转给新人。",
+        "subject_id": "hx",
+        "known": false,
+        "known_by": [
+          "hx"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "tc-goals",
+        "kind": "fact",
+        "text": "童澈想稳定供货关系，缓和同事紧张。",
+        "subject_id": "tc",
+        "known": false,
+        "known_by": [
+          "tc"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "rx-goals",
+        "kind": "fact",
+        "text": "容小满想学会工作，也想提出自己的观察。",
+        "subject_id": "rx",
+        "known": false,
+        "known_by": [
+          "rx"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "hx-order-knowledge",
+        "kind": "fact",
+        "text": "何絮掌握订单情况及延迟原因，但检查员尚未向何絮说明自己的打算。",
+        "subject_id": "hx",
+        "known": false,
+        "known_by": [
+          "hx"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "tc-knowledge",
+        "kind": "fact",
+        "text": "童澈已知订单延迟，并不知道何絮所有私心。",
+        "subject_id": "tc",
+        "known": false,
+        "known_by": [
+          "tc"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "rx-knowledge",
+        "kind": "fact",
+        "text": "容小满亲眼见过烤箱的相关现象，但不知道长期合同条款。",
+        "subject_id": "rx",
+        "known": false,
+        "known_by": [
+          "rx"
+        ],
+        "source_revision": 1
+      }
+    ],
+    "threads": []
+  },
+  "steps": [
+    {
+      "id": "S01",
+      "mode": "act",
+      "input": "我私下问何絮，眼下先处理什么。"
+    },
+    {
+      "id": "S02",
+      "mode": "continue",
+      "input": "写何絮向来了解情况的检查员说明。"
+    },
+    {
+      "id": "S03",
+      "mode": "continue",
+      "input": "写何絮向容小满交代适合新人的工作。"
+    },
+    {
+      "id": "S04",
+      "mode": "act",
+      "input": "请童澈联系实际可联系的客户，不替客户同意。"
+    },
+    {
+      "id": "S05",
+      "mode": "continue",
+      "input": "若客户有不满，写三人怎样回应，不把所有人写成同一种语气。"
+    },
+    {
+      "id": "S06",
+      "mode": "editorial_request",
+      "input": "只这一段少解释情绪，让动作和对白承担，发生的事不变。"
+    },
+    {
+      "id": "S07",
+      "mode": "continue",
+      "input": "继续到订单有阶段结果。"
+    },
+    {
+      "id": "S08",
+      "mode": "continue",
+      "input": "隔天普通工作延续人物声音，不机械重复昨天句式。"
+    }
+  ],
+  "private_tokens": [],
+  "omissions": [
+    "Initial material contains only the fixed world and character facts, not blind-task instructions, literary scores, acceptance rubrics or expected prose.",
+    "Exact catalog modes are preserved. S06 editorial_request binds to the existing Service.Assist polish candidate path with the exact request and frozen current formal page; it is not sent as act, read or a long-term preference.",
+    "S06 records the actual editing candidate and independent before/after formal page, world state and confirmed preferences. It does not automatically accept, fork or replace a formal paragraph; S07-S08 continue from actual formal history. Applied-edit literary and persistence behavior remains unverified without an explicit acceptance step.",
+    "No customer acceptance, customer contact detail, compensation agreement, contract clause or inspector private plan is invented. S04 and S05 remain actual/conditional requests.",
+    "No approved epilogue flag is added to S08. If the story actually ends first, the adapter must preserve that ending and report the later probe unreached.",
+    "Customer-versus-inspector and no-loss schedule-adjustment counterfactuals, blinded target-reader review and literary acceptance are not included."
+  ]
+}

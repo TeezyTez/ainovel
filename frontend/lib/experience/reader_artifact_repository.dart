@@ -53,6 +53,7 @@ class PreparedReaderArtifact {
 /// Versioned presentation data. All mutations are journaled before transport;
 /// this repository never changes a story fact or commits a narrative page.
 class ReaderArtifactRepository extends ChangeNotifier {
+  static final Set<String> _repairReservations = {};
   ReaderArtifactRepository({
     required this.client,
     required this.journal,
@@ -85,6 +86,9 @@ class ReaderArtifactRepository extends ChangeNotifier {
   bool busy = false, disposed = false;
   bool _loading = false;
   Completer<void>? _abort;
+  Timer? _automaticTimer;
+  Completer<void>? _automaticWait;
+  Object? _automaticToken;
   String get path =>
       '/v1/experiences/${Uri.encodeComponent(experienceId)}/artifacts';
   String get query => 'branch_id=${Uri.encodeComponent(branchId)}';
@@ -289,12 +293,60 @@ class ReaderArtifactRepository extends ChangeNotifier {
     '/prepare',
     {'retry': retry, if (intent.trim().isNotEmpty) 'intent': intent.trim()},
   );
+
+  /// One automatic repair for this branch/story revision, including remounts.
+  /// Explicit reader retries remain separate. Reserve durably before transport.
+  Future<void> repair(String diagnostic, {required bool automatic}) async {
+    if (!writable) return;
+    if (!automatic) return prepare(diagnostic);
+    if (!_repairReservations.add(scope)) return;
+    try {
+      final saved = await journal.read(scope);
+      if (saved['automatic_repair'] != null || !writable) return;
+      await journal.patch(scope, {
+        'automatic_repair': {
+          'base_revision': revision,
+          'artifact_id': artifact!.id,
+          'revision_id': artifact!.revisionId,
+          'diagnostic': diagnostic,
+        },
+      });
+      if (writable) await prepare(diagnostic);
+    } finally {
+      _repairReservations.remove(scope);
+    }
+  }
   Future<void> prepareAutomatically() async {
+    _cancelAutomaticPreparation();
+    final token = Object();
+    _automaticToken = token;
+    bool eligible() =>
+        identical(_automaticToken, token) &&
+        !disposed &&
+        isCurrent() &&
+        !busy &&
+        error == null &&
+        pending == null;
+    // Hydrate immediately: an existing interface can change how input routes.
     await load();
-    if (disposed || !isCurrent() || error != null || pending != null) return;
+    if (!eligible()) return;
     final saved = await journal.read(scope);
-    if (saved['auto_checked'] == true || artifact?.baseRevision == revision)
+    if (!eligible() ||
+        saved['auto_checked'] == true ||
+        artifact?.baseRevision == revision)
       return;
+    // Only optional model work waits. Reading, composing and explicit requests
+    // remain available, and no pending request exists until transport is needed.
+    final waiting = Completer<void>();
+    _automaticWait = waiting;
+    _automaticTimer = Timer(
+      const Duration(milliseconds: 1200),
+      waiting.complete,
+    );
+    await waiting.future;
+    if (!eligible()) return;
+    _automaticTimer = null;
+    _automaticWait = null;
     await prepare('', retry: false);
     if (!disposed && pending == null && error == null) {
       await journal.patch(scope, {'auto_checked': true});
@@ -333,6 +385,7 @@ class ReaderArtifactRepository extends ChangeNotifier {
   Future<void> _mutate(String suffix, Json body, {Json? metadata}) async {
     if (busy || pending != null) throw StateError('先恢复上一项作品请求。');
     if (!isCurrent()) throw StateError('故事已经改变，请重新打开作品。');
+    _cancelAutomaticPreparation();
     final request = <String, dynamic>{
       'path': '$path$suffix',
       if (metadata != null) 'input_metadata': metadata,
@@ -402,7 +455,17 @@ class ReaderArtifactRepository extends ChangeNotifier {
     }
   }
 
+  void _cancelAutomaticPreparation() {
+    _automaticToken = null;
+    _automaticTimer?.cancel();
+    _automaticTimer = null;
+    final waiting = _automaticWait;
+    _automaticWait = null;
+    if (waiting != null && !waiting.isCompleted) waiting.complete();
+  }
+
   void cancel() {
+    _cancelAutomaticPreparation();
     if (_abort != null && !_abort!.isCompleted) _abort!.complete();
   }
 

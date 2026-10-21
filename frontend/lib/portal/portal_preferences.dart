@@ -16,7 +16,7 @@ class PortalPreferences extends ChangeNotifier {
     'fontFamily': 'serif', 'paragraphGap': 'normal', 'readingMode': 'continuous',
     'readingTheme': 'paper', 'showTime': true, 'restReminder': false,
     'reducedMotion': false, 'sendEnter': false, 'perspective': '第二人称',
-    'length': '适中', 'pace': '从容', 'style': '细腻克制',
+    'length': '适中', 'pace': '从容',
   };
   static const _choices = {
     'theme': ['light', 'dark', 'system'],
@@ -26,7 +26,6 @@ class PortalPreferences extends ChangeNotifier {
     'readingTheme': ['paper', 'white', 'sage', 'night'],
     'perspective': ['第二人称', '第一人称', '第三人称'],
     'length': ['简短', '适中', '舒展'], 'pace': ['从容', '适中', '紧凑'],
-    'style': ['细腻克制', '明快简洁', '诗意留白', '朴素日常'],
   };
   String get scope => experienceScope(backendUrl, workspaceId, 'portal-preferences', 'settings');
   String? error;

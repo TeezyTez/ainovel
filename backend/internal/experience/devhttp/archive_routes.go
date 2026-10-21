@@ -7,6 +7,16 @@ import (
 )
 
 func (h Handler) registerArchiveRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("GET /v1/reader-export", h.wrap(func(w http.ResponseWriter, r *http.Request, account string) error {
+		export, err := h.Service.ExportReader(r.Context(), account)
+		if err != nil {
+			return err
+		}
+		w.Header().Set("Content-Disposition", `attachment; filename="elselife-reading.json"`)
+		w.Header().Set("Cache-Control", "no-store")
+		writeJSON(w, r, http.StatusOK, export)
+		return nil
+	}))
 	mux.HandleFunc("DELETE /v1/experiences/{id}", h.wrap(func(w http.ResponseWriter, r *http.Request, account string) error {
 		if err := h.Service.DeleteExperience(r.Context(), account, r.PathValue("id")); err != nil {
 			return err

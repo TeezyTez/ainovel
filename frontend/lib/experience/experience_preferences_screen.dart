@@ -118,6 +118,7 @@ class _ExperiencePreferencesScreenState
       // A backend switch while persistence yields must not send the old draft
       // into the new backend's workspace. Leave it for explicit review.
       if (!mounted || c.owner != owner) return;
+      c.invalidatePreparation();
       final result = await c.api.changePreference(change);
       await c.journal.patch(scope, {'change': null});
       if (mounted && c.owner == owner) {

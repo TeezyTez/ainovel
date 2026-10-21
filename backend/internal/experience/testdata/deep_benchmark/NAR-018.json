@@ -1,0 +1,374 @@
+{
+  "id": "NAR-018",
+  "source_sha256": "37a6ff7987fbc6ebacfadea70f6e8cdffc2abf0d2cfdb2ed1d2d3d729fd679d6",
+  "source_line": 10430,
+  "variant": "base",
+  "seed": "月面居住站科幻生活，第二人称。你是新到站的维修员，不拥有预算拍板权。",
+  "opening": "你刚到月面居住站，正在准备了解温室本月的工作安排。可调配工时只有40个：作物照明检修需要25，公共休息区窗板修复需要20。站内常规生命支持不受这次安排影响。你可以提案、质疑与协助，方案须三位轮值委员同意。本轮公开名册列着甄洛、裴青和明阑；晏泊与各位负责人目前都可在站内工作区联系。",
+  "state": {
+    "story_time": "本月工时讨论开始前",
+    "entities": [
+      {
+        "id": "player",
+        "kind": "character",
+        "name": "你",
+        "description": "新到站的维修员，无预算拍板权",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "zhen",
+        "kind": "character",
+        "name": "甄洛",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "pei",
+        "kind": "character",
+        "name": "裴青",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "yan",
+        "kind": "character",
+        "name": "晏泊",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "ming",
+        "kind": "character",
+        "name": "明阑",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "greenhouse",
+        "kind": "place",
+        "name": "温室",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "lighting",
+        "kind": "item",
+        "name": "作物照明",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "rest-area",
+        "kind": "place",
+        "name": "公共休息区",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "window-panels",
+        "kind": "item",
+        "name": "公共休息区窗板",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "crack-report",
+        "kind": "item",
+        "name": "窗板裂纹报告新版本",
+        "description": "",
+        "known": false,
+        "related_ids": []
+      }
+    ],
+    "facts": [
+      {
+        "id": "monthly-hours",
+        "kind": "fact",
+        "text": "温室本月只有40个工时可调配。",
+        "subject_id": "greenhouse",
+        "known": true,
+        "known_by": [
+          "player",
+          "ming"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "lighting-work",
+        "kind": "fact",
+        "text": "作物照明检修需要25个工时。",
+        "subject_id": "lighting",
+        "known": true,
+        "known_by": [
+          "player",
+          "zhen"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "window-work",
+        "kind": "fact",
+        "text": "公共休息区窗板修复需要20个工时。",
+        "subject_id": "window-panels",
+        "known": true,
+        "known_by": [
+          "player",
+          "pei"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "resource-rule",
+        "kind": "rule",
+        "text": "两项同时完成需要额外合法资源；两项工时不会因愿望自动缩短。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "player"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "life-support",
+        "kind": "rule",
+        "text": "站内常规生命支持不受这次工时安排影响，这场争议不是即时生死二选一。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "player"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "council-procedure",
+        "kind": "rule",
+        "text": "议事会需三位轮值委员同意；新到站的维修员可提案、质疑与协助，没有预算拍板权，不能替别人投票。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "player",
+          "ming"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "rotation-roster",
+        "kind": "rule",
+        "text": "本轮三位轮值委员是甄洛、裴青和明阑；晏泊和新到站的维修员不是本轮委员。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "player",
+          "zhen",
+          "pei",
+          "yan",
+          "ming"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "voluntary-hours",
+        "kind": "rule",
+        "text": "新增志愿工时需要承担者真实同意。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "player"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "zhen-goals",
+        "kind": "fact",
+        "text": "甄洛希望蔬菜按期供给，减少重复劳动。",
+        "subject_id": "zhen",
+        "known": false,
+        "known_by": [
+          "zhen"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "zhen-detail",
+        "kind": "fact",
+        "text": "甄洛掌握照明检修的具体工作量。",
+        "subject_id": "zhen",
+        "known": false,
+        "known_by": [
+          "zhen"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "zhen-rest-belief",
+        "kind": "belief",
+        "text": "甄洛相信没有休息也能先扛过本月。",
+        "subject_id": "zhen",
+        "known": false,
+        "known_by": [
+          "zhen"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "pei-goals",
+        "kind": "fact",
+        "text": "裴青希望公共休息区恢复，想照顾长期失眠的同事。",
+        "subject_id": "pei",
+        "known": false,
+        "known_by": [
+          "pei"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "window-noise",
+        "kind": "fact",
+        "text": "公共休息区的窗板问题造成噪声。",
+        "subject_id": "window-panels",
+        "known": false,
+        "known_by": [
+          "pei"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "window-phasing",
+        "kind": "fact",
+        "text": "公共休息区窗板可分两次修。",
+        "subject_id": "window-panels",
+        "known": false,
+        "known_by": [
+          "pei"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "yan-goals",
+        "kind": "fact",
+        "text": "晏泊不希望新人的工作全压给自己，希望获得正式培训。",
+        "subject_id": "yan",
+        "known": false,
+        "known_by": [
+          "yan"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "yan-recording",
+        "kind": "fact",
+        "text": "晏泊知道自己能承担部分记录工作。",
+        "subject_id": "yan",
+        "known": false,
+        "known_by": [
+          "yan"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "ming-goals",
+        "kind": "fact",
+        "text": "明阑希望承诺可执行，并维持议事规则。",
+        "subject_id": "ming",
+        "known": false,
+        "known_by": [
+          "ming"
+        ],
+        "source_revision": 1
+      }
+    ],
+    "threads": []
+  },
+  "steps": [
+    {
+      "id": "S01",
+      "mode": "act",
+      "input": "我向各自负责人询问任务需要，分别记录。"
+    },
+    {
+      "id": "S02",
+      "mode": "act",
+      "input": "问甄洛哪些步骤必须先做，哪些能分开。"
+    },
+    {
+      "id": "S03",
+      "mode": "act",
+      "input": "问裴青窗板的问题与可行安排。"
+    },
+    {
+      "id": "S04",
+      "mode": "act",
+      "input": "问晏泊能做哪些、愿意接哪些，不替他报名。"
+    },
+    {
+      "id": "S05",
+      "mode": "act",
+      "input": "向明阑确认我能怎样提出方案。"
+    },
+    {
+      "id": "S06",
+      "mode": "act",
+      "input": "我用现在确实掌握的信息提出一个分配办法，请他们各自表态。"
+    },
+    {
+      "id": "S07",
+      "mode": "continue",
+      "input": "继续讨论，人物可以彼此回应和提出自己的方案。"
+    },
+    {
+      "id": "S08",
+      "mode": "act",
+      "input": "我听到新的可核实信息后调整自己的提议；没新证据就不编数字。"
+    },
+    {
+      "id": "S09",
+      "mode": "act",
+      "input": "我说希望大家照我的方案做，但是否有权通过仍按实际程序。"
+    },
+    {
+      "id": "S10",
+      "mode": "continue",
+      "input": "写实际表决或暂未表决的阶段结果。"
+    },
+    {
+      "id": "S11",
+      "mode": "act",
+      "input": "我只承担自己明确同意且被接纳的那部分工作。"
+    },
+    {
+      "id": "S12",
+      "mode": "continue",
+      "input": "几天后写正在执行的工作与真实成本。"
+    },
+    {
+      "id": "S13",
+      "mode": "act",
+      "input": "我请晏泊评价实际分工是否和当初约定一致。"
+    },
+    {
+      "id": "S14",
+      "mode": "continue",
+      "input": "让这一轮协作收束，保留未解决的问题但不自动制造新灾难。"
+    }
+  ],
+  "private_tokens": [],
+  "omissions": [
+    "Draft only; not installed in active testdata and not executed. All fourteen original inputs and modes are retained verbatim.",
+    "The opening is synthetic revision-one prehistory. Scene label and initial contact availability are minimal staging; they do not grant continuing presence or future contact after a character leaves.",
+    "Registered author choice: the original benchmark does not name the three rotating committee members. This draft chooses zhen/pei/ming and publishes their roster; yan/player are not members. It initializes no vote, preference agreement, application acceptance or final authority for the player.",
+    "No phase-hour split, lighting prerequisite sequence, report text, health identity, current work assignment, completed repair, new volunteer or additional hours is initialized. The 25/20 totals and 40-hour capacity remain exact.",
+    "window-phasing and window-noise initially belong only to pei. The report object exists privately but has no invented readable content or access grant. zhen does not initially know its new version; pei is not initialized with lighting prerequisites; yan receives no other person private health information.",
+    "zhen-rest-belief is explicitly a belief, not an objective rule that rest is unnecessary. Character goals are private and do not promise their later actions or agreement.",
+    "No epilogue marker is added for S12: days-later continuation is eligible only while the story remains open. Early ending leaves subsequent world probes unreached.",
+    "Extra-hours and player-authority counterfactuals and human literary review remain unexecuted. This is an explicitly registered committee-identity instantiation, not proof of performance for every possible committee membership."
+  ]
+}

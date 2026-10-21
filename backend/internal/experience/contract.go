@@ -36,7 +36,8 @@ func validateContract(raw []byte, kind string) error {
 			schemaErr = err
 			return
 		}
-		for _, kind := range []string{"context", "candidate", "read_request", "read_reply", "read_failure"} {
+		for _, kind := range []string{"context", "candidate", "read_request", "read_reply", "read_failure", "narrative_state", "literary_memory", "memory_change", "memory_material", "context_needs", "context_bundle",
+			"memory_interpretation", "memory_delta", "memory_entry_v2", "literary_memory_v2", "memory_evidence_ref", "memory_material_v2"} {
 			schemas[kind], err = compiler.Compile(uri + "#/$defs/" + kind)
 			if err != nil {
 				schemaErr = err

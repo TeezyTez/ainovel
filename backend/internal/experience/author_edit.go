@@ -79,6 +79,11 @@ func (c BranchChanges) validate() error {
 		}
 	}
 	if c.Repair != nil {
+		// Author ReviewCandidate only validates structure. It cannot issue the
+		// private narrative approval required even for an empty v2 delta.
+		if c.Repair.Candidate.MemoryDelta != nil {
+			return fail("invalid_candidate")
+		}
 		raw, _ := json.Marshal(c.Repair.Candidate)
 		if len(raw) > 128<<10 || validateContract(raw, "candidate") != nil {
 			return fail("invalid_candidate")
@@ -222,7 +227,7 @@ func (s *Service) Assist(ctx context.Context, a, e string, r AssistRequest, inte
 		}
 		schema := json.RawMessage(`{"type":"object","additionalProperties":false,"required":["text"],"properties":{"text":{"type":"string","minLength":1,"maxLength":20000}}}`)
 		input, _ := json.Marshal(map[string]string{"original": last.Text, "request": r.Request})
-		request := model.Request{Model: interpreter.ModelName, Schema: schema, Messages: []model.Message{{Role: "system", Content: "Polish only the provided fictional passage in Chinese according to the author's request. Preserve every event, decision, fact, item, relationship and story time. Add no hidden information. Return only {text:string}; this is a proposal for explicit human review, not a saved edit."}, {Role: "user", Content: string(input)}}}
+		request := model.Request{Model: interpreter.ModelName, Schema: schema, Messages: []model.Message{{Role: "system", Content: polishInstruction}, {Role: "user", Content: string(input)}}}
 		request, err = model.VerifyContextBudget(request, interpreter.ContextTokens, interpreter.OutputTokens, interpreter.ByteTokenBoundVerified)
 		if err != nil {
 			return out, fail("context_budget_exceeded")
@@ -255,6 +260,9 @@ func (s *Service) Assist(ctx context.Context, a, e string, r AssistRequest, inte
 		candidate, err := s.Generator.Generate(ctx, generation, newID("repair-"))
 		if err != nil {
 			return out, err
+		}
+		if candidate.MemoryDelta != nil {
+			return out, fail("invalid_candidate")
 		}
 		if _, err = Apply(authority, candidate); err != nil {
 			return out, err

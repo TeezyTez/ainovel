@@ -45,7 +45,7 @@ func number(name string, fallback int) (int, error) {
 func run() error {
 	listen := flag.String("listen", "127.0.0.1:18081", "literal loopback HTTP address (development only)")
 	static := flag.String("static-dir", "", "optional Flutter web build directory, served same-origin")
-	migrateArtifacts := flag.Bool("migrate-artifacts", false, "add public presentation tables only and exit")
+	migrateArtifacts := flag.Bool("migrate-artifacts", false, "apply additive product presentation/gameplay/narrative migrations and exit")
 	flag.Parse()
 	if !devhttp.LoopbackAddress(*listen) {
 		return errors.New("listen must be a literal loopback IP:port")
@@ -103,12 +103,15 @@ func run() error {
 		if err := schema.ApplyArtifacts(ctx, db); err != nil {
 			return err
 		}
-		return schema.ApplyGameplay(ctx, db)
+		if err := schema.ApplyGameplay(ctx, db); err != nil {
+			return err
+		}
+		return schema.ApplyNarrative(ctx, db)
 	}
 	link := channel.NewLink(ctx, channel.ClientOptions{Addr: addr, Transport: channel.ClientTransportConfig{InsecurePlaintext: true}, MaxPayloadBytes: 2 << 20})
 	defer link.Close()
 	timeout := 2 * time.Minute
-	algorithm := &experience.Algorithm{ProseFirst: true, Link: link, ModelName: name, Timeout: timeout, MaxModelInputBytes: 512 << 10, MaxOutputBytes: 64 << 10, MaxOutputTokens: output, ModelContextTokens: tokens, ModelByteTokenBoundVerified: verified, MaxModelCalls: 5}
+	algorithm := &experience.Algorithm{Link: link, ModelName: name, Timeout: timeout, MaxModelInputBytes: 512 << 10, MaxOutputBytes: 64 << 10, MaxOutputTokens: output, ModelContextTokens: tokens, ModelByteTokenBoundVerified: verified, MaxModelCalls: 12}
 	if provider == "codex" {
 		if base != "" || name != "" || key != "" {
 			return errors.New("Codex provider conflicts with OpenAI-compatible model configuration")
@@ -137,14 +140,31 @@ func run() error {
 	} else {
 		log.Print("model_unavailable: no explicit model configuration; no external request will be made")
 	}
-	service := &experience.Service{ProseFirst: true, DB: db, Generator: algorithm, MaxContextBytes: 256 << 10, RecentRevisions: 16, ReadLimits: experience.ReadBudget{MaxReads: 4, MaxReplyBytes: 64 << 10, MaxTotalReplyBytes: 128 << 10}}
+	service := &experience.Service{NarrativeEngine: true, DB: db, Generator: algorithm, MaxContextBytes: 256 << 10, RecentRevisions: 16, ReadLimits: experience.ReadBudget{MaxReads: 4, MaxReplyBytes: 64 << 10, MaxTotalReplyBytes: 128 << 10}}
 	service.Artifacts = &experience.ArtifactRuntime{NodePath: os.Getenv("ELSELIFE_DEV_ARTIFACT_NODE"), ValidatorPath: os.Getenv("ELSELIFE_DEV_ARTIFACT_VALIDATOR"), CompilerPath: os.Getenv("ELSELIFE_DEV_ARTIFACT_COMPILER")}
 	if err := service.RecoverExpired(ctx); err != nil {
 		return errors.New("product recovery unavailable; verify product schema")
 	}
+	if err := service.InvalidatePreparationsOnRestart(ctx); err != nil {
+		return errors.New("narrative preparation recovery unavailable; apply additive migration")
+	}
 	var calls sync.WaitGroup
 	var mu sync.Mutex
 	closed := false
+	service.PrepareDispatch = func(a, e, b string, revision int64) {
+		mu.Lock()
+		defer mu.Unlock()
+		if closed {
+			return
+		}
+		calls.Add(1)
+		go func() {
+			defer calls.Done()
+			if err := service.PrepareNext(ctx, a, e, b, revision); err != nil && ctx.Err() == nil {
+				log.Print("narrative preparation unavailable; committed story unchanged")
+			}
+		}()
+	}
 	dispatch := func(a, r string) {
 		mu.Lock()
 		defer mu.Unlock()

@@ -1,6 +1,6 @@
 # ElseLife Rust 产品算法端
 
-来自 `6d32d4cbc1fea759531179d3f3e0e949ae4cca58` 的 experience-only 源码闭包；不含旧 kernel、task dispatcher、route/goal/graph/verify/intelligence 实现或其历史测试。prompt、typed contract、校验、read orchestration、正式 runtime/probe 与 experience 测试保持原字节。
+初始导出来自 `6d32d4cbc1fea759531179d3f3e0e949ae4cca58` 的 experience-only 源码闭包；不含旧 kernel、task dispatcher、route/goal/graph/verify/intelligence 实现或其历史测试。当前实际生成使用 v4.13 显式叙事阶段、记忆索引与证据分离、有界历史回取及独立审稿；共享合同及各端快照同步维护。最新验证见 [记忆证据记录](../notes/2026-10-20-memory-evidence-v2-validation.md) 和 [本地交付记录](../notes/2026-10-21-local-release.md)，下方旧测试数量保留为导出阶段记录。
 
 ## 构建
 

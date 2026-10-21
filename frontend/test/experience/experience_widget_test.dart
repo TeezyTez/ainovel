@@ -175,17 +175,20 @@ void main() {
     scroll.jumpTo(400);
     await tester.pumpAndSettle();
     expect(c.offset, 400);
+    final readingAnchor = c.readingAnchor!.toJson();
     expect(editable.focusNode.hasFocus, isTrue);
     c.session.themeId = 'ink';
     await c.saveReading(size: 22);
     await tester.pumpAndSettle();
     expect(tester.element(find.byType(EditableText).first), same(element));
     expect(editable.focusNode.hasFocus, isTrue);
-    expect(scroll.offset, 400);
+    expect(c.readingAnchor!.toJson(), readingAnchor);
+    final afterFont = scroll.offset;
+    expect(afterFont, greaterThan(400));
     expect(editable.controller.text, '另一个念头');
     await c.send();
     await tester.pumpAndSettle();
-    expect(scroll.offset, 400);
+    expect(scroll.offset, closeTo(afterFont, 1));
     expect(editable.focusNode.hasFocus, isTrue);
     expect(tester.takeException(), isNull);
   });
@@ -239,7 +242,9 @@ void main() {
     await tester.tap(find.byTooltip('增大阅读字号'));
     await tester.pumpAndSettle();
     final afterFont = position().pixels;
-    expect(afterFont, closeTo(2600, 1));
+    expect(afterFont, greaterThan(2600));
+    expect(c.readingAnchor, isNotNull);
+    final readingAnchor = c.readingAnchor!.toJson();
     api.viewOverride = {
       ...api.viewOverride!,
       'revision': 61,
@@ -251,6 +256,7 @@ void main() {
     await c.send(explicitMode: 'read');
     await tester.pumpAndSettle();
     expect(position().pixels, closeTo(afterFont, 1));
+    expect(c.readingAnchor!.toJson(), readingAnchor);
     await c.saveReading(position: afterFont);
     await tester.pumpWidget(const SizedBox.shrink());
     await c.open('experience-a');

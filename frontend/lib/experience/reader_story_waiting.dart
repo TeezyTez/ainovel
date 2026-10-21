@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'experience_models.dart';
 
 enum StoryWaitingMotif { rain, dialogue, journey, discovery, ink }
 
@@ -75,12 +76,14 @@ class ReaderStoryWaiting extends StatefulWidget {
     this.onStop,
     this.stopping = false,
     this.showStop = false,
+    this.phase,
   });
 
   final String input;
   final String publishedText;
   final VoidCallback? onStop;
   final bool stopping;
+  final NarrativePhase? phase;
 
   /// Keeps the stop control visible while its callback is temporarily disabled.
   final bool showStop;
@@ -154,7 +157,7 @@ class _ReaderStoryWaitingState extends State<ReaderStoryWaiting>
     final ink =
         DefaultTextStyle.of(context).style.color ?? colors.onSurfaceVariant;
     final sketch = Color.lerp(ink, colors.primary, .28)!;
-    final label = widget.stopping ? '稍等片刻' : '故事正在继续';
+    final label = widget.stopping ? '稍等片刻' : widget.phase?.label ?? '故事正在继续';
     return Semantics(
       key: const ValueKey('story-waiting'),
       container: true,

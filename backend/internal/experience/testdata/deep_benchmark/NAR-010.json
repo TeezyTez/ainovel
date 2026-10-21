@@ -1,0 +1,226 @@
+{
+  "id": "NAR-010",
+  "source_sha256": "37a6ff7987fbc6ebacfadea70f6e8cdffc2abf0d2cfdb2ed1d2d3d729fd679d6",
+  "source_line": 8352,
+  "variant": "base",
+  "seed": "轻喜剧，第二人称。你是首次主持社区小宴的沈桥。避免用疾病、地区、阶层等身份羞辱作笑料。",
+  "opening": "你第一次主持社区小宴，九位熟人吃饭。桌上摆着红杯和白杯：红杯装无糖茶，白杯装甜茶，没有领导席。阿穆来帮忙，秦姨和何叔也在，饭菜还没有上齐。",
+  "state": {
+    "story_time": "社区小宴上菜前",
+    "entities": [
+      {
+        "id": "shen",
+        "kind": "character",
+        "name": "沈桥",
+        "description": "首次主持社区小宴",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "mu",
+        "kind": "character",
+        "name": "阿穆",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "qin",
+        "kind": "character",
+        "name": "秦姨",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "he",
+        "kind": "character",
+        "name": "何叔",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "red-cups",
+        "kind": "item",
+        "name": "红杯",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      },
+      {
+        "id": "white-cups",
+        "kind": "item",
+        "name": "白杯",
+        "description": "",
+        "known": true,
+        "related_ids": []
+      }
+    ],
+    "facts": [
+      {
+        "id": "meal-size",
+        "kind": "fact",
+        "text": "这场社区小宴有九位熟人吃饭。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "shen"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "tea-colors",
+        "kind": "rule",
+        "text": "红杯装无糖茶，白杯装甜茶。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "shen",
+          "qin"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "no-head-seat",
+        "kind": "rule",
+        "text": "这场小宴没有领导席。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "shen"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "visible-cups",
+        "kind": "fact",
+        "text": "桌上摆着红杯和白杯。",
+        "subject_id": "",
+        "known": true,
+        "known_by": [
+          "shen",
+          "mu",
+          "qin",
+          "he"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "mu-goals",
+        "kind": "fact",
+        "text": "阿穆想在第一次帮忙时不失礼，让客人觉得受重视。",
+        "subject_id": "mu",
+        "known": false,
+        "known_by": [
+          "mu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "mu-red-belief",
+        "kind": "belief",
+        "text": "阿穆相信红杯是重要客人的待遇。",
+        "subject_id": "mu",
+        "known": false,
+        "known_by": [
+          "mu"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "qin-goals",
+        "kind": "fact",
+        "text": "秦姨希望饭别凉，想喝无糖茶。",
+        "subject_id": "qin",
+        "known": false,
+        "known_by": [
+          "qin"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "he-goals",
+        "kind": "fact",
+        "text": "何叔想坐近点聊天，想喝甜茶。",
+        "subject_id": "he",
+        "known": false,
+        "known_by": [
+          "he"
+        ],
+        "source_revision": 1
+      },
+      {
+        "id": "cups-not-status",
+        "kind": "rule",
+        "text": "杯色从来不是地位；不存在隐藏大人物揭晓。",
+        "subject_id": "",
+        "known": false,
+        "known_by": [],
+        "source_revision": 1
+      }
+    ],
+    "threads": []
+  },
+  "steps": [
+    {
+      "id": "S01",
+      "mode": "act",
+      "input": "我请阿穆帮忙倒茶，不确定就问。"
+    },
+    {
+      "id": "S02",
+      "mode": "continue",
+      "input": "继续上菜前的忙乱。"
+    },
+    {
+      "id": "S03",
+      "mode": "act",
+      "input": "我问秦姨茶够不够；若发现配错，就说我知道的饮品规则。"
+    },
+    {
+      "id": "S04",
+      "mode": "act",
+      "input": "我让何叔选自己想喝的茶，不替他争所谓好位置。"
+    },
+    {
+      "id": "S05",
+      "mode": "act",
+      "input": "如果阿穆有另一套理解，我听完再简短解释实际规则。"
+    },
+    {
+      "id": "S06",
+      "mode": "continue",
+      "input": "继续落座，已经解开的误会就按解开后的状态写。"
+    },
+    {
+      "id": "S07",
+      "mode": "act",
+      "input": "我和阿穆处理还没端上的菜。"
+    },
+    {
+      "id": "S08",
+      "mode": "continue",
+      "input": "写开饭后的一次轻微回响，别重演完全相同的误会。"
+    },
+    {
+      "id": "S09",
+      "mode": "act",
+      "input": "我感谢他帮忙，不当众给他定丢人的绰号。"
+    },
+    {
+      "id": "S10",
+      "mode": "continue",
+      "input": "让这顿饭以适合轻喜剧的方式收尾。"
+    }
+  ],
+  "private_tokens": [],
+  "omissions": [
+    "Draft only; not installed in active testdata and not executed. All ten original inputs and modes are retained verbatim.",
+    "The opening is evaluator-authored synthetic revision-one prehistory. The table/pre-serving placement and initial presence of the three named guests are minimal scene staging, not generated evidence.",
+    "The nine-person count does not assign names, votes, hidden status or behavior to unspecified diners. No extra guest is initialized as a character.",
+    "mu-red-belief is a belief of mu, not the tea rule; reader disclosure and character knowledge are separate. No initial sharing of that belief with Shen/Qin/He is granted.",
+    "No mistake, laugh, duration of misunderstanding, disclosure, correction, vote or ending is precommitted. There is no epilogue marker; an early natural ending leaves later world probes unreached.",
+    "Counterfactual and chopstick-rest migration variants and human literary review are not covered by this base draft. Generic private canary tokens are omitted; knowledge needs source-and-transcript review."
+  ]
+}

@@ -295,6 +295,39 @@ fn historical_revisions_are_evidence_not_permanent_current_truth_or_merge() {
         Err(Invalid("recall_current_body_mismatch"))
     );
 }
+
+#[test]
+fn narrative_navigation_includes_current_recall_but_not_obsolete_knowledge() {
+    let mut context = c();
+    let current = context.state.facts.remove(0);
+    context.state_coverage.policy = CoveragePolicy::Bounded;
+    context.state_coverage.complete = false;
+    context.state_coverage.omitted.facts = 1;
+    let current_request = request(&context, json!({"kind":"objects","objects":[{"type":"fact","id":"fixed_secret"}]}));
+    let current_reply = reply(&context, &current_request, vec![ReadObject {
+        object_type: ObjectType::Fact, as_of_revision: 3, body: ReadBody::Fact(current.clone()),
+    }], vec![]);
+    current_reply.validate(&context, &current_request, &raw(&current_reply)).unwrap();
+    context.recalls.push(current_reply);
+    let mut old = current;
+    old.id = "obsolete_fact".into();
+    old.known_by = vec!["old_only_character".into()];
+    let mut historical_request = request(&context, json!({"kind":"objects","objects":[{"type":"fact","id":"obsolete_fact","at_revision":1}]}));
+    historical_request.request_id = "read_history".into();
+    let historical_reply = reply(&context, &historical_request, vec![ReadObject {
+        object_type: ObjectType::Fact, as_of_revision: 1, body: ReadBody::Fact(old),
+    }], vec![]);
+    historical_reply.validate(&context, &historical_request, &raw(&historical_reply)).unwrap();
+    context.recalls.push(historical_reply);
+    let input = narrative_input(&context).unwrap();
+    let brief = &input["authoring"]["narrative_brief"];
+    assert_eq!(brief["objective_facts"], json!([{"id":"fixed_secret","kind":"secret","source_revision":1}]));
+    assert_eq!(brief["character_knowledge"], json!([{"entity_id":"npc_restorer","fact_ids":["fixed_secret"]}]));
+    assert!(!brief.to_string().contains("obsolete_fact"));
+    assert!(!brief.to_string().contains("old_only_character"));
+    assert!(context.state.facts.is_empty());
+    assert_eq!(input["context"]["recalls"].as_array().unwrap().len(), 2);
+}
 #[test]
 fn omitted_ids_are_deferred_to_full_go_apply_current_recall_checks_no_overwrite() {
     let mut context = c();

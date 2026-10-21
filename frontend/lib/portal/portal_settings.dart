@@ -113,7 +113,7 @@ class _PortalSettingsState extends State<PortalSettings> {
     _title('新故事偏好','仅用于新故事。'),
     LayoutBuilder(builder:(context,constraints)=>Wrap(spacing:22,runSpacing:25,children:[
       for (final row in [ ['perspective','视角','第二人称','第一人称','第三人称'], ['length','篇幅','简短','适中','舒展'],
-        ['pace','节奏','从容','适中','紧凑'], ['style','文风','细腻克制','明快简洁','诗意留白','朴素日常']])
+        ['pace','节奏','从容','适中','紧凑']])
         SizedBox(width:constraints.maxWidth<450?constraints.maxWidth:(constraints.maxWidth-22)/2,child:Column(crossAxisAlignment:CrossAxisAlignment.start,
           children:[Text(row[1],style:const TextStyle(fontSize:13)),const SizedBox(height:9),_choice(row[0],{for(final value in row.skip(2))value:value})]))])),
     const Divider(height: 36), TextButton(onPressed: widget.onContentPreferences, child: const Text('管理已确认的内容偏好')),
@@ -134,7 +134,7 @@ class _PortalSettingsState extends State<PortalSettings> {
     }));
   Widget _data() => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
     _title('数据与备份','故事保存在这台设备，暂不支持云同步。'),
-    _action('导出记录','导出本机世界、故事、草稿、分支与阅读标记。','导出本机记录',widget.exportAll,'已导出本机记录。'),
+    _action('作者完整备份','包含尚未揭示的世界事实、人物秘密、创作设置、私人输入与草稿，仅供自己备份迁移。分享阅读内容请使用故事选项中的「导出正文」。','导出作者完整备份',widget.exportAll,'已导出作者完整备份。'),
     const Divider(), _action('导入记录','导入之前保存的 JSON 文件。','导入记录',widget.importAll,'导入操作已结束。'),
     ExpansionTile(tilePadding: EdgeInsets.zero, title: const Text('备份与迁移说明'), children: const [Padding(padding: EdgeInsets.all(12), child:
       Text('备份包含本机创作设置与正式故事记录。世界文件可能包含作者的幕后设定，分享时请在故事选项中选择「导出正文」。'))]),

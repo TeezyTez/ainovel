@@ -20,7 +20,7 @@ func (m *structuredOnlyModel) Generate(ctx context.Context, r model.Request) (mo
 	return m.newtestsFeedbackModel.Generate(ctx, r)
 }
 func completeWorldDraft() WorldDraft {
-	return WorldDraft{Title: "雾港", Description: "港口城镇", Era: "近代", Rules: []string{"每封信都有来处"}, Characters: []WorldCharacter{{Name: "阿禾", Role: "店主", Public: "照看旧书店", Goal: "作者目标", History: "作者经历", Secret: "幕后密文"}}, Identity: "送信人", Location: "码头", Goal: "寻找收件人", Opening: "你站在码头边。", Narrative: WorldNarrative{"第二人称", "适中", "细腻克制", "从容"}}
+	return WorldDraft{Title: "雾港", Description: "港口城镇", Era: "近代", Rules: []string{"每封信都有来处"}, Characters: []WorldCharacter{{Name: "阿禾", Role: "店主", Public: "照看旧书店", Goal: "作者目标", History: "作者经历", Secret: "幕后密文"}}, Identity: "送信人", Location: "码头", Goal: "寻找收件人", Opening: "你站在码头边。", Narrative: WorldNarrative{Perspective: "第二人称", Length: "适中", Pace: "从容"}}
 }
 func assertStrictObjects(t *testing.T, value any) {
 	t.Helper()
@@ -70,6 +70,44 @@ func TestWorldDraftUsesCompleteStructuredSchemaAndReturnsAuthorDraft(t *testing.
 		t.Fatal(err)
 	}
 	assertStrictObjects(t, schema)
+}
+
+// Fixed model responses cover schema and transport behavior, not prose quality.
+func TestWorldDraftGeneratesWithoutAStyleSetting(t *testing.T) {
+	raw, _ := json.Marshal(completeWorldDraft())
+	var object map[string]any
+	_ = json.Unmarshal(raw, &object)
+	delete(object["narrative"].(map[string]any), "style")
+	raw, _ = json.Marshal(object)
+	m := &structuredOnlyModel{newtestsFeedbackModel: newtestsFeedbackModel{text: string(raw)}}
+	draft, err := newtestsInterpreter(m).GenerateWorld(context.Background(), WorldDraftRequest{RequestID: "draft-style", Idea: "近代港口的送信人"})
+	if err != nil || draft.Opening != "你站在码头边。" {
+		t.Fatalf("style-free draft rejected: %+v %v", draft, err)
+	}
+	var schema map[string]any
+	_ = json.Unmarshal(m.requests[0].Schema, &schema)
+	narrative := schema["properties"].(map[string]any)["narrative"].(map[string]any)
+	if _, exists := narrative["properties"].(map[string]any)["style"]; exists {
+		t.Fatal("model schema still asks for a style setting")
+	}
+	for _, key := range narrative["required"].([]any) {
+		if key == "style" {
+			t.Fatal("model schema still requires a style setting")
+		}
+	}
+}
+
+func TestWorldDraftRejectsModelProvidedStyleSetting(t *testing.T) {
+	raw, _ := json.Marshal(completeWorldDraft())
+	var object map[string]any
+	_ = json.Unmarshal(raw, &object)
+	object["narrative"].(map[string]any)["style"] = "细腻克制"
+	raw, _ = json.Marshal(object)
+	m := &structuredOnlyModel{newtestsFeedbackModel: newtestsFeedbackModel{text: string(raw)}}
+	draft, err := newtestsInterpreter(m).GenerateWorld(context.Background(), WorldDraftRequest{RequestID: "draft-style", Idea: "送信人"})
+	if err == nil || draft.Title != "" {
+		t.Fatal("model output outside the style-free schema accepted")
+	}
 }
 func TestWorldDraftRejectsIncompleteAndUnsavableModelOutput(t *testing.T) {
 	valid := completeWorldDraft()

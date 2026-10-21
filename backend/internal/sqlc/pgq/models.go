@@ -77,6 +77,25 @@ type ExperienceModelInput struct {
 	CreatedAt    time.Time
 }
 
+type ExperienceNarrativePreparation struct {
+	AccountID        string
+	ExperienceID     string
+	BranchID         string
+	ID               string
+	BaseRevision     int64
+	BaseFence        int64
+	Pin              string
+	EngineVersion    string
+	Status           string
+	LeaseUntil       time.Time
+	Candidate        []byte
+	Approval         []byte
+	Audit            json.RawMessage
+	ClaimedRequestID sql.NullString
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+}
+
 type ExperienceOperation struct {
 	AccountID         string
 	RequestID         string
@@ -95,6 +114,10 @@ type ExperienceOperation struct {
 	Candidate         []byte
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
+	ReadingRequest    string
+	ProgressPhase     string
+	ProgressSeq       int64
+	NarrativeApproval []byte
 }
 
 type ExperiencePage struct {

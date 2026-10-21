@@ -8,6 +8,25 @@ import '../support/experience_fixture.dart';
 import '../support/elselife_test_app.dart';
 
 void main() {
+  test('legacy style is ignored when loading and restoring story preferences', () async {
+    final journal = MemoryJournal();
+    final preferences = PortalPreferences(
+      journal: journal,
+      backendUrl: 'a',
+      workspaceId: 'legacy-style',
+    );
+    await journal.patch(preferences.scope, {'style': '诗意留白', 'pace': '紧凑'});
+    await preferences.hydrate();
+    expect(preferences.values.containsKey('style'), isFalse);
+    expect(preferences.text('pace'), '紧凑');
+    await preferences.restore({
+      'style': '明快简洁',
+      'perspective': '第一人称',
+    });
+    expect(preferences.values.containsKey('style'), isFalse);
+    expect(preferences.text('perspective'), '第一人称');
+    preferences.dispose();
+  });
   test('settings clamp invalid stored numbers, persist and isolate workspaces', () async {
     final journal = MemoryJournal();
     final preferences = PortalPreferences(journal: journal,backendUrl:'a',workspaceId:'one');
@@ -69,7 +88,7 @@ void main() {
       await tester.tap(find.text('新故事偏好'));await tester.pumpAndSettle();expect(find.text('仅用于新故事。'),findsOneWidget);
       await tester.tap(find.text('生成服务'));await tester.pumpAndSettle();expect(find.text('已配置 · Codex'),findsOneWidget);
       await tester.tap(find.text('数据与备份'));await tester.pumpAndSettle();
-      final export = find.text('导出本机记录');await tester.ensureVisible(export);await tester.tap(export);await tester.pumpAndSettle();expect(exports,1);expect(tester.takeException(),isNull);
+      final export = find.text('导出作者完整备份');await tester.ensureVisible(export);await tester.tap(export);await tester.pumpAndSettle();expect(exports,1);expect(tester.takeException(),isNull);
       await tester.pumpWidget(const SizedBox.shrink());prefs.dispose();tester.view.reset();
     });
   }

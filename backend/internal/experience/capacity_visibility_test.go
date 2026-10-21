@@ -23,7 +23,9 @@ func TestExplicitCapacityUnknownAndWholeCarrierBudget(t *testing.T) {
 		t.Fatal("whole messages were not counted", r)
 	}
 	call.Messages = []*pb.ModelMessage{{Role: "user", Content: "短"}}
-	call.SchemaJson = `{"description":"` + strings.Repeat("x", 5000) + `"}`
+	// A schema that consumes the entire remaining window cannot also fit the
+	// user message or fallback framing. Native and fallback each carry one copy.
+	call.SchemaJson = `{"description":"` + strings.Repeat("x", a.ModelContextTokens-a.outputTokens()) + `"}`
 	if r := a.modelCall(context.Background(), call); r.ErrorCode != "context_budget_exceeded" || m.calls.Load() != 0 {
 		t.Fatal("schema/fallback/output reserve omitted", r)
 	}

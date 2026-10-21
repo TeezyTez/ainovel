@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>人物记忆的存储与取用</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;background:transparent;color:var(--foreground,#20242b);font-family:var(--font-sans,system-ui),sans-serif}body{font-size:15px;line-height:1.7}h2{font-size:25px;line-height:1.35;margin:0 0 10px;letter-spacing:-.5px}h3{font-size:17px;margin:0 0 8px}p{margin:8px 0}.sub,.muted{color:var(--muted-foreground,#626872)}.sub{font-size:13px;margin:0 0 18px}.flow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}.box{border:1px solid var(--border,#dce0e4);border-radius:var(--radius,12px);padding:16px;background:var(--card,transparent)}.box b{display:block;font-size:15px}.box p{margin-bottom:0;font-size:13px;color:var(--muted-foreground,#626872)}.step{font:12px var(--font-mono,monospace);color:var(--muted-foreground,#626872);margin-bottom:6px}.focus{border-color:var(--ring,#71968e);background:var(--accent-surface,rgba(100,150,140,.06))}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 10px}button{font:inherit;font-size:14px;cursor:pointer;border:1px solid var(--border,#dce0e4);border-radius:8px;padding:9px 13px;color:var(--foreground,#20242b);background:transparent}button[aria-pressed=true]{background:var(--primary,#2c5c50);color:var(--primary-foreground,#fff);border-color:transparent}button:focus-visible,summary:focus-visible{outline:2px solid var(--ring,#71968e);outline-offset:3px}.scene{font-size:14px;margin-bottom:14px}.selection{list-style:none;padding:0;margin:0}.selection li{padding:12px 0;border-top:1px solid var(--border,#dce0e4)}.selection li:first-child{border-top:0;padding-top:0}.selection .line{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}.tag{font-size:11px;border:1px solid var(--border,#dce0e4);border-radius:5px;padding:1px 6px;white-space:nowrap}.selection p{font-size:13px;margin:4px 0 0;color:var(--muted-foreground,#626872)}.leave{font-size:13px;color:var(--muted-foreground,#626872);padding-top:12px;border-top:1px solid var(--border,#dce0e4)}.principle{margin:16px 0;padding:16px;border-radius:var(--radius,12px);background:var(--secondary,rgba(128,128,128,.08));font-size:14px}.principle b{display:block;margin-bottom:5px}.comparison{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}.comparison p{font-size:14px}.label{font-size:12px;color:var(--muted-foreground,#626872)}details{margin-top:18px;border-top:1px solid var(--border,#dce0e4);padding-top:14px}summary{cursor:pointer;font-weight:600}details ul{padding-left:20px}details li{margin:8px 0;font-size:14px}.end{font-size:13px;margin:18px 0 0;color:var(--muted-foreground,#626872)}@media(max-width:460px){h2{font-size:22px}.flow,.comparison{grid-template-columns:1fr}.box{padding:16px}.tabs button{flex:1}}
+</style>
+</head>
+<body>
+<h2>人物记忆的存储与取用</h2>
+<p class="sub">架构设计示意 · 例子为人工构造，尚未实施或验证生成效果</p>
+<p>数据库保存完整经历；每一场戏只带入会影响人物理解、选择和表达的材料。没有进入提示词的往事，仍然可以再次取回。</p>
+<div class="flow">
+ <div class="box"><div class="step">01 · 长期保存</div><b>原文、事实与可回源的记忆索引</b><p>人物、关系、经历、约定、线索各有来源和时间。摘要可以更新，原始依据保留。</p></div>
+ <div class="box"><div class="step">02 · 确定本场需要</div><b>谁和谁，在什么处境下互动</b><p>查当前关系、触及的在乎之物、未了之事和相关经历。代词也通过场景识别人。</p></div>
+ <div class="box focus"><div class="step">03 · 分别组织材料</div><b>每个角色与生成阶段拿不同内容</b><p>先校验知情范围，再检索与压缩。角色、写作、审稿各自装包；缺关键依据时定点补查。</p></div>
+ <div class="box"><div class="step">04 · 写回实际变化</div><b>经历留下后果，人物允许成长</b><p>只记录已提交场景的变化。临时疲惫、一次争执，不自动覆盖长期性格和关系。</p></div>
+</div>
+<h3>同一个人，换一场戏，取材就会变化</h3>
+<div class="tabs" aria-label="切换设计示例">
+ <button type="button" id="late" aria-pressed="true">林舟晚归，面对室友</button>
+ <button type="button" id="help" aria-pressed="false">林舟求助，面对同事</button>
+</div>
+<div class="box" aria-live="polite">
+ <p class="scene" id="scene"></p>
+ <ul class="selection" id="selection"></ul>
+ <p class="leave" id="leave"></p>
+</div>
+<div class="principle"><b>取回经历 ≠ 必须回忆它 ≠ 必须说出口</b>过去可以只影响一句话的长短、何时开口、是否默认信任，或一个没做出来的动作。相关记忆也不指定人物必须答应、拒绝或和解。</div>
+<h3>压缩保留“为什么这样”，而不只留下标签</h3>
+<div class="comparison">
+ <div class="box"><div class="label">信息丢失的压缩</div><p>“林舟谨慎，不愿求助。”</p><p class="muted">对谁、为什么、什么情况下例外，都不见了。</p></div>
+ <div class="box"><div class="label">带来源的条件性摘要</div><p>“面对陌生人常先自己试；周宁曾私下帮他保住体面，此后他愿意向周宁问具体问题。”</p><p class="muted">保留关系与变化，必要时再读原场景。</p></div>
+</div>
+<details>
+ <summary>展开：什么可以缩，什么必须留</summary>
+ <ul>
+ <li>重复的执行过程可以合并；这次不同的选择、代价与后果要留下。</li>
+ <li>相似的表达可以归纳；适用对象、语境、例外和少量原始对白要能取回。</li>
+ <li>承诺可以简述；谁对谁、条件、期限、否定与未履行状态不能丢。</li>
+ <li>已完成的小事可离开活跃列表；它对信任和关系的影响仍可被查到。</li>
+ <li>强烈创伤不自动优先，普通默契也可能决定这场戏。重要性随场景变化。</li>
+ <li>容量不足先降低次要材料的粒度；关键约束放不下时显式处理，不能悄悄忘掉。</li>
+ </ul>
+</details>
+<p class="end">验收分别检查：是否找对材料、是否压坏意义、是否自然影响当前场景。不能用“提到了多少往事”代替人物质量。</p>
+<script>
+const examples={
+ late:{scene:"设计情境：两人曾因未告知晚归发生不快，后来约定晚了发消息。本例明确林舟今天没有发消息，九点半回家时陈禾还没吃饭。",
+ items:[["尚未履行好的告知约定","原句","“晚了发个字就行。”准确保留条件与承诺对象，决定这次交流的前提。"],
+ ["两人平时怎样表达关心与不满","简短摘要","熟悉程度、说明量、称呼来自共同经历，不把室友只概括成“温柔”或“冷淡”。"],
+ ["上次因晚归发生的不快","关键经过","保留当时说清了什么、什么仍未解决；原文随时可展开。"],
+ ["歪蓝碗的共同经历","条件取回","只有物件实际出场或被提及时才展开，不为了展示记忆硬塞进剧情。"]],
+ leave:"留在数据库：完整工作履历、与其他人的往事、重复晚饭记录。未取用不等于删除。"},
+ help:{scene:"另一设计情境：林舟向同事周宁请教一个陌生操作。已有经历表明，周宁曾私下替他纠正难堪的错误。",
+ items:[["眼前不会的操作与希望获得的帮助","当前事实","明确本次需求与现实条件，不让旧经历替代眼前问题。"],
+ ["周宁曾维护他的体面","关键经过","当前输入未提往事，也可通过双方关系找到它；它可能影响求助的时机和说明量。"],
+ ["林舟对陌生人与周宁的表达差异","带条件的摘要","保留熟悉关系中的例外，不强制他永远谨慎，也不要求他当面追述旧事。"],
+ ["相关交流的历史样本","按需原文","写作需要把握两人的说话节奏时展开；例句提供语境，不作为固定台词。"]],
+ leave:"本场通常不取：晚归约定、蓝碗和所有室友对话。昨夜的情绪只有确有依据且仍相关时才承接。"}
+};
+function show(key){const e=examples[key];document.querySelector("#scene").textContent=e.scene;const list=document.querySelector("#selection");list.replaceChildren();for(const [name,tag,description] of e.items){const li=document.createElement("li"),line=document.createElement("div"),b=document.createElement("b"),badge=document.createElement("span"),p=document.createElement("p");line.className="line";b.textContent=name;badge.className="tag";badge.textContent=tag;p.textContent=description;line.append(b,badge);li.append(line,p);list.append(li);}document.querySelector("#leave").textContent=e.leave;for(const id of Object.keys(examples))document.getElementById(id).setAttribute("aria-pressed",String(key===id));}
+for(const key of Object.keys(examples))document.getElementById(key).addEventListener("click",()=>show(key));
+show("help");console.assert(document.querySelectorAll("#selection li").length===4,"help scene renders");
+show("late");console.assert(document.querySelectorAll("#selection li").length===4,"late scene renders");
+console.log("Design illustration initialized; two scene selections render.");
+</script>
+</body>
+</html>

@@ -5,6 +5,21 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
 void main(){
+ test('reader export never requests the private migration archive', () async {
+   final client = PortalServiceClient(() => 'http://localhost', client: MockClient((request) async {
+     expect(request.method, 'GET');
+     expect(request.url.path, '/v1/reader-export');
+     return http.Response('{"format":"elselife-reader-export","version":1,"experiences":[]}', 200);
+   }));
+   expect((await client.exportReaderRecords())['experiences'], isEmpty);
+   client.close();
+ });
+ test('reader export rejects a private archive response instead of downloading it', () async {
+   final client = PortalServiceClient(() => 'http://localhost', client: MockClient((request) async =>
+     http.Response('{"format":"elselife-archive","version":1,"experiences":[]}', 200)));
+   await expectLater(client.exportReaderRecords(), throwsFormatException);
+   client.close();
+ });
  test('cancel aborts only generation and client remains usable',()async{
    final transport=_AbortClient();
    final client=PortalServiceClient(()=>'http://localhost',client:transport);

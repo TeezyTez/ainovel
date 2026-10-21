@@ -8,7 +8,157 @@ package pgq
 import (
 	"context"
 	"encoding/json"
+
+	"github.com/lib/pq"
 )
+
+const experienceMaterialFacts = `-- name: ExperienceMaterialFacts :many
+SELECT fact.value::jsonb AS body
+FROM experience_pages AS page,
+LATERAL jsonb_array_elements(page.state->'facts') AS fact(value)
+WHERE page.account_id=$1 AND page.experience_id=$2
+ AND page.branch_id=$3 AND page.revision=$4
+ AND fact.value->>'id'=ANY($5::text[])
+ AND ($6::text='' OR jsonb_exists(fact.value->'known_by',$6::text))
+ORDER BY fact.value->>'id'
+`
+
+type ExperienceMaterialFactsParams struct {
+	AccountID    string
+	ExperienceID string
+	BranchID     string
+	Revision     int64
+	FactIds      []string
+	ActorID      string
+}
+
+// The selector is derived by Go from the pinned operation. Knowledge is filtered
+// in SQL before any result is counted or paginated for an actor.
+func (q *Queries) ExperienceMaterialFacts(ctx context.Context, arg ExperienceMaterialFactsParams) ([]json.RawMessage, error) {
+	rows, err := q.db.QueryContext(ctx, experienceMaterialFacts,
+		arg.AccountID,
+		arg.ExperienceID,
+		arg.BranchID,
+		arg.Revision,
+		pq.Array(arg.FactIds),
+		arg.ActorID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []json.RawMessage
+	for rows.Next() {
+		var body json.RawMessage
+		if err := rows.Scan(&body); err != nil {
+			return nil, err
+		}
+		items = append(items, body)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const experienceMaterialMemories = `-- name: ExperienceMaterialMemories :many
+SELECT memory.value::jsonb AS body
+FROM experience_pages AS page,
+LATERAL jsonb_array_elements(COALESCE(page.state->'literary_memory'->'entries','[]'::jsonb)) AS memory(value)
+WHERE page.account_id=$1 AND page.experience_id=$2
+ AND page.branch_id=$3 AND page.revision=$4
+ AND memory.value->>'id'=ANY($5::text[])
+ORDER BY memory.value->>'id'
+`
+
+type ExperienceMaterialMemoriesParams struct {
+	AccountID    string
+	ExperienceID string
+	BranchID     string
+	Revision     int64
+	MemoryIds    []string
+}
+
+// Derived records remain private author material; source pages are verified
+// separately before the selected bundle is dispatched to a model.
+func (q *Queries) ExperienceMaterialMemories(ctx context.Context, arg ExperienceMaterialMemoriesParams) ([]json.RawMessage, error) {
+	rows, err := q.db.QueryContext(ctx, experienceMaterialMemories,
+		arg.AccountID,
+		arg.ExperienceID,
+		arg.BranchID,
+		arg.Revision,
+		pq.Array(arg.MemoryIds),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []json.RawMessage
+	for rows.Next() {
+		var body json.RawMessage
+		if err := rows.Scan(&body); err != nil {
+			return nil, err
+		}
+		items = append(items, body)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const experienceMaterialSourcePages = `-- name: ExperienceMaterialSourcePages :many
+SELECT revision,page FROM experience_pages
+WHERE account_id=$1 AND experience_id=$2
+ AND branch_id=$3 AND revision=ANY($4::bigint[])
+ORDER BY revision
+`
+
+type ExperienceMaterialSourcePagesParams struct {
+	AccountID    string
+	ExperienceID string
+	BranchID     string
+	Revisions    []int64
+}
+
+type ExperienceMaterialSourcePagesRow struct {
+	Revision int64
+	Page     json.RawMessage
+}
+
+func (q *Queries) ExperienceMaterialSourcePages(ctx context.Context, arg ExperienceMaterialSourcePagesParams) ([]ExperienceMaterialSourcePagesRow, error) {
+	rows, err := q.db.QueryContext(ctx, experienceMaterialSourcePages,
+		arg.AccountID,
+		arg.ExperienceID,
+		arg.BranchID,
+		pq.Array(arg.Revisions),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ExperienceMaterialSourcePagesRow
+	for rows.Next() {
+		var i ExperienceMaterialSourcePagesRow
+		if err := rows.Scan(&i.Revision, &i.Page); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const experienceModelInputAudit = `-- name: ExperienceModelInputAudit :many
 SELECT account_id, operation_id, sequence, fence, context, model_request, created_at FROM experience_model_inputs WHERE account_id=$1 AND operation_id=$2 ORDER BY sequence

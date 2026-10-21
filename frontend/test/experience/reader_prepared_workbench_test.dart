@@ -13,6 +13,45 @@ import '../support/experience_fixture.dart';
 import 'reader_artifact_repository_test.dart' show response;
 
 void main() {
+  testWidgets('SYS-026-H4: repair carries diagnostics and stays bounded after remount', (tester) async {
+    final journal = MemoryJournal(), requests = <Json>[];
+    Future<void> mount() async {
+      final repository = ReaderArtifactRepository(
+        client: PortalServiceClient(() => 'https://api.invalid', client: MockClient((request) async {
+          if (request.method == 'POST') requests.add(object(jsonDecode(request.body)));
+          return http.Response(jsonEncode(response()), 200, headers: {'content-type': 'application/json'});
+        })),
+        journal: journal, scope: 'repair-scene-3', experienceId: 'story',
+        branchId: 'branch', revision: 3, isCurrent: () => true,
+      );
+      await tester.pumpWidget(MaterialApp(home: Scaffold(body: ReaderPreparedWorkbench(
+        repository: repository, embedded: true, onAttempt: (_) async {},
+        onDraft: (_) {}, onEvidence: () {},
+      ))));
+      await tester.pumpAndSettle();
+    }
+    void fail({bool automatic = true}) => tester.widget<ReaderArtifactSurface>(
+      find.byType(ReaderArtifactSurface)).onMessage('advanced-repair', automatic
+      ? '运行诊断：ReferenceError: plot is not defined；保留菜圃5、饮用6。' : {
+        'reason': '运行诊断：ReferenceError: plot is not defined；保留菜圃5、饮用6。',
+        'automatic': automatic,
+      });
+    await mount();
+    fail();
+    await tester.pumpAndSettle();
+    expect(requests, hasLength(1));
+    expect(requests.single['intent'], contains('ReferenceError: plot is not defined'));
+    await tester.pumpWidget(const SizedBox.shrink());
+    await mount();
+    fail();
+    await tester.pumpAndSettle();
+    expect(requests, hasLength(1), reason: 'a rebuilt iframe is not a fresh automatic repair budget');
+    fail(automatic: false);
+    await tester.pumpAndSettle();
+    expect(requests, hasLength(2), reason: 'explicit retry remains available');
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('JSONB键顺序变化不重复保存，数组顺序变化仍保存', (tester) async {
     // Transport fixture reproduces PostgreSQL JSONB's object-key reordering;
     // it does not assess generated content or narrative quality.

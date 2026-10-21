@@ -33,7 +33,7 @@ void main() {
       'objectIds': ['fact:known', 'page:1'],
     };
     final picked = readerSelectedObjects(selection, view);
-    expect(picked.map((o) => o['summary']), ['正在下雨', '已提交的原文。']);
+    expect(picked.map((o) => o['summary']), ['历史记录：正在下雨', '已提交的原文。']);
     expect((picked.last['fields'] as List).single['value'], '清晨');
     expect(picked.first['fields'], isEmpty);
     for (final change in [

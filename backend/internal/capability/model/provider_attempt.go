@@ -23,9 +23,12 @@ func (o *OpenAI) makeChat(req Request, stream bool) (chatRequest, error) {
 	}
 	return chatRequest{Model: name, Messages: req.Messages, Stream: stream, ResponseFormat: o.responseFormat(req.Schema), MaxTokens: req.MaxOutputTokens}, nil
 }
+
+const jsonModeSchemaInstruction = "Return only a JSON object matching this JSON Schema, without markdown fences or commentary:\n"
+
 func jsonModeChat(chat chatRequest, req Request) chatRequest {
 	chat.Messages = make([]Message, 0, len(req.Messages)+1)
-	chat.Messages = append(chat.Messages, Message{Role: "system", Content: "Return only a JSON object matching this JSON Schema, without markdown fences or commentary:\n" + string(req.Schema)})
+	chat.Messages = append(chat.Messages, Message{Role: "system", Content: jsonModeSchemaInstruction + string(req.Schema)})
 	chat.Messages = append(chat.Messages, req.Messages...)
 	chat.ResponseFormat = &responseFormat{Type: "json_object"}
 	return chat

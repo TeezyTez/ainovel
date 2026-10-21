@@ -56,9 +56,10 @@ func (s *Service) Fork(ctx context.Context, a, e string, r ForkRequest) (View, e
 		return View{}, fail("invalid_input")
 	}
 	d := digest("fork", e, r)
+	legacy := r.legacyDigest(e)
 	// Return the original receipt on a retry even when its source has advanced.
 	if prior, err := pgq.New(s.DB).ExperienceForkGet(ctx, pgq.ExperienceForkGetParams{AccountID: a, RequestID: r.RequestID}); err == nil {
-		if prior.Digest != d {
+		if !requestDigestMatches(prior.Digest, d, legacy) {
 			return View{}, fail("request_id_conflict")
 		}
 		return s.Get(ctx, a, e, prior.BranchID)
@@ -116,7 +117,7 @@ func (s *Service) Fork(ctx context.Context, a, e string, r ForkRequest) (View, e
 		}
 		f, err := q.ExperienceForkGet(ctx, pgq.ExperienceForkGetParams{AccountID: a, RequestID: r.RequestID})
 		if err == nil {
-			if f.Digest != d {
+			if !requestDigestMatches(f.Digest, d, legacy) {
 				return fail("request_id_conflict")
 			}
 			id = f.BranchID
@@ -173,6 +174,10 @@ func (s *Service) Fork(ctx context.Context, a, e string, r ForkRequest) (View, e
 			if !found {
 				return fail("fact_not_known")
 			}
+			invalidateLiteraryForEdit(&state, r.FromRevision, true)
+		}
+		if r.Polish != nil {
+			invalidateLiteraryForEdit(&state, r.FromRevision, false)
 		}
 		if r.Repair != nil {
 			state = repaired

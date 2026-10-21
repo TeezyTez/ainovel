@@ -30,7 +30,7 @@ func TestArchiveStrictRoundtripPreservesRawProseAndHiddenState(t *testing.T) {
 }
 func TestArchiveRejectsMalformedAuthorityBeforeImport(t *testing.T) {
 	cases := map[string]func(*Archive){
-		"version":                   func(a *Archive) { a.Version = 2 },
+		"version":                   func(a *Archive) { a.Version = 3 },
 		"missing active branch":     func(a *Archive) { a.Experiences[0].ActiveBranchID = "missing" },
 		"duplicate experience":      func(a *Archive) { a.Experiences = append(a.Experiences, a.Experiences[0]) },
 		"page gap":                  func(a *Archive) { a.Experiences[0].Branches[0].Pages[0].Page.Revision = 2 },

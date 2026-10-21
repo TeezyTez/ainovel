@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 import 'workspace_session.dart';
 import 'experience_client.dart';
 import 'experience_journal.dart';
+import 'reader_reading_anchor.dart';
 import 'experience_models.dart';
 import 'experience_failure_copy.dart';
 
@@ -30,11 +31,78 @@ class ExperienceController extends ChangeNotifier {
   bool _disposed = false;
   Future<void> _writes = Future.value();
   Timer? _poll;
+  Timer? _preparationPoll, _preparationExpiry;
+  int _preparationEpoch = 0;
+  ExperiencePreparation? _preparation;
+  ExperiencePreparation? get preparation =>
+      _readingRequest == null ? _preparation : null;
+  PendingReadingRequest? _readingRequest;
+  bool _readingRequestDirty = false;
+  String? get readingRequest => _readingRequest?.text;
   List<ExperienceSummary> shelf = [];
   ExperienceView? current;
-  ExperienceOperation? operation;
+  ExperienceOperation? _operation;
+  NarrativeProgress? progress;
+  ExperienceOperation? get operation => _operation;
+  set operation(ExperienceOperation? value) {
+    if (value?.requestId != _operation?.requestId ||
+        value?.experienceId != _operation?.experienceId ||
+        value?.branchId != _operation?.branchId) {
+      progress = value?.progress;
+    } else if (value?.progress != null &&
+        (progress == null || value!.progress!.seq > progress!.seq)) {
+      progress = value!.progress;
+    }
+    // A stale progress sequence must never hide a terminal commit/cancel status.
+    _operation = value;
+  }
+
   Json? attempt;
-  String draft = '', mode = 'act';
+  String _draft = '', mode = 'act';
+  int? _draftRevision;
+  String get draft => _draft;
+  set draft(String value) {
+    if (value.trim().isEmpty) {
+      _draftRevision = null;
+    } else if (_draft.trim().isEmpty) {
+      _draftRevision = current?.revision;
+    }
+    _draft = value;
+  }
+
+  /// A local draft observes one formal position; refreshing is not consent to
+  /// apply that text to a different position. Missing legacy anchors stay unknown.
+  int? get draftRevision => _draftRevision;
+  bool get draftNeedsReview =>
+      current != null &&
+      draft.trim().isNotEmpty &&
+      _draftRevision != current!.revision;
+  String get draftReviewMessage => _draftRevision == null
+      ? '这份草稿的起始位置未记录。请核对当前第 ${current?.revision} 页后再使用。'
+      : '这份草稿写于第 $_draftRevision 页，当前已到第 ${current?.revision} 页。原稿已保留，请先核对变化。';
+
+  bool checkDraftAnchor({String? explicitMode}) {
+    if ((explicitMode ?? mode) == 'read' || !draftNeedsReview) return true;
+    error = draftReviewMessage;
+    _notify();
+    return false;
+  }
+
+  Future<void> confirmDraftAtCurrentRevision({
+    required String expectedScope,
+    required int expectedRevision,
+  }) async {
+    if (scope != expectedScope ||
+        current?.revision != expectedRevision ||
+        blocked ||
+        loading ||
+        localReadFailed)
+      return;
+    _draftRevision = expectedRevision;
+    error = null;
+    await saveDraft(draft);
+  }
+
   String? error, storageError;
   bool localReadFailed = false;
   String get navigationScope => experienceScope(
@@ -45,6 +113,7 @@ class ExperienceController extends ChangeNotifier {
   );
   bool loading = false, busy = false, unknown = false, notReceived = false;
   double fontSize = 19, offset = 0;
+  ReaderReadingAnchor? readingAnchor;
   String get owner => experienceScope(
     session.backendUrl,
     session.workspaceId,
@@ -75,6 +144,9 @@ class ExperienceController extends ChangeNotifier {
     _owner = owner;
     _epoch++;
     _poll?.cancel();
+    _stopPreparation();
+    _readingRequest = null;
+    _readingRequestDirty = false;
     current = null;
     operation = null;
     attempt = null;
@@ -88,6 +160,7 @@ class ExperienceController extends ChangeNotifier {
     busy = false;
     fontSize = 19;
     offset = 0;
+    readingAnchor = null;
     _notify();
     unawaited(initialize());
   }
@@ -126,11 +199,19 @@ class ExperienceController extends ChangeNotifier {
     try {
       final saved = await journal.read(key);
       if (!_same(epoch, identity)) return;
-      draft = saved['draft'] as String? ?? '';
+      _draft = saved['draft'] as String? ?? '';
+      _draftRevision = draft.trim().isEmpty
+          ? null
+          : saved['draft_revision'] as int?;
       mode = saved['mode'] as String? ?? 'act';
       fontSize = ((saved['font_size'] as num?)?.toDouble() ?? 19).clamp(14, 30);
       offset = (saved['offset'] as num?)?.toDouble() ?? 0;
+      readingAnchor = ReaderReadingAnchor.parse(saved['reading_anchor']);
       attempt = saved['attempt'] == null ? null : object(saved['attempt']);
+      _readingRequest = saved['reading_request'] == null
+          ? null
+          : PendingReadingRequest(object(saved['reading_request']));
+      _readingRequestDirty = false;
       unknown = attempt != null && attempt!['settled'] != true;
       storageError = null;
       localReadFailed = false;
@@ -143,6 +224,9 @@ class ExperienceController extends ChangeNotifier {
   Future<void> newSeed({bool remember = true}) async {
     final epoch = ++_epoch, identity = owner;
     _poll?.cancel();
+    _stopPreparation();
+    _readingRequest = null;
+    _readingRequestDirty = false;
     current = null;
     operation = null;
     attempt = null;
@@ -152,6 +236,7 @@ class ExperienceController extends ChangeNotifier {
     notReceived = false;
     busy = false;
     offset = 0;
+    readingAnchor = null;
     loading = true;
     _notify();
     await _local(epoch, identity);
@@ -193,6 +278,9 @@ class ExperienceController extends ChangeNotifier {
   Future<void> open(String id, {String? branch}) async {
     final epoch = ++_epoch, identity = owner;
     _poll?.cancel();
+    _stopPreparation();
+    _readingRequest = null;
+    _readingRequestDirty = false;
     current = null;
     operation = null;
     attempt = null;
@@ -237,6 +325,7 @@ class ExperienceController extends ChangeNotifier {
     }
     if (_same(epoch, identity)) {
       loading = false;
+      _watchPreparation();
       _notify();
     }
   }
@@ -245,10 +334,21 @@ class ExperienceController extends ChangeNotifier {
     draft = value;
     if (selectedMode != null) mode = selectedMode;
     final key = scope, identity = owner;
-    final values = {'draft': draft, 'mode': mode};
+    final reading = _readingRequest, saveReadingRequest = _readingRequestDirty;
+    final values = {
+      'draft': draft,
+      'draft_revision': _draftRevision,
+      'mode': mode,
+      // A normal draft write must not resurrect feedback being consumed by a
+      // concurrent commit. Only retry an actually unsaved feedback edit here.
+      if (saveReadingRequest) 'reading_request': reading?.toJson(),
+    };
     try {
       await _persist(key, values);
       if (identity == owner && key == scope && !localReadFailed) {
+        if (saveReadingRequest && identical(reading, _readingRequest)) {
+          _readingRequestDirty = false;
+        }
         storageError = null;
       }
     } catch (_) {
@@ -259,18 +359,62 @@ class ExperienceController extends ChangeNotifier {
     if (identity == owner && key == scope) _notify();
   }
 
-  Future<void> saveReading({double? size, double? position}) async {
+  /// Explicit reader instruction for the next formal advance in this branch.
+  /// It is never inferred from dialogue and never written to durable preferences.
+  Future<void> setReadingRequest(
+    String? text, {
+    required String expectedScope,
+  }) async {
+    if (_disposed ||
+        current == null ||
+        loading ||
+        localReadFailed ||
+        expectedScope != scope) {
+      throw const FormatException('阅读位置已改变，请回到当前经历重新确认。');
+    }
+    final next = text == null
+        ? null
+        : PendingReadingRequest({'id': const Uuid().v4(), 'text': text});
+    final identity = owner;
+    _readingRequest = next;
+    _readingRequestDirty = true;
+    _stopPreparation();
+    _notify();
+    try {
+      await _persist(expectedScope, {'reading_request': next?.toJson()});
+    } catch (_) {
+      if (identity == owner && expectedScope == scope) {
+        storageError = '下一段要求尚未保存。请重试保存；不会自动发送。';
+        _notify();
+      }
+      rethrow;
+    }
+    if (identity == owner && expectedScope == scope) {
+      if (identical(next, _readingRequest)) _readingRequestDirty = false;
+      storageError = null;
+      if (next == null) _watchPreparation();
+      _notify();
+    }
+  }
+
+  Future<void> saveReading({double? size, double? position,
+    ReaderReadingAnchor? anchor, bool updateAnchor = false}) async {
+    final previousStorageError = storageError;
     if (size != null) fontSize = size.clamp(14, 30);
     if (position != null) offset = position;
+    if (updateAnchor) readingAnchor = anchor;
     final key = scope, identity = owner;
     try {
-      await _persist(key, {'font_size': fontSize, 'offset': offset});
+      await _persist(key, {'font_size': fontSize, 'offset': offset,
+        'reading_anchor': readingAnchor?.toJson()});
     } catch (_) {
       if (identity == owner && key == scope) {
         storageError = '阅读位置/字号保存失败。本次阅读仍可继续，发送前需重试保存。';
       }
     }
-    if (size != null || storageError != null) _notify();
+    // Repeating the same persistence error must not schedule another layout
+    // restoration, which would save the same anchor and fail again each frame.
+    if (size != null || storageError != previousStorageError) _notify();
   }
 
   Future<void> send({
@@ -284,6 +428,7 @@ class ExperienceController extends ChangeNotifier {
     }
     final view = current;
     final selected = explicitMode ?? mode;
+    if (!checkDraftAnchor(explicitMode: selected)) return;
     if (view == null && draft.trim().isEmpty ||
         view != null && selected != 'read' && draft.trim().isEmpty) {
       error = view == null ? '写一句想进入的世界即可。' : '行动和询问需要文字；也可以直接继续阅读。';
@@ -306,6 +451,8 @@ class ExperienceController extends ChangeNotifier {
             'expected_revision': view.revision,
             'mode': selected,
             'input': selected == 'read' ? '' : draft,
+            if (_readingRequest != null)
+              'reading_request': _readingRequest!.text,
           };
     await _start({
       'kind': view == null ? 'create' : 'operation',
@@ -314,6 +461,8 @@ class ExperienceController extends ChangeNotifier {
       'branch_id': view?.branchId,
       'body': body,
       'draft': draft,
+      if (view != null && _readingRequest != null)
+        'reading_request_id': _readingRequest!.id,
       'settled': false,
     });
   }
@@ -442,11 +591,17 @@ class ExperienceController extends ChangeNotifier {
   Future<void> _start(Json record) async {
     final epoch = _epoch, identity = owner, key = scope;
     busy = true;
+    _stopPreparation();
     error = null;
     _notify();
     try {
       // Must durably persist exact request + draft before any POST.
-      await _persist(key, {'attempt': record, 'draft': draft, 'mode': mode});
+      await _persist(key, {
+        'attempt': record,
+        'draft': draft,
+        'draft_revision': _draftRevision,
+        'mode': mode,
+      });
     } catch (_) {
       if (_same(epoch, identity)) {
         busy = false;
@@ -457,6 +612,7 @@ class ExperienceController extends ChangeNotifier {
     }
     if (!_same(epoch, identity)) return;
     attempt = record;
+    operation = null;
     unknown = true;
     _notify(); // 持久化完毕、POST在途也可见，不把等待藏成无响应。
     await _transmit(record, epoch, identity, key);
@@ -590,6 +746,7 @@ class ExperienceController extends ChangeNotifier {
     }
     if (_same(epoch, identity)) {
       busy = false;
+      _watchPreparation();
       _notify();
     }
   }
@@ -597,6 +754,9 @@ class ExperienceController extends ChangeNotifier {
   Future<void> _showReceived(ExperienceView view) async {
     final epoch = ++_epoch, identity = owner;
     _poll?.cancel();
+    _stopPreparation();
+    _readingRequest = null;
+    _readingRequestDirty = false;
     current = view;
     operation = view.operation;
     attempt = null;
@@ -618,6 +778,7 @@ class ExperienceController extends ChangeNotifier {
     if (!_same(epoch, identity)) return;
     loading = false;
     _schedule();
+    _watchPreparation();
     _notify();
   }
 
@@ -637,6 +798,10 @@ class ExperienceController extends ChangeNotifier {
   Future<void> _recordOperation(ExperienceOperation op, String key) async {
     final old = attempt;
     if (old == null || old['request_id'] != op.requestId) return;
+    if ((old['kind'] == 'operation' || old['kind'] == 'artifact') &&
+        op.baseRevision != object(old['body'])['expected_revision']) {
+      throw const FormatException('操作响应起始版本不符');
+    }
     final next = {...old, 'status': op.status, 'settled': !op.running};
     final submittedDraft = old['draft'];
     final clearDraft =
@@ -644,10 +809,25 @@ class ExperienceController extends ChangeNotifier {
         op.status == 'committed' &&
         draft == submittedDraft &&
         object(old['body'])['mode'] != 'read';
-    await _persist(key, {'attempt': next, if (clearDraft) 'draft': ''});
+    final readingId = old['reading_request_id'];
+    final clearReading =
+        op.status == 'committed' &&
+        readingId != null &&
+        readingId == _readingRequest?.id &&
+        key == scope;
+    await _persist(key, {
+      'attempt': next,
+      if (clearDraft) 'draft': '',
+      if (clearDraft) 'draft_revision': null,
+      if (clearReading) 'reading_request': null,
+    });
     if (key == scope) {
       attempt = next;
       if (clearDraft && draft == submittedDraft) draft = '';
+      if (clearReading && _readingRequest?.id == readingId) {
+        _readingRequest = null;
+        _readingRequestDirty = false;
+      }
     }
   }
 
@@ -663,6 +843,29 @@ class ExperienceController extends ChangeNotifier {
     }
   }
 
+  /// Refresh server-owned history without reopening local editing state. A
+  /// refresh can arrive while an IME transaction or a durable draft write runs.
+  Future<void> _refreshObservedHistory() async {
+    final epoch = _epoch, identity = owner;
+    busy = true;
+    error = null;
+    _notify();
+    try {
+      await _refreshCurrent(epoch, identity);
+      if (!_same(epoch, identity)) return;
+      operation = current?.operation;
+      _schedule();
+    } catch (e) {
+      if (_same(epoch, identity)) error = _message(e);
+    } finally {
+      if (_same(epoch, identity)) {
+        busy = false;
+        _watchPreparation();
+        _notify();
+      }
+    }
+  }
+
   Future<void> recover() async {
     if (busy || !workspaceAvailable) return;
     final epoch = _epoch, identity = owner, key = scope;
@@ -670,7 +873,7 @@ class ExperienceController extends ChangeNotifier {
     final active = operation;
     if (record?['settled'] == true && active?.running != true && !unknown) {
       if (current != null) {
-        await open(current!.id, branch: current!.branchId);
+        await _refreshObservedHistory();
       } else {
         await refreshShelf();
       }
@@ -681,7 +884,7 @@ class ExperienceController extends ChangeNotifier {
       if (view == null) {
         await newSeed();
       } else {
-        await open(view.id, branch: view.branchId);
+        await _refreshObservedHistory();
       }
       return;
     }
@@ -748,6 +951,7 @@ class ExperienceController extends ChangeNotifier {
     }
     if (_same(epoch, identity)) {
       busy = false;
+      _watchPreparation();
       _notify();
     }
   }
@@ -797,6 +1001,7 @@ class ExperienceController extends ChangeNotifier {
     }
     if (_same(epoch, identity)) {
       busy = false;
+      _watchPreparation();
       _notify();
     }
   }
@@ -808,6 +1013,76 @@ class ExperienceController extends ChangeNotifier {
         await recover();
       });
     }
+  }
+
+  void _stopPreparation() {
+    _preparationEpoch++;
+    _preparationPoll?.cancel();
+    _preparationExpiry?.cancel();
+    _preparation = null;
+  }
+
+  /// Preference writes can invalidate an otherwise ready server hint even when
+  /// their result is unknown. Only a later scoped read can establish readiness.
+  void invalidatePreparation() {
+    _stopPreparation();
+    _notify();
+  }
+
+  void _watchPreparation() {
+    _stopPreparation();
+    final transport = api, view = current;
+    if (_disposed ||
+        transport is! ExperiencePreparationApi ||
+        view == null ||
+        blocked ||
+        _readingRequest != null) {
+      return;
+    }
+    final token = _preparationEpoch, epoch = _epoch, identity = owner;
+    bool same() =>
+        _same(epoch, identity) &&
+        token == _preparationEpoch &&
+        current?.id == view.id &&
+        current?.branchId == view.branchId &&
+        current?.revision == view.revision;
+    // Optional hints have their own bounded lifecycle; they never refresh the
+    // formal view, recover an operation, or hold the user's input lock.
+    _preparationExpiry = Timer(const Duration(minutes: 10), () {
+      if (!same()) return;
+      _stopPreparation();
+      _notify();
+    });
+    var polls = 0;
+    Future<void> poll() async {
+      try {
+        final result = await (transport as ExperiencePreparationApi)
+            .preparation(view.id, view.branchId, view.revision);
+        if (!same()) return;
+        if (result.experienceId != view.id ||
+            result.branchId != view.branchId ||
+            result.baseRevision != view.revision) {
+          throw const FormatException('准备状态归属不符');
+        }
+        _preparation = result;
+        if (result.status == PreparationStatus.preparing) {
+          // Check promptly at first, then reduce traffic during longer work.
+          _preparationPoll = Timer(
+            Duration(seconds: ++polls <= 10 ? 3 : 10),
+            poll,
+          );
+        } else {
+          _preparationExpiry?.cancel();
+        }
+        _notify();
+      } catch (_) {
+        if (!same()) return;
+        _stopPreparation();
+        _notify();
+      }
+    }
+
+    unawaited(poll());
   }
 
   int? _status(Object e) => e is ExperienceHttpException ? e.status : null;
@@ -825,6 +1100,7 @@ class ExperienceController extends ChangeNotifier {
     _disposed = true;
     _epoch++;
     _poll?.cancel();
+    _stopPreparation();
     session.removeListener(_sessionChanged);
     super.dispose();
   }

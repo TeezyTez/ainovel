@@ -7,6 +7,39 @@ import 'package:flutter_test/flutter_test.dart';
 import 'support/experience_fixture.dart';
 
 void main() {
+  testWidgets('preset start ignores legacy style while retaining pace', (tester) async {
+    tester.view.physicalSize = const Size(1200, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    String? submitted;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: PortalWorldDetail(
+            world: demoWorldPresets.first,
+            onBack: () {},
+            onStart: (seed) => submitted = seed,
+            modelAvailable: true,
+            selfScrolling: true,
+            demoJournal: MemoryJournal(),
+            narrativeDefaults: const {
+              'style': 'LEGACY_SETTINGS_STYLE',
+              'pace': '紧凑',
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final start = find.byKey(const ValueKey('portal-world-start'));
+    await tester.ensureVisible(start);
+    await tester.tap(start);
+    await tester.pump();
+    expect(submitted, contains('紧凑'));
+    expect(submitted, isNot(contains('LEGACY_SETTINGS_STYLE')));
+    expect(submitted, isNot(contains('细腻克制')));
+  });
+
   Future<void> showDetail(
     WidgetTester tester,
     bool modelAvailable, {

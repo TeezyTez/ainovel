@@ -21,6 +21,8 @@ import (
 
 	"elselife/backend/internal/algorithm/channel"
 	"elselife/backend/internal/capability/model"
+	pb "elselife/backend/internal/contract/generated/algorithm/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 func rustErrorCode(err error) string {
@@ -125,11 +127,9 @@ func TestActualRustCanonicalPartialHistoryReverseHTTPAndCapacityFailure(t *testi
 	defer link.Close()
 	a := &Algorithm{Link: link, Model: adapter, ModelName: "world-explicit", Timeout: 5 * time.Second, ModelContextTokens: 131072, ModelByteTokenBoundVerified: true}
 	ctx := sampleContext()
-	// The sibling executable on disk may still be a v1-only decoder. The
-	// frozen v2 contract requires a v1 consumer to reject v2 rather than read
-	// partial state as complete, so without an explicitly v2-capable binary we
-	// assert that fail-closed boundary and do NOT claim the v2 success path.
-	v2capable := os.Getenv("ELSELIFE_TEST_RUST_EXPERIENCE_V2") == "1"
+	// Current source-built runtimes implement v2. Test partial-history behavior
+	// directly; an environment flag cannot turn a supported version into a
+	// purported old-consumer negative control.
 	for n := 0; n < 2; n++ {
 		if n == 1 {
 			ctx.Mode = "read"
@@ -138,22 +138,31 @@ func TestActualRustCanonicalPartialHistoryReverseHTTPAndCapacityFailure(t *testi
 			ctx.HistoryComplete = false
 		}
 		got, err := a.Generate(context.Background(), ctx, fmt.Sprintf("actual-rust-%d", n))
-		if !v2capable {
-			if rustErrorCode(err) != "algorithm_protocol" || calls.Load() != 0 {
-				t.Fatalf("v1-only Rust did not fail closed on a v2 context: err=%v calls=%d", err, calls.Load())
-			}
-			continue
-		}
 		if err != nil || got.Passage != sampleCandidate().Passage {
 			t.Fatal("actual Rust canonical decision failed", err)
 		}
 	}
-	if !v2capable {
-		t.Log("frozen v2 boundary rejected by the on-disk v1-only Rust as required; v2 success path needs a v2-capable Rust binary and stays UNKNOWN")
-		return
-	}
 	if calls.Load() != 2 {
 		t.Fatal("one logical round did not make one fixture request", calls.Load())
+	}
+	// Send an unknown context version directly to the actual runtime. Go's own
+	// preflight would otherwise reject it before exercising the Rust boundary.
+	unknown := ctx
+	unknown.Version = 3
+	raw, err := json.Marshal(unknown)
+	must(t, err)
+	probeContext, stopProbe := context.WithTimeout(context.Background(), 5*time.Second)
+	defer stopProbe()
+	waiter, err := link.Subscribe("actual-unknown-version")
+	must(t, err)
+	defer waiter.Close()
+	must(t, waiter.Send(probeContext, &pb.Envelope{ProtocolVersion: ProtocolVersion, FrameId: "actual-unknown-version", ConversationId: ctx.ExperienceID, TurnId: ctx.Revision + 1, Type: "request.experience", ContentType: "application/json", Payload: raw,
+		Facts: &pb.RuntimeFacts{DefaultModel: a.ModelName, AllowedModels: []string{a.ModelName}, RemainingModelCalls: 1, ContextTokenLimit: 131072, OutputTokenReserve: 8192, ByteTokenBoundVerified: true}}))
+	reply, err := waiter.Next(probeContext)
+	must(t, err)
+	var failure pb.FrameFailure
+	if reply.Type != "result.frame" || proto.Unmarshal(reply.Payload, &failure) != nil || failure.Reason != "unsupported_context_version" || calls.Load() != 2 {
+		t.Fatalf("unknown version did not fail closed before provider: type=%s reason=%s calls=%d", reply.Type, failure.Reason, calls.Load())
 	}
 	a.ModelContextTokens = 10000
 	if _, err := a.Generate(context.Background(), ctx, "actual-budget-exceeded"); rustErrorCode(err) != "context_budget_exceeded" || calls.Load() != 2 {

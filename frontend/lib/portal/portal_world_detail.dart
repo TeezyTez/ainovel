@@ -671,7 +671,6 @@ class _StartPanelState extends State<_StartPanel> {
   late final _identity = TextEditingController(text: widget.content.identity);
   final _goal = TextEditingController();
   final _boundaries = TextEditingController();
-  late final String _style;
   String _participation = '先看世界如何展开，随时介入';
   late String _perspective;
   late String _length;
@@ -693,7 +692,6 @@ class _StartPanelState extends State<_StartPanel> {
     _perspective = setting('perspective', narrative?.perspective ?? '第二人称');
     _length = setting('length', narrative?.length ?? '适中');
     _pace = setting('pace', narrative?.pace ?? '从容');
-    _style = setting('style', narrative?.style ?? '细腻克制');
     _mode = widget.modelAvailable
         ? 'real'
         : widget.preset != null && PortalDemoScript.supports(widget.preset!.id)
@@ -789,7 +787,7 @@ class _StartPanelState extends State<_StartPanel> {
           perspective: _perspective,
           length: _length,
         );
-        seed += '\n\n本次叙述文风：$_style；节奏：$_pace。';
+        seed += '\n\n本次叙述节奏：$_pace。';
       } else {
         final draft = widget.customVersion!.draft;
         seed = [
@@ -800,7 +798,7 @@ class _StartPanelState extends State<_StartPanel> {
           '参与方式：$_participation',
           if (_boundaries.text.trim().isNotEmpty)
             '偏好与底线：${_boundaries.text.trim()}',
-          '本次叙述偏好：$_perspective；$_length；$_style；$_pace。',
+          '本次叙述偏好：$_perspective；$_length；$_pace。',
           '请生成开场，保留玩家接下来的选择，不替玩家行动、同意或作承诺。',
         ].join('\n\n');
       }

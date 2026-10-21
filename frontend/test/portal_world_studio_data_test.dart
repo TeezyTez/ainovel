@@ -31,6 +31,41 @@ PortalWorldDraft completeDraft() => PortalWorldDraft()
   ..opening = '雨落下时，有人推门进来。';
 
 void main() {
+  test('旧世界的文风字段不再影响导入、保存或正式种子', () async {
+    final legacy = completeDraft().toJson()
+      ..['narrative'] = {
+        'perspective': '第一人称',
+        'length': '舒展',
+        'style': 'LEGACY_STYLE_OVERRIDE',
+        'pace': '紧凑',
+      };
+    final journal = MemoryJournal();
+    final repo = PortalWorldRepository(
+      journal: journal,
+      backendUrl: 'http://localhost',
+      workspaceId: 'legacy-style',
+    );
+    await journal.patch(repo.scope, {'draft': legacy});
+    final loaded = (await repo.loadDraft())!;
+    final imported = PortalWorldDraft()
+      ..applyImport(parsePortalWorldImport(jsonEncode(legacy), 'legacy.json'));
+    for (final draft in [loaded, imported]) {
+      final saved = await repo.saveVersion(draft);
+      expect(saved.draft.toJson()['narrative'], {
+        'perspective': '第一人称',
+        'length': '舒展',
+        'pace': '紧凑',
+      });
+      expect(saved.draft.toPublicSeed(), contains('第一人称；舒展；紧凑'));
+      expect(saved.draft.toPublicSeed(), isNot(contains('LEGACY_STYLE_OVERRIDE')));
+    }
+    expect(
+      jsonEncode(journal.records[repo.scope]),
+      isNot(contains('LEGACY_STYLE_OVERRIDE')),
+    );
+    expect(completeDraft().toPublicSeed(), isNot(contains('细腻克制')));
+  });
+
   test('导入后秘密保存在作者草稿，但正式种子只含公开字段', () {
     final imported = parsePortalWorldImport(
       jsonEncode({
@@ -160,7 +195,6 @@ void main() {
       demoWorldPresets.firstWhere((world) => world.id == 'truth-teahouse'),
     );
     expect(teahouse.characters.first.history, contains('昨天答应'));
-    expect(teahouse.style, contains('具体、温和而克制'));
     expect(teahouse.toPublicSeed(), isNot(contains('妹妹后来自己取走')));
   });
 
@@ -187,6 +221,7 @@ void main() {
           body: SingleChildScrollView(
             child: PortalWorldDetail.custom(
               customVersion: version,
+              narrativeDefaults: const {'style': 'LEGACY_SETTINGS_STYLE'},
               onBack: () {},
               onStart: (seed) => submitted = seed,
               onEditWorld: (_) {},
@@ -207,6 +242,8 @@ void main() {
     expect(submitted, isNot(contains('SECRET_PRIVATE')));
     expect(submitted, isNot(contains('SECRET_GOAL')));
     expect(submitted, isNot(contains('SECRET_HISTORY')));
+    expect(submitted, isNot(contains('LEGACY_SETTINGS_STYLE')));
+    expect(submitted, isNot(contains('细腻克制')));
     expect(tester.takeException(), isNull);
   });
 

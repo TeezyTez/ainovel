@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'experience_models.dart';
+import 'reader_information_display.dart';
 
 class ReaderInformationSheet extends StatefulWidget {
   const ReaderInformationSheet({
@@ -128,6 +129,8 @@ class _ReaderInformationSheetState extends State<ReaderInformationSheet> {
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 6),
+                        if (item.recordHeading != null)
+                          Text(item.recordHeading!),
                         SelectableText(item.text, semanticsLabel: item.text),
                         if (item.status?.isNotEmpty == true) Text(item.status!),
                         for (final field in item.fields)
@@ -136,7 +139,7 @@ class _ReaderInformationSheetState extends State<ReaderInformationSheet> {
                           ),
                         if (item.relatedIds.isNotEmpty)
                           Text(
-                            '关联：${item.relatedIds.map((id) => widget.information.where((i) => i.id == id).map((i) => i.name).firstOrNull ?? '尚无公开资料').join('、')}',
+                            '${item.associationLabel}：${item.relatedNames(widget.information)}',
                           ),
                         if (widget.allowEdit &&
                             const {

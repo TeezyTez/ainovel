@@ -54,6 +54,61 @@ async fn next(inbound: &mut tonic::Streaming<pb::Envelope>) -> pb::Envelope {
 }
 
 #[tokio::test]
+async fn pipeline_stage_metadata_is_sent_over_the_official_runtime() {
+    let (_runtime, endpoint) = Runtime::start();
+    let transport = tonic::transport::Endpoint::from_shared(format!("http://{endpoint}")).unwrap().connect().await.unwrap();
+    let mut client = pb::runtime_channel_client::RuntimeChannelClient::new(transport);
+    let (tx, rx) = mpsc::channel(4);
+    let mut inbound = client.connect(ReceiverStream::new(rx)).await.unwrap().into_inner();
+    let mut context = Context::decode(include_bytes!("fixtures/experience-context.json")).unwrap();
+    context.pipeline = Some(experience::PipelineConfig {version:1,max_actors:2,max_repairs:1});
+    tx.send(pb::Envelope {
+        protocol_version:experience::PROTOCOL_VERSION.into(),frame_id:"pipeline_wire".into(),
+        conversation_id:context.experience_id.clone(),turn_id:(context.revision+1) as i64,
+        r#type:"request.experience".into(),content_type:"application/json".into(),payload:serde_json::to_vec(&context).unwrap(),
+        facts:Some(pb::RuntimeFacts {allowed_models:vec!["fixture".into()],default_model:"fixture".into(),remaining_model_calls:12,
+            context_token_limit:65536,output_token_reserve:4096,byte_token_bound_verified:true,..Default::default()}),..Default::default()
+    }).await.unwrap();
+    use serde_json::json;
+    let mut candidate:serde_json::Value=serde_json::from_slice(include_bytes!("fixtures/experience-candidate.json")).unwrap();
+    // This synthetic current-engine carrier uses v2. The legacy decoder fixture
+    // stays unchanged; no legacy memory history is claimed equivalent.
+    candidate.as_object_mut().unwrap().remove("memory_changes");
+    candidate.as_object_mut().unwrap().remove("narrative_update");
+    candidate["memory_delta"]=json!({"version":2,"entries":[]});
+    let draft=json!({"title":candidate["title"],"passage":candidate["passage"],"story_time":candidate["story_time"],"outcome":candidate["outcome"],"suggestions":candidate["suggestions"]});
+    let plan=|id:&str| json!({"id":id,"purpose":"The proprietor has a boundary","beats":["The proprietor refuses"],"causes":[],"costs":[],"consequences":[],"thread_ids":[],"fact_ids":[]});
+    let score=|id:&str| json!({"candidate_id":id,"continuity":4,"agency":4,"causality":4,"consequence":3,"pacing":4,"interest":3,"blocking_issues":[],"evidence_fact_ids":[]});
+    let quote="今晚不借书。";
+    for (index,(stage,result)) in [
+        ("memory",json!({"actors":[],"relevant_fact_ids":[],"objective":"Meet the proprietor"})),
+        ("plan",json!({"candidates":[plan("one"),plan("two")]})),
+        ("evaluate",json!({"evaluations":[score("one"),score("two")]})),
+        ("write",draft),
+        ("extract",json!({"candidate":candidate})),
+        ("review",json!({"approved":true,"issues":[],"supports":[{"fact_id":"statement_refusal","quote":quote}],
+            "knowledge_supports":[{"subject_id":"npc_bookseller","fact_id":"statement_refusal","quote":quote}]})),
+    ].into_iter().enumerate() {
+        let call = next(&mut inbound).await;
+        assert_eq!(call.r#type,"request.model");
+        assert_eq!(call.frame_id,format!("pipeline_wire:model:{}",index+1));
+        let model = pb::ModelCallRequest::decode(call.payload.as_slice()).unwrap();
+        assert_eq!(model.narrative_stage,stage); assert_eq!(model.narrative_actor_id,"");
+        assert!(call.encoded_len()<65536-4096);
+        // Stage schemas include the bounded supplemental-read alternative.
+        // Keep the shared reservation and actual transport bound in agreement.
+        assert!(model.schema_json.len()<=experience::pipeline::MAX_STAGE_SCHEMA_BYTES);
+        if stage=="review" { let input:serde_json::Value=serde_json::from_str(&model.messages[1].content).unwrap(); assert_eq!(input["candidate"],candidate); }
+        tx.send(pb::Envelope {protocol_version:call.protocol_version,frame_id:format!("{}:result",call.frame_id),correlation_frame_id:call.frame_id,
+            conversation_id:call.conversation_id,turn_id:call.turn_id,event_seq:call.event_seq,r#type:"result.model".into(),content_type:"application/protobuf".into(),
+            payload:pb::ModelCallResult {text:json!({"result":result}).to_string(),error_code:String::new()}.encode_to_vec(),..Default::default()}).await.unwrap();
+    }
+    let decision=next(&mut inbound).await;
+    assert_eq!(decision.r#type,"decision.experience");
+    assert_eq!(serde_json::from_slice::<serde_json::Value>(&decision.payload).unwrap(),candidate);
+}
+
+#[tokio::test]
 async fn model_failure_reasons_are_exact_closed_and_sanitized_over_real_channel() {
     let (_runtime, endpoint) = Runtime::start();
     let transport = tonic::transport::Endpoint::from_shared(format!("http://{endpoint}"))

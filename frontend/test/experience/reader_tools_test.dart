@@ -199,6 +199,7 @@ void main() {
     bool generativeUiEnabled = true,
     MemoryJournal? journalOverride,
     bool settle = true,
+    bool waitForAutomaticPreparation = true,
   }) async {
     tester.view.physicalSize = const Size(800, 1000);
     tester.view.devicePixelRatio = 1;
@@ -249,6 +250,10 @@ void main() {
     );
     if (settle) {
       await tester.pumpAndSettle();
+      if (artifactClient != null && waitForAutomaticPreparation) {
+        await tester.pump(const Duration(milliseconds: 1200));
+        await tester.pumpAndSettle();
+      }
     } else {
       for (var i = 0; i < 5; i++)
         await tester.pump(const Duration(milliseconds: 50));
@@ -549,7 +554,9 @@ void main() {
   });
   testWidgets('资料引用随下次表达发送，成功后清除且不包含私人笔记', (tester) async {
     final (c, _) = await mount(tester);
-    await tester.tap(find.byTooltip('已知资料'));
+    await tester.tap(find.byTooltip('页边记事'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('最新资料 · 第 2 页'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('关联下次输入').first);
     await tester.pumpAndSettle();
@@ -872,6 +879,37 @@ void main() {
     expect((await journal.read(artifactScope))['pending'], isNotNull);
   });
 
+  testWidgets('阅读窗口内快速继续正文会取消尚未开始的自动整理', (tester) async {
+    final methods = <String>[];
+    final (c, _) = await mount(
+      tester,
+      waitForAutomaticPreparation: false,
+      artifactClient: () => PortalServiceClient(
+        () => 'https://api.invalid',
+        client: MockClient((request) async {
+          methods.add(request.method);
+          return http.Response('{"artifact":null,"revisions":[]}', 200);
+        }),
+      ),
+    );
+    expect(methods, ['GET']);
+    expect(find.text('第一段独特原文。'), findsOneWidget);
+    expect(find.text('第二段独特原文。'), findsOneWidget);
+    await tester.tap(find.text('展开行动'));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.enterText(
+      find.byKey(const ValueKey('experience-input')),
+      '继续',
+    );
+    await tester.pump();
+    await tester.tap(find.byTooltip('发送'));
+    await tester.pumpAndSettle();
+    expect((c.api as FakeExperienceApi).sent.single['mode'], 'read');
+    await tester.pump(const Duration(milliseconds: 1200));
+    await tester.pumpAndSettle();
+    expect(methods, ['GET'], reason: '快速续读无需先花费一次可选界面模型调用');
+  });
+
   testWidgets('后台自动整理尚未返回时可继续正文且不会重复发送', (tester) async {
     final journal = MemoryJournal(), prepared = Completer<http.Response>();
     final (c, _) = await mount(
@@ -886,6 +924,7 @@ void main() {
         }),
       ),
     );
+    await tester.pump(const Duration(milliseconds: 1200));
     expect(find.text('停止等待'), findsOneWidget);
     await tester.tap(find.text('展开行动'));
     await tester.pump(const Duration(milliseconds: 400));

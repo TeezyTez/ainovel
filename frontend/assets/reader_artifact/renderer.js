@@ -57,7 +57,7 @@ function renderPrepared(next){
  onCurrentMap:()=>send('advanced-current-map',null),
  onOpenMap:value=>send('advanced-open-map',value),
  onInspectKind:kind=>send('advanced-inspect',kind),
- onRepair:reason=>{if(state.surface==='advanced'&&!state.busy&&!state.readonly)send('advanced-repair',reason);},
+ onRepair:(reason,options)=>{if(state.surface==='advanced'&&!state.busy&&!state.readonly)send('advanced-repair',{reason,automatic:options?.automatic===true});},
  onExecute:request=>{if(state.surface==='advanced'&&!state.busy&&!state.readonly)send('advanced-execute',request);},
  onAction:request=>{if(state.surface==='advanced'&&!state.busy&&!state.readonly)send('advanced-attempt',request);},
  onState:value=>{if(state.surface==='advanced'&&!state.readonly)send('advanced-state',value);},
